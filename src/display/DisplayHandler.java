@@ -37,7 +37,7 @@ public class DisplayHandler {
 	private static Font awtFont;
 	static int startY = 0;
 	static int startX = 0;
-	static float zoomFactor = 1;
+	static float zoomFactor = Constants.INIT_ZOOM;
 	static int width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
 	static int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
 	
@@ -129,8 +129,8 @@ public class DisplayHandler {
 		}
 		
 		private void renderTerrain() {
-			int width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
-			int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
+			width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
+			height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
 			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
 			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
 			
@@ -152,7 +152,8 @@ public class DisplayHandler {
 			
 		}
 		private void renderStrings() {
-			drawString(PIXELS_X + 20,40, "fps: " + (int)main.Main.simulationFps);
+			drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
+			drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
 			drawString(PIXELS_X + 150,40, "seed: " + ((int)noise.Noise.seed-1));
 			drawString(PIXELS_X + 20,60, "nAni: " + Animal.numAnimals);
 		}
@@ -201,51 +202,30 @@ public class DisplayHandler {
 				}
 			}
 			if (Keyboard.isKeyDown(Keyboard.KEY_E)) {
-				zoomFactor*=0.99f;
-				if (zoomFactor < 1) {
-					zoomFactor = 1;
+				zoomFactor/=1.01f;
+				if (zoomFactor < 1f) {
+					zoomFactor = 1f;
 				}
 			}
 			if (Mouse.isInsideWindow()) {
 
-				float x = Mouse.getX();
-				float y = Constants.PIXELS_Y - Mouse.getY();
-				int nodeX = Math.round((x*width)/Constants.PIXELS_X);
-				int nodeY = Math.round((y*height)/Constants.PIXELS_Y);
-				
-				int nodeId = (nodeY) + (nodeX) * height + startY + width * startX;
-				
-				while (nodeId >= Constants.WORLD_SIZE) {
-					nodeId-=Constants.WORLD_SIZE;
-				}
-				while (nodeId < 0) {
-					nodeId+=Constants.WORLD_SIZE;
-				}
-				if (withinSimulationWindow(nodeX, nodeY))
+				if (Mouse.isButtonDown(0))
 				{
-					if (Mouse.isButtonDown(0))
-					{
-						if (Animal.containsAnimals[nodeId] == -1) {
-							Animal.resurrectAnimal(nodeId, 0f, 1f);
+					float xPressed = ((float)Mouse.getX())/Constants.PIXELS_X;
+					float yPressed = 1 - ((float)Mouse.getY())/Constants.PIXELS_Y;
+					if (xPressed < 1 && xPressed >= 0 && yPressed < 1 && yPressed >= 0) {
+						xPressed*=width;
+						yPressed*=height;
+						
+						int i = startY + Constants.WORLD_SIZE_X * startX; 
+						for (int x = 0; x < xPressed; ++x, i = World.south[i]);
+						for (int y = 0; y < yPressed; ++y, i = World.east[i]);
+						
+						if (Animal.containsAnimals[i] == -1) {
+							Animal.resurrectAnimal(i, 0f, 1f);
 						}
 					}
-					else if (Mouse.isButtonDown(1))
-					{
-//							Main.createRabbitsInASquare((float)x*NUM_NODES_X/SCREEN_WIDTH, 
-//									NUM_NODES_Y - ((float)y*NUM_NODES_Y/SCREEN_HEIGHT), 3);
-					}
 				}
-			}
-		}
-		
-		public static boolean withinSimulationWindow(int x, int y) {
-			if (x >= 0 && y >= 0 && x < Constants.WORLD_SIZE_X && y < Constants.WORLD_SIZE_Y) 
-			{
-				return true;
-			}
-			else
-			{
-				return false;
 			}
 		}
 		

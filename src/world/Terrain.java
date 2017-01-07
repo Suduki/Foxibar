@@ -23,7 +23,7 @@ public class Terrain {
 		int i = 0;
 		for(int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
 			for(int y = 0; y < Constants.WORLD_SIZE_Y; ++y, ++i) {
-				height[i] = noise[0][x][y];
+				height[i] = (float) Math.sqrt(noise[1][x][y]);
 				
 			}
 		}

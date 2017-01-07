@@ -8,7 +8,7 @@ import static constants.Constants.Neighbours.*;
 
 public class World {
 
-	public static Terrain growth;
+	public static Terrain terrain;
 	public static Grass grass;
 	public static Blood blood;
 	
@@ -21,7 +21,7 @@ public class World {
 	
 	
 	public World() {
-		growth = new Terrain();
+		terrain = new Terrain();
 		grass = new Grass();
 		blood = new Blood();
 
@@ -88,7 +88,7 @@ public class World {
 	}
 	
 	public static void regenerate() {
-		growth.regenerate();
+		terrain.regenerate();
 		grass.regenerate();
 	}
 	
@@ -96,11 +96,11 @@ public class World {
 		float grassness, dirtness;
 		float[] dirtColor = new float[3]; //TODO remove new somehow.
 		grassness = grass.height[pos];
-		a[pos][0] = grassness*Grass.colors[grass.type[pos]][0];
-		a[pos][1] = grassness*Grass.colors[grass.type[pos]][1];
-		a[pos][2] = grassness*Grass.colors[grass.type[pos]][2];
+		a[pos][0] = grassness*grass.color[0];
+		a[pos][1] = grassness*grass.color[1];
+		a[pos][2] = grassness*grass.color[2];
 
-		growth.getColor(pos, dirtColor);
+		terrain.getColor(pos, dirtColor);
 		dirtness = 1 - grassness;
 		a[pos][0] += dirtness*dirtColor[0];
 		a[pos][1] += dirtness*dirtColor[1];

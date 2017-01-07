@@ -5,6 +5,7 @@ import java.util.Random;
 public class Constants {
 
 	public static final short WORLD_MULTIPLIER = 8;
+	public static final float INIT_ZOOM = 4;
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
@@ -17,7 +18,7 @@ public class Constants {
 	public static final Random RANDOM = new Random(1);
 	public static final boolean WALK_THROUGH_EDGE = true;
 	public static final float GROWTH = 0.01f;
-	public static final int MAX_NUM_ANIMALS = 1000;
+	public static final int MAX_NUM_ANIMALS = 100000;
 	public static final short MAX_NUM_ANIMALS_PER_NODE = 10;
 	
 	public static class Colors
@@ -36,11 +37,12 @@ public class Constants {
 	}
 
 	public static class Neighbours {
-		public static final int EAST = 0;
-		public static final int NORTH = 1;
-		public static final int WEST = 2;
-		public static final int SOUTH = 3;
-		public static final int NONE = 4;
+		public static final short INVALID_DIRECTION = -1;
+		public static final short EAST = 0;
+		public static final short NORTH = 1;
+		public static final short WEST = 2;
+		public static final short SOUTH = 3;
+		public static final short NONE = 4;
 	}
 
 	public static class Blood {
