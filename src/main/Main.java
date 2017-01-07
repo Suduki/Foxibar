@@ -14,15 +14,12 @@ public class Main {
 	public static World world;
 	public static double simulationFps;
 	public static boolean doPause;
-	public static Animal animal;
-	public static Animal animal2;
 
 	public static void main(String[] args) throws Exception {
 
 		world = new World();
 		World.regenerate();
 		Animal.init();
-		Animal.createAnimals(100);
 		displayHandler = new DisplayHandler();
 		Thread.sleep(1000);
 

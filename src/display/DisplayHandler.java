@@ -82,8 +82,12 @@ public class DisplayHandler {
 			while(running) {
 				glClear(GL_COLOR_BUFFER_BIT);
 				renderStrings();
-				renderTerrain();
-				renderAllAnimals();
+				if (Constants.RENDER_TERRAIN) {
+					renderTerrain();
+				}
+				if (Constants.RENDER_ANIMALS) {
+					renderAllAnimals();
+				}
 				Button.updateAllButtons();
 				Display.update();
 				Display.sync(60);
@@ -222,7 +226,7 @@ public class DisplayHandler {
 						for (int y = 0; y < yPressed; ++y, i = World.east[i]);
 						
 						if (Animal.containsAnimals[i] == -1) {
-							Animal.resurrectAnimal(i, 0f, 1f);
+							Animal.resurrectAnimal(i, 0f, 1f, 3);
 						}
 					}
 				}

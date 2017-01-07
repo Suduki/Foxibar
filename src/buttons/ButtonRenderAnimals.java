@@ -2,6 +2,8 @@ package buttons;
 
 import org.lwjgl.util.vector.Vector2f;
 
+import constants.Constants;
+
 public class ButtonRenderAnimals extends Button {
 
 	public ButtonRenderAnimals(Vector2f position) {
@@ -10,14 +12,7 @@ public class ButtonRenderAnimals extends Button {
 
 	@Override
 	public void onClick() {
-//		constants.Fox.FOX_RENDER = !constants.Fox.FOX_RENDER;
-//		constants.Rabbit.RABBIT_RENDER = !constants.Rabbit.RABBIT_RENDER;
-//		for (Animal a : AnimalHandler.allAnimals) {
-//			if (a != null) {
-//				a.renderMe = !a.renderMe;
-//			}
-//		}
-//		constants.Sight.RENDER_BLOOD = !constants.Sight.RENDER_BLOOD;
+		Constants.RENDER_ANIMALS = !Constants.RENDER_ANIMALS;
 	}
 
 }

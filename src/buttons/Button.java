@@ -22,6 +22,7 @@ public abstract class Button {
 	protected Vector2f size;
 	protected Texture texture;
 	protected String texturePath = "/pics/defaultButton.png";
+	protected static long lastClicked = 0;
 	
 	private static ArrayList<Button> allButtons = new ArrayList<Button>();
 	
@@ -37,7 +38,10 @@ public abstract class Button {
 		for (Button b : allButtons) {
 			b.render();
 			if (Mouse.isButtonDown(0) && b.insideBounds(Mouse.getX(), Constants.PIXELS_Y - Mouse.getY())) {
-				b.onClick();
+				if (Math.abs(lastClicked - System.currentTimeMillis()) > 500) {
+					lastClicked = System.currentTimeMillis();
+					b.onClick();
+				}
 			}
 		}
 	}

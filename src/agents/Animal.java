@@ -16,7 +16,7 @@ public class Animal {
 	public float[] color;
 	private int pos;
 	private boolean isAlive;
-	private float hunger = 100;
+	private float hunger;
 	
 	private float recover = 0f;
 	
@@ -41,24 +41,17 @@ public class Animal {
 	public static Animal[] pool = new Animal[Constants.MAX_NUM_ANIMALS];
 	public static int numAnimals = 0;
 	public static int[] containsAnimals;
-	
-	public static void createAnimals(int num) {
-		for(int i = 0; i < num; ++i) {
-			pool[resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-					1f,	1f)].skill.speed = Constants.RANDOM.nextFloat(); 
-		}
-		pool[0].skill.speed = 1f;
-		pool[0].color[0] = 1f;
-		pool[0].color[1] = 0f;
-		pool[0].color[2] = 1f;
-	}
-	public static void killAllAnimals() {
-		for (Animal a : pool) {
-			a.die();
-		}
-	}
+	public static boolean killAll = false;
 	
 	public static void moveAll() {
+		if (killAll) {
+			for (Animal a : pool) {
+				a.die();
+				containsAnimals[a.pos] = -1;
+			}
+			numAnimals = 0;
+			
+		}
 		for (Animal a : pool) {
 			if (a.isAlive) {
 				a.age++;
@@ -87,7 +80,7 @@ public class Animal {
 		}
 	}
 	
-	public static int resurrectAnimal(int pos, float g, float b) {
+	public static int resurrectAnimal(int pos, float g, float b, float hunger) {
 		int id = 0;
 		while (pool[id].isAlive) {
 			id++;
@@ -99,12 +92,12 @@ public class Animal {
 		
 		
 //		pool[id].skill.fight = Constants.RANDOM.nextFloat();
-		pool[id].skill.grassHarvest = 1f;
-		pool[id].skill.grassDigestion = 10f;
+		pool[id].skill.grassHarvest = 0.2f;
+		pool[id].skill.grassDigestion = 6f;
 		pool[id].skill.bloodHarvest = 1f;
 		pool[id].skill.bloodDigestion = 0f;
 		pool[id].skill.fight = 0f;
-		pool[id].skill.speed = 0.5f + 0.5f * Constants.RANDOM.nextFloat();
+		pool[id].skill.speed = 0.7f + 0.3f * Constants.RANDOM.nextFloat();
 		
 		
 		pool[id].color[0] = pool[id].skill.fight;
@@ -116,7 +109,7 @@ public class Animal {
 		pool[id].age = 0;
 		pool[id].sinceLastBaby = 0;
 		pool[id].recover = 0f;
-		pool[id].hunger = 3;
+		pool[id].hunger = hunger;
 		
 		numAnimals++;
 		containsAnimals[pool[id].pos] = id;
@@ -131,7 +124,7 @@ public class Animal {
 		this.skill = new Skill();
 	}
 	private void move() {
-		
+
 		// Remove animal from the world temporarily.
 		containsAnimals[pos] = -1;
 		
@@ -179,7 +172,7 @@ public class Animal {
 		return INVALID_DIRECTION;
 	}
 	private boolean isHungry() {
-		return hunger < 3;
+		return hunger < 5;
 	}
 	private void eatGrass() {
 		this.hunger += World.grass.cut(skill.grassHarvest, pos) * skill.grassDigestion;
@@ -189,10 +182,12 @@ public class Animal {
 	}
 	private void interactWith(int id2) {
 		if (isFertile && pool[id2].isFertile) {
-			resurrectAnimal(pos, 0f, 0f);
+			resurrectAnimal(pos, 0f, 0f, 3);
 			isFertile = false;
-			pool[id2].isFertile = false;
+			hunger -= 1.50f;
 			sinceLastBaby = 0;
+			pool[id2].isFertile = false;
+			pool[id2].hunger -= 1.50f;
 			pool[id2].sinceLastBaby = 0;
 		}
 		else {
@@ -210,10 +205,10 @@ public class Animal {
 	
 	private void die() {
 		if (this.isAlive) {
-			this.isAlive = false;
 			numAnimals--;
-			containsAnimals[pos] = -1;
 		}
+		containsAnimals[pos] = -1;
+		isAlive = false;
 	}
 	
 	public short oppositeDirection(short d) {

@@ -4,12 +4,12 @@ import java.util.Random;
 
 public class Constants {
 
-	public static final short WORLD_MULTIPLIER = 8;
+	public static final short WORLD_MULTIPLIER = 10;
 	public static final float INIT_ZOOM = 4;
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
-	public static final int WANTED_FPS = 20;
+	public static final int WANTED_FPS = 2000;
 	public static final int PIXELS_Y = 800;
 	public static final int PIXELS_SIDEBOARD = 360;
 	public static final int PIXELS_X = 1080 - PIXELS_SIDEBOARD;
@@ -20,6 +20,8 @@ public class Constants {
 	public static final float GROWTH = 0.01f;
 	public static final int MAX_NUM_ANIMALS = 100000;
 	public static final short MAX_NUM_ANIMALS_PER_NODE = 10;
+	public static boolean RENDER_TERRAIN = true;
+	public static boolean RENDER_ANIMALS = true;
 	
 	public static class Colors
 	{

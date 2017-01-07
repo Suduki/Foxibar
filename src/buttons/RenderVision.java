@@ -2,6 +2,8 @@ package buttons;
 
 import org.lwjgl.util.vector.Vector2f;
 
+import constants.Constants;
+
 public class RenderVision extends Button {
 
 	public RenderVision(Vector2f position) {
@@ -10,10 +12,7 @@ public class RenderVision extends Button {
 
 	@Override
 	public void onClick() {
-//		constants.Sight.RENDER_FOX_SIGHT = !constants.Sight.RENDER_FOX_SIGHT;
-//		constants.Sight.RENDER_RABBIT_SIGHT = !constants.Sight.RENDER_RABBIT_SIGHT;
-//		constants.Sight.RENDER_GRASS = !constants.Sight.RENDER_GRASS;
-
+		Constants.RENDER_TERRAIN = !Constants.RENDER_TERRAIN;
 	}
 
 }

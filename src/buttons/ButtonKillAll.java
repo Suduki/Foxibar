@@ -14,8 +14,14 @@ public class ButtonKillAll extends Button {
 
 	@Override
 	public void onClick() {
-		Animal.killAllAnimals();
+		Animal.killAll = true;
 		World.grass.killAllGrass();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		Animal.killAll = false;
 	}
 
 	
