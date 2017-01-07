@@ -79,7 +79,7 @@ public class Noise {
 	    	else {
 	    		persistance[0][i] = 3+i;
 	    	}
-    		persistance[1][i] = octaveCount + 10 - i;
+    		persistance[1][i] = octaveCount-i+10;
 	    	normalizer[0] += persistance[0][i];
 	    	normalizer[1] += persistance[1][i];
 	    }
@@ -111,7 +111,7 @@ public class Noise {
 	public static float[][][] generate(int width, int height){
 		seed++;
 		random = new Random(seed);
-		float[][][] noise = generatePerlinNoise(generateWhiteNoise(width, height), Math.min(constants.Constants.WORLD_MULTIPLIER-2 , 7));
+		float[][][] noise = generatePerlinNoise(generateWhiteNoise(width, height), Math.min(constants.Constants.WORLD_MULTIPLIER , 7));
 		return noise;
 	//...
 	}

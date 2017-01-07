@@ -117,6 +117,7 @@ public class Animal {
 		pool[id].age = 0;
 		pool[id].sinceLastBaby = 0;
 		pool[id].recover = 0f;
+		pool[id].hunger = 100;
 		
 		numAnimals++;
 		containsAnimals[pool[id].pos] = id;
@@ -164,7 +165,7 @@ public class Animal {
 		}
 	}
 	private void moveRandom() {
-		pos = World.neighbour[pos][Constants.RANDOM.nextInt(5)];
+		pos = World.neighbour[Constants.RANDOM.nextInt(5)][pos];
 	}
 	
 	private void die() {

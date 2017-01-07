@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class Constants {
 
-	public static final short WORLD_MULTIPLIER = 7;
+	public static final short WORLD_MULTIPLIER = 8;
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
@@ -29,8 +29,10 @@ public class Constants {
 		public static final float[] SAND  = new float[]{1f, 0.7f, 0.2f};
 		public static final float[] WHITE = new float[]{1f, 1f, 1f};
 		public static final float[] BLACK = new float[]{0f, 0f, 0f};
-		public static final float[] GRASS = new float[]{0f, 0.2f, 0f};
+		public static final float[] GRASS = new float[]{0f, 0.3f, 0f};
 		public static final float[] BLOOD = new float[]{0.3f, 0f, 0f};
+		public static final float[] DARK_RED = new float[]{0.3f, 0f, 0f};
+		public static final float[] DARK_BLUE = new float[]{0f, 0f, 0.3f};
 	}
 
 	public static class Neighbours {
@@ -38,6 +40,7 @@ public class Constants {
 		public static final int NORTH = 1;
 		public static final int WEST = 2;
 		public static final int SOUTH = 3;
+		public static final int NONE = 4;
 	}
 
 	public static class Blood {

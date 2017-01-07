@@ -29,11 +29,17 @@ import world.World;
 import constants.Constants;
 import agents.Animal;
 import buttons.Button;
+import static constants.Constants.Neighbours.*;
 
 public class DisplayHandler {
 
 	private static TrueTypeFont font;
 	private static Font awtFont;
+	static int startY = 0;
+	static int startX = 0;
+	static float zoomFactor = 1;
+	static int width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
+	static int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
 	
 	private static RenderThread renderThread;
 	public Thread renderThreadThread;
@@ -90,39 +96,57 @@ public class DisplayHandler {
 		}
 
 		private void renderAllAnimals() {
-			int i = 0;
-			for (int x = 0; x < Constants.WORLD_SIZE_X; x++) {
-				for (int y = 0; y < Constants.WORLD_SIZE_Y; y++, i++) {
+			width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
+			height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
+			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
+			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
+			
+			int i = startY + Constants.WORLD_SIZE_X * startX; 
+			int j = i;
+			for (int x = 0; x < width; ++x, j = World.south[j]) {
+				i = j;
+				for (int y = 0; y < height; ++y, i = World.east[i]) {
+					float screenPositionX = x * pixelsPerNodeX;
+					float screenPositionY = y * pixelsPerNodeY;
+					
+					// RENDER ANIMAL
 					int id;
 					if ((id = Animal.containsAnimals[i]) != -1) {
-						float screenPositionX = x * Constants.PIXELS_PER_NODE_X + Constants.PIXELS_PER_NODE_X/2;
-						float screenPositionY = y * Constants.PIXELS_PER_NODE_Y + Constants.PIXELS_PER_NODE_Y/2;
+						screenPositionX += pixelsPerNodeX/2;
+						screenPositionY += pixelsPerNodeY/2;
 						renderQuad(Animal.pool[id].color,
 								screenPositionX, 
 								screenPositionY, 
 								screenPositionX, 
 								screenPositionY, 
-								screenPositionX + Animal.pool[id].size*Constants.PIXELS_PER_NODE_X/2,
-								screenPositionY - Animal.pool[id].size*Constants.PIXELS_PER_NODE_Y,
-								screenPositionX - Animal.pool[id].size*Constants.PIXELS_PER_NODE_X/2,
-								screenPositionY - Animal.pool[id].size*Constants.PIXELS_PER_NODE_Y); 
+								screenPositionX + Animal.pool[id].size*pixelsPerNodeX/2,
+								screenPositionY - Animal.pool[id].size*pixelsPerNodeY,
+								screenPositionX - Animal.pool[id].size*pixelsPerNodeX/2,
+								screenPositionY - Animal.pool[id].size*pixelsPerNodeY); 
 					}
 				}
 			}
 		}
 		
 		private void renderTerrain() {
-			World.updateColors(terrainColor);
-			int i = 0;
-			for (int x = 0; x < Constants.WORLD_SIZE_X; x++) {
-				for (int y = 0; y < Constants.WORLD_SIZE_Y; y++, i++) {
-					float screenPositionX = x * Constants.PIXELS_PER_NODE_X;
-					float screenPositionY = y * Constants.PIXELS_PER_NODE_Y;
+			int width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
+			int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
+			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
+			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
+			
+			int i = startY + Constants.WORLD_SIZE_X * startX; 
+			int j = i;
+			for (int x = 0; x < width; ++x, j = World.south[j]) {
+				i = j;
+				for (int y = 0; y < height; ++y, i = World.east[i]) {
+					World.updateColor(terrainColor, i);
+					float screenPositionX = x * pixelsPerNodeX;
+					float screenPositionY = y * pixelsPerNodeY;
 					renderQuad(terrainColor[i],
 							screenPositionX, screenPositionY, 
-							screenPositionX + Constants.PIXELS_PER_NODE_X, screenPositionY, 
-							screenPositionX + Constants.PIXELS_PER_NODE_X, screenPositionY + Constants.PIXELS_PER_NODE_Y, 
-							screenPositionX, screenPositionY + Constants.PIXELS_PER_NODE_Y); 
+							screenPositionX + pixelsPerNodeX, screenPositionY, 
+							screenPositionX + pixelsPerNodeX, screenPositionY + pixelsPerNodeY, 
+							screenPositionX, screenPositionY + pixelsPerNodeY);
 				}
 			}
 			
@@ -146,13 +170,57 @@ public class DisplayHandler {
 			else {
 				main.Main.doPause = false;
 			}
+			if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
+				startX++;
+				if (startX >= Constants.WORLD_SIZE_Y) {
+					startX = 0;
+				}
+			}
+			if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
+				startY--;
+				if (startY < 0) {
+					startY = Constants.WORLD_SIZE_X-1;
+				}
+			}
+			if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
+				startX--;
+				if (startX < 0) {
+					startX = Constants.WORLD_SIZE_Y-1;
+				}
+			}
+			if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
+				startY++;
+				if (startY >= Constants.WORLD_SIZE_X) {
+					startY = 0;
+				}
+			}
+			if (Keyboard.isKeyDown(Keyboard.KEY_Q)) {
+				zoomFactor*=1.01f;
+				if (zoomFactor >= 20) {
+					zoomFactor = 20;
+				}
+			}
+			if (Keyboard.isKeyDown(Keyboard.KEY_E)) {
+				zoomFactor*=0.99f;
+				if (zoomFactor < 1) {
+					zoomFactor = 1;
+				}
+			}
 			if (Mouse.isInsideWindow()) {
 
 				float x = Mouse.getX();
 				float y = Constants.PIXELS_Y - Mouse.getY();
-				int nodeX = Math.round((x*Constants.WORLD_SIZE_X)/Constants.PIXELS_X);
-				int nodeY = Math.round((y*Constants.WORLD_SIZE_Y)/Constants.PIXELS_Y);
-				int nodeId = nodeY + nodeX * Constants.WORLD_SIZE_Y;
+				int nodeX = Math.round((x*width)/Constants.PIXELS_X);
+				int nodeY = Math.round((y*height)/Constants.PIXELS_Y);
+				
+				int nodeId = (nodeY) + (nodeX) * height + startY + width * startX;
+				
+				while (nodeId >= Constants.WORLD_SIZE) {
+					nodeId-=Constants.WORLD_SIZE;
+				}
+				while (nodeId < 0) {
+					nodeId+=Constants.WORLD_SIZE;
+				}
 				if (withinSimulationWindow(nodeX, nodeY))
 				{
 					if (Mouse.isButtonDown(0))

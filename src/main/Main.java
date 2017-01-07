@@ -1,9 +1,10 @@
 package main;
 
+import constants.Constants;
+
 import org.lwjgl.input.Mouse;
 
 import agents.Animal;
-import constants.Constants;
 import world.World;
 import display.DisplayHandler;
 
@@ -25,7 +26,7 @@ public class Main {
 		displayHandler = new DisplayHandler();
 		Thread.sleep(1000);
 
-		double time = System.nanoTime();
+		double time = System.currentTimeMillis();
 		double oldTime;
 
 		
@@ -34,14 +35,14 @@ public class Main {
 			Mouse.create();
 			while (displayHandler.renderThreadThread.isAlive()) {
 				
-				oldTime = System.nanoTime();
+				oldTime = System.currentTimeMillis();
 				
 				world.update();
 				Animal.moveAll();
 				
-				time = System.nanoTime(); 
-				int sleepTime = (int) Math.round(1000d/Constants.WANTED_FPS - (time-oldTime)/Constants.WANTED_FPS/1000000);
-
+				time = System.currentTimeMillis();
+				long sleepTime = (long) (Math.round(1000d/Constants.WANTED_FPS - (time - oldTime)));
+				
 				if (sleepTime > 0) {
 					simulationFps = 1000d/sleepTime;
 					try {
@@ -51,7 +52,7 @@ public class Main {
 					}
 				}
 				else {
-					simulationFps = 1000000000d/(time - oldTime);
+					simulationFps = 1000d/(time - oldTime);
 				}
 				
 				while (doPause) {
