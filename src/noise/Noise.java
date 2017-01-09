@@ -64,7 +64,7 @@ public class Noise {
 	        int octaveCount) {
 	    int width = baseNoise.length;
 	    int height = baseNoise[0].length;
-	    int layersToSkip = Math.min(4, octaveCount/2);
+	    int layersToSkip = 0;//Math.min(4, octaveCount/2);
 
 	    
 	    float[] normalizer = new float[2];

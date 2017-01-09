@@ -39,7 +39,7 @@ public class Grass {
 		}
 	}
 
-	public float cut(float grassHarvest, int pos) {
+	public float harvest(float grassHarvest, int pos) {
 		float old = height[pos];
 		height[pos] -= grassHarvest;
 		if (height[pos] < 0) {

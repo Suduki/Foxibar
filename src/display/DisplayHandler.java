@@ -13,8 +13,6 @@ import static org.lwjgl.opengl.GL11.glOrtho;
 
 import java.awt.Font;
 
-import main.Main;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -29,7 +27,6 @@ import world.World;
 import constants.Constants;
 import agents.Animal;
 import buttons.Button;
-import static constants.Constants.Neighbours.*;
 
 public class DisplayHandler {
 
@@ -83,10 +80,14 @@ public class DisplayHandler {
 				glClear(GL_COLOR_BUFFER_BIT);
 				renderStrings();
 				if (Constants.RENDER_TERRAIN) {
+					glBegin(GL_QUADS);
 					renderTerrain();
+					glEnd();
 				}
 				if (Constants.RENDER_ANIMALS) {
+					glBegin(GL_QUADS);
 					renderAllAnimals();
+					glEnd();
 				}
 				Button.updateAllButtons();
 				Display.update();
@@ -133,6 +134,7 @@ public class DisplayHandler {
 		}
 		
 		private void renderTerrain() {
+			
 			width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
 			height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
 			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
@@ -280,56 +282,6 @@ public class DisplayHandler {
 	}
 	
 	
-	public static void render(Animal animal) {
-	}
-	
-	public static void drawCircle(float x, float y, float r, double startingAngleDeg, 
-			double endAngleDeg, int slices, float red, float green, float blue) {
-        int radius = (int) r;
-
-        double arcAngleLength = (endAngleDeg - startingAngleDeg) / 360f;
-
-        float[] vertexesX = new float[4];
-        float[] vertexesY = new float[4];
-
-        double initAngle = Math.PI / 180f * startingAngleDeg;
-        float prevXA = (float) Math.sin(initAngle) * radius;
-        float prevYA = (float) Math.cos(initAngle) * radius;
-
-        for(int arcIndex = 0; arcIndex < slices+1; arcIndex++) {
-            double angle = Math.PI * 2 * ((float)arcIndex) / ((float)slices);
-            angle += Math.PI / 180f;
-            angle *= arcAngleLength;
-            int index = 0;
-            float xa = (float) Math.sin(angle) * radius;
-            float ya = (float) Math.cos(angle) * radius;
-            vertexesX[index] = x;
-            vertexesY[index] = y;
-            vertexesX[index+1] = x+prevXA;
-            vertexesY[index+1] = y+prevYA;
-            vertexesX[index+2] = x+xa;
-            vertexesY[index+2] = y+ya;
-            vertexesX[index+3] = x;
-            vertexesY[index+3] = y;
-            
-            renderQuad(red, green, blue, vertexesX, vertexesY, 4);
-            
-            prevXA = xa;
-            prevYA = ya;
-        }
-    }
-	
-	public static void renderQuad(float red, float green, float blue, 
-			float[] cornersX,  float[] cornersY, int numEdges)
-	{
-		glBegin(GL_QUADS); {
-			GL11.glColor3f(red, green, blue);
-			for (int i = 0; i < numEdges; ++i) {
-				GL11.glVertex2f(cornersX[i], cornersY[i]);
-			}
-		} glEnd();
-	}
-	
 	public static void renderTexture(Texture texture,
 			float[] cornersX,  float[] cornersY, int numEdges)
 	{
@@ -348,13 +300,11 @@ public class DisplayHandler {
 			float corner2X, float corner2Y,
 			float corner3X, float corner3Y,
 			float corner4X, float corner4Y) {
-		glBegin(GL_QUADS); {
-			GL11.glColor3f(color[0], color[1], color[2]);
-			GL11.glVertex2f(corner1X, corner1Y);
-			GL11.glVertex2f(corner2X, corner2Y);
-			GL11.glVertex2f(corner3X, corner3Y);
-			GL11.glVertex2f(corner4X, corner4Y);
-		} glEnd();
+		GL11.glColor3f(color[0], color[1], color[2]);
+		GL11.glVertex2f(corner1X, corner1Y);
+		GL11.glVertex2f(corner2X, corner2Y);
+		GL11.glVertex2f(corner3X, corner3Y);
+		GL11.glVertex2f(corner4X, corner4Y);
 	}
 
 }

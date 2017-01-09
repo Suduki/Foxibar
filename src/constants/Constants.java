@@ -33,7 +33,7 @@ public class Constants {
 		public static final float[] WHITE = new float[]{1f, 1f, 1f};
 		public static final float[] BLACK = new float[]{0f, 0f, 0f};
 		public static final float[] GRASS = new float[]{0f, 0.3f, 0f};
-		public static final float[] BLOOD = new float[]{0.3f, 0f, 0f};
+		public static final float[] BLOOD = new float[]{1f, 0f, 0f};
 		public static final float[] DARK_RED = new float[]{0.3f, 0f, 0f};
 		public static final float[] DARK_BLUE = new float[]{0f, 0f, 0.3f};
 	}
@@ -48,7 +48,8 @@ public class Constants {
 	}
 
 	public static class Blood {
-		public static final float ADDITION_ON_DEATH = 100;
+		public static final float ADDITION_ON_DEATH = 1;
 		public static final float DEATH = 100;
+		public static final float SPREAD = 0.25f * ADDITION_ON_DEATH;
 	}
 }
