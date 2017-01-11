@@ -55,8 +55,9 @@ public class Animal {
 				a.die();
 				containsAnimals[a.pos] = -1;
 			}
+			System.out.println("Num animals alive after killing them all: " + numAnimals);
 			numAnimals = 0;
-			
+			killAll = false;
 		}
 		for (Animal a : pool) {
 			if (a.isAlive) {
@@ -101,7 +102,7 @@ public class Animal {
 		pool[id].skill.grassHarvest = 0.2f;
 		pool[id].skill.grassDigestion = 10*0.14f / pool[id].skill.grassHarvest;
 		pool[id].skill.bloodHarvest = 0.2f;
-		pool[id].skill.bloodDigestion = 10*0.14f / pool[id].skill.bloodHarvest;
+		pool[id].skill.bloodDigestion = 0;//10*0.14f / pool[id].skill.bloodHarvest;
 		pool[id].skill.fight = 0f;
 		pool[id].skill.speed = 0.7f + 0.3f * Constants.RANDOM.nextFloat();
 		

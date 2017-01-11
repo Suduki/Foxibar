@@ -5,9 +5,7 @@ import java.util.ArrayList;
 
 import javax.swing.text.Position;
 
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Vector2f;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
@@ -15,6 +13,8 @@ import org.newdawn.slick.util.ResourceLoader;
 
 import constants.Constants;
 import display.DisplayHandler;
+import math.Vector2f;
+
 import static constants.Constants.*;
 
 public abstract class Button {
@@ -35,6 +35,7 @@ public abstract class Button {
 	}
 	
 	public static void updateAllButtons() {
+		/*
 		for (Button b : allButtons) {
 			b.render();
 			if (Mouse.isButtonDown(0) && b.insideBounds(Mouse.getX(), Constants.PIXELS_Y - Mouse.getY())) {
@@ -44,6 +45,7 @@ public abstract class Button {
 				}
 			}
 		}
+		*/
 	}
 	
 	public abstract void onClick();
@@ -55,6 +57,7 @@ public abstract class Button {
 	
 	public void render(){
 		if (texture == null) {
+			if (true) return; // XMATTGU: Glöm inte detta!
 			try {
 				texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream(
 						texturePath));

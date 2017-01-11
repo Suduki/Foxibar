@@ -1,7 +1,7 @@
 package buttons;
 
-import org.lwjgl.util.vector.Vector2f;
 
+import math.Vector2f;
 import world.World;
 
 public class RegenerateWorld extends Button {

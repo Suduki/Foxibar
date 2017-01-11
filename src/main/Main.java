@@ -2,8 +2,6 @@ package main;
 
 import constants.Constants;
 
-import org.lwjgl.input.Mouse;
-
 import agents.Animal;
 import world.World;
 import display.DisplayHandler;
@@ -29,7 +27,7 @@ public class Main {
 		
 		
 		try {
-			Mouse.create();
+			//Mouse.create();
 			while (displayHandler.renderThreadThread.isAlive()) {
 				
 				oldTime = System.currentTimeMillis();
