@@ -58,6 +58,7 @@ public class Animal {
 			for (int i = 0; i < containsAnimals.length; ++i) {
 				containsAnimals[i] = -1;
 			}
+			System.out.println("Num animals alive after killing them all: " + numAnimals);
 			numAnimals = 0;
 			killAll = false;
 		}

@@ -1,24 +1,18 @@
 package display;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
-import static org.lwjgl.opengl.GL11.GL_PROJECTION;
-import static org.lwjgl.opengl.GL11.GL_QUADS;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glLoadIdentity;
-import static org.lwjgl.opengl.GL11.glMatrixMode;
-import static org.lwjgl.opengl.GL11.glOrtho;
+import org.lwjgl.system.*;
+import static org.lwjgl.glfw.Callbacks.*;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryStack.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
 import java.awt.Font;
+import java.nio.IntBuffer;
 
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.GL11;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.Texture;
@@ -37,15 +31,15 @@ public class DisplayHandler {
 	static float zoomFactor = Constants.INIT_ZOOM;
 	static int width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
 	static int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
-	
+
 	private static RenderThread renderThread;
 	public Thread renderThreadThread;
-	
+
 	public static float[][] terrainColor;
-	
+
 	private static final int PIXELS_X = Constants.PIXELS_X;
 	private static final int PIXELS_Y = Constants.PIXELS_Y;
-	
+
 	public DisplayHandler() {
 		renderThread = new RenderThread(this);
 		renderThreadThread = new Thread(renderThread);
@@ -53,7 +47,7 @@ public class DisplayHandler {
 		Button.initAll();
 		terrainColor = new float[Constants.WORLD_SIZE][3];
 	}
-	
+
 	public void exit() {
 		renderThread.stop();
 		try {
@@ -63,41 +57,110 @@ public class DisplayHandler {
 		}
 	}
 
-	
+
 	private static class RenderThread implements Runnable {
 		private boolean running;
 		private DisplayHandler displayHandler;
-		
+		private long window;
+
 		public RenderThread(DisplayHandler displayHandler) {
 			this.displayHandler = displayHandler;
 		}
 		@Override
 		public void run() {
-			initializeDisplay();
+			initWindow();
+			initOpenGL();
 
-			running = true;
-			while(running) {
-				glClear(GL_COLOR_BUFFER_BIT);
-				renderStrings();
-				if (Constants.RENDER_TERRAIN) {
-					glBegin(GL_QUADS);
-					renderTerrain();
-					glEnd();
-				}
-				if (Constants.RENDER_ANIMALS) {
-					glBegin(GL_QUADS);
-					renderAllAnimals();
-					glEnd();
-				}
-				Button.updateAllButtons();
-				Display.update();
-				Display.sync(60);
-				glClear(GL_COLOR_BUFFER_BIT);
-				checkKeyboardForDisplayChanges();
+			while(handleEvents()) {
+				render();
+				glfwSwapBuffers(window);			
 			}
 
-			Display.destroy();
+			displayHandler.exit();
+
 			System.out.println("cake");
+		}
+
+		private boolean handleEvents() {
+			Button.updateAllButtons();
+
+			if (glfwWindowShouldClose(window)) {
+				return false;
+			}
+
+			glfwPollEvents();
+
+			return true;
+		}
+		
+		private void handleKeyboardEvents(int action, int key) {
+			if (action == GLFW_RELEASE) {
+				switch (key) {
+				case GLFW_KEY_ESCAPE:
+					glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
+					break;
+
+				case GLFW_KEY_SPACE:
+					main.Main.doPause = !main.Main.doPause;
+					break;
+
+				case GLFW_KEY_D:
+					startX++;
+					if (startX >= Constants.WORLD_SIZE_Y) {
+						startX = 0;
+					}
+					break;
+
+				case GLFW_KEY_W:
+					startY--;
+					if (startY < 0) {
+						startY = Constants.WORLD_SIZE_X-1;
+					}
+					break;
+
+				case GLFW_KEY_A:
+					startX--;
+					if (startX < 0) {
+						startX = Constants.WORLD_SIZE_Y-1;
+					}
+					break;
+
+				case GLFW_KEY_S:
+					startY++;
+					if (startY >= Constants.WORLD_SIZE_X) {
+						startY = 0;
+					}
+					break;
+				case GLFW_KEY_Q:
+					zoomFactor*=Constants.ZOOM_SPEED;
+					if (zoomFactor >= 20) {
+						zoomFactor = 20;
+					}
+					break;
+				case GLFW_KEY_E:
+					zoomFactor/=Constants.ZOOM_SPEED;
+					if (zoomFactor < 1f) {
+						zoomFactor = 1f;
+					}
+					break;
+				}
+			}
+		}
+
+		private void render() {
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			renderStrings();
+
+			if (Constants.RENDER_TERRAIN) {
+				glBegin(GL_QUADS);
+				renderTerrain();
+				glEnd();
+			}
+
+			if (Constants.RENDER_ANIMALS) {
+				renderAllAnimals();
+			}
 		}
 
 		private void renderAllAnimals() {
@@ -105,7 +168,8 @@ public class DisplayHandler {
 			height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
 			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
 			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
-			
+
+			glBegin(GL_TRIANGLES);
 			int i = startY + Constants.WORLD_SIZE_X * startX; 
 			int j = i;
 			for (int x = 0; x < width; ++x, j = World.south[j]) {
@@ -113,33 +177,31 @@ public class DisplayHandler {
 				for (int y = 0; y < height; ++y, i = World.east[i]) {
 					float screenPositionX = x * pixelsPerNodeX;
 					float screenPositionY = y * pixelsPerNodeY;
-					
+
 					// RENDER ANIMAL
 					int id;
 					if ((id = Animal.containsAnimals[i]) != -1) {
+						float[] c = Animal.pool[id].color;
+						glColor3f(c[0], c[1], c[2]);
 						screenPositionX += pixelsPerNodeX/2;
 						screenPositionY += pixelsPerNodeY/2;
-						renderQuad(Animal.pool[id].color,
-								screenPositionX, 
-								screenPositionY, 
-								screenPositionX, 
-								screenPositionY, 
-								screenPositionX + Animal.pool[id].size*pixelsPerNodeX/2,
-								screenPositionY - Animal.pool[id].size*pixelsPerNodeY,
-								screenPositionX - Animal.pool[id].size*pixelsPerNodeX/2,
-								screenPositionY - Animal.pool[id].size*pixelsPerNodeY); 
+
+						glVertex2f(screenPositionX, screenPositionY);
+						glVertex2f(screenPositionX + Animal.pool[id].size*pixelsPerNodeX/2, screenPositionY - Animal.pool[id].size*pixelsPerNodeY);
+						glVertex2f(screenPositionX - Animal.pool[id].size*pixelsPerNodeX/2, screenPositionY - Animal.pool[id].size*pixelsPerNodeY); 
 					}
 				}
 			}
+			glEnd();
 		}
-		
+
 		private void renderTerrain() {
-			
+
 			width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
 			height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
 			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
 			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
-			
+
 			int i = startY + Constants.WORLD_SIZE_X * startX; 
 			int j = i;
 			for (int x = 0; x < width; ++x, j = World.south[j]) {
@@ -155,7 +217,7 @@ public class DisplayHandler {
 							screenPositionX, screenPositionY + pixelsPerNodeY);
 				}
 			}
-			
+
 		}
 		private void renderStrings() {
 			drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
@@ -164,57 +226,9 @@ public class DisplayHandler {
 			drawString(PIXELS_X + 20,60, "nAni: " + Animal.numAnimals);
 		}
 		
-		private void checkKeyboardForDisplayChanges() {
-			if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
-				displayHandler.exit();
-			}
-			if (Display.isCloseRequested()) {
-				displayHandler.exit();
-			}
-			if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-				main.Main.doPause = true;
-			}
-			else {
-				main.Main.doPause = false;
-			}
-			if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
-				startX++;
-				if (startX >= Constants.WORLD_SIZE_Y) {
-					startX = 0;
-				}
-			}
-			if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-				startY--;
-				if (startY < 0) {
-					startY = Constants.WORLD_SIZE_X-1;
-				}
-			}
-			if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
-				startX--;
-				if (startX < 0) {
-					startX = Constants.WORLD_SIZE_Y-1;
-				}
-			}
-			if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-				startY++;
-				if (startY >= Constants.WORLD_SIZE_X) {
-					startY = 0;
-				}
-			}
-			if (Keyboard.isKeyDown(Keyboard.KEY_Q)) {
-				zoomFactor*=1.01f;
-				if (zoomFactor >= 20) {
-					zoomFactor = 20;
-				}
-			}
-			if (Keyboard.isKeyDown(Keyboard.KEY_E)) {
-				zoomFactor/=1.01f;
-				if (zoomFactor < 1f) {
-					zoomFactor = 1f;
-				}
-			}
+		private void handleMouseEvents() {
+/*
 			if (Mouse.isInsideWindow()) {
-
 				if (Mouse.isButtonDown(0))
 				{
 					float xPressed = ((float)Mouse.getX())/Constants.PIXELS_X;
@@ -222,47 +236,104 @@ public class DisplayHandler {
 					if (xPressed < 1 && xPressed >= 0 && yPressed < 1 && yPressed >= 0) {
 						xPressed*=width;
 						yPressed*=height;
-						
+
 						int i = startY + Constants.WORLD_SIZE_X * startX; 
 						for (int x = 0; x < xPressed; ++x, i = World.south[i]);
 						for (int y = 0; y < yPressed; ++y, i = World.east[i]);
-						
+
 						if (Animal.containsAnimals[i] == -1) {
 							Animal.resurrectAnimal(i, 0f, 1f, 3);
 						}
 					}
 				}
 			}
+			*/
 		}
-		
-		private void initializeDisplay() {
-			try {
-				Display.setDisplayMode(new DisplayMode(PIXELS_X + Constants.PIXELS_SIDEBOARD, PIXELS_Y));
-				Display.setTitle("FOXIBAR - DEAD OR ALIVE");
-				Display.create();
-			} catch (LWJGLException e) {
-				e.printStackTrace();
-			}
-			
-			// Initialization code OpenGL
-	        GL11.glEnable(GL11.GL_TEXTURE_2D);               
-	         
-	        GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);          
-	         
-	            // enable alpha blending
-	        GL11.glEnable(GL11.GL_BLEND);
-	        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-	        GL11.glViewport(0,0,PIXELS_X + Constants.PIXELS_SIDEBOARD,PIXELS_Y);
+		private void initWindow() {
+			GLFWErrorCallback.createPrint(System.err).set();
+
+			// Initialize GLFW. Most GLFW functions will not work before doing this.
+			if ( !glfwInit() )
+				throw new IllegalStateException("Unable to initialize GLFW");
+
+			// Configure GLFW
+			glfwDefaultWindowHints(); // optional, the current window hints are already the default
+			glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE); // the window will stay hidden after creation
+			glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // the window will be resizable
+
+			// Create the window
+			window = glfwCreateWindow(PIXELS_X + Constants.PIXELS_SIDEBOARD, PIXELS_Y, "FOXIBAR - DEAD OR ALIVE", NULL, NULL);
+			if ( window == NULL ) {
+				throw new RuntimeException("Failed to create the GLFW window");
+			}
+
+			// Setup a key callback. It will be called every time a key is pressed, repeated or released.
+			glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+				handleKeyboardEvents(action, key);
+			});
+			
+			/*
+			glfwSetCursorPosCallback(window, (window, x, y) -> {
+				handleMouseMotionEvents(x, y);
+			});
+			
+			glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
+				handleMouseButtonEvents(button, action);
+			});
+			*/
+
+			try ( MemoryStack stack = stackPush() ) {
+				IntBuffer pWidth = stack.mallocInt(1); // int*
+				IntBuffer pHeight = stack.mallocInt(1); // int*
+
+				// Get the window size passed to glfwCreateWindow
+				glfwGetWindowSize(window, pWidth, pHeight);
+
+				// Get the resolution of the primary monitor
+				GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+				// Center the window
+				glfwSetWindowPos(
+						window,
+						(vidmode.width() - pWidth.get(0)) / 2,
+						(vidmode.height() - pHeight.get(0)) / 2
+						);
+			} // the stack frame is popped automatically
+
+			// Make the OpenGL context current
+			glfwMakeContextCurrent(window);
+			// Enable v-sync
+			glfwSwapInterval(1);
+
+			// Make the window visible
+			glfwShowWindow(window);
+		}
+
+		private void initOpenGL()
+		{
+			GL.createCapabilities();
+
+			// Initialization code OpenGL
+			glEnable(GL_TEXTURE_2D);               
+
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);          
+
+			// enable alpha blending
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glViewport(0,0,PIXELS_X + Constants.PIXELS_SIDEBOARD,PIXELS_Y);
 
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
 			glOrtho(0, PIXELS_X + Constants.PIXELS_SIDEBOARD, PIXELS_Y, 0, 1, -1);
 			glMatrixMode(GL_MODELVIEW);
-			
-			Font awtFont = new Font("Courier", Font.PLAIN, 18);
-			font = new TrueTypeFont(awtFont, true);
+
+			//Font awtFont = new Font("Courier", Font.PLAIN, 18);
+			//font = new TrueTypeFont(awtFont, true);
 		}
+
 		public void stop() {
 			running = false;
 		}
@@ -270,18 +341,18 @@ public class DisplayHandler {
 
 	private static void drawString(int x, int y, String text)
 	{
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glColor3f(1f, 1f, 1f);
-		font.drawString(new Float(x), new Float(y), text, new Color(1f, 1f, 1f));
-		
-		GL11.glDisable(GL11.GL_BLEND);
-		
+		glEnable(GL_TEXTURE_2D);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glColor3f(1f, 1f, 1f);
+	//	font.drawString(new Float(x), new Float(y), text, new Color(1f, 1f, 1f));
+
+		glDisable(GL_BLEND);
+
 	}
-	
-	
+
+
 	public static void renderTexture(Texture texture,
 			float[] cornersX,  float[] cornersY, int numEdges)
 	{
@@ -289,22 +360,22 @@ public class DisplayHandler {
 		texture.bind();
 		glBegin(GL_QUADS); {
 			for (int i = 0; i < numEdges; i++) {
-				GL11.glVertex2f(cornersX[i], cornersY[i]);
+				glVertex2f(cornersX[i], cornersY[i]);
 			}
 		} glEnd();
 	}
 
 	public static void renderQuad
-		(float[] color, 
+	(float[] color, 
 			float corner1X, float corner1Y,
 			float corner2X, float corner2Y,
 			float corner3X, float corner3Y,
 			float corner4X, float corner4Y) {
-		GL11.glColor3f(color[0], color[1], color[2]);
-		GL11.glVertex2f(corner1X, corner1Y);
-		GL11.glVertex2f(corner2X, corner2Y);
-		GL11.glVertex2f(corner3X, corner3Y);
-		GL11.glVertex2f(corner4X, corner4Y);
+		glColor3f(color[0], color[1], color[2]);
+		glVertex2f(corner1X, corner1Y);
+		glVertex2f(corner2X, corner2Y);
+		glVertex2f(corner3X, corner3Y);
+		glVertex2f(corner4X, corner4Y);
 	}
 
 }

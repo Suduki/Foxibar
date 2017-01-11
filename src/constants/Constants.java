@@ -20,6 +20,8 @@ public class Constants {
 	public static final float GROWTH = 0.001f;
 	public static final int MAX_NUM_ANIMALS = 100000;
 	public static final short MAX_NUM_ANIMALS_PER_NODE = 10;
+	public static final float ZOOM_SPEED = 1.01f;
+	
 	public static boolean RENDER_TERRAIN = true;
 	public static boolean RENDER_ANIMALS = true;
 	

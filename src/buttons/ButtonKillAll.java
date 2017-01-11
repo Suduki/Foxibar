@@ -1,8 +1,7 @@
 package buttons;
 
-import org.lwjgl.util.vector.Vector2f;
-
 import agents.Animal;
+import math.Vector2f;
 import world.World;
 
 public class ButtonKillAll extends Button {

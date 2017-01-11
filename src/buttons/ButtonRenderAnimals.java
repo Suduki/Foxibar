@@ -1,8 +1,8 @@
 package buttons;
 
-import org.lwjgl.util.vector.Vector2f;
 
 import constants.Constants;
+import math.Vector2f;
 
 public class ButtonRenderAnimals extends Button {
 
