@@ -12,7 +12,7 @@ public class Animal {
 	private int age = 0;
 	private int sinceLastBaby = 0;
 	private int id;
-	public float size = 1f;
+	public float size = 3f;
 	public float[] color;
 	private int pos;
 	private boolean isAlive;
@@ -21,10 +21,11 @@ public class Animal {
 	private float recover = 0f;
 	
 	private enum Activity {
-		DO_NOTHING, HARVEST_GRASS, HARVEST_BLOOD;
+		DO_NOTHING, HARVEST_GRASS, HARVEST_BLOOD, MATE;
 		
 		public final static int GRASS = 0;
 		public final static int BLOOD = 1;
+		public final static int FERTILE = 2;
 	};
 	
 	//************ GENETIC STATS ************
@@ -40,7 +41,7 @@ public class Animal {
 	}
 	private Skill skill;
 	private boolean isFertile;
-	private int timeBetweenBabies = 10;
+	private int timeBetweenBabies = 50;
 	
 	
 	//************ STATIC STUFF ************
@@ -53,10 +54,12 @@ public class Animal {
 		if (killAll) {
 			for (Animal a : pool) {
 				a.die();
-				containsAnimals[a.pos] = -1;
+			}
+			for (int i = 0; i < containsAnimals.length; ++i) {
+				containsAnimals[i] = -1;
 			}
 			numAnimals = 0;
-			
+			killAll = false;
 		}
 		for (Animal a : pool) {
 			if (a.isAlive) {
@@ -96,19 +99,29 @@ public class Animal {
 		}
 		pool[id].isAlive = true;
 		
-		
 //		pool[id].skill.fight = Constants.RANDOM.nextFloat();
-		pool[id].skill.grassHarvest = 0.2f;
-		pool[id].skill.grassDigestion = 10*0.14f / pool[id].skill.grassHarvest;
-		pool[id].skill.bloodHarvest = 0.2f;
-		pool[id].skill.bloodDigestion = 10*0.14f / pool[id].skill.bloodHarvest;
+		if (Constants.RANDOM.nextBoolean()) {
+			pool[id].skill.grassHarvest = 0.3f;
+			pool[id].skill.grassDigestion = 3f / pool[id].skill.grassHarvest;
+			pool[id].skill.bloodHarvest = 0f;
+			pool[id].skill.bloodDigestion = 0f;
+			pool[id].color[0] = 0;
+			pool[id].color[1] = 1;
+			pool[id].color[2] = 1;
+		}
+		else {
+			pool[id].skill.grassHarvest = 0f;
+			pool[id].skill.grassDigestion = 0f;
+			pool[id].skill.bloodHarvest = 0.3f;
+			pool[id].skill.bloodDigestion = 5f / pool[id].skill.bloodHarvest;
+			pool[id].color[0] = 1;
+			pool[id].color[1] = 0;
+			pool[id].color[2] = 1;
+		}
 		pool[id].skill.fight = 0f;
 		pool[id].skill.speed = 0.7f + 0.3f * Constants.RANDOM.nextFloat();
 		
 		
-		pool[id].color[0] = 1;
-		pool[id].color[1] = 1;
-		pool[id].color[2] = 1;
 		
 		pool[id].pos = pos;
 		pool[id].id = id;
@@ -135,65 +148,60 @@ public class Animal {
 		containsAnimals[pos] = -1;
 		
 		// Calculate to where we want to move
-		if (isHungry()) {
-			short[] bestDir = new short[1];
-			Activity[] bestChoice = new Activity[1];
-			if (findBestDir(bestDir, bestChoice)) {
-				moveTo(bestDir[0]);
-				switch (bestChoice[0]) {
-				case HARVEST_BLOOD:
-					harvestBlood();
-					break;
-				case HARVEST_GRASS:
-					harvestGrass();
-					break;
-				default:
-					System.out.println("ERROR: invalid choice!");
-					break;
-				}
-			}
-			else {
-				moveRandom();
+		short[] bestDir = new short[1];
+		Activity[] bestChoice = new Activity[1];
+		if (findBestDir(bestDir, bestChoice)) {
+			moveTo(bestDir[0]);
+			switch (bestChoice[0]) {
+			case HARVEST_BLOOD:
+				harvestBlood();
+				break;
+			case HARVEST_GRASS:
+				harvestGrass();
+				break;
+			case MATE:
+				interactWith(containsAnimals[pos]);
+				break;
+			default:
+				System.out.println("ERROR: invalid choice!");
+				break;
 			}
 		}
-		else if (isFertile) { // TODO, kan bakas in i switch-satsen
-			short direction = searchForFertile();
-			if (direction == INVALID_DIRECTION) {
-				moveRandom();
-			} else {
-				moveTo(direction);
-			}
-			if (containsAnimals[pos] != -1) {
-				this.interactWith(containsAnimals[pos]);
-			}
+		else {
+			moveRandom();
 		}
+		
+		// Add animal to the world again :)
+		containsAnimals[pos] = id;
 		
 		hunger--;
 		if (hunger < 0) {
 			die();
 		}
 		
-		// Add animal to the world again :)
-		containsAnimals[pos] = id;
 	}
 	private boolean findBestDir(short[] bestDirOut, Activity[] bestChoice) {
 		
-		short[] bestDir = new short[2];
-		float[] bestVal = new float[2];
+		short[] bestDir = new short[3];
+		float[] bestVal = new float[3];
 
 		scanNeighboringEnvironment(bestDir, bestVal);
 		
-		if (bestDir[Activity.GRASS]*skill.grassDigestion > 
-			bestDir[Activity.BLOOD]*skill.bloodDigestion) {
+		if (bestDir[Activity.FERTILE] != INVALID_DIRECTION) {
+			bestDirOut[0] = bestDir[Activity.FERTILE];
+			bestChoice[0] = Activity.MATE;
+			return true;
+		}
+		else if (bestVal[Activity.GRASS]*skill.grassDigestion > 
+				bestVal[Activity.BLOOD]*skill.bloodDigestion) {
 			bestDirOut[0] = bestDir[Activity.GRASS];
 			bestChoice[0] = Activity.HARVEST_GRASS;
+			return true;
 		}
-		else {
+		else if (bestVal[Activity.GRASS]*skill.grassDigestion < 
+				bestVal[Activity.BLOOD]*skill.bloodDigestion) {
 			bestDirOut[0] = bestDir[Activity.BLOOD];
 			bestChoice[0] = Activity.HARVEST_BLOOD;
-		}
-
-		if (bestDirOut[0] != INVALID_DIRECTION) {
 			return true;
 		}
 		else {
@@ -203,36 +211,38 @@ public class Animal {
 
 
 	private void scanNeighboringEnvironment(short[] bestDir, float[] bestVal) {
-		bestDir[0] = INVALID_DIRECTION;
-		bestDir[1] = INVALID_DIRECTION;
-		bestVal[0] = 0;
-		bestVal[1] = 0;
-		for (short i = 0; i < 5; ++i)
+		bestDir[Activity.GRASS] = INVALID_DIRECTION;
+		bestDir[Activity.BLOOD] = INVALID_DIRECTION;
+		bestDir[Activity.FERTILE] = INVALID_DIRECTION;
+		bestVal[Activity.GRASS] = 0;
+		bestVal[Activity.BLOOD] = 0;
+		bestVal[Activity.FERTILE] = 0;
+		ArrayList<Integer> directions = new ArrayList<>();
+		for (int i = 0; i < 5; ++i) {
+			directions.add(i);
+		}
+		Collections.shuffle(directions);
+		for (int i : directions)
 		{
 			if (World.grass.height[World.neighbour[i][pos]] > bestVal[Activity.GRASS]) {
 				bestVal[Activity.GRASS] = World.grass.height[World.neighbour[i][pos]];
-				bestDir[Activity.GRASS] = i;
+				bestDir[Activity.GRASS] = (short) i;
 			}
 			if (World.blood.height[World.neighbour[i][pos]] > bestVal[Activity.BLOOD]) {
-				bestVal[Activity.BLOOD] = World.grass.height[World.neighbour[i][pos]];
-				bestDir[Activity.BLOOD] = i;
+				bestVal[Activity.BLOOD] = World.blood.height[World.neighbour[i][pos]];
+				bestDir[Activity.BLOOD] = (short) i;
+			}
+			if (pool[i].isFertile && !pool[i].isHungry()) {
+				int neighId;
+				if ((neighId = containsAnimals[World.neighbour[i][pos]]) != -1 && pool[neighId].isFertile) {
+					bestDir[Activity.FERTILE] = (short) i;
+				}
 			}
 		}
 	}
 
-	private short searchForFertile() {
-		for (short dir = 0; dir < 5; ++dir) {
-			int posi;
-			if ((posi = containsAnimals[World.neighbour[dir][pos]]) != -1) {
-				if (pool[posi].isFertile) {
-					return dir;
-				}
-			}
-		}
-		return INVALID_DIRECTION;
-	}
 	private boolean isHungry() {
-		return hunger < 5;
+		return hunger < 500;
 	}
 	private void harvestGrass() {
 		this.hunger += World.grass.harvest(skill.grassHarvest, pos) * skill.grassDigestion;
@@ -245,14 +255,16 @@ public class Animal {
 		pos = World.neighbour[to][pos];
 	}
 	private void interactWith(int id2) {
-		if (isFertile && pool[id2].isFertile) {
-			resurrectAnimal(pos, 0f, 0f, 3);
-			isFertile = false;
-			hunger -= 2f;
-			sinceLastBaby = 0;
-			pool[id2].isFertile = false;
-			pool[id2].hunger -= 2f;
-			pool[id2].sinceLastBaby = 0;
+		if (id2 != id) {
+			if (isFertile && pool[id2].isFertile) {
+				resurrectAnimal(pos, 0f, 0f, 3);
+				isFertile = false;
+				hunger -= 2f;
+				sinceLastBaby = 0;
+				pool[id2].isFertile = false;
+				pool[id2].hunger -= 2f;
+				pool[id2].sinceLastBaby = 0;
+			}
 		}
 	}
 	private void moveRandom() {
