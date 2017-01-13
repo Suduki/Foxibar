@@ -24,19 +24,17 @@ public class Main {
 		double time = System.currentTimeMillis();
 		double oldTime;
 
-		
-		
 		try {
 			//Mouse.create();
 			while (displayHandler.renderThreadThread.isAlive()) {
-				
+
 				oldTime = System.currentTimeMillis();
-				
+
 				world.update();
 				Animal.moveAll();
 				
 				time = System.currentTimeMillis();
-				long sleepTime = (long) (Math.round(1000d/Constants.WANTED_FPS - (time - oldTime)));
+				long sleepTime = Math.round(1000d/Constants.WANTED_FPS - (time - oldTime));
 				
 				if (sleepTime > 0) {
 					simulationFps = 1000d/sleepTime;
@@ -63,7 +61,8 @@ public class Main {
 		catch ( IllegalStateException e) {
 			e.printStackTrace();
 		}
-		displayHandler.exit();
-		
+		finally {
+			displayHandler.exit();
+		}
 	}
 }

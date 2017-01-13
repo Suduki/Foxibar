@@ -1,5 +1,7 @@
 package display;
 
+import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.system.*;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -8,6 +10,7 @@ import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 import java.awt.Font;
+import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -226,18 +229,21 @@ public class DisplayHandler {
 			drawString(PIXELS_X + 20,60, "nAni: " + Animal.numAnimals);
 		}
 		
-		private void handleMouseEvents() {
-/*
-			if (Mouse.isInsideWindow()) {
-				if (Mouse.isButtonDown(0))
-				{
-					float xPressed = ((float)Mouse.getX())/Constants.PIXELS_X;
-					float yPressed = 1 - ((float)Mouse.getY())/Constants.PIXELS_Y;
+		private void handleMouseEvents(long window, int button, int action, int mods) {
+			switch(button){
+				case GLFW_MOUSE_BUTTON_1:
+				case GLFW_MOUSE_BUTTON_2:
+					DoubleBuffer posX = BufferUtils.createDoubleBuffer(1);
+					DoubleBuffer posY = BufferUtils.createDoubleBuffer(1);
+					glfwGetCursorPos(window, posX,posY);
+
+					float xPressed = ((float)posX.get(0))/Constants.PIXELS_X;
+					float yPressed = ((float)posY.get(0))/Constants.PIXELS_Y;
 					if (xPressed < 1 && xPressed >= 0 && yPressed < 1 && yPressed >= 0) {
 						xPressed*=width;
 						yPressed*=height;
 
-						int i = startY + Constants.WORLD_SIZE_X * startX; 
+						int i = startY + Constants.WORLD_SIZE_X * startX;
 						for (int x = 0; x < xPressed; ++x, i = World.south[i]);
 						for (int y = 0; y < yPressed; ++y, i = World.east[i]);
 
@@ -245,9 +251,15 @@ public class DisplayHandler {
 							Animal.resurrectAnimal(i, 0f, 1f, 3);
 						}
 					}
-				}
+
+					System.out.println("posX" + posX.get(0) + " posY" + posY.get(0));
+					if ( button == GLFW_MOUSE_BUTTON_1 ){
+						System.out.println("left mouse :>");
+					} else {
+						System.out.println("right mouse :>");
+					}
+					break;
 			}
-			*/
 		}
 
 		private void initWindow() {
@@ -272,16 +284,16 @@ public class DisplayHandler {
 			glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
 				handleKeyboardEvents(action, key);
 			});
-			
-			/*
-			glfwSetCursorPosCallback(window, (window, x, y) -> {
-				handleMouseMotionEvents(x, y);
+
+
+			glfwSetMouseButtonCallback(window, new GLFWMouseButtonCallback() {
+				@Override
+				public void invoke(long window, int button, int action, int mods) {
+					handleMouseEvents(window,button,action, mods);
+				}
 			});
-			
-			glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
-				handleMouseButtonEvents(button, action);
-			});
-			*/
+
+
 
 			try ( MemoryStack stack = stackPush() ) {
 				IntBuffer pWidth = stack.mallocInt(1); // int*
