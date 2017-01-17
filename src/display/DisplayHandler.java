@@ -12,7 +12,10 @@ import static org.lwjgl.system.MemoryUtil.*;
 import java.awt.Font;
 import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
+import java.util.concurrent.CountDownLatch;
 
+import org.lwjgl.glfw.GLFWCursorPosCallback;
+import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -22,18 +25,22 @@ import org.newdawn.slick.opengl.Texture;
 
 import world.World;
 import constants.Constants;
+import math.Vector2f;
 import agents.Animal;
 import buttons.Button;
 
 public class DisplayHandler {
 
-	private static TrueTypeFont font;
-	private static Font awtFont;
+	//private static TrueTypeFont font;
+	//private static Font awtFont;
+
 	static int startY = 0;
 	static int startX = 0;
 	static float zoomFactor = Constants.INIT_ZOOM;
 	static int width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
 	static int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
+
+	private static CountDownLatch pauseLatch = null;
 
 	private static RenderThread renderThread;
 	public Thread renderThreadThread;
@@ -42,6 +49,16 @@ public class DisplayHandler {
 
 	private static final int PIXELS_X = Constants.PIXELS_X;
 	private static final int PIXELS_Y = Constants.PIXELS_Y;
+
+	public Vector2f worldCoordFromWindowCoord(float windowX, float windowY)
+	{
+		return new Vector2f(0f,0f);
+	}
+
+	public Vector2f windowCoordFromWorldCoord(float windowX, float windowY)
+	{
+		return new Vector2f(0f,0f);
+	}
 
 	public DisplayHandler() {
 		renderThread = new RenderThread(this);
@@ -69,6 +86,7 @@ public class DisplayHandler {
 		public RenderThread(DisplayHandler displayHandler) {
 			this.displayHandler = displayHandler;
 		}
+
 		@Override
 		public void run() {
 			initWindow();
@@ -81,7 +99,12 @@ public class DisplayHandler {
 
 			displayHandler.exit();
 
-			System.out.println("cake");
+			if (pauseLatch != null)
+			{
+				pauseLatch.countDown();
+			}
+
+			System.out.println("Render thread finished.");
 		}
 
 		private boolean handleEvents() {
@@ -95,7 +118,20 @@ public class DisplayHandler {
 
 			return true;
 		}
-		
+
+		private void togglePause() {
+			if (pauseLatch != null)
+			{
+				pauseLatch.countDown();
+				pauseLatch = null;
+			}
+			else
+			{
+				pauseLatch = new CountDownLatch(1);
+				main.Main.putEvent(new main.Main.PauseSimulationEvent(pauseLatch));
+			}
+		}
+
 		private void handleKeyboardEvents(int action, int key) {
 			if (action == GLFW_RELEASE) {
 				switch (key) {
@@ -104,7 +140,7 @@ public class DisplayHandler {
 					break;
 
 				case GLFW_KEY_SPACE:
-					main.Main.doPause = !main.Main.doPause;
+					togglePause();
 					break;
 
 				case GLFW_KEY_D:
@@ -147,6 +183,39 @@ public class DisplayHandler {
 					}
 					break;
 				}
+			}
+		}
+
+		private void handleMouseEvents(long window, int button, int action, int mods) {
+			switch(button){
+			case GLFW_MOUSE_BUTTON_1:
+			case GLFW_MOUSE_BUTTON_2:
+				DoubleBuffer posX = BufferUtils.createDoubleBuffer(1);
+				DoubleBuffer posY = BufferUtils.createDoubleBuffer(1);
+				glfwGetCursorPos(window, posX,posY);
+
+				float xPressed = ((float)posX.get(0))/Constants.PIXELS_X;
+				float yPressed = ((float)posY.get(0))/Constants.PIXELS_Y;
+				if (xPressed < 1 && xPressed >= 0 && yPressed < 1 && yPressed >= 0) {
+					xPressed*=width;
+					yPressed*=height;
+
+					int i = startY + Constants.WORLD_SIZE_X * startX;
+					for (int x = 0; x < xPressed; ++x, i = World.south[i]);
+					for (int y = 0; y < yPressed; ++y, i = World.east[i]);
+
+					if (Animal.containsAnimals[i] == -1) {
+						Animal.resurrectAnimal(i, 0f, 1f, 3);
+					}
+				}
+
+				//System.out.println("posX" + posX.get(0) + " posY" + posY.get(0));
+				if ( button == GLFW_MOUSE_BUTTON_1 ){
+					//	System.out.println("left mouse :>");
+				} else {
+					//	System.out.println("right mouse :>");
+				}
+				break;
 			}
 		}
 
@@ -222,44 +291,12 @@ public class DisplayHandler {
 			}
 
 		}
+
 		private void renderStrings() {
 			drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
 			drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
 			drawString(PIXELS_X + 150,40, "seed: " + ((int)noise.Noise.seed-1));
 			drawString(PIXELS_X + 20,60, "nAni: " + Animal.numAnimals);
-		}
-		
-		private void handleMouseEvents(long window, int button, int action, int mods) {
-			switch(button){
-				case GLFW_MOUSE_BUTTON_1:
-				case GLFW_MOUSE_BUTTON_2:
-					DoubleBuffer posX = BufferUtils.createDoubleBuffer(1);
-					DoubleBuffer posY = BufferUtils.createDoubleBuffer(1);
-					glfwGetCursorPos(window, posX,posY);
-
-					float xPressed = ((float)posX.get(0))/Constants.PIXELS_X;
-					float yPressed = ((float)posY.get(0))/Constants.PIXELS_Y;
-					if (xPressed < 1 && xPressed >= 0 && yPressed < 1 && yPressed >= 0) {
-						xPressed*=width;
-						yPressed*=height;
-
-						int i = startY + Constants.WORLD_SIZE_X * startX;
-						for (int x = 0; x < xPressed; ++x, i = World.south[i]);
-						for (int y = 0; y < yPressed; ++y, i = World.east[i]);
-
-						if (Animal.containsAnimals[i] == -1) {
-							Animal.resurrectAnimal(i, 0f, 1f, 3);
-						}
-					}
-
-					System.out.println("posX" + posX.get(0) + " posY" + posY.get(0));
-					if ( button == GLFW_MOUSE_BUTTON_1 ){
-						System.out.println("left mouse :>");
-					} else {
-						System.out.println("right mouse :>");
-					}
-					break;
-			}
 		}
 
 		private void initWindow() {
@@ -293,6 +330,14 @@ public class DisplayHandler {
 				}
 			});
 
+			//			glfwSetCursorPosCallback(window, new GLFWCursorPosCallback() {
+			//				
+			//				@Override
+			//				public void invoke(long window, double xpos, double ypos) {
+			//					// TODO Auto-generated method stub
+			//					
+			//				}
+			//			};
 
 
 			try ( MemoryStack stack = stackPush() ) {
@@ -358,12 +403,11 @@ public class DisplayHandler {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glColor3f(1f, 1f, 1f);
-	//	font.drawString(new Float(x), new Float(y), text, new Color(1f, 1f, 1f));
+		//	font.drawString(new Float(x), new Float(y), text, new Color(1f, 1f, 1f));
 
 		glDisable(GL_BLEND);
 
 	}
-
 
 	public static void renderTexture(Texture texture,
 			float[] cornersX,  float[] cornersY, int numEdges)
