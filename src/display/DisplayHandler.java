@@ -1,35 +1,41 @@
 package display;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.system.*;
-import static org.lwjgl.glfw.Callbacks.*;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-import java.awt.Font;
-import java.nio.DoubleBuffer;
+//import java.awt.Font;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.lwjgl.glfw.GLFWCursorPosCallback;
-import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.newdawn.slick.Color;
-import org.newdawn.slick.TrueTypeFont;
+import org.lwjgl.opengl.GL11;
+//import org.newdawn.slick.Color;
+//import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.Texture;
 
 import world.World;
 import constants.Constants;
 import math.Vector2f;
+import messages.Message;
+import messages.MessageHandler;
 import agents.Animal;
 import buttons.Button;
+import buttons.ButtonKillAll;
+import buttons.ButtonRenderAnimals;
+import buttons.RegenerateWorld;
+import buttons.RenderVision;
+import input.Mouse;
 
-public class DisplayHandler {
+public class DisplayHandler extends MessageHandler {
 
 	//private static TrueTypeFont font;
 	//private static Font awtFont;
@@ -40,15 +46,19 @@ public class DisplayHandler {
 	static int width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
 	static int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
 
-	private static CountDownLatch pauseLatch = null;
+	private static boolean mSimulationPaused = false;
 
-	private static RenderThread renderThread;
-	public Thread renderThreadThread;
 
 	public static float[][] terrainColor;
 
 	private static final int PIXELS_X = Constants.PIXELS_X;
 	private static final int PIXELS_Y = Constants.PIXELS_Y;
+	private static RenderThread renderThread;
+
+	public Thread renderThreadThread;
+	private static Mouse mouse = new input.Mouse();
+	
+	private static simulation.Simulation mSimulation;
 
 	public Vector2f worldCoordFromWindowCoord(float windowX, float windowY)
 	{
@@ -60,14 +70,22 @@ public class DisplayHandler {
 		return new Vector2f(0f,0f);
 	}
 
-	public DisplayHandler() {
+	public DisplayHandler(simulation.Simulation pSimulation) {
+		mSimulation = pSimulation;
 		renderThread = new RenderThread(this);
 		renderThreadThread = new Thread(renderThread);
 		renderThreadThread.start();
 		Button.initAll();
 		terrainColor = new float[Constants.WORLD_SIZE][3];
+		
+		this.message(new messages.DummyMessage());
 	}
 
+	protected void evaluateMessage(Message pMessage)
+	{
+		pMessage.evaluate(this);
+	}
+	
 	public void exit() {
 		renderThread.stop();
 		try {
@@ -76,7 +94,6 @@ public class DisplayHandler {
 			e.printStackTrace();
 		}
 	}
-
 
 	private static class RenderThread implements Runnable {
 		private boolean running;
@@ -91,17 +108,18 @@ public class DisplayHandler {
 		public void run() {
 			initWindow();
 			initOpenGL();
+			loadResources();
 
-			while(handleEvents()) {
+			while(displayHandler.handleMessages() && handleEvents()) {
 				render();
 				glfwSwapBuffers(window);			
 			}
 
 			displayHandler.exit();
 
-			if (pauseLatch != null)
+			if (mSimulationPaused)
 			{
-				pauseLatch.countDown();
+				togglePause();
 			}
 
 			System.out.println("Render thread finished.");
@@ -120,15 +138,13 @@ public class DisplayHandler {
 		}
 
 		private void togglePause() {
-			if (pauseLatch != null)
+			if ((mSimulationPaused ^= true))
 			{
-				pauseLatch.countDown();
-				pauseLatch = null;
+				mSimulation.message(new messages.PauseSimulation());
 			}
 			else
 			{
-				pauseLatch = new CountDownLatch(1);
-				main.Main.putEvent(new main.Main.PauseSimulationEvent(pauseLatch));
+				mSimulation.message(new messages.UnpauseSimulation());
 			}
 		}
 
@@ -186,43 +202,80 @@ public class DisplayHandler {
 			}
 		}
 
+		private void handleMouseMotion(long window, double xpos, double ypos) {
+			mouse.setPosition((float)xpos,  (float)ypos);
+			
+			if (insideViewport(mouse.getPos()) && mouse.buttonPressed(0))
+			{
+				addAnimal();
+			}
+		}
+		
+		private Vector2f worldPosFromViewPos(float x, float y)
+		{
+			return new Vector2f(x*Constants.WORLD_SIZE_X, y*Constants.WORLD_SIZE_Y);
+		}
+		
+		boolean insideViewport(Vector2f pos)
+		{
+			return pos.x >= 0 && pos.x < Constants.PIXELS_X && pos.y >= 0 && pos.y < Constants.PIXELS_Y;
+		}
+		
+		private boolean insideGui(Vector2f pos) {
+			return pos.x >= Constants.PIXELS_X && pos.x < Constants.WINDOW_WIDTH && pos.y >= 0 && pos.y < Constants.PIXELS_Y;
+		}
+
 		private void handleMouseEvents(long window, int button, int action, int mods) {
-			switch(button){
+			mouse.setButtonPressed(button, action == GLFW_PRESS);
+			
+			switch(button) {
 			case GLFW_MOUSE_BUTTON_1:
-			case GLFW_MOUSE_BUTTON_2:
-				DoubleBuffer posX = BufferUtils.createDoubleBuffer(1);
-				DoubleBuffer posY = BufferUtils.createDoubleBuffer(1);
-				glfwGetCursorPos(window, posX,posY);
+			{
+				if (insideViewport(mouse.getPos()) && mouse.buttonPressed(0))
+				{
+					addAnimal();
+				}
+				else if (insideGui(mouse.getPos()))
+				{
+				}
+			} break;
+				
+			default:
+				break;
+			}
+			
+			mouse.dump();
+		}
 
-				float xPressed = ((float)posX.get(0))/Constants.PIXELS_X;
-				float yPressed = ((float)posY.get(0))/Constants.PIXELS_Y;
-				if (xPressed < 1 && xPressed >= 0 && yPressed < 1 && yPressed >= 0) {
-					xPressed*=width;
-					yPressed*=height;
 
-					int i = startY + Constants.WORLD_SIZE_X * startX;
-					for (int x = 0; x < xPressed; ++x, i = World.south[i]);
-					for (int y = 0; y < yPressed; ++y, i = World.east[i]);
+		private void addAnimal() {
+			mSimulation.message( new messages.Message() {
+				Mouse eventmouse = new Mouse(DisplayHandler.mouse);
+				@Override
+				public void evaluate(simulation.Simulation simulation) {
+					// TODO Auto-generated method stub
+					float viewX = eventmouse.getX()/Constants.PIXELS_X;
+					float viewY = eventmouse.getY()/Constants.PIXELS_Y;
 
-					if (Animal.containsAnimals[i] == -1) {
+					Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
+
+					int i = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;		
+					if (Animal.containsAnimals[i] == -1)
+					{
 						Animal.resurrectAnimal(i, 0f, 1f, 3);
 					}
 				}
-
-				//System.out.println("posX" + posX.get(0) + " posY" + posY.get(0));
-				if ( button == GLFW_MOUSE_BUTTON_1 ){
-					//	System.out.println("left mouse :>");
-				} else {
-					//	System.out.println("right mouse :>");
-				}
-				break;
-			}
+				
+				public String messageName() { return "AddAnimal"; }
+			});								
 		}
 
 		private void render() {
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			renderStrings();
+			
+			renderGui();
 
 			if (Constants.RENDER_TERRAIN) {
 				glBegin(GL_QUADS);
@@ -233,6 +286,30 @@ public class DisplayHandler {
 			if (Constants.RENDER_ANIMALS) {
 				renderAllAnimals();
 			}
+		}
+		
+		private void renderGui()
+		{
+			glEnable(GL_TEXTURE_2D);
+			glColor3f(1,1,1);
+			for (Button button : mButtons) {
+				Vector2f pos = button.getPosition();
+				Vector2f size = button.getSize();
+				
+				display.Texture tex = button.getTexture();
+				if (tex != null)
+				{
+					tex.bind();
+				}
+				glBegin(GL_QUADS);
+				glTexCoord2f(0,0); glVertex2f(pos.x,            pos.y);
+				glTexCoord2f(1,0); glVertex2f(pos.x + size.x*2, pos.y);
+				glTexCoord2f(1,1); glVertex2f(pos.x + size.x*2, pos.y + size.y*2);
+				glTexCoord2f(0,1); glVertex2f(pos.x,            pos.y + size.y*2);
+				glEnd();
+			}
+			display.Texture.unbind();
+			glDisable(GL_TEXTURE_2D);
 		}
 
 		private void renderAllAnimals() {
@@ -294,7 +371,7 @@ public class DisplayHandler {
 
 		private void renderStrings() {
 			drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
-			drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
+			//drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
 			drawString(PIXELS_X + 150,40, "seed: " + ((int)noise.Noise.seed-1));
 			drawString(PIXELS_X + 20,60, "nAni: " + Animal.numAnimals);
 		}
@@ -310,6 +387,8 @@ public class DisplayHandler {
 			glfwDefaultWindowHints(); // optional, the current window hints are already the default
 			glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE); // the window will stay hidden after creation
 			glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // the window will be resizable
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
 			// Create the window
 			window = glfwCreateWindow(PIXELS_X + Constants.PIXELS_SIDEBOARD, PIXELS_Y, "FOXIBAR - DEAD OR ALIVE", NULL, NULL);
@@ -323,21 +402,13 @@ public class DisplayHandler {
 			});
 
 
-			glfwSetMouseButtonCallback(window, new GLFWMouseButtonCallback() {
-				@Override
-				public void invoke(long window, int button, int action, int mods) {
-					handleMouseEvents(window,button,action, mods);
-				}
+			glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
+				handleMouseEvents(window,button,action, mods);
 			});
-
-			//			glfwSetCursorPosCallback(window, new GLFWCursorPosCallback() {
-			//				
-			//				@Override
-			//				public void invoke(long window, double xpos, double ypos) {
-			//					// TODO Auto-generated method stub
-			//					
-			//				}
-			//			};
+			
+			glfwSetCursorPosCallback(window, (window, xpos, ypos) -> {
+				handleMouseMotion(window, xpos, ypos);
+			});
 
 
 			try ( MemoryStack stack = stackPush() ) {
@@ -370,6 +441,8 @@ public class DisplayHandler {
 		private void initOpenGL()
 		{
 			GL.createCapabilities();
+			
+			System.out.println("OpenGL version: " + GL11.glGetString(GL_VERSION));
 
 			// Initialization code OpenGL
 			glEnable(GL_TEXTURE_2D);               
@@ -377,8 +450,8 @@ public class DisplayHandler {
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);          
 
 			// enable alpha blending
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			//glEnable(GL_BLEND);
+			//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 			glViewport(0,0,PIXELS_X + Constants.PIXELS_SIDEBOARD,PIXELS_Y);
 
@@ -393,6 +466,30 @@ public class DisplayHandler {
 
 		public void stop() {
 			running = false;
+		}
+		
+		List<Button> mButtons;
+		
+		private void loadResources() {
+			float[] x = new float[5];
+			float[] y = new float[5];
+			
+			for (int i = 0; i < 5; ++i) {
+				x[i] = PIXELS_X + 120f*(i+1);
+				y[i] = PIXELS_Y - 80f*(i+1);
+			}
+			
+			mButtons = new ArrayList<Button>();
+			mButtons.add(new ButtonKillAll       (new Vector2f(x[0], y[0])));
+			mButtons.add(new ButtonRenderAnimals (new Vector2f(x[1], y[1])));
+			mButtons.add(new RegenerateWorld     (new Vector2f(x[1], y[2])));
+			mButtons.add(new RenderVision        (new Vector2f(x[0], y[1])));
+
+			display.Texture defaultTexture = display.Texture.fromFile("pics/defaultButton.png");
+			//display.Texture defaultTexture = display.Texture.fromFile("pics/killAllButtonTexture.png");
+			for (Button button : mButtons) {
+				button.setTexture(defaultTexture);
+			}
 		}
 	}
 
@@ -412,15 +509,15 @@ public class DisplayHandler {
 	public static void renderTexture(Texture texture,
 			float[] cornersX,  float[] cornersY, int numEdges)
 	{
-		org.newdawn.slick.Color.white.bind();
 		texture.bind();
+		glColor3f(1,1,1);
 		glBegin(GL_QUADS); {
 			for (int i = 0; i < numEdges; i++) {
 				glVertex2f(cornersX[i], cornersY[i]);
 			}
 		} glEnd();
 	}
-
+	
 	public static void renderQuad
 	(float[] color, 
 			float corner1X, float corner1Y,

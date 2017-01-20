@@ -101,7 +101,7 @@ public class Animal {
 		pool[id].isAlive = true;
 		
 //		pool[id].skill.fight = Constants.RANDOM.nextFloat();
-		if (Constants.RANDOM.nextBoolean()) {
+		if (Constants.RANDOM.nextBoolean() || true) { // TODO: This is quick hack fix yolo (2)
 			pool[id].skill.grassHarvest = 0.3f;
 			pool[id].skill.grassDigestion = 3f / pool[id].skill.grassHarvest;
 			pool[id].skill.bloodHarvest = 0f;
