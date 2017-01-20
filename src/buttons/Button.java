@@ -11,8 +11,6 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
-import constants.Constants;
-import display.DisplayHandler;
 import math.Vector2f;
 
 import static constants.Constants.*;
@@ -23,6 +21,7 @@ public abstract class Button {
 	protected Texture texture;
 	protected String texturePath = "/pics/defaultButton.png";
 	protected static long lastClicked = 0;
+	protected display.Texture mTexture = null;
 	
 	private static ArrayList<Button> allButtons = new ArrayList<Button>();
 	
@@ -32,6 +31,22 @@ public abstract class Button {
 		this.position = position;
 		texture = null;
 		allButtons.add(this);
+	}
+	
+	public display.Texture getTexture() {
+		return mTexture;
+	}
+	
+	public void setTexture(display.Texture pTexture) {
+		mTexture = pTexture;
+	}
+	
+	public Vector2f getPosition() {
+		return position;
+	}
+	
+	public Vector2f getSize() {
+		return size;
 	}
 	
 	public static void updateAllButtons() {

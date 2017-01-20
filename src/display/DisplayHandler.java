@@ -3,24 +3,24 @@ package display;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.system.*;
-import static org.lwjgl.glfw.Callbacks.*;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-import java.awt.Font;
+//import java.awt.Font;
 import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.lwjgl.glfw.GLFWCursorPosCallback;
-import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.newdawn.slick.Color;
-import org.newdawn.slick.TrueTypeFont;
+//import org.newdawn.slick.Color;
+//import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.Texture;
 
 import world.World;
@@ -28,6 +28,10 @@ import constants.Constants;
 import math.Vector2f;
 import agents.Animal;
 import buttons.Button;
+import buttons.ButtonKillAll;
+import buttons.ButtonRenderAnimals;
+import buttons.RegenerateWorld;
+import buttons.RenderVision;
 
 public class DisplayHandler {
 
@@ -91,6 +95,7 @@ public class DisplayHandler {
 		public void run() {
 			initWindow();
 			initOpenGL();
+			loadResources();
 
 			while(handleEvents()) {
 				render();
@@ -223,6 +228,8 @@ public class DisplayHandler {
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			renderStrings();
+			
+			renderGui();
 
 			if (Constants.RENDER_TERRAIN) {
 				glBegin(GL_QUADS);
@@ -232,6 +239,21 @@ public class DisplayHandler {
 
 			if (Constants.RENDER_ANIMALS) {
 				renderAllAnimals();
+			}
+		}
+		
+		private void renderGui() {
+			for (Button button : mButtons) {
+				Vector2f pos = button.getPosition();
+				Vector2f size = button.getSize();
+				
+				// TODO: Bind texture.
+				glBegin(GL_QUADS);
+				glVertex2f(pos.x,          pos.y);
+				glVertex2f(pos.x + size.x, pos.y);
+				glVertex2f(pos.x + size.x, pos.y + size.y);
+				glVertex2f(pos.x,          pos.y + size.y);
+				glEnd();
 			}
 		}
 
@@ -394,6 +416,29 @@ public class DisplayHandler {
 		public void stop() {
 			running = false;
 		}
+		
+		List<Button> mButtons;
+		
+		private void loadResources() {
+			float[] x = new float[5];
+			float[] y = new float[5];
+			
+			for (int i = 0; i < 5; ++i) {
+				x[i] = PIXELS_X + 120f*(i+1);
+				y[i] = PIXELS_Y - 80f*(i+1);
+			}
+			
+			mButtons = new ArrayList<Button>();
+			mButtons.add(new ButtonKillAll       (new Vector2f(x[0], y[0])));
+			mButtons.add(new ButtonRenderAnimals (new Vector2f(x[1], y[1])));
+			mButtons.add(new RegenerateWorld     (new Vector2f(x[1], y[2])));
+			mButtons.add(new RenderVision        (new Vector2f(x[0], y[1])));
+
+			display.Texture defaultTexture = display.Texture.fromFile("/pics/defaultButton.png");
+			for (Button button : mButtons) {
+				button.setTexture(defaultTexture);
+			}
+		}
 	}
 
 	private static void drawString(int x, int y, String text)
@@ -412,15 +457,15 @@ public class DisplayHandler {
 	public static void renderTexture(Texture texture,
 			float[] cornersX,  float[] cornersY, int numEdges)
 	{
-		org.newdawn.slick.Color.white.bind();
 		texture.bind();
+		glColor3f(1,1,1);
 		glBegin(GL_QUADS); {
 			for (int i = 0; i < numEdges; i++) {
 				glVertex2f(cornersX[i], cornersY[i]);
 			}
 		} glEnd();
 	}
-
+	
 	public static void renderQuad
 	(float[] color, 
 			float corner1X, float corner1Y,
