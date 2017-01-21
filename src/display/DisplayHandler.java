@@ -3,6 +3,7 @@ package display;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.system.*;
+
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -25,6 +26,7 @@ import org.newdawn.slick.opengl.Texture;
 
 import world.World;
 import constants.Constants;
+import main.Main;
 import math.Vector2f;
 import agents.Animal;
 import buttons.Button;
@@ -45,7 +47,7 @@ public class DisplayHandler {
 	private static RenderThread renderThread;
 	public Thread renderThreadThread;
 
-	public static float[][] terrainColor;
+	public static float[] terrainColor;
 
 	private static final int PIXELS_X = Constants.PIXELS_X;
 	private static final int PIXELS_Y = Constants.PIXELS_Y;
@@ -65,7 +67,7 @@ public class DisplayHandler {
 		renderThreadThread = new Thread(renderThread);
 		renderThreadThread.start();
 		Button.initAll();
-		terrainColor = new float[Constants.WORLD_SIZE][3];
+		terrainColor = new float[3];
 	}
 
 	public void exit() {
@@ -229,9 +231,38 @@ public class DisplayHandler {
 				renderTerrain();
 				glEnd();
 			}
+			
+			if (Constants.RENDER_VISION) {
+				glBegin(GL_QUADS);
+				renderVision();
+				glEnd();
+			}
 
 			if (Constants.RENDER_ANIMALS) {
 				renderAllAnimals();
+			}
+		}
+
+		private void renderVision() {
+			width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
+			height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
+			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
+			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
+
+			int i = startY + Constants.WORLD_SIZE_X * startX; 
+			int j = i;
+			for (int x = 0; x < width; ++x, j = World.south[j]) {
+				i = j;
+				for (int y = 0; y < height; ++y, i = World.east[i]) {
+					Main.vision.updateColor(terrainColor, i);
+					float screenPositionX = x * pixelsPerNodeX;
+					float screenPositionY = y * pixelsPerNodeY;
+					renderQuad(terrainColor,
+							screenPositionX, screenPositionY, 
+							screenPositionX + pixelsPerNodeX, screenPositionY, 
+							screenPositionX + pixelsPerNodeX, screenPositionY + pixelsPerNodeY, 
+							screenPositionX, screenPositionY + pixelsPerNodeY);
+				}
 			}
 		}
 
@@ -282,7 +313,7 @@ public class DisplayHandler {
 					World.updateColor(terrainColor, i);
 					float screenPositionX = x * pixelsPerNodeX;
 					float screenPositionY = y * pixelsPerNodeY;
-					renderQuad(terrainColor[i],
+					renderQuad(terrainColor,
 							screenPositionX, screenPositionY, 
 							screenPositionX + pixelsPerNodeX, screenPositionY, 
 							screenPositionX + pixelsPerNodeX, screenPositionY + pixelsPerNodeY, 

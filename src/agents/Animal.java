@@ -49,6 +49,7 @@ public class Animal {
 	public static int numAnimals = 0;
 	public static int[] containsAnimals;
 	public static boolean killAll = false;
+	public static final int INVALID_ID = -1;
 	
 	public static void moveAll() {
 		if (killAll) {
@@ -56,7 +57,7 @@ public class Animal {
 				a.die();
 			}
 			for (int i = 0; i < containsAnimals.length; ++i) {
-				containsAnimals[i] = -1;
+				containsAnimals[i] = INVALID_ID;
 			}
 			System.out.println("Num animals alive after killing them all: " + numAnimals);
 			numAnimals = 0;
@@ -82,7 +83,7 @@ public class Animal {
 		containsAnimals = new int[Constants.WORLD_SIZE];
 		
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			containsAnimals[i] = -1;
+			containsAnimals[i] = INVALID_ID;
 		}
 		
 		for(int i = 0; i < Constants.MAX_NUM_ANIMALS; ++i) {
@@ -146,7 +147,7 @@ public class Animal {
 	private void move() {
 
 		// Remove animal from the world temporarily :F
-		containsAnimals[pos] = -1;
+		containsAnimals[pos] = INVALID_ID;
 		
 		// Calculate to where we want to move
 		short[] bestDir = new short[1];
@@ -235,7 +236,7 @@ public class Animal {
 			}
 			if (pool[i].isFertile && !pool[i].isHungry()) {
 				int neighId;
-				if ((neighId = containsAnimals[World.neighbour[i][pos]]) != -1 && pool[neighId].isFertile) {
+				if ((neighId = containsAnimals[World.neighbour[i][pos]]) != INVALID_ID && pool[neighId].isFertile) {
 					bestDir[Activity.FERTILE] = (short) i;
 				}
 			}
@@ -276,7 +277,7 @@ public class Animal {
 		if (this.isAlive) {
 			numAnimals--;
 		}
-		containsAnimals[pos] = -1;
+		containsAnimals[pos] = INVALID_ID;
 		isAlive = false;
 		World.blood.append(pos);
 	}

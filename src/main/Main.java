@@ -1,9 +1,12 @@
 package main;
 
 import constants.Constants;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+
 import agents.Animal;
+import world.Vision;
 import world.World;
 import display.DisplayHandler;
 
@@ -18,6 +21,7 @@ public class Main {
 	private static double frameEndTime;
 
 	private static ConcurrentLinkedQueue<SimulationEvent> incomingEvents;
+	public static Vision vision;
 
 
 	public static void main(String[] args) throws Exception {
@@ -25,6 +29,7 @@ public class Main {
 		incomingEvents = new ConcurrentLinkedQueue<SimulationEvent>();
 
 		world = new World();
+		vision = new Vision();
 		World.regenerate();
 		Animal.init();
 		displayHandler = new DisplayHandler();
@@ -37,6 +42,7 @@ public class Main {
 			while (handleEvents() && displayHandler.renderThreadThread.isAlive()) {
 				world.update();
 				Animal.moveAll();
+				vision.update();
 
 				sleepUntilNextUpdate();
 			}

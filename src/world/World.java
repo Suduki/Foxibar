@@ -92,24 +92,24 @@ public class World {
 		grass.regenerate();
 	}
 	
-	public static void updateColor(float[][] a, int pos) {
+	public static void updateColor(float[] a, int pos) {
 		float grassness, dirtness;
 		float[] temp = new float[3]; //TODO remove new somehow.
 		
 		grassness = grass.height[pos];
-		a[pos][0] = grassness*grass.color[0];
-		a[pos][1] = grassness*grass.color[1];
-		a[pos][2] = grassness*grass.color[2];
+		a[0] = grassness*grass.color[0];
+		a[1] = grassness*grass.color[1];
+		a[2] = grassness*grass.color[2];
 
 		terrain.getColor(pos, temp);
 		dirtness = 1 - grassness;
-		a[pos][0] += dirtness*temp[0];
-		a[pos][1] += dirtness*temp[1];
-		a[pos][2] += dirtness*temp[2];
+		a[0] += dirtness*temp[0];
+		a[1] += dirtness*temp[1];
+		a[2] += dirtness*temp[2];
 		
 		blood.getColor(pos, temp);
-		a[pos][0] += temp[0];
-		a[pos][1] += temp[1];
-		a[pos][2] += temp[2];
+		a[0] += temp[0];
+		a[1] += temp[1];
+		a[2] += temp[2];
 	}
 }
