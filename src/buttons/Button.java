@@ -20,7 +20,6 @@ public abstract class Button {
 	protected Vector2f size;
 	protected Texture texture;
 	protected String texturePath = "/pics/defaultButton.png";
-	protected static long lastClicked = 0;
 	protected display.Texture mTexture = null;
 	
 	private static ArrayList<Button> allButtons = new ArrayList<Button>();
