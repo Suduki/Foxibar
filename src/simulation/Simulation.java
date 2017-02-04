@@ -1,7 +1,10 @@
 package simulation;
 
+import vision.Vision;
 import world.World;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
+
 import agents.Animal;
 import messages.MessageHandler;
 import messages.Message;
@@ -14,6 +17,7 @@ public class Simulation extends MessageHandler {
 	{
 		mWorld = new World();
 		Animal.init();
+		Vision.init();
 		this.message(new messages.DummyMessage());
 	}
 	
@@ -27,6 +31,7 @@ public class Simulation extends MessageHandler {
 		if (!mPaused)
 		{
 			mWorld.update();
+			Vision.updateAnimalVision();
 			Animal.moveAll();
 		}
 	}

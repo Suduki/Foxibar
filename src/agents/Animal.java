@@ -3,8 +3,10 @@ package agents;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import vision.Vision;
 import world.World;
 import constants.Constants;
+import constants.Constants.Neighbours;
 import static constants.Constants.Neighbours.*;
 
 public class Animal {
@@ -14,9 +16,10 @@ public class Animal {
 	private int id;
 	public float size = 3f;
 	public float[] color;
-	private int pos;
-	private boolean isAlive;
+	public int pos;
+	public boolean isAlive;
 	private float hunger;
+	public int[] neighbours;
 	
 	private float recover = 0f;
 	
@@ -100,15 +103,19 @@ public class Animal {
 		}
 		pool[id].isAlive = true;
 		
+		for (int i = 0; i < pool[id].neighbours.length; ++i) {
+			pool[id].neighbours[i] = -1;
+		}
+		
 //		pool[id].skill.fight = Constants.RANDOM.nextFloat();
 		if (Constants.RANDOM.nextBoolean() || true) { // TODO: This is quick hack fix yolo (2)
 			pool[id].skill.grassHarvest = 0.3f;
 			pool[id].skill.grassDigestion = 3f / pool[id].skill.grassHarvest;
 			pool[id].skill.bloodHarvest = 0f;
 			pool[id].skill.bloodDigestion = 0f;
-			pool[id].color[0] = 0;
-			pool[id].color[1] = 1;
-			pool[id].color[2] = 1;
+			pool[id].color[0] = Constants.RANDOM.nextFloat();
+			pool[id].color[1] = Constants.RANDOM.nextFloat();
+			pool[id].color[2] = Constants.RANDOM.nextFloat();
 		}
 		else {
 			pool[id].skill.grassHarvest = 0f;
@@ -142,6 +149,7 @@ public class Animal {
 		this.isAlive = false;
 		this.color = new float[3];
 		this.skill = new Skill();
+		this.neighbours = new int[Constants.NUM_NEIGHBOURS];
 	}
 	private void move() {
 
@@ -174,6 +182,8 @@ public class Animal {
 		
 		// Add animal to the world again :)
 		containsAnimals[pos] = id;
+		
+		Vision.updateNearestNeighbours(id);
 		
 		hunger--;
 		if (hunger < 0) {

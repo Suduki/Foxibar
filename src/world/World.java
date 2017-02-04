@@ -107,9 +107,11 @@ public class World {
 		a[pos][1] += dirtness*temp[1];
 		a[pos][2] += dirtness*temp[2];
 		
-		blood.getColor(pos, temp);
-		a[pos][0] += temp[0];
-		a[pos][1] += temp[1];
-		a[pos][2] += temp[2];
+		if (Constants.RENDER_BLOOD) {
+			blood.getColor(pos, temp);
+			a[pos][0] += temp[0];
+			a[pos][1] += temp[1];
+			a[pos][2] += temp[2];
+		}
 	}
 }
