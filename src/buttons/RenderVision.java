@@ -10,7 +10,7 @@ public class RenderVision extends Button {
 		super(position);
 	}
 
-	@Override
+	//@Override
 	public void onClick() {
 		Constants.RENDER_TERRAIN = !Constants.RENDER_TERRAIN;
 	}

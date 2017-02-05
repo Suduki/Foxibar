@@ -29,10 +29,6 @@ import messages.Message;
 import messages.MessageHandler;
 import agents.Animal;
 import buttons.Button;
-import buttons.ButtonKillAll;
-import buttons.ButtonRenderAnimals;
-import buttons.RegenerateWorld;
-import buttons.RenderVision;
 import input.Mouse;
 
 public class DisplayHandler extends MessageHandler {
@@ -75,7 +71,7 @@ public class DisplayHandler extends MessageHandler {
 		renderThread = new RenderThread(this);
 		renderThreadThread = new Thread(renderThread);
 		renderThreadThread.start();
-		Button.initAll();
+		//Button.initAll();
 		terrainColor = new float[Constants.WORLD_SIZE][3];
 		
 		this.message(new messages.DummyMessage());
@@ -109,6 +105,8 @@ public class DisplayHandler extends MessageHandler {
 			initWindow();
 			initOpenGL();
 			loadResources();
+			
+			
 
 			while(displayHandler.handleMessages() && handleEvents()) {
 				render();
@@ -126,7 +124,7 @@ public class DisplayHandler extends MessageHandler {
 		}
 
 		private boolean handleEvents() {
-			Button.updateAllButtons();
+			//Button.updateAllButtons();
 
 			if (glfwWindowShouldClose(window)) {
 				return false;
@@ -198,6 +196,9 @@ public class DisplayHandler extends MessageHandler {
 						zoomFactor = 1f;
 					}
 					break;
+				case GLFW_KEY_K:
+					mSimulation.message(new messages.KillAllAnimals());
+					break;
 				}
 			}
 		}
@@ -225,6 +226,46 @@ public class DisplayHandler extends MessageHandler {
 			return pos.x >= Constants.PIXELS_X && pos.x < Constants.WINDOW_WIDTH && pos.y >= 0 && pos.y < Constants.PIXELS_Y;
 		}
 
+		Button mClickButton = null;
+		
+		private void guiStartClick(Vector2f pos)
+		{
+			for (Button button : mButtons)
+			{
+				if (button.insideBounds(pos.x, pos.y))
+				{
+					mClickButton = button;
+					break;
+				}
+			}
+		}
+		
+		private void guiEndClick(Vector2f pos)
+		{
+			if (mClickButton == null)
+			{
+				return;
+			}
+			
+			Button endButton = null;
+			for (Button button : mButtons)
+			{
+				if (button.insideBounds(pos.x, pos.y))
+				{
+					endButton = button;
+					break;
+				}
+			}
+			
+			if (mClickButton == endButton)
+			{
+				mClickButton.click();
+				System.err.println("Woho! A button was clicked!");
+			}
+			
+			mClickButton = null;
+		}
+		
 		private void handleMouseEvents(long window, int button, int action, int mods) {
 			mouse.setButtonPressed(button, action == GLFW_PRESS);
 			
@@ -237,23 +278,29 @@ public class DisplayHandler extends MessageHandler {
 				}
 				else if (insideGui(mouse.getPos()))
 				{
+					if (action == GLFW_PRESS)
+					{
+						guiStartClick(mouse.getPos());
+					}
+					else
+					{
+						guiEndClick(mouse.getPos());
+					}
 				}
 			} break;
 				
 			default:
 				break;
 			}
-			
-			mouse.dump();
 		}
 
 
+		// TODO: This should be made sane.
 		private void addAnimal() {
 			mSimulation.message( new messages.Message() {
 				Mouse eventmouse = new Mouse(DisplayHandler.mouse);
 				@Override
 				public void evaluate(simulation.Simulation simulation) {
-					// TODO Auto-generated method stub
 					float viewX = eventmouse.getX()/Constants.PIXELS_X;
 					float viewY = eventmouse.getY()/Constants.PIXELS_Y;
 
@@ -290,22 +337,23 @@ public class DisplayHandler extends MessageHandler {
 		
 		private void renderGui()
 		{
+			Vector2f m = mouse.getPos();
+			
 			glEnable(GL_TEXTURE_2D);
 			glColor3f(1,1,1);
 			for (Button button : mButtons) {
 				Vector2f pos = button.getPosition();
 				Vector2f size = button.getSize();
-				
-				display.Texture tex = button.getTexture();
+				display.Texture tex = button.getTexture(); 
 				if (tex != null)
 				{
 					tex.bind();
 				}
 				glBegin(GL_QUADS);
-				glTexCoord2f(0,0); glVertex2f(pos.x,            pos.y);
-				glTexCoord2f(1,0); glVertex2f(pos.x + size.x*2, pos.y);
-				glTexCoord2f(1,1); glVertex2f(pos.x + size.x*2, pos.y + size.y*2);
-				glTexCoord2f(0,1); glVertex2f(pos.x,            pos.y + size.y*2);
+				glTexCoord2f(0,0); glVertex2f(pos.x,          pos.y);
+				glTexCoord2f(1,0); glVertex2f(pos.x + size.x, pos.y);
+				glTexCoord2f(1,1); glVertex2f(pos.x + size.x, pos.y + size.y);
+				glTexCoord2f(0,1); glVertex2f(pos.x,          pos.y + size.y);
 				glEnd();
 			}
 			display.Texture.unbind();
@@ -470,7 +518,8 @@ public class DisplayHandler extends MessageHandler {
 		
 		List<Button> mButtons;
 		
-		private void loadResources() {
+		private void loadResources()
+		{
 			float[] x = new float[5];
 			float[] y = new float[5];
 			
@@ -479,17 +528,29 @@ public class DisplayHandler extends MessageHandler {
 				y[i] = PIXELS_Y - 80f*(i+1);
 			}
 			
-			mButtons = new ArrayList<Button>();
-			mButtons.add(new ButtonKillAll       (new Vector2f(x[0], y[0])));
-			mButtons.add(new ButtonRenderAnimals (new Vector2f(x[1], y[1])));
-			mButtons.add(new RegenerateWorld     (new Vector2f(x[1], y[2])));
-			mButtons.add(new RenderVision        (new Vector2f(x[0], y[1])));
-
 			display.Texture defaultTexture = display.Texture.fromFile("pics/defaultButton.png");
-			//display.Texture defaultTexture = display.Texture.fromFile("pics/killAllButtonTexture.png");
-			for (Button button : mButtons) {
-				button.setTexture(defaultTexture);
-			}
+			
+			Button button;
+			mButtons = new ArrayList<Button>();
+			
+			button = new Button(x[0], y[0]);
+			button.setTexture(display.Texture.fromFile("pics/killAllButtonTexture.png"));
+			button.setClickMessage(mSimulation, new messages.KillAllAnimals());
+			mButtons.add(button);
+			
+			button = new Button(x[1], y[1]);
+			button.setTexture(display.Texture.fromFile("pics/renderAnimals.png"));
+			button.setClickMessage(displayHandler, new messages.ToggleRenderAnimals());
+			mButtons.add(button);
+			
+			button = new Button(x[1], y[2]);
+			button.setTexture(display.Texture.fromFile("pics/regenerateWorld.png"));
+			button.setClickMessage(mSimulation, new messages.RegenerateWorld());
+			mButtons.add(button);
+			
+			button = new Button(x[0], y[1]);
+			button.setTexture(defaultTexture);
+			mButtons.add(button);		
 		}
 	}
 
