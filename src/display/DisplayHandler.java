@@ -1,6 +1,5 @@
 package display;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.system.*;
 
@@ -10,7 +9,6 @@ import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 //import java.awt.Font;
-import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +18,6 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL45;
 //import org.newdawn.slick.Color;
 //import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.Texture;
@@ -28,6 +25,8 @@ import org.newdawn.slick.opengl.Texture;
 import world.World;
 import constants.Constants;
 import math.Vector2f;
+import messages.Message;
+import messages.MessageHandler;
 import agents.Animal;
 import buttons.Button;
 import buttons.ButtonKillAll;
@@ -36,7 +35,7 @@ import buttons.RegenerateWorld;
 import buttons.RenderVision;
 import input.Mouse;
 
-public class DisplayHandler {
+public class DisplayHandler extends MessageHandler {
 
 	//private static TrueTypeFont font;
 	//private static Font awtFont;
@@ -47,7 +46,7 @@ public class DisplayHandler {
 	static int width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
 	static int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
 
-	private static CountDownLatch pauseLatch = null;
+	private static boolean mSimulationPaused = false;
 
 
 	public static float[][] terrainColor;
@@ -58,6 +57,8 @@ public class DisplayHandler {
 
 	public Thread renderThreadThread;
 	private static Mouse mouse = new input.Mouse();
+	
+	private static simulation.Simulation mSimulation;
 
 	public Vector2f worldCoordFromWindowCoord(float windowX, float windowY)
 	{
@@ -69,14 +70,22 @@ public class DisplayHandler {
 		return new Vector2f(0f,0f);
 	}
 
-	public DisplayHandler() {
+	public DisplayHandler(simulation.Simulation pSimulation) {
+		mSimulation = pSimulation;
 		renderThread = new RenderThread(this);
 		renderThreadThread = new Thread(renderThread);
 		renderThreadThread.start();
 		Button.initAll();
 		terrainColor = new float[Constants.WORLD_SIZE][3];
+		
+		this.message(new messages.DummyMessage());
 	}
 
+	protected void evaluateMessage(Message pMessage)
+	{
+		pMessage.evaluate(this);
+	}
+	
 	public void exit() {
 		renderThread.stop();
 		try {
@@ -85,7 +94,6 @@ public class DisplayHandler {
 			e.printStackTrace();
 		}
 	}
-
 
 	private static class RenderThread implements Runnable {
 		private boolean running;
@@ -102,16 +110,16 @@ public class DisplayHandler {
 			initOpenGL();
 			loadResources();
 
-			while(handleEvents()) {
+			while(displayHandler.handleMessages() && handleEvents()) {
 				render();
 				glfwSwapBuffers(window);			
 			}
 
 			displayHandler.exit();
 
-			if (pauseLatch != null)
+			if (mSimulationPaused)
 			{
-				pauseLatch.countDown();
+				togglePause();
 			}
 
 			System.out.println("Render thread finished.");
@@ -130,15 +138,13 @@ public class DisplayHandler {
 		}
 
 		private void togglePause() {
-			if (pauseLatch != null)
+			if ((mSimulationPaused ^= true))
 			{
-				pauseLatch.countDown();
-				pauseLatch = null;
+				mSimulation.message(new messages.PauseSimulation());
 			}
 			else
 			{
-				pauseLatch = new CountDownLatch(1);
-				main.Main.putEvent(new main.Main.PauseSimulationEvent(pauseLatch));
+				mSimulation.message(new messages.UnpauseSimulation());
 			}
 		}
 
@@ -243,10 +249,10 @@ public class DisplayHandler {
 
 
 		private void addAnimal() {
-			main.Main.putEvent( new main.Main.SimulationEvent() {
+			mSimulation.message( new messages.Message() {
 				Mouse eventmouse = new Mouse(DisplayHandler.mouse);
 				@Override
-				public void evaluate() {
+				public void evaluate(simulation.Simulation simulation) {
 					// TODO Auto-generated method stub
 					float viewX = eventmouse.getX()/Constants.PIXELS_X;
 					float viewY = eventmouse.getY()/Constants.PIXELS_Y;
@@ -254,10 +260,13 @@ public class DisplayHandler {
 					Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
 
 					int i = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;		
-					if (Animal.containsAnimals[i] == -1) {
+					if (Animal.containsAnimals[i] == -1)
+					{
 						Animal.resurrectAnimal(i, 0f, 1f, 3);
 					}
 				}
+				
+				public String messageName() { return "AddAnimal"; }
 			});								
 		}
 
@@ -362,7 +371,7 @@ public class DisplayHandler {
 
 		private void renderStrings() {
 			drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
-			drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
+			//drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
 			drawString(PIXELS_X + 150,40, "seed: " + ((int)noise.Noise.seed-1));
 			drawString(PIXELS_X + 20,60, "nAni: " + Animal.numAnimals);
 		}
