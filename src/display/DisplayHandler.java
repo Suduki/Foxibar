@@ -277,8 +277,43 @@ public class DisplayHandler {
 			if (Constants.RENDER_ANIMALS) {
 				renderAllAnimals();
 			}
+			
+			if (Constants.RENDER_VISION) {
+				renderVision();
+			}
 		}
 		
+		private void renderVision() {
+			width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
+			height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
+			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
+			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
+
+			for (int id = 0; id < Animal.pool.length; ++id) {
+				if (Animal.pool[id].isAlive) {
+					int pos = Animal.pool[id].pos;
+					float x = (pos % Constants.WORLD_SIZE_X)*pixelsPerNodeY + pixelsPerNodeY/2;
+					float y = (pos / Constants.WORLD_SIZE_X)*pixelsPerNodeX + pixelsPerNodeX/2;
+					for (int id2 : Animal.pool[id].neighbours) {
+						if (id2 != -1) {
+							int pos2 = Animal.pool[id2].pos;
+							float x2 = (pos2 % Constants.WORLD_SIZE_X)*pixelsPerNodeY + pixelsPerNodeY/2;
+							float y2 = (pos2 / Constants.WORLD_SIZE_X)*pixelsPerNodeX + pixelsPerNodeX/2;
+							float distance = Math.abs(x-x2) + Math.abs(y-y2);
+//							if (distance < 10) {
+							glBegin(GL_LINES);
+							glColor3f(Animal.pool[id].color[0], Animal.pool[id].color[1], Animal.pool[id].color[2]);
+								glVertex2f(y, x);
+								glVertex2f(y2, x2);
+								glEnd();
+//							}
+						}
+					}
+				}
+			}
+			
+		}
+
 		private void renderGui()
 		{
 			glEnable(GL_TEXTURE_2D);
