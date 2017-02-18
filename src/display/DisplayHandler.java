@@ -1,6 +1,8 @@
 package display;
 
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
+import org.lwjgl.glfw.GLFWScrollCallback;
+import org.lwjgl.glfw.GLFWScrollCallbackI;
 import org.lwjgl.system.*;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -8,19 +10,14 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-//import java.awt.Font;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
-//import org.newdawn.slick.Color;
-//import org.newdawn.slick.TrueTypeFont;
-import org.newdawn.slick.opengl.Texture;
 
 import world.World;
 import constants.Constants;
@@ -31,11 +28,8 @@ import agents.Animal;
 import buttons.Button;
 import input.Mouse;
 
-public class DisplayHandler extends MessageHandler {
-
-	//private static TrueTypeFont font;
-	//private static Font awtFont;
-
+public class DisplayHandler extends MessageHandler
+{
 	static int startY = 0;
 	static int startX = 0;
 	static float zoomFactor = Constants.INIT_ZOOM;
@@ -43,7 +37,6 @@ public class DisplayHandler extends MessageHandler {
 	static int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
 
 	private static boolean mSimulationPaused = false;
-
 
 	public static float[][] terrainColor;
 
@@ -56,6 +49,8 @@ public class DisplayHandler extends MessageHandler {
 	
 	private static simulation.Simulation mSimulation;
 
+	private static Texture defaultTexture;
+	
 	public Vector2f worldCoordFromWindowCoord(float windowX, float windowY)
 	{
 		return new Vector2f(0f,0f);
@@ -71,7 +66,6 @@ public class DisplayHandler extends MessageHandler {
 		renderThread = new RenderThread(this);
 		renderThreadThread = new Thread(renderThread);
 		renderThreadThread.start();
-		//Button.initAll();
 		terrainColor = new float[Constants.WORLD_SIZE][3];
 		
 		this.message(new messages.DummyMessage());
@@ -184,26 +178,22 @@ public class DisplayHandler extends MessageHandler {
 						startY = 0;
 					}
 					break;
-				case GLFW_KEY_Q:
-					zoomFactor*=Constants.ZOOM_SPEED;
-					if (zoomFactor >= 20) {
-						zoomFactor = 20;
-					}
-					break;
-				case GLFW_KEY_E:
-					zoomFactor/=Constants.ZOOM_SPEED;
-					if (zoomFactor < 1f) {
-						zoomFactor = 1f;
-					}
-					break;
+					
 				case GLFW_KEY_K:
 					mSimulation.message(new messages.KillAllAnimals());
+					break;
+					
+				case GLFW_KEY_R:
+					zoomFactor = 1.0f;
+					x0 = 0;
+					y0 = 0;
 					break;
 				}
 			}
 		}
 
-		private void handleMouseMotion(long window, double xpos, double ypos) {
+		private void handleMouseMotion(long window, double xpos, double ypos)
+		{
 			mouse.setPosition((float)xpos,  (float)ypos);
 			
 			if (insideViewport(mouse.getPos()) && mouse.buttonPressed(0))
@@ -212,9 +202,46 @@ public class DisplayHandler extends MessageHandler {
 			}
 		}
 		
+		static float x0 = 0;
+		static float y0 = 0;
+		
+		private void handleScrollWheel(long window, double xoffset, double yoffset)
+		{
+			System.out.println("Scroll: (" + xoffset + "," + yoffset + ")");
+			
+			
+			Vector2f mpos = mouse.getPos();
+			if (insideViewport(mpos))
+			{
+				float dz = 1.0f;
+				if (yoffset < 0)
+				{
+					dz *= Constants.ZOOM_SPEED;
+				}
+				if (yoffset > 0)
+				{
+					dz /= Constants.ZOOM_SPEED;
+				}
+			
+				float tx = mpos.x/Constants.PIXELS_X;
+				float ty = mpos.y/Constants.PIXELS_Y;
+				
+				float z = zoomFactor*(1.0f - dz);
+				x0 = x0 + tx*z;
+				y0 = y0 + ty*z;
+				
+				zoomFactor *= dz;
+			}
+		}
+		
 		private Vector2f worldPosFromViewPos(float x, float y)
 		{
-			return new Vector2f(x*Constants.WORLD_SIZE_X, y*Constants.WORLD_SIZE_Y);
+			float u = x0 + zoomFactor*x;
+			float v = y0 + zoomFactor*y;
+			for (;u < 0; u+=1.0f); for (;u >= 1.0f; u-=1.0f);
+			for (;v < 0; v+=1.0f); for (;v >= 1.0f; v-=1.0f);
+			
+			return new Vector2f(u*Constants.WORLD_SIZE_X, v*Constants.WORLD_SIZE_Y);
 		}
 		
 		boolean insideViewport(Vector2f pos)
@@ -222,7 +249,8 @@ public class DisplayHandler extends MessageHandler {
 			return pos.x >= 0 && pos.x < Constants.PIXELS_X && pos.y >= 0 && pos.y < Constants.PIXELS_Y;
 		}
 		
-		private boolean insideGui(Vector2f pos) {
+		private boolean insideGui(Vector2f pos)
+		{
 			return pos.x >= Constants.PIXELS_X && pos.x < Constants.WINDOW_WIDTH && pos.y >= 0 && pos.y < Constants.PIXELS_Y;
 		}
 
@@ -325,9 +353,7 @@ public class DisplayHandler extends MessageHandler {
 			renderGui();
 
 			if (Constants.RENDER_TERRAIN) {
-				glBegin(GL_QUADS);
 				renderTerrain();
-				glEnd();
 			}
 
 			if (Constants.RENDER_ANIMALS) {
@@ -335,7 +361,7 @@ public class DisplayHandler extends MessageHandler {
 			}
 			
 			if (Constants.RENDER_VISION) {
-				renderVision();
+		//		renderVision();
 			}
 		}
 		
@@ -396,13 +422,20 @@ public class DisplayHandler extends MessageHandler {
 		}
 
 		private void renderAllAnimals() {
-			width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
-			height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
+			width = Math.round(zoomFactor*Constants.WORLD_SIZE_X);
+			height = Math.round(zoomFactor*Constants.WORLD_SIZE_Y);
 			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
 			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
 
 			glBegin(GL_TRIANGLES);
-			int i = startY + Constants.WORLD_SIZE_X * startX; 
+			
+			int xOffset = (int)(x0 * Constants.WORLD_SIZE_X);
+			int yOffset = (int)(y0 * Constants.WORLD_SIZE_Y);
+			for (;xOffset < 0; xOffset+=Constants.WORLD_SIZE_X);
+			for (;yOffset < 0; yOffset+=Constants.WORLD_SIZE_Y);
+			for (;xOffset >= Constants.WORLD_SIZE_X; xOffset-=Constants.WORLD_SIZE_X);
+			for (;yOffset >= Constants.WORLD_SIZE_Y; yOffset-=Constants.WORLD_SIZE_Y);
+			int i = yOffset + Constants.WORLD_SIZE_X * xOffset; 
 			int j = i;
 			for (int x = 0; x < width; ++x, j = World.south[j]) {
 				i = j;
@@ -429,16 +462,27 @@ public class DisplayHandler extends MessageHandler {
 
 		private void renderTerrain() {
 
-			width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
-			height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
+			
+			width = Math.round(zoomFactor*Constants.WORLD_SIZE_X);
+			height = Math.round(zoomFactor*Constants.WORLD_SIZE_Y);
+			int xOffset = (int)(x0 * Constants.WORLD_SIZE_X);
+			int yOffset = (int)(y0 * Constants.WORLD_SIZE_Y);
+			for (;xOffset < 0; xOffset+=Constants.WORLD_SIZE_X);
+			for (;yOffset < 0; yOffset+=Constants.WORLD_SIZE_Y);
+			for (;xOffset >= Constants.WORLD_SIZE_X; xOffset-=Constants.WORLD_SIZE_X);
+			for (;yOffset >= Constants.WORLD_SIZE_Y; yOffset-=Constants.WORLD_SIZE_Y);
+			
 			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
 			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
 
-			int i = startY + Constants.WORLD_SIZE_X * startX; 
+			glBegin(GL_QUADS);
+			int i = yOffset + Constants.WORLD_SIZE_X * xOffset; 
 			int j = i;
-			for (int x = 0; x < width; ++x, j = World.south[j]) {
+			for (int x = 0; x < width; ++x, j = World.south[j])
+			{
 				i = j;
-				for (int y = 0; y < height; ++y, i = World.east[i]) {
+				for (int y = 0; y < height; ++y, i = World.east[i])
+				{
 					World.updateColor(terrainColor, i);
 					float screenPositionX = x * pixelsPerNodeX;
 					float screenPositionY = y * pixelsPerNodeY;
@@ -449,7 +493,8 @@ public class DisplayHandler extends MessageHandler {
 							screenPositionX, screenPositionY + pixelsPerNodeY);
 				}
 			}
-
+			
+			glEnd();
 		}
 
 		private void renderStrings() {
@@ -493,6 +538,9 @@ public class DisplayHandler extends MessageHandler {
 				handleMouseMotion(window, xpos, ypos);
 			});
 
+			glfwSetScrollCallback(window, (window, xoffset, yoffset) -> {
+				handleScrollWheel(window, xoffset, yoffset);
+			});
 
 			try ( MemoryStack stack = stackPush() ) {
 				IntBuffer pWidth = stack.mallocInt(1); // int*
@@ -527,24 +575,16 @@ public class DisplayHandler extends MessageHandler {
 			
 			System.out.println("OpenGL version: " + GL11.glGetString(GL_VERSION));
 
-			// Initialization code OpenGL
 			glEnable(GL_TEXTURE_2D);               
 
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);          
-
-			// enable alpha blending
-			//glEnable(GL_BLEND);
-			//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			
 			glViewport(0,0,PIXELS_X + Constants.PIXELS_SIDEBOARD,PIXELS_Y);
 
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
 			glOrtho(0, PIXELS_X + Constants.PIXELS_SIDEBOARD, PIXELS_Y, 0, 1, -1);
 			glMatrixMode(GL_MODELVIEW);
-
-			//Font awtFont = new Font("Courier", Font.PLAIN, 18);
-			//font = new TrueTypeFont(awtFont, true);
 		}
 
 		public void stop() {
@@ -563,7 +603,7 @@ public class DisplayHandler extends MessageHandler {
 				y[i] = PIXELS_Y - 80f*(i+1);
 			}
 			
-			display.Texture defaultTexture = display.Texture.fromFile("pics/defaultButton.png");
+			defaultTexture = display.Texture.fromFile("pics/defaultButton.png");
 			
 			Button button;
 			mButtons = new ArrayList<Button>();

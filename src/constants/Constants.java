@@ -4,8 +4,8 @@ import java.util.Random;
 
 public class Constants {
 
-	public static final short WORLD_MULTIPLIER = 6;
-	public static final float INIT_ZOOM = 1;
+	public static final short WORLD_MULTIPLIER = 8;
+	public static final float INIT_ZOOM = 1.0f;
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
@@ -21,7 +21,7 @@ public class Constants {
 	public static final float GROWTH = 0.001f;
 	public static final int MAX_NUM_ANIMALS = 100000;
 	public static final short MAX_NUM_ANIMALS_PER_NODE = 10;
-	public static final float ZOOM_SPEED = 1.01f;
+	public static final float ZOOM_SPEED = 1.05f;
 	public static final int NUM_NEIGHBOURS = 4;
 	
 	public static boolean RENDER_TERRAIN = true;
