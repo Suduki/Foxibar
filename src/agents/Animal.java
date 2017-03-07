@@ -20,28 +20,20 @@ public class Animal {
 	public boolean isAlive;
 	private float hunger;
 	public int[] neighbours;
+	public int[] neighbourDistance;
 	
 	private float recover = 0f;
 	
 	private enum Activity {
-		DO_NOTHING, HARVEST_GRASS, HARVEST_BLOOD, MATE;
+		DO_NOTHING, HARVEST_GRASS, HARVEST_BLOOD, MATE, FIGHT;
 		
 		public final static int GRASS = 0;
 		public final static int BLOOD = 1;
 		public final static int FERTILE = 2;
+		public final static int LOW_DANGER = 3;
 	};
 	
 	//************ GENETIC STATS ************
-	private class Skill {
-		float grassHarvest;
-		float grassDigestion;
-		
-		float bloodDigestion;
-		float bloodHarvest;
-
-		float speed;
-		float fight;
-	}
 	private Skill skill;
 	private boolean isFertile;
 	private int timeBetweenBabies = 50;
@@ -108,27 +100,16 @@ public class Animal {
 		}
 		
 //		pool[id].skill.fight = Constants.RANDOM.nextFloat();
-		if (Constants.RANDOM.nextBoolean() || true) { // TODO: This is quick hack fix yolo (2)
-			pool[id].skill.grassHarvest = 0.3f;
-			pool[id].skill.grassDigestion = 3f / pool[id].skill.grassHarvest;
-			pool[id].skill.bloodHarvest = 0f;
-			pool[id].skill.bloodDigestion = 0f;
-			pool[id].color[0] = Constants.RANDOM.nextFloat();
-			pool[id].color[1] = Constants.RANDOM.nextFloat();
-			pool[id].color[2] = Constants.RANDOM.nextFloat();
+		if (Constants.RANDOM.nextBoolean()) { // TODO: This is quick hack fix yolo (2)
+			pool[id].skill.inherit(Constants.Skill.GRASSLER);
 		}
 		else {
-			pool[id].skill.grassHarvest = 0f;
-			pool[id].skill.grassDigestion = 0f;
-			pool[id].skill.bloodHarvest = 0.3f;
-			pool[id].skill.bloodDigestion = 5f / pool[id].skill.bloodHarvest;
-			pool[id].color[0] = 1;
-			pool[id].color[1] = 0;
-			pool[id].color[2] = 1;
+			pool[id].skill.inherit(Constants.Skill.BLOODLING);
 		}
-		pool[id].skill.fight = 0f;
-		pool[id].skill.speed = 0.7f + 0.3f * Constants.RANDOM.nextFloat();
 		
+		pool[id].color[0] = pool[id].skill.bloodDigestion*pool[id].skill.bloodHarvest;
+		pool[id].color[1] = pool[id].skill.grassDigestion*pool[id].skill.grassHarvest;
+		pool[id].color[2] = 0;
 		
 		
 		pool[id].pos = pos;
@@ -150,6 +131,7 @@ public class Animal {
 		this.color = new float[3];
 		this.skill = new Skill();
 		this.neighbours = new int[Constants.NUM_NEIGHBOURS];
+		this.neighbourDistance = new int[Constants.NUM_NEIGHBOURS];
 	}
 	private void move() {
 
@@ -193,8 +175,8 @@ public class Animal {
 	}
 	private boolean findBestDir(short[] bestDirOut, Activity[] bestChoice) {
 		
-		short[] bestDir = new short[3];
-		float[] bestVal = new float[3];
+		short[] bestDir = new short[4];
+		float[] bestVal = new float[4];
 
 		scanNeighboringEnvironment(bestDir, bestVal);
 		
@@ -225,9 +207,25 @@ public class Animal {
 		bestDir[Activity.GRASS] = INVALID_DIRECTION;
 		bestDir[Activity.BLOOD] = INVALID_DIRECTION;
 		bestDir[Activity.FERTILE] = INVALID_DIRECTION;
+		bestDir[Activity.LOW_DANGER] = INVALID_DIRECTION;
 		bestVal[Activity.GRASS] = 0;
 		bestVal[Activity.BLOOD] = 0;
 		bestVal[Activity.FERTILE] = 0;
+		
+		int d = 0;
+		for (int neigh : neighbours) {
+			if (neigh == -1) {
+				break;
+			}
+			if (pool[id].skill.fight > pool[neigh].skill.fight) {
+				// I will win in a fight vs this neighbour.
+				if (pool[id].isFertile && pool[neigh].isFertile) {
+					bestVal[Activity.FERTILE] += 1f/neighbourDistance[d];
+				}
+			}
+			++d;
+		}
+		
 		ArrayList<Integer> directions = new ArrayList<>();
 		for (int i = 0; i < 5; ++i) {
 			directions.add(i);
@@ -270,7 +268,7 @@ public class Animal {
 			if (isFertile && pool[id2].isFertile) {
 				resurrectAnimal(pos, 0f, 0f, 3);
 				isFertile = false;
-				hunger -= 2f;
+				hunger -= 2f; //TODO: ...
 				sinceLastBaby = 0;
 				pool[id2].isFertile = false;
 				pool[id2].hunger -= 2f;

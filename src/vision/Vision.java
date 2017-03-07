@@ -31,9 +31,8 @@ public class Vision {
 		int pos = Animal.pool[animalId].pos;
 		int zoneX = getZoneXFromAnimalPos(pos);
 		int zoneY = getZoneYFromAnimalPos(pos);
-		int[] bestDistances = new int[Constants.NUM_NEIGHBOURS];
-		for (int i = 0; i < bestDistances.length; ++i) {
-			bestDistances[i] = -1;
+		for (int i = 0; i < Animal.pool[animalId].neighbourDistance.length; ++i) {
+			Animal.pool[animalId].neighbourDistance[i] = -1;
 		}
 		
 		for (int anI = 0; anI < Animal.pool[animalId].neighbours.length; ++anI) {
@@ -47,16 +46,16 @@ public class Vision {
 				for (int anI : zoneGrid[zoneIX][zoneIY].animalsInZone) {
 					if (anI != animalId) {
 						int d = calculateDistance(pos, Animal.pool[anI].pos);
-						for (int neighId = 0; neighId < bestDistances.length; ++neighId) {
-							if (bestDistances[neighId] == -1) {
-								bestDistances[neighId] = d;
+						for (int neighId = 0; neighId < Animal.pool[animalId].neighbourDistance.length; ++neighId) {
+							if (Animal.pool[animalId].neighbourDistance[neighId] == -1) {
+								Animal.pool[animalId].neighbourDistance[neighId] = d;
 								Animal.pool[animalId].neighbours[neighId] = anI;
 								break;
 							}
-							else if (d <= bestDistances[neighId]) {
+							else if (d <= Animal.pool[animalId].neighbourDistance[neighId]) {
 								int tmpD = d;
-								d = bestDistances[neighId];
-								bestDistances[neighId] = tmpD;
+								d = Animal.pool[animalId].neighbourDistance[neighId];
+								Animal.pool[animalId].neighbourDistance[neighId] = tmpD;
 								
 								int tmpI = anI;
 								anI = Animal.pool[animalId].neighbours[neighId];
@@ -110,9 +109,9 @@ public class Vision {
 //					zoneGrid[zone].animalsInZone.add(i);
 					int zoneX = getZoneXFromAnimalPos(pos);
 					int zoneY = getZoneYFromAnimalPos(pos);
-					Animal.pool[i].color[0] = zoneGrid[zoneX][zoneY].color[0];
-					Animal.pool[i].color[1] = zoneGrid[zoneX][zoneY].color[1];
-					Animal.pool[i].color[2] = zoneGrid[zoneX][zoneY].color[2];
+//					Animal.pool[i].color[0] = zoneGrid[zoneX][zoneY].color[0];
+//					Animal.pool[i].color[1] = zoneGrid[zoneX][zoneY].color[1];
+//					Animal.pool[i].color[2] = zoneGrid[zoneX][zoneY].color[2];
 					zoneGrid[zoneX][zoneY].animalsInZone.add(i);
 				}
 				else {

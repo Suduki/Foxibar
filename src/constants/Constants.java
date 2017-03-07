@@ -2,6 +2,8 @@ package constants;
 
 import java.util.Random;
 
+import agents.Animal;
+
 public class Constants {
 
 	public static final short WORLD_MULTIPLIER = 8;
@@ -18,7 +20,7 @@ public class Constants {
 	public static final float PIXELS_PER_NODE_Y = ((float)PIXELS_Y)/WORLD_SIZE_Y;
 	public static final Random RANDOM = new Random(1);
 	public static final boolean WALK_THROUGH_EDGE = true;
-	public static final float GROWTH = 0.001f;
+	public static final float GROWTH = 0.01f;
 	public static final int MAX_NUM_ANIMALS = 100000;
 	public static final short MAX_NUM_ANIMALS_PER_NODE = 10;
 	public static final float ZOOM_SPEED = 1.05f;
@@ -26,7 +28,7 @@ public class Constants {
 	
 	public static boolean RENDER_TERRAIN = true;
 	public static boolean RENDER_ANIMALS = true;
-	public static boolean RENDER_BLOOD = false;
+	public static boolean RENDER_BLOOD = true;
 	public static boolean RENDER_VISION = true;
 	
 	public static class Colors
@@ -55,7 +57,16 @@ public class Constants {
 
 	public static class Blood {
 		public static final float ADDITION_ON_DEATH = 1;
-		public static final float DEATH = 100;
 		public static final float SPREAD = 0.25f * ADDITION_ON_DEATH;
+	}
+	public static class Skill {
+		public static final agents.Skill GRASSLER = new agents.Skill(
+				Species.GRASSLER, 0.3f, 10f, 0f, 0f, 1f, 0f);
+		public static final agents.Skill BLOODLING = new agents.Skill(
+				Species.BLOODLING, 0f, 0f, 0.1f, 30f, 1f, 1f);
+	}
+	public static class Species {
+		public static final int BLOODLING = 1;
+		public static final int GRASSLER = 2;
 	}
 }
