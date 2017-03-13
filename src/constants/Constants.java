@@ -3,6 +3,7 @@ package constants;
 import java.util.Random;
 
 import agents.Animal;
+import vision.Vision;
 
 public class Constants {
 
@@ -28,8 +29,9 @@ public class Constants {
 	
 	public static boolean RENDER_TERRAIN = true;
 	public static boolean RENDER_ANIMALS = true;
-	public static boolean RENDER_BLOOD = true;
+	public static boolean RENDER_BLOOD = false;
 	public static boolean RENDER_VISION = true;
+	public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = Vision.ZONE_WIDTH;
 	
 	public static class Colors
 	{
@@ -61,7 +63,7 @@ public class Constants {
 	}
 	public static class Skill {
 		public static final agents.Skill GRASSLER = new agents.Skill(
-				Species.GRASSLER, 0.3f, 10f, 0f, 0f, 1f, 0f);
+				Species.GRASSLER, 1f, 10f, 0f, 0f, 1f, 0f);
 		public static final agents.Skill BLOODLING = new agents.Skill(
 				Species.BLOODLING, 0f, 0f, 0.1f, 30f, 1f, 1f);
 	}

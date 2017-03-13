@@ -14,7 +14,7 @@ public class Animal {
 	private int age = 0;
 	private int sinceLastBaby = 0;
 	private int id;
-	public float size = 3f;
+	public float size = 1f;
 	public float[] color;
 	public int pos;
 	public boolean isAlive;
@@ -100,7 +100,7 @@ public class Animal {
 		}
 		
 //		pool[id].skill.fight = Constants.RANDOM.nextFloat();
-		if (Constants.RANDOM.nextBoolean()) { // TODO: This is quick hack fix yolo (2)
+		if (true || Constants.RANDOM.nextBoolean()) { // TODO: This is quick hack fix yolo (2)
 			pool[id].skill.inherit(Constants.Skill.GRASSLER);
 		}
 		else {
@@ -212,18 +212,18 @@ public class Animal {
 		bestVal[Activity.BLOOD] = 0;
 		bestVal[Activity.FERTILE] = 0;
 		
-		int d = 0;
-		for (int neigh : neighbours) {
+		for (int direction = 0; direction < Constants.NUM_NEIGHBOURS; ++direction) {
+			int neigh = neighbours[direction];
 			if (neigh == -1) {
 				break;
 			}
 			if (pool[id].skill.fight > pool[neigh].skill.fight) {
 				// I will win in a fight vs this neighbour.
 				if (pool[id].isFertile && pool[neigh].isFertile) {
-					bestVal[Activity.FERTILE] += 1f/neighbourDistance[d];
+					bestVal[Activity.FERTILE] += 1f/neighbourDistance[direction];
 				}
 			}
-			++d;
+			++direction;
 		}
 		
 		ArrayList<Integer> directions = new ArrayList<>();
@@ -251,7 +251,7 @@ public class Animal {
 	}
 
 	private boolean isHungry() {
-		return hunger < 500;
+		return hunger < 50;
 	}
 	private void harvestGrass() {
 		this.hunger += World.grass.harvest(skill.grassHarvest, pos) * skill.grassDigestion;

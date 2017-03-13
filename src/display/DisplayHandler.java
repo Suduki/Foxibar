@@ -361,7 +361,7 @@ public class DisplayHandler extends MessageHandler
 			}
 			
 			if (Constants.RENDER_VISION) {
-		//		renderVision();
+				renderVision();
 			}
 		}
 		
@@ -382,9 +382,9 @@ public class DisplayHandler extends MessageHandler
 							float x2 = (pos2 % Constants.WORLD_SIZE_X)*pixelsPerNodeY + pixelsPerNodeY/2;
 							float y2 = (pos2 / Constants.WORLD_SIZE_X)*pixelsPerNodeX + pixelsPerNodeX/2;
 							float distance = Math.abs(x-x2) + Math.abs(y-y2);
-//							if (distance < 10) {
-							glBegin(GL_LINES);
-							glColor3f(Animal.pool[id].color[0], Animal.pool[id].color[1], Animal.pool[id].color[2]);
+//							if (distance < Constants.DISTANCE_TOO_LONG_TO_RENDER) {
+								glBegin(GL_LINES);
+								glColor3f(Animal.pool[id].color[0], Animal.pool[id].color[1], Animal.pool[id].color[2]);
 								glVertex2f(y, x);
 								glVertex2f(y2, x2);
 								glEnd();
