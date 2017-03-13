@@ -8,8 +8,8 @@ import constants.Constants;
 public class Vision {
 	public static Zone[][] zoneGrid;
 	
-	public static final int ZONE_WIDTH = 8;
-	public static final int ZONE_HEIGHT = 8;
+	public static final int ZONE_WIDTH = 16;
+	public static final int ZONE_HEIGHT = 16;
 	public static final int ZONES_X = Constants.WORLD_SIZE_X/ZONE_WIDTH;
 	public static final int ZONES_Y = Constants.WORLD_SIZE_Y/ZONE_HEIGHT;
 	
@@ -46,6 +46,9 @@ public class Vision {
 				for (int anI : zoneGrid[zoneIX][zoneIY].animalsInZone) {
 					if (anI != animalId) {
 						int d = calculateDistance(pos, Animal.pool[anI].pos);
+						if (d > Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE) {
+							continue;
+						}
 						for (int neighId = 0; neighId < Animal.pool[animalId].neighbourDistance.length; ++neighId) {
 							if (Animal.pool[animalId].neighbourDistance[neighId] == -1) {
 								Animal.pool[animalId].neighbourDistance[neighId] = d;

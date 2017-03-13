@@ -31,8 +31,8 @@ public class Simulation extends MessageHandler {
 		if (!mPaused)
 		{
 			mWorld.update();
-			Vision.updateAnimalVision();
 			Animal.moveAll();
+			Vision.updateAnimalVision();
 		}
 	}
 	
