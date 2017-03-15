@@ -7,12 +7,12 @@ import vision.Vision;
 
 public class Constants {
 
-	public static final short WORLD_MULTIPLIER = 7;
+	public static final short WORLD_MULTIPLIER = 8;
 	public static final float INIT_ZOOM = 1.0f;
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
-	public static final int WANTED_FPS = 20;
+	public static final int WANTED_FPS = 200;
 	public static final int PIXELS_Y = 800;
 	public static final int PIXELS_SIDEBOARD = 360;
 	public static final int WINDOW_WIDTH = 1080;
@@ -22,15 +22,15 @@ public class Constants {
 	public static final Random RANDOM = new Random(1);
 	public static final boolean WALK_THROUGH_EDGE = true;
 	public static final float GROWTH = 0.01f;
-	public static final int MAX_NUM_ANIMALS = 10000;
+	public static final int MAX_NUM_ANIMALS = 100000;
 	public static final short MAX_NUM_ANIMALS_PER_NODE = 10;
 	public static final float ZOOM_SPEED = 1.05f;
 	public static final int NUM_NEIGHBOURS = 4;
 	
 	public static boolean RENDER_TERRAIN = true;
 	public static boolean RENDER_ANIMALS = true;
-	public static boolean RENDER_BLOOD = false;
-	public static boolean RENDER_VISION = true;
+	public static boolean RENDER_BLOOD = true;
+	public static boolean RENDER_VISION = false;
 	public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = WORLD_SIZE_X + WORLD_SIZE_Y;
 	
 	public static class Colors
@@ -61,13 +61,13 @@ public class Constants {
 		public static final float ADDITION_ON_DEATH = 1;
 		public static final float SPREAD = 0.25f * ADDITION_ON_DEATH;
 	}
-	public static class Skill {
-		public static final agents.Skill GRASSLER = new agents.Skill(
-				Species.GRASSLER, 1f, 10f, 0f, 0f, 1f, 0f);
-		public static final agents.Skill BLOODLING = new agents.Skill(
-				Species.BLOODLING, 0f, 0f, 0.1f, 30f, 1f, 1f);
-	}
 	public static class Species {
+		public static final agents.Species GRASSLER = new agents.Species(
+				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.5f, 0f);
+		public static final agents.Species BLOODLING = new agents.Species(
+				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
+	}
+	public static class SpeciesId {
 		public static final int BLOODLING = 1;
 		public static final int GRASSLER = 2;
 	}
