@@ -376,7 +376,7 @@ public class DisplayHandler extends MessageHandler
 					int pos = Animal.pool[id].pos;
 					float x = (pos % Constants.WORLD_SIZE_X)*pixelsPerNodeY + pixelsPerNodeY/2;
 					float y = (pos / Constants.WORLD_SIZE_X)*pixelsPerNodeX + pixelsPerNodeX/2;
-					for (int id2 : Animal.pool[id].neighbours) {
+					for (int id2 : Animal.pool[id].nearbyAnimals) {
 						if (id2 != -1) {
 							int pos2 = Animal.pool[id2].pos;
 							float x2 = (pos2 % Constants.WORLD_SIZE_X)*pixelsPerNodeY + pixelsPerNodeY/2;

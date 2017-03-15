@@ -7,12 +7,12 @@ import vision.Vision;
 
 public class Constants {
 
-	public static final short WORLD_MULTIPLIER = 8;
+	public static final short WORLD_MULTIPLIER = 7;
 	public static final float INIT_ZOOM = 1.0f;
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
-	public static final int WANTED_FPS = 200;
+	public static final int WANTED_FPS = 20;
 	public static final int PIXELS_Y = 800;
 	public static final int PIXELS_SIDEBOARD = 360;
 	public static final int WINDOW_WIDTH = 1080;
@@ -22,7 +22,7 @@ public class Constants {
 	public static final Random RANDOM = new Random(1);
 	public static final boolean WALK_THROUGH_EDGE = true;
 	public static final float GROWTH = 0.01f;
-	public static final int MAX_NUM_ANIMALS = 100000;
+	public static final int MAX_NUM_ANIMALS = 10000;
 	public static final short MAX_NUM_ANIMALS_PER_NODE = 10;
 	public static final float ZOOM_SPEED = 1.05f;
 	public static final int NUM_NEIGHBOURS = 4;
@@ -31,7 +31,7 @@ public class Constants {
 	public static boolean RENDER_ANIMALS = true;
 	public static boolean RENDER_BLOOD = false;
 	public static boolean RENDER_VISION = true;
-	public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = Vision.ZONE_WIDTH;
+	public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = WORLD_SIZE_X + WORLD_SIZE_Y;
 	
 	public static class Colors
 	{

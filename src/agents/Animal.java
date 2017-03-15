@@ -14,13 +14,13 @@ public class Animal {
 	private int age = 0;
 	private int sinceLastBaby = 0;
 	private int id;
-	public float size = 1f;
+	public float size = 3f;
 	public float[] color;
 	public int pos;
 	public boolean isAlive;
 	private float hunger;
-	public int[] neighbours;
-	public int[] neighbourDistance;
+	public int[] nearbyAnimals;
+	public int[] nearbyAnimalsDistance;
 	
 	private float recover = 0f;
 	
@@ -30,7 +30,7 @@ public class Animal {
 		public final static int GRASS = 0;
 		public final static int BLOOD = 1;
 		public final static int FERTILE = 2;
-		public final static int LOW_DANGER = 3;
+		public final static int DANGER = 3;
 	};
 	
 	//************ GENETIC STATS ************
@@ -90,13 +90,14 @@ public class Animal {
 		while (pool[id].isAlive) {
 			id++;
 			if (id == Constants.MAX_NUM_ANIMALS) {
+				System.err.println("MAX_NUM_ANIMALS reached. Pool full.");
 				return -1;
 			}
 		}
 		pool[id].isAlive = true;
 		
-		for (int i = 0; i < pool[id].neighbours.length; ++i) {
-			pool[id].neighbours[i] = -1;
+		for (int i = 0; i < pool[id].nearbyAnimals.length; ++i) {
+			pool[id].nearbyAnimals[i] = -1;
 		}
 		
 //		pool[id].skill.fight = Constants.RANDOM.nextFloat();
@@ -130,8 +131,8 @@ public class Animal {
 		this.isAlive = false;
 		this.color = new float[3];
 		this.skill = new Skill();
-		this.neighbours = new int[Constants.NUM_NEIGHBOURS];
-		this.neighbourDistance = new int[Constants.NUM_NEIGHBOURS];
+		this.nearbyAnimals = new int[Constants.NUM_NEIGHBOURS];
+		this.nearbyAnimalsDistance = new int[Constants.NUM_NEIGHBOURS];
 	}
 	private void move() {
 
@@ -141,7 +142,8 @@ public class Animal {
 		// Calculate to where we want to move
 		short[] bestDir = new short[1];
 		Activity[] bestChoice = new Activity[1];
-		if (findBestDir(bestDir, bestChoice)) {
+		int[] animalIdToInteractWith = new int[1];
+		if (findBestDir(bestDir, bestChoice, animalIdToInteractWith)) {
 			moveTo(bestDir[0]);
 			switch (bestChoice[0]) {
 			case HARVEST_BLOOD:
@@ -151,7 +153,7 @@ public class Animal {
 				harvestGrass();
 				break;
 			case MATE:
-				interactWith(containsAnimals[pos]);
+				interactWith(animalIdToInteractWith[0]);
 				break;
 			default:
 				System.out.println("ERROR: invalid choice!");
@@ -173,81 +175,63 @@ public class Animal {
 		}
 		
 	}
-	private boolean findBestDir(short[] bestDirOut, Activity[] bestChoice) {
+	private boolean findBestDir(short[] bestDir, Activity[] bestChoice, int[] animalIdToInteractWith) {
+		animalIdToInteractWith[0] = -1;
+		bestDir[0] = Constants.Neighbours.NORTH;
+		bestChoice[0] = Activity.HARVEST_GRASS;
 		
-		short[] bestDir = new short[4];
-		float[] bestVal = new float[4];
-
-		scanNeighboringEnvironment(bestDir, bestVal);
+		float[] nodeGoodness = new float[5];
+		for (float f : nodeGoodness) {
+			f = 0;
+		}
 		
-		if (bestDir[Activity.FERTILE] != INVALID_DIRECTION) {
-			bestDirOut[0] = bestDir[Activity.FERTILE];
-			bestChoice[0] = Activity.MATE;
-			return true;
+		for (int nearbyAnimalId : nearbyAnimals) {
+			if (nearbyAnimalId == -1) {
+				continue;
+			}
+			int xNeigh = pool[nearbyAnimalId].pos / Constants.WORLD_SIZE_X;
+			int yNeigh = pool[nearbyAnimalId].pos % Constants.WORLD_SIZE_X;
+			
+			for (int nodeNeighbour = 0; nodeNeighbour < 5; ++nodeNeighbour) {
+				int x = World.neighbour[nodeNeighbour][pos] / Constants.WORLD_SIZE_X;
+				int y = World.neighbour[nodeNeighbour][pos] % Constants.WORLD_SIZE_X;
+				int distance = Math.abs(xNeigh-x) + Math.abs(yNeigh - y) + 1;
+				if (isFertileWith(nearbyAnimalId)) {
+					nodeGoodness[nodeNeighbour] += 1f/distance*1000;
+					if (distance == 1) {
+						bestChoice[0] = Activity.MATE;
+						animalIdToInteractWith[0] = nearbyAnimalId;
+					}
+				}
+				else {
+					nodeGoodness[nodeNeighbour] -= 10f/distance;
+				}
+			}
 		}
-		else if (bestVal[Activity.GRASS]*skill.grassDigestion > 
-				bestVal[Activity.BLOOD]*skill.bloodDigestion) {
-			bestDirOut[0] = bestDir[Activity.GRASS];
-			bestChoice[0] = Activity.HARVEST_GRASS;
-			return true;
+		for (int nodeNeighbour = 0; nodeNeighbour < 5; ++nodeNeighbour) {
+			nodeGoodness[nodeNeighbour] += World.grass.height[World.neighbour[nodeNeighbour][pos]];
 		}
-		else if (bestVal[Activity.GRASS]*skill.grassDigestion < 
-				bestVal[Activity.BLOOD]*skill.bloodDigestion) {
-			bestDirOut[0] = bestDir[Activity.BLOOD];
-			bestChoice[0] = Activity.HARVEST_BLOOD;
-			return true;
-		}
-		else {
-			return false;
-		}
+		
+		bestDir[0] = max(nodeGoodness);
+		return true;
+	}
+	
+	private boolean isFertileWith(int nearbyAnimalId) {
+		return skill.speciesId == pool[nearbyAnimalId].skill.speciesId && isFertile() && pool[nearbyAnimalId].isFertile();
 	}
 
+	private boolean isFertile() {
+		return isFertile && !isHungry();
+	}
 
-	private void scanNeighboringEnvironment(short[] bestDir, float[] bestVal) {
-		bestDir[Activity.GRASS] = INVALID_DIRECTION;
-		bestDir[Activity.BLOOD] = INVALID_DIRECTION;
-		bestDir[Activity.FERTILE] = INVALID_DIRECTION;
-		bestDir[Activity.LOW_DANGER] = INVALID_DIRECTION;
-		bestVal[Activity.GRASS] = 0;
-		bestVal[Activity.BLOOD] = 0;
-		bestVal[Activity.FERTILE] = 0;
-		
-		for (int direction = 0; direction < Constants.NUM_NEIGHBOURS; ++direction) {
-			int neigh = neighbours[direction];
-			if (neigh == -1) {
-				break;
-			}
-			if (pool[id].skill.fight > pool[neigh].skill.fight) {
-				// I will win in a fight vs this neighbour.
-				if (pool[id].isFertile && pool[neigh].isFertile) {
-					bestVal[Activity.FERTILE] += 1f/neighbourDistance[direction];
-				}
-			}
-			++direction;
-		}
-		
-		ArrayList<Integer> directions = new ArrayList<>();
-		for (int i = 0; i < 5; ++i) {
-			directions.add(i);
-		}
-		Collections.shuffle(directions);
-		for (int i : directions)
-		{
-			if (World.grass.height[World.neighbour[i][pos]] > bestVal[Activity.GRASS]) {
-				bestVal[Activity.GRASS] = World.grass.height[World.neighbour[i][pos]];
-				bestDir[Activity.GRASS] = (short) i;
-			}
-			if (World.blood.height[World.neighbour[i][pos]] > bestVal[Activity.BLOOD]) {
-				bestVal[Activity.BLOOD] = World.blood.height[World.neighbour[i][pos]];
-				bestDir[Activity.BLOOD] = (short) i;
-			}
-			if (pool[i].isFertile && !pool[i].isHungry()) {
-				int neighId;
-				if ((neighId = containsAnimals[World.neighbour[i][pos]]) != -1 && pool[neighId].isFertile) {
-					bestDir[Activity.FERTILE] = (short) i;
-				}
+	private short max(float[] array) {
+		short maxI = 0;
+		for (short i = 1; i < array.length; ++i) {
+			if (array[i] > array[maxI]) {
+				maxI = i;
 			}
 		}
+		return maxI;
 	}
 
 	private boolean isHungry() {
