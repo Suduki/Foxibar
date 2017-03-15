@@ -337,7 +337,12 @@ public class DisplayHandler extends MessageHandler
 					int i = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;		
 					if (Animal.containsAnimals[i] == -1)
 					{
-						Animal.resurrectAnimal(i, 0f, 1f, 3);
+						if (Constants.RANDOM.nextBoolean()) {
+							Animal.resurrectAnimal(i, 3, Constants.Species.GRASSLER);
+						}
+						else {
+							Animal.resurrectAnimal(i, 3, Constants.Species.BLOODLING);
+						}
 					}
 				}
 				
@@ -383,11 +388,14 @@ public class DisplayHandler extends MessageHandler
 							float y2 = (pos2 / Constants.WORLD_SIZE_X)*pixelsPerNodeX + pixelsPerNodeX/2;
 							float distance = Math.abs(x-x2) + Math.abs(y-y2);
 //							if (distance < Constants.DISTANCE_TOO_LONG_TO_RENDER) {
+							if (Animal.pool[id].species.speciesId == Constants.SpeciesId.BLOODLING) {
+								
 								glBegin(GL_LINES);
 								glColor3f(Animal.pool[id].color[0], Animal.pool[id].color[1], Animal.pool[id].color[2]);
 								glVertex2f(y, x);
 								glVertex2f(y2, x2);
 								glEnd();
+							}
 //							}
 						}
 					}

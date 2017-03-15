@@ -8,10 +8,10 @@ import constants.Constants;
 public class Vision {
 	public static Zone[][] zoneGrid;
 	
-	public static final int ZONES_X = 16;
-	public static final int ZONES_Y = 16;
-	public static final int ZONE_WIDTH = Constants.WORLD_SIZE_X/ZONES_X;
-	public static final int ZONE_HEIGHT = Constants.WORLD_SIZE_Y/ZONES_Y;
+	public static final int ZONE_HEIGHT = 8;
+	public static final int ZONE_WIDTH = 8;
+	public static final int ZONES_X = Constants.WORLD_SIZE_X/ZONE_WIDTH;
+	public static final int ZONES_Y = Constants.WORLD_SIZE_Y/ZONE_HEIGHT;
 	
 	public static void init() {
 		zoneGrid = new Zone[ZONES_X][ZONES_Y];
