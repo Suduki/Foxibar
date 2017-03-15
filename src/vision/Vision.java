@@ -8,10 +8,10 @@ import constants.Constants;
 public class Vision {
 	public static Zone[][] zoneGrid;
 	
-	public static final int ZONE_WIDTH = 16;
-	public static final int ZONE_HEIGHT = 16;
-	public static final int ZONES_X = Constants.WORLD_SIZE_X/ZONE_WIDTH;
-	public static final int ZONES_Y = Constants.WORLD_SIZE_Y/ZONE_HEIGHT;
+	public static final int ZONES_X = 16;
+	public static final int ZONES_Y = 16;
+	public static final int ZONE_WIDTH = Constants.WORLD_SIZE_X/ZONES_X;
+	public static final int ZONE_HEIGHT = Constants.WORLD_SIZE_Y/ZONES_Y;
 	
 	public static void init() {
 		zoneGrid = new Zone[ZONES_X][ZONES_Y];
@@ -31,12 +31,12 @@ public class Vision {
 		int pos = Animal.pool[animalId].pos;
 		int zoneX = getZoneXFromAnimalPos(pos);
 		int zoneY = getZoneYFromAnimalPos(pos);
-		for (int i = 0; i < Animal.pool[animalId].neighbourDistance.length; ++i) {
-			Animal.pool[animalId].neighbourDistance[i] = -1;
+		for (int i = 0; i < Animal.pool[animalId].nearbyAnimalsDistance.length; ++i) {
+			Animal.pool[animalId].nearbyAnimalsDistance[i] = -1;
 		}
 		
-		for (int anI = 0; anI < Animal.pool[animalId].neighbours.length; ++anI) {
-			Animal.pool[animalId].neighbours[anI] = -1;
+		for (int anI = 0; anI < Animal.pool[animalId].nearbyAnimals.length; ++anI) {
+			Animal.pool[animalId].nearbyAnimals[anI] = -1;
 		}
 		
 		for (int i = -1; i <= 1; ++i) {
@@ -49,20 +49,20 @@ public class Vision {
 						if (d > Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE) {
 							continue;
 						}
-						for (int neighId = 0; neighId < Animal.pool[animalId].neighbourDistance.length; ++neighId) {
-							if (Animal.pool[animalId].neighbourDistance[neighId] == -1) {
-								Animal.pool[animalId].neighbourDistance[neighId] = d;
-								Animal.pool[animalId].neighbours[neighId] = anI;
+						for (int neighId = 0; neighId < Animal.pool[animalId].nearbyAnimalsDistance.length; ++neighId) {
+							if (Animal.pool[animalId].nearbyAnimalsDistance[neighId] == -1) {
+								Animal.pool[animalId].nearbyAnimalsDistance[neighId] = d;
+								Animal.pool[animalId].nearbyAnimals[neighId] = anI;
 								break;
 							}
-							else if (d <= Animal.pool[animalId].neighbourDistance[neighId]) {
+							else if (d <= Animal.pool[animalId].nearbyAnimalsDistance[neighId]) {
 								int tmpD = d;
-								d = Animal.pool[animalId].neighbourDistance[neighId];
-								Animal.pool[animalId].neighbourDistance[neighId] = tmpD;
+								d = Animal.pool[animalId].nearbyAnimalsDistance[neighId];
+								Animal.pool[animalId].nearbyAnimalsDistance[neighId] = tmpD;
 								
 								int tmpI = anI;
-								anI = Animal.pool[animalId].neighbours[neighId];
-								Animal.pool[animalId].neighbours[neighId] = tmpI;
+								anI = Animal.pool[animalId].nearbyAnimals[neighId];
+								Animal.pool[animalId].nearbyAnimals[neighId] = tmpI;
 							}
 						}
 //						if (bestDistances[0] == -1 || d <= bestDistances[0]) {
