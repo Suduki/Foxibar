@@ -11,6 +11,12 @@ import static constants.Constants.Neighbours.*;
 
 public class Animal {
 	
+	public static final int BIRTH_HUNGER = 20;
+	public static final int HUNGRY_HUNGER = 50;
+	public static final int BIRTH_HUNGER_COST = 40;
+	
+	
+	
 	private int age = 0;
 	private int sinceLastBaby = 0;
 	private int id;
@@ -96,7 +102,7 @@ public class Animal {
 		
 		pool[id].color[0] = pool[id].species.bloodDigestion*pool[id].species.bloodHarvest;
 		pool[id].color[1] = pool[id].species.grassDigestion*pool[id].species.grassHarvest;
-		pool[id].color[2] = pool[id].species.fight;
+		pool[id].color[2] = 0;
 		
 		
 		pool[id].pos = pos;
@@ -177,8 +183,7 @@ public class Animal {
 						animalIdToInteractWith[0] = nearbyAnimalId;
 					}
 				}
-				else if (isHungry()) {
-					nodeGoodness[nodeNeighbour] += 0.5f/distance;
+				else {
 					if (canKill(nearbyAnimalId)) {
 						nodeGoodness[nodeNeighbour] += 0.5f/distance;
 						if (distance == 1) {
@@ -228,7 +233,7 @@ public class Animal {
 	}
 
 	private boolean isHungry() {
-		return hunger < 50;
+		return hunger < HUNGRY_HUNGER;
 	}
 	private void harvestGrass() {
 		this.hunger += World.grass.harvest(species.grassHarvest, pos) * species.grassDigestion;
@@ -243,12 +248,12 @@ public class Animal {
 	private void interactWith(int id2) {
 		if (id2 != id) {
 			if (isFertileWith(id2)) {
-				resurrectAnimal(pos, 4, species);
+				resurrectAnimal(pos, BIRTH_HUNGER, species);
 				isFertile = false;
-				hunger -= 2f; //TODO: ...
+				hunger -= BIRTH_HUNGER_COST;
 				sinceLastBaby = 0;
 				pool[id2].isFertile = false;
-				pool[id2].hunger -= 2f;
+				pool[id2].hunger -= BIRTH_HUNGER_COST;
 				pool[id2].sinceLastBaby = 0;
 			}
 			else if (canKill(id2)) {

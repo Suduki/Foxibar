@@ -11,8 +11,7 @@ public class Grass {
 	public Grass() {
 		height = new float[Constants.WORLD_SIZE];
 		toBeUpdated = new boolean[Constants.WORLD_SIZE];
-//		color = Constants.Colors.GRASS;
-		color = Constants.Colors.DARK_RED;
+		color = Constants.Colors.GRASS;
 	}
 
 	public void grow() {
