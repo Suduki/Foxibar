@@ -1,7 +1,7 @@
 package agents;
 
-public class Skill {
-	int speciesId;
+public class Species {
+	public int speciesId;
 	
 	float grassHarvest;
 	float grassDigestion;
@@ -13,7 +13,7 @@ public class Skill {
 	float fight;
 	
 	
-	public Skill(int speciesId, float grassHarvest, float grassDigestion,
+	public Species(int speciesId, float grassHarvest, float grassDigestion,
 			float bloodHarvest, float bloodDigestion, float speed,
 			float fight) {
 		this.speciesId = speciesId;
@@ -25,10 +25,12 @@ public class Skill {
 		this.fight = fight;
 	}
 	
-	public Skill() {
+	public Species() {
 	}
 
-	public void inherit(Skill skill) {
+	public void inherit(Species skill) {
+		this.speciesId = skill.speciesId;
+		
 		this.grassHarvest = skill.grassHarvest;
 		this.grassDigestion = skill.grassDigestion;
 		
