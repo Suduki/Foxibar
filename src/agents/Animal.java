@@ -159,12 +159,14 @@ public class Animal {
 	}
 	private boolean findBestDir(short[] bestDir, int[] animalIdToInteractWith) {
 		animalIdToInteractWith[0] = -1;
-		bestDir[0] = Constants.Neighbours.NORTH;
+		
+		//TODO: These should be adjusted so that we don't use '-='. Instead reformulate and use i.e. blabla=-0.5f
+		float wantToMateness = 10f;
+		float wantToFleeness = 0.6f;
+		float wantToKillness = 0.5f;
+		float wantToBeAloneness = 0.1f;
 		
 		float[] nodeGoodness = new float[5];
-		for (float f : nodeGoodness) {
-			f = 0;
-		}
 		
 		for (int nearbyAnimalId : nearbyAnimals) {
 			if (nearbyAnimalId == -1) {
@@ -178,20 +180,25 @@ public class Animal {
 				int y = World.neighbour[nodeNeighbour][pos] % Constants.WORLD_SIZE_X;
 				int distance = Math.abs(xNeigh-x) + Math.abs(yNeigh - y) + 1;
 				if (isFertileWith(nearbyAnimalId)) {
-					nodeGoodness[nodeNeighbour] += 1f/distance*1000;
+					nodeGoodness[nodeNeighbour] += wantToMateness/distance; //TODO: *distance? investigate different varianter
 					if (distance == 1) {
 						animalIdToInteractWith[0] = nearbyAnimalId;
 					}
 				}
 				else {
-					if (canKill(nearbyAnimalId)) {
-						nodeGoodness[nodeNeighbour] += 0.5f/distance;
+					if (looksDangerous(nearbyAnimalId)) {
+						// Yelp! Run!
+						nodeGoodness[nodeNeighbour] -= wantToFleeness/distance;
+					}
+					else if (looksWeak(nearbyAnimalId)) {
+						nodeGoodness[nodeNeighbour] += wantToKillness/distance;
 						if (distance == 1) {
 							animalIdToInteractWith[0] = nearbyAnimalId;
 						}
 					}
 					else {
-						nodeGoodness[nodeNeighbour] -= 0.1f/distance;
+						// This is a non-dangerous dude, lets move away a li'l bit
+						nodeGoodness[nodeNeighbour] -= wantToBeAloneness/distance;
 					}
 				}
 			}
@@ -205,7 +212,11 @@ public class Animal {
 		return true;
 	}
 	
-	private boolean canKill(int nearbyAnimalId) {
+	private boolean looksDangerous(int nearbyAnimalId) {
+		return species.fight < pool[nearbyAnimalId].species.fight;
+	}
+
+	private boolean looksWeak(int nearbyAnimalId) {
 		return species.fight > pool[nearbyAnimalId].species.fight;
 	}
 
@@ -256,7 +267,7 @@ public class Animal {
 				pool[id2].hunger -= BIRTH_HUNGER_COST;
 				pool[id2].sinceLastBaby = 0;
 			}
-			else if (canKill(id2)) {
+			else if (looksWeak(id2)) {
 				pool[id2].die();
 			}
 		}
@@ -268,7 +279,7 @@ public class Animal {
 	private void die() {
 		if (this.isAlive) {
 			numAnimals--;
-			World.blood.append(pos);
+			World.blood.append(pos, 1f);
 		}
 		containsAnimals[pos] = -1;
 		isAlive = false;
@@ -277,6 +288,7 @@ public class Animal {
 	private void dieFromHunger() {
 		if (this.isAlive) {
 			numAnimals--;
+			World.blood.append(pos, 0.5f);
 		}
 		containsAnimals[pos] = -1;
 		isAlive = false;

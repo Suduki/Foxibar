@@ -85,6 +85,7 @@ public class World {
 
 	public void update() {
 		grass.grow();
+		blood.decay();
 	}
 	
 	public static void regenerate() {

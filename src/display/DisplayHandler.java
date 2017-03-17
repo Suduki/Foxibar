@@ -188,6 +188,18 @@ public class DisplayHandler extends MessageHandler
 					x0 = 0;
 					y0 = 0;
 					break;
+				
+				case GLFW_KEY_2:
+					utils.FPSLimiter.mWantedFps /= 2;
+					break;
+					
+				case GLFW_KEY_1:
+					utils.FPSLimiter.mWantedFps *= 2;
+					break;
+					
+				case GLFW_KEY_3:
+					utils.FPSLimiter.mWantedFps = Constants.WANTED_FPS;
+					break;
 				}
 			}
 		}

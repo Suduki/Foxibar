@@ -11,16 +11,22 @@ public class Blood {
 		this.color = Constants.Colors.BLOOD;
 	}
 	
-	public void append(int pos) {
-		height[pos] = Constants.Blood.ADDITION_ON_DEATH;
+	public void append(int pos, float factor) {
+		height[pos] = factor*Constants.Blood.ADDITION_ON_DEATH;
 		for (short dir = 0; dir < 4; ++dir) {
-			height[World.neighbour[dir][pos]] += Constants.Blood.SPREAD;
+			height[World.neighbour[dir][pos]] += factor*Constants.Blood.SPREAD;
 			if (height[World.neighbour[dir][pos]] > 1f) {
 				height[World.neighbour[dir][pos]] = 1f;
 			}
 		}
 	}
 
+	public void decay() {
+		for(int i = 0; i < Constants.WORLD_SIZE; ++i) {
+			height[i] *= Constants.Blood.DECAY_FACTOR;
+		}
+	}
+	
 	public void getColor(int pos, float[] temp) {
 		for (int c = 0; c < 3; ++c) {
 			temp[c] = Math.min(height[pos], 1f)*color[c];

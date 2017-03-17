@@ -4,11 +4,11 @@ public class FPSLimiter {
 	private double mSimulationFps;
 	private double mFrameStartTime;
 	private double mFrameEndTime;
-	private double mWantedFrameTime;
+	public static double mWantedFps;
 	
 	public FPSLimiter(double pWantedFps)
 	{
-		mWantedFrameTime = 1000d/pWantedFps;
+		mWantedFps = pWantedFps;
 		mFrameStartTime = System.currentTimeMillis();
 	}
 	
@@ -16,6 +16,7 @@ public class FPSLimiter {
 		mFrameEndTime = System.currentTimeMillis();
 		double actualFrameTimeMs = mFrameEndTime - mFrameStartTime;
 
+		double mWantedFrameTime = 1000d / mWantedFps;
 		double sleepTimeMs = mWantedFrameTime - actualFrameTimeMs;
 
 		if (sleepTimeMs > 0) {
