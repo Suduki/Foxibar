@@ -3,6 +3,7 @@ package agents;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import utils.DataMonitor;
 import vision.Vision;
 import world.World;
 import constants.Constants;
@@ -43,6 +44,8 @@ public class Animal {
 	public static boolean killAll = false;
 	
 	public static void moveAll() {
+		DataMonitor.instance.MonitorData("Animals",numAnimals);
+
 		if (killAll) {
 			for (Animal a : pool) {
 				a.die();
