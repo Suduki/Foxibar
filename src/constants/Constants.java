@@ -21,7 +21,7 @@ public class Constants {
 	public static final float PIXELS_PER_NODE_Y = ((float)PIXELS_Y)/WORLD_SIZE_Y;
 	public static final Random RANDOM = new Random(1);
 	public static final boolean WALK_THROUGH_EDGE = true;
-	public static final float GROWTH = 0.001f;
+	public static final float GROWTH = 0.002f;
 	public static final int MAX_NUM_ANIMALS = 100000;
 	public static final short MAX_NUM_ANIMALS_PER_NODE = 10;
 	public static final float ZOOM_SPEED = 1.05f;
@@ -62,6 +62,7 @@ public class Constants {
 		public static final float ADDITION_ON_DEATH = 1;
 		public static final float SPREAD = 0.25f * ADDITION_ON_DEATH;
 		public static final float DECAY_FACTOR = 0.5f;
+		public static final float DEATH_FROM_HUNGER_FACTOR = 0.0f;
 	}
 	public static class Species {
 		public static final agents.Species GRASSLER = new agents.Species(

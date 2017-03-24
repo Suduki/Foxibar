@@ -350,10 +350,10 @@ public class DisplayHandler extends MessageHandler
 					if (Animal.containsAnimals[i] == -1)
 					{
 						if (Constants.RANDOM.nextBoolean()) {
-							Animal.resurrectAnimal(i, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER);
+							Animal.resurrectAnimal(i, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER, Constants.Species.GRASSLER);
 						}
 						else {
-							Animal.resurrectAnimal(i, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING);
+							Animal.resurrectAnimal(i, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING, Constants.Species.BLOODLING);
 						}
 					}
 				}

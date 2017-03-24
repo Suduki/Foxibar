@@ -12,10 +12,8 @@ import static constants.Constants.Neighbours.*;
 public class Animal {
 	
 	public static final int BIRTH_HUNGER = 20;
-	public static final int HUNGRY_HUNGER = 50;
+	public static final int HUNGRY_HUNGER = 100;
 	public static final int BIRTH_HUNGER_COST = 40;
-	
-	
 	
 	private int age = 0;
 	private int sinceLastBaby = 0;
@@ -81,8 +79,7 @@ public class Animal {
 			pool[i] = new Animal();
 		}
 	}
-	
-	public static int resurrectAnimal(int pos, float hunger, Species speciesToInherit) {
+	public static int resurrectAnimal(int pos, float hunger, Species mom, Species dad) {
 		int id = 0;
 		while (pool[id].isAlive) {
 			id++;
@@ -98,7 +95,7 @@ public class Animal {
 		}
 		
 //		pool[id].skill.fight = Constants.RANDOM.nextFloat();
-		pool[id].species.inherit(speciesToInherit);
+		pool[id].species.inherit(mom, dad);
 		
 		pool[id].color[0] = pool[id].species.bloodDigestion*pool[id].species.bloodHarvest;
 		pool[id].color[1] = pool[id].species.grassDigestion*pool[id].species.grassHarvest;
@@ -151,7 +148,7 @@ public class Animal {
 		
 		Vision.updateNearestNeighbours(id);
 		
-		hunger = hunger * 0.98f - 1f;
+		hunger = hunger * 0.98f - 1f; //TODO: Why dOlof you do thies?
 		if (hunger < 0) {
 			dieFromHunger();
 		}
@@ -161,10 +158,7 @@ public class Animal {
 		animalIdToInteractWith[0] = -1;
 		
 		//TODO: These should be adjusted so that we don't use '-='. Instead reformulate and use i.e. blabla=-0.5f
-		float wantToMateness = 10f;
-		float wantToFleeness = 0.2f;
-		float wantToKillness = 0.5f;
-		float wantToBeAloneness = 0.1f;
+
 		
 		float[] nodeGoodness = new float[5];
 		
@@ -180,7 +174,7 @@ public class Animal {
 				int y = World.neighbour[nodeNeighbour][pos] % Constants.WORLD_SIZE_X;
 				int distance = Math.abs(xNeigh-x) + Math.abs(yNeigh - y) + 1;
 				if (isFertileWith(nearbyAnimalId)) {
-					nodeGoodness[nodeNeighbour] += wantToMateness/distance; //TODO: *distance? investigate different varianter
+					nodeGoodness[nodeNeighbour] += species.decision.wantToMateness/distance; //TODO: *distance? investigate different varianter
 					if (distance == 1) {
 						animalIdToInteractWith[0] = nearbyAnimalId;
 					}
@@ -188,24 +182,24 @@ public class Animal {
 				else {
 					if (looksDangerous(nearbyAnimalId)) {
 						// Yelp! Run!
-						nodeGoodness[nodeNeighbour] -= wantToFleeness/distance;
+						nodeGoodness[nodeNeighbour] -= species.decision.wantToFleeness/distance;
 					}
 					else if (looksWeak(nearbyAnimalId)) {
-						nodeGoodness[nodeNeighbour] += wantToKillness/distance;
+						nodeGoodness[nodeNeighbour] += species.decision.wantToKillness/distance;
 						if (distance == 1) {
 							animalIdToInteractWith[0] = nearbyAnimalId;
 						}
 					}
 					else {
 						// This is a non-dangerous dude, lets move away a li'l bit
-						nodeGoodness[nodeNeighbour] -= wantToBeAloneness/distance;
+						nodeGoodness[nodeNeighbour] -= species.decision.wantToBeAloneness/distance;
 					}
 				}
 			}
 		}
 		for (int nodeNeighbour = 0; nodeNeighbour < 5; ++nodeNeighbour) {
-			nodeGoodness[nodeNeighbour] += species.grassDigestion*species.grassHarvest*World.grass.height[World.neighbour[nodeNeighbour][pos]];
-			nodeGoodness[nodeNeighbour] += species.bloodDigestion*species.bloodHarvest*World.blood.height[World.neighbour[nodeNeighbour][pos]];
+			nodeGoodness[nodeNeighbour] += species.decision.wantHighGrass*World.grass.height[World.neighbour[nodeNeighbour][pos]];
+			nodeGoodness[nodeNeighbour] += species.decision.wantHighBlood*World.blood.height[World.neighbour[nodeNeighbour][pos]];
 		}
 		
 		bestDir[0] = (short) max(nodeGoodness);
@@ -259,7 +253,7 @@ public class Animal {
 	private void interactWith(int id2) {
 		if (id2 != id) {
 			if (isFertileWith(id2)) {
-				resurrectAnimal(pos, BIRTH_HUNGER, species);
+				resurrectAnimal(pos, BIRTH_HUNGER, species, pool[id2].species);
 				isFertile = false;
 				hunger -= BIRTH_HUNGER_COST;
 				sinceLastBaby = 0;
@@ -288,7 +282,7 @@ public class Animal {
 	private void dieFromHunger() {
 		if (this.isAlive) {
 			numAnimals--;
-			World.blood.append(pos, 0.5f);
+			World.blood.append(pos, Constants.Blood.DEATH_FROM_HUNGER_FACTOR);
 		}
 		containsAnimals[pos] = -1;
 		isAlive = false;
