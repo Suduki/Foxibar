@@ -6,7 +6,9 @@ public class Grass {
 
 	public float[] height;
 	public boolean[] toBeUpdated;
-	public float[] color; 
+	public float[] color;
+	
+	public static final boolean GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT = true;
 	
 	public Grass() {
 		height = new float[Constants.WORLD_SIZE];
@@ -17,18 +19,35 @@ public class Grass {
 	public void grow() {
 		for(int i = 0; i < Constants.WORLD_SIZE; ++i) {
 			if (toBeUpdated[i]) {
-				height[i] += Constants.GROWTH * World.terrain.height[i];
-				if (height[i] > World.terrain.height[i]) {
-					toBeUpdated[i] = false;
+				if (GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT) {
+					height[i] += Constants.GROWTH * World.terrain.height[i];
+					if (height[i] > World.terrain.height[i]) {
+						toBeUpdated[i] = false;
+					}
+				}
+				else {
+					height[i] += Constants.GROWTH;
+					if (height[i] > 1f) {
+						toBeUpdated[i] = false;
+					}
+
 				}
 			}
 		}
 	}
 
 	public void regenerate() {
-		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			this.height[i] = World.terrain.height[i];
-			toBeUpdated[i] = false;
+		if (GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT) {
+			for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
+				this.height[i] = World.terrain.height[i];
+				toBeUpdated[i] = false;
+			}
+		}
+		else {
+			for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
+				this.height[i] = 1;
+				toBeUpdated[i] = false;
+			}
 		}
 	}
 

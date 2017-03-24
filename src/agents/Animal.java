@@ -162,7 +162,7 @@ public class Animal {
 		
 		//TODO: These should be adjusted so that we don't use '-='. Instead reformulate and use i.e. blabla=-0.5f
 		float wantToMateness = 10f;
-		float wantToFleeness = 0.6f;
+		float wantToFleeness = 0.2f;
 		float wantToKillness = 0.5f;
 		float wantToBeAloneness = 0.1f;
 		
@@ -204,8 +204,8 @@ public class Animal {
 			}
 		}
 		for (int nodeNeighbour = 0; nodeNeighbour < 5; ++nodeNeighbour) {
-			nodeGoodness[nodeNeighbour] += species.grassHarvest*World.grass.height[World.neighbour[nodeNeighbour][pos]];
-			nodeGoodness[nodeNeighbour] += species.bloodHarvest*World.blood.height[World.neighbour[nodeNeighbour][pos]];
+			nodeGoodness[nodeNeighbour] += species.grassDigestion*species.grassHarvest*World.grass.height[World.neighbour[nodeNeighbour][pos]];
+			nodeGoodness[nodeNeighbour] += species.bloodDigestion*species.bloodHarvest*World.blood.height[World.neighbour[nodeNeighbour][pos]];
 		}
 		
 		bestDir[0] = (short) max(nodeGoodness);
