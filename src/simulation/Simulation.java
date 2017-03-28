@@ -6,6 +6,7 @@ import world.World;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import agents.Animal;
+import agents.Decision;
 import messages.MessageHandler;
 import messages.Message;
 

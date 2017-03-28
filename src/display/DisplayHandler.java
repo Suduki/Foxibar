@@ -25,8 +25,10 @@ import math.Vector2f;
 import messages.Message;
 import messages.MessageHandler;
 import agents.Animal;
+import agents.Decision;
 import buttons.Button;
 import input.Mouse;
+import javafx.scene.input.MouseButton;
 
 public class DisplayHandler extends MessageHandler
 {
@@ -208,9 +210,13 @@ public class DisplayHandler extends MessageHandler
 		{
 			mouse.setPosition((float)xpos,  (float)ypos);
 			
-			if (insideViewport(mouse.getPos()) && mouse.buttonPressed(0))
-			{
-				addAnimal();
+			if (insideViewport(mouse.getPos())) {
+				if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+					addGrassling();
+				}
+				if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
+					addBloodling();
+				}
 			}
 		}
 		
@@ -312,9 +318,13 @@ public class DisplayHandler extends MessageHandler
 			switch(button) {
 			case GLFW_MOUSE_BUTTON_1:
 			{
-				if (insideViewport(mouse.getPos()) && mouse.buttonPressed(0))
-				{
-					addAnimal();
+				if (insideViewport(mouse.getPos())) {
+					if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+						addGrassling();
+					}
+					if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
+						addBloodling();
+					}
 				}
 				else if (insideGui(mouse.getPos()))
 				{
@@ -334,9 +344,8 @@ public class DisplayHandler extends MessageHandler
 			}
 		}
 
-
 		// TODO: This should be made sane.
-		private void addAnimal() {
+		private void addGrassling() {
 			mSimulation.message( new messages.Message() {
 				Mouse eventmouse = new Mouse(DisplayHandler.mouse);
 				@Override
@@ -347,13 +356,30 @@ public class DisplayHandler extends MessageHandler
 					Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
 
 					int i = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;		
-					if (Animal.containsAnimals[i] == -1)
-					{
-						if (Constants.RANDOM.nextBoolean()) {
-							Animal.resurrectAnimal(i, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER, Constants.Species.GRASSLER);
-						}
-						else {
-							Animal.resurrectAnimal(i, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING, Constants.Species.BLOODLING);
+					Animal.resurrectAnimal(i, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER, Constants.Species.GRASSLER);
+				}
+				
+				public String messageName() { return "AddAnimal"; }
+			});								
+		}
+		// TODO: This should be made sane.
+		private void addBloodling() {
+			mSimulation.message( new messages.Message() {
+				Mouse eventmouse = new Mouse(DisplayHandler.mouse);
+				@Override
+				public void evaluate(simulation.Simulation simulation) {
+					float viewX = eventmouse.getX()/Constants.PIXELS_X;
+					float viewY = eventmouse.getY()/Constants.PIXELS_Y;
+
+					Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
+
+					int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
+					
+					int a = Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING, Constants.Species.BLOODLING);
+					//TODO: The following is just yolo-tmp.
+					if (Decision.BLOODLING_TOTAL > 50) {
+						for (int i = 0 ; i < Decision.NUM_FACTORS; ++i) {
+							Animal.pool[a].species.decision.decisionFactors[i] = (float) (Decision.BLOODLING_SUM[i]/Decision.BLOODLING_TOTAL);
 						}
 					}
 				}

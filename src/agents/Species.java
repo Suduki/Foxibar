@@ -14,7 +14,7 @@ public class Species {
 	float speed;
 	float fight;
 	
-	Decision decision;
+	public Decision decision;
 	
 	public Species(int speciesId, float grassHarvest, float grassDigestion,
 			float bloodHarvest, float bloodDigestion, float speed,

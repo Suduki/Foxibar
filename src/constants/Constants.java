@@ -25,7 +25,7 @@ public class Constants {
 	public static final int MAX_NUM_ANIMALS = 100000;
 	public static final short MAX_NUM_ANIMALS_PER_NODE = 10;
 	public static final float ZOOM_SPEED = 1.05f;
-	public static final int NUM_NEIGHBOURS = 4;
+	public static final int NUM_NEIGHBOURS = 6;
 	
 	public static boolean RENDER_TERRAIN = true;
 	public static boolean RENDER_ANIMALS = true;
@@ -66,8 +66,8 @@ public class Constants {
 	}
 	public static class Species {
 		public static final agents.Species GRASSLER = new agents.Species(
-//				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.5f, 0f);
-				SpeciesId.GRASSLER, 0.2f, 20f, 0f, 0f, 1f, 0f);
+				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.5f, 0f);
+//				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
 		public static final agents.Species BLOODLING = new agents.Species(
 //				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
 				SpeciesId.BLOODLING, 0f, 0f, 1f, 300f, 1f, 1f);
