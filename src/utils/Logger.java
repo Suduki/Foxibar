@@ -14,11 +14,11 @@ public class Logger {
         Arrays.fill(flags, false);
     }
 
-    public void Sout(Object o, String message){
+    public void trace(Object o, String message){
 
     }
 
-    public void Serr(Object o, String message){
+    public void debug(Object o, String message){
 
     }
 

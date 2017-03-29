@@ -1,23 +1,39 @@
 package utils;
 
-import sun.misc.Perf;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.system.MemoryStack;
 
+import javax.swing.*;
+
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryStack.*;
+import static org.lwjgl.system.MemoryUtil.*;
+
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.IntBuffer;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
+
 /**
  * Created by xxhedbet on 2017-03-23.
  */
-public class CLI implements Runnable {
+public class CLI extends JFrame implements Runnable {
 
     public static CLI instance = new CLI();
     private final BufferedReader bufferedReader;
     private boolean active;
     private Timer timer; // Timer for scheduled tasks
+
+    // The window handle
+    private long window;
 
     private CLI (){
         bufferedReader = new BufferedReader(new InputStreamReader(System.in));
@@ -64,7 +80,7 @@ public class CLI implements Runnable {
 
     private void handleDataMonitor(String command) throws IOException {
         while (true) {
-            System.out.print("[DataMonitor] > ");
+            System.out.print("(" + (DataMonitor.instance.isActive() ? "ON" : "OFF") + ")" + "[DataMonitor] > ");
             command = bufferedReader.readLine();
             switch (command.toLowerCase()) {
                 case "activate":
@@ -82,6 +98,9 @@ public class CLI implements Runnable {
                     System.out.print("id > ");
                     command = bufferedReader.readLine();
                     DataMonitor.instance.printDataOnId(command);
+                    break;
+                case "printall":
+                    DataMonitor.instance.printDataOnAll();
                     break;
 
                 case "h":
@@ -127,7 +146,7 @@ public class CLI implements Runnable {
 
     public void handlePerformanceMonitor(String command) throws IOException {
         while (true) {
-            System.out.print("[Performance Monitor] > ");
+            System.out.print("(" + (PerformanceMonitor.instance.isActive() ? "ON" : "OFF") + ")" + "[Performance Monitor] > ");
             command = bufferedReader.readLine();
             switch (command.toLowerCase()) {
                 case "activate":

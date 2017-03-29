@@ -4,9 +4,11 @@ import constants.Constants;
 import display.DisplayHandler;
 import simulation.Simulation;
 import utils.CLI;
+import utils.DataMonitor;
 import utils.FPSLimiter;
 import utils.PerformanceMonitor;
 
+import javax.xml.crypto.Data;
 import java.util.Map;
 
 public class Main
@@ -29,6 +31,7 @@ public class Main
 				PerformanceMonitor.instance.ToggleMonitoring("FrameWaiting");
 				fpsLimiter.waitForNextFrame();
 				PerformanceMonitor.instance.ToggleMonitoring("FrameWaiting");
+				DataMonitor.instance.updateAllData();
 			}
 		}
 		catch ( IllegalStateException e)

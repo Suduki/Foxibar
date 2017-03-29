@@ -44,7 +44,6 @@ public class Animal {
 	public static boolean killAll = false;
 	
 	public static void moveAll() {
-		DataMonitor.instance.MonitorData("Animals",numAnimals);
 
 		if (killAll) {
 			for (Animal a : pool) {
@@ -74,6 +73,8 @@ public class Animal {
 	}
 	
 	public static void init() {
+		DataMonitor.instance.register("Animals", () -> numAnimals);
+
 		containsAnimals = new int[Constants.WORLD_SIZE];
 		
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
