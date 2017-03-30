@@ -34,8 +34,8 @@ public class Species {
 			case Constants.SpeciesId.BLOODLING:
 				decision = new Decision(Decision.STANDARD_BLOODLING);
 				break;
-				default:
-					System.err.println("What is this species?" + speciesId);
+			default:
+				System.err.println("What is this species?" + speciesId);
 		}
 	}
 	
