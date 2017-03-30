@@ -3,6 +3,7 @@ package main;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import agents.Animal;
 import agents.Decision;
 import constants.Constants;
 import display.DisplayHandler;
@@ -18,6 +19,15 @@ public class Main
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
 
+		System.out.println(Animal.numVals);
+		System.out.println(Animal.HUNGER);
+		System.out.println(Animal.FERTILE);
+		System.out.println(Animal.AGE);
+		System.out.println(Animal.TILE_GRASS);
+		System.out.println(Animal.TILE_BLOOD);
+		System.out.println(Animal.TILE_DANGER);
+		System.out.println(Animal.TILE_FERTILITY);
+		System.out.println(Animal.TILE_FRIENDS);
 		try
 		{
 			int timeStep = 0;

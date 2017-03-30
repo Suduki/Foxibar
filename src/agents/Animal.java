@@ -155,51 +155,104 @@ public class Animal {
 		}
 		
 	}
+	
+	public static int numVals = 0;
+	public static final int HUNGER = numVals++;
+	public static final int FERTILE = numVals++;
+	public static final int AGE = numVals++;
+	public static final int TILE_GRASS = numVals++;
+	public static final int TILE_BLOOD = numVals++;
+	public static final int TILE_DANGER = numVals++;
+	public static final int TILE_FERTILITY = numVals++;
+	public static final int TILE_FRIENDS = numVals++;
+	public static final int TILE_HUNT = numVals;
+	
 	private boolean findBestDir(short[] bestDir, int[] animalIdToInteractWith) {
 		animalIdToInteractWith[0] = -1;
 		
 		float[] nodeGoodness = new float[5];
+		float[] inputData = new float[numVals];
 		
-		for (int nearbyAnimalId : nearbyAnimals) {
-			if (nearbyAnimalId == -1) {
-				continue;
-			}
-			int xNeigh = pool[nearbyAnimalId].pos / Constants.WORLD_SIZE_X;
-			int yNeigh = pool[nearbyAnimalId].pos % Constants.WORLD_SIZE_X;
-			
-			for (int nodeNeighbour = 0; nodeNeighbour < 5; ++nodeNeighbour) {
-				int x = World.neighbour[nodeNeighbour][pos] / Constants.WORLD_SIZE_X;
-				int y = World.neighbour[nodeNeighbour][pos] % Constants.WORLD_SIZE_X;
-				int distance = Math.abs(xNeigh-x) + Math.abs(yNeigh - y) + 1;
-				if (isFertileWith(nearbyAnimalId)) {
-					nodeGoodness[nodeNeighbour] += species.decision.decisionFactors[Decision.WANT_TO_MATE]/distance; //TODO: *distance? investigate different varianter
-					if (distance == 1) {
-						animalIdToInteractWith[0] = nearbyAnimalId;
-					}
-				}
-				else {
-					if (looksDangerous(nearbyAnimalId)) {
-						// Yelp! Run!
-						nodeGoodness[nodeNeighbour] += species.decision.decisionFactors[Decision.WANT_TO_FLEE]/distance;
-					}
-					else if (looksWeak(nearbyAnimalId)) {
-						nodeGoodness[nodeNeighbour] += species.decision.decisionFactors[Decision.WANT_TO_HUNT]/distance;
-						if (distance == 1) {
-							animalIdToInteractWith[0] = nearbyAnimalId;
-						}
-					}
-					else {
-						// This is a non-dangerous dude, lets move away a li'l bit
-						nodeGoodness[nodeNeighbour] += species.decision.decisionFactors[Decision.WANT_TO_BE_ALONE]/distance;
-					}
-				}
-			}
+		inputData[HUNGER] = this.hunger / HUNGRY_HUNGER; //TODO: Rescale this?
+		
+		if (isFertile) {
+			inputData[FERTILE] = 1f;
 		}
+		else {
+			inputData[FERTILE] = 0;
+		}
+		
+		inputData[AGE] = 0;
+		
 		for (int nodeNeighbour = 0; nodeNeighbour < 5; ++nodeNeighbour) {
-			nodeGoodness[nodeNeighbour] += species.decision.decisionFactors[Decision.WANT_HIGH_GRASS]*World.grass.height[World.neighbour[nodeNeighbour][pos]];
-			nodeGoodness[nodeNeighbour] += species.decision.decisionFactors[Decision.WANT_HIGH_BLOOD]*World.blood.height[World.neighbour[nodeNeighbour][pos]];
+			
+			for (int i = 0; i < inputData.length; ++i) {
+				inputData[i] = 0;
+			}
+			
+			int x = World.neighbour[nodeNeighbour][pos] / Constants.WORLD_SIZE_X;
+			int y = World.neighbour[nodeNeighbour][pos] % Constants.WORLD_SIZE_X;
+			
+			inputData[TILE_GRASS] = World.grass.height[World.neighbour[nodeNeighbour][pos]];
+			inputData[TILE_BLOOD] = World.blood.height[World.neighbour[nodeNeighbour][pos]];
+			
+			for (int nearbyAnimalId : nearbyAnimals) {
+				
+				if (nearbyAnimalId == -1) {
+					continue;
+				}
+				
+				int xNeigh = pool[nearbyAnimalId].pos / Constants.WORLD_SIZE_X;
+				int yNeigh = pool[nearbyAnimalId].pos % Constants.WORLD_SIZE_X;
+				
+				int distance = Math.abs(xNeigh-x) + Math.abs(yNeigh - y) + 1;
+				
+			}
+			
+			
 		}
-		
+//		for (int nearbyAnimalId : nearbyAnimals) {
+//			if (nearbyAnimalId == -1) {
+//				continue;
+//			}
+//			
+//			
+//			int xNeigh = pool[nearbyAnimalId].pos / Constants.WORLD_SIZE_X;
+//			int yNeigh = pool[nearbyAnimalId].pos % Constants.WORLD_SIZE_X;
+//			
+//			for (int nodeNeighbour = 0; nodeNeighbour < 5; ++nodeNeighbour) {
+//				int x = World.neighbour[nodeNeighbour][pos] / Constants.WORLD_SIZE_X;
+//				int y = World.neighbour[nodeNeighbour][pos] % Constants.WORLD_SIZE_X;
+//				int distance = Math.abs(xNeigh-x) + Math.abs(yNeigh - y) + 1;
+//				if (isFertileWith(nearbyAnimalId)) {
+//					nodeGoodness[nodeNeighbour] += species.decision.decisionFactors[Decision.WANT_TO_MATE]/distance; //TODO: *distance? investigate different varianter
+//					if (distance == 1) {
+//						animalIdToInteractWith[0] = nearbyAnimalId;
+//					}
+//				}
+//				else {
+//					if (looksDangerous(nearbyAnimalId)) {
+//						// Yelp! Run!
+//						nodeGoodness[nodeNeighbour] += species.decision.decisionFactors[Decision.WANT_TO_FLEE]/distance;
+//					}
+//					else if (looksWeak(nearbyAnimalId)) {
+//						nodeGoodness[nodeNeighbour] += species.decision.decisionFactors[Decision.WANT_TO_HUNT]/distance;
+//						if (distance == 1) {
+//							animalIdToInteractWith[0] = nearbyAnimalId;
+//						}
+//					}
+//					else {
+//						// This is a non-dangerous dude, lets move away a li'l bit
+//						nodeGoodness[nodeNeighbour] += species.decision.decisionFactors[Decision.WANT_TO_BE_ALONE]/distance;
+//					}
+//				}
+//			}
+//		}
+//		for (int nodeNeighbour = 0; nodeNeighbour < 5; ++nodeNeighbour) {
+//			nodeGoodness[nodeNeighbour] += species.decision.decisionFactors[Decision.WANT_HIGH_GRASS]*World.grass.height[World.neighbour[nodeNeighbour][pos]];
+//			nodeGoodness[nodeNeighbour] += species.decision.decisionFactors[Decision.WANT_HIGH_BLOOD]*World.blood.height[World.neighbour[nodeNeighbour][pos]];
+//		}
+//		
 		bestDir[0] = (short) max(nodeGoodness);
 		return true;
 	}
