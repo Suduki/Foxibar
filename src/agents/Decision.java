@@ -104,9 +104,12 @@ public class Decision {
 	
 	public int neuralMagic(float[] inputData) {
 		float[] weights = new float[NUM_HIDDEN_LAYERS];
+		
 		for (int layers= 0; layers < NUM_HIDDEN_LAYERS; layers++) {
-			for (int i = 0; i < inputData.length; ++i) {
-				
+			for (int layerNodes = 0; layerNodes < NUM_HIDDEN_LAYERS; layerNodes++) {
+				for (int i = 0; i < inputData.length; ++i) {
+					
+				}
 			}
 		}
 		return 0;
