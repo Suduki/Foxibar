@@ -64,7 +64,7 @@ public class CLI extends JFrame implements Runnable {
                     case "help":
                         System.out.println("Welcome to Foxibar CLI\n" +
                                 "Commands :\n" +
-                                "logger - Logger\n" +
+                                "logger - log\n" +
                                 "pm - PerformanceMontior\n" +
                                 "dm - DataMonitor\n" +
                                 "help - Display this helptext :>\n");
@@ -121,7 +121,7 @@ public class CLI extends JFrame implements Runnable {
 
     public void handleLogger(String command) throws IOException {
         while (true) {
-            System.out.print("[Logger] > ");
+            System.out.print("[log] > ");
             command = bufferedReader.readLine();
             switch (command.toLowerCase()) {
                 case "activate":
@@ -131,7 +131,7 @@ public class CLI extends JFrame implements Runnable {
                     break;
                 case "h":
                 case "help":
-                    System.out.println("Logger\n" +
+                    System.out.println("log\n" +
                             "Commands :\n" +
                             "activate - activate id on logger\n" +
                             "help - Display this helptext :>\n");

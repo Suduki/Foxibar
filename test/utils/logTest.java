@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 /**
  * Created by xxhedbet on 2017-03-23.
  */
-public class LoggerTest {
+public class logTest {
 
     @Before
     public void setUp() throws Exception {

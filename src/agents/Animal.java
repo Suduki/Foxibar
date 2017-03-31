@@ -1,13 +1,10 @@
 package agents;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 import utils.DataMonitor;
 import vision.Vision;
 import world.World;
 import constants.Constants;
-import constants.Constants.Neighbours;
+
 import static constants.Constants.Neighbours.*;
 
 public class Animal {
@@ -73,7 +70,7 @@ public class Animal {
 	}
 	
 	public static void init() {
-		DataMonitor.instance.register("Animals", () -> numAnimals);
+		DataMonitor.instance.registerData("Animals", () -> numAnimals);
 
 		containsAnimals = new int[Constants.WORLD_SIZE];
 		
