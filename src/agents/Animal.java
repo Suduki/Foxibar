@@ -28,6 +28,8 @@ public class Animal {
 	
 	private float recover = 0f;
 	
+	private Decision decision;
+	
 	//************ GENETIC STATS ************
 	public Species species;
 	private boolean isFertile;
@@ -44,9 +46,6 @@ public class Animal {
 		if (killAll) {
 			for (Animal a : pool) {
 				a.die(0f);
-			}
-			for (int i = 0; i < containsAnimals.length; ++i) {
-				containsAnimals[i] = -1;
 			}
 			System.out.println("Num animals alive after killing them all: " + numAnimals);
 			numAnimals = 0;
@@ -79,24 +78,19 @@ public class Animal {
 			pool[i] = new Animal();
 		}
 	}
-	public static int resurrectAnimal(int pos, float hunger, Species mom, Species dad) {
-		int id = 0;
-		while (pool[id].isAlive) {
-			id++;
-			if (id == Constants.MAX_NUM_ANIMALS) {
-				System.err.println("MAX_NUM_ANIMALS reached. Pool full.");
-				return -1;
-			}
+	public static int resurrectAnimal(int pos, float hunger, Species speciesMom, Decision decisionMom, Species speciesDad, Decision decisionDad) {
+		int id = findFirstAvailablePoolSpot();
+		
+		if (id == -1) {
+			System.err.println("did not find pool spot.");
+			return -1;
 		}
+		
 		pool[id].isAlive = true;
 		
-		for (int i = 0; i < pool[id].nearbyAnimals.length; ++i) {
-			pool[id].nearbyAnimals[i] = -1;
-		}
-		
-//		pool[id].skill.fight = Constants.RANDOM.nextFloat();
-		pool[id].species.inherit(mom, dad);
-		Decision.register(pool[id].species.speciesId, pool[id].species.decision);
+		pool[id].species.inherit(speciesMom, speciesDad);
+		pool[id].decision.inherit(decisionMom, decisionDad);
+		Decision.register(pool[id].species.speciesId, pool[id].decision);
 		
 		pool[id].color[0] = pool[id].species.bloodDigestion*pool[id].species.bloodHarvest;
 		pool[id].color[1] = pool[id].species.grassDigestion*pool[id].species.grassHarvest;
@@ -112,7 +106,17 @@ public class Animal {
 		
 		numAnimals++;
 		containsAnimals[pool[id].pos] = id;
-		
+		return id;
+	}
+	private static int findFirstAvailablePoolSpot() {
+		int id = 0;
+		while (pool[id].isAlive) {
+			id++;
+			if (id == Constants.MAX_NUM_ANIMALS) {
+				System.err.println("MAX_NUM_ANIMALS reached. Pool full.");
+				return -1;
+			}
+		}
 		return id;
 	}
 	
@@ -120,9 +124,10 @@ public class Animal {
 	private Animal() {
 		this.isAlive = false;
 		this.color = new float[3];
-		this.species = new Species();
 		this.nearbyAnimals = new int[Constants.NUM_NEIGHBOURS];
 		this.nearbyAnimalsDistance = new int[Constants.NUM_NEIGHBOURS];
+		this.decision = new Decision();
+		this.species = new Species();
 	}
 	private void move() {
 
@@ -156,33 +161,22 @@ public class Animal {
 		
 	}
 	
-	public static int numVals = 0;
-	public static final int HUNGER = numVals++;
-	public static final int FERTILE = numVals++;
-	public static final int AGE = numVals++;
-	public static final int TILE_GRASS = numVals++;
-	public static final int TILE_BLOOD = numVals++;
-	public static final int TILE_DANGER = numVals++;
-	public static final int TILE_FERTILITY = numVals++;
-	public static final int TILE_FRIENDS = numVals++;
-	public static final int TILE_HUNT = numVals;
-	
 	private boolean findBestDir(short[] bestDir, int[] animalIdToInteractWith) {
 		animalIdToInteractWith[0] = -1;
 		
 		float[] nodeGoodness = new float[5];
-		float[] inputData = new float[numVals];
+		float[] inputData = new float[DecisionFactors.NUM_DESICION_FACTORS];
 		
-		inputData[HUNGER] = this.hunger / HUNGRY_HUNGER; //TODO: Rescale this?
+		inputData[DecisionFactors.HUNGER] = this.hunger / HUNGRY_HUNGER; //TODO: Rescale this?
 		
 		if (isFertile) {
-			inputData[FERTILE] = 1f;
+			inputData[DecisionFactors.FERTILE] = 1f;
 		}
 		else {
-			inputData[FERTILE] = 0;
+			inputData[DecisionFactors.FERTILE] = 0;
 		}
 		
-		inputData[AGE] = 0;
+		inputData[DecisionFactors.AGE] = 0;
 		
 		for (int nodeNeighbour = 0; nodeNeighbour < 5; ++nodeNeighbour) {
 			
@@ -193,8 +187,8 @@ public class Animal {
 			int x = World.neighbour[nodeNeighbour][pos] / Constants.WORLD_SIZE_X;
 			int y = World.neighbour[nodeNeighbour][pos] % Constants.WORLD_SIZE_X;
 			
-			inputData[TILE_GRASS] = World.grass.height[World.neighbour[nodeNeighbour][pos]];
-			inputData[TILE_BLOOD] = World.blood.height[World.neighbour[nodeNeighbour][pos]];
+			inputData[DecisionFactors.TILE_GRASS] = World.grass.height[World.neighbour[nodeNeighbour][pos]];
+			inputData[DecisionFactors.TILE_BLOOD] = World.blood.height[World.neighbour[nodeNeighbour][pos]];
 			
 			for (int nearbyAnimalId : nearbyAnimals) {
 				
@@ -205,12 +199,25 @@ public class Animal {
 				int xNeigh = pool[nearbyAnimalId].pos / Constants.WORLD_SIZE_X;
 				int yNeigh = pool[nearbyAnimalId].pos % Constants.WORLD_SIZE_X;
 				
-				int distance = Math.abs(xNeigh-x) + Math.abs(yNeigh - y) + 1;
+				float distance = (Math.abs(xNeigh-x) + Math.abs(yNeigh - y))/Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE;
 				
+				if (looksDangerous(nearbyAnimalId)) {
+					inputData[DecisionFactors.TILE_DANGER] = Math.min(distance, inputData[DecisionFactors.TILE_DANGER]);
+				}
+				if (looksWeak(nearbyAnimalId)) {
+					inputData[DecisionFactors.TILE_HUNT] = Math.min(distance, inputData[DecisionFactors.TILE_HUNT]);
+				}
+				if (!looksDangerous(nearbyAnimalId)) {
+					inputData[DecisionFactors.TILE_FRIENDS] = Math.min(distance, inputData[DecisionFactors.TILE_FRIENDS]);
+				}
+				if (isFertileWith(nearbyAnimalId)) {
+					inputData[DecisionFactors.TILE_FERTILITY] = Math.min(distance, inputData[DecisionFactors.TILE_FERTILITY]);
+				}
 			}
-			
-			
 		}
+		
+		
+		
 //		for (int nearbyAnimalId : nearbyAnimals) {
 //			if (nearbyAnimalId == -1) {
 //				continue;
@@ -304,7 +311,7 @@ public class Animal {
 	private void interactWith(int id2) {
 		if (id2 != id) {
 			if (isFertileWith(id2)) {
-				resurrectAnimal(pos, BIRTH_HUNGER, species, pool[id2].species);
+				resurrectAnimal(pos, BIRTH_HUNGER, pool[id].species, pool[id].decision, pool[id2].species, pool[id2].decision);
 				isFertile = false;
 				hunger -= BIRTH_HUNGER_COST;
 				sinceLastBaby = 0;
@@ -324,7 +331,7 @@ public class Animal {
 	private void die(float energyFactor) {
 		if (this.isAlive) {
 			numAnimals--;
-			Decision.unregister(species.speciesId, species.decision);
+			Decision.unregister(species.speciesId, decision);
 			World.blood.append(pos, energyFactor);
 		}
 		containsAnimals[pos] = -1;
@@ -348,4 +355,5 @@ public class Animal {
 			return NONE;
 		}
 	}
+
 }

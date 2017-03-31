@@ -356,7 +356,8 @@ public class DisplayHandler extends MessageHandler
 					Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
 
 					int i = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;		
-					Animal.resurrectAnimal(i, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER, Constants.Species.GRASSLER);
+					Animal.resurrectAnimal(i, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER, Decision.STANDARD_GRASSLER, 
+							Constants.Species.GRASSLER, Decision.STANDARD_GRASSLER);
 				}
 				
 				public String messageName() { return "AddAnimal"; }
@@ -375,13 +376,8 @@ public class DisplayHandler extends MessageHandler
 
 					int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
 					
-					int a = Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING, Constants.Species.BLOODLING);
-					//TODO: The following is just yolo-tmp.
-					if (Decision.BLOODLING_TOTAL > 50) {
-						for (int i = 0 ; i < Decision.NUM_FACTORS; ++i) {
-							Animal.pool[a].species.decision.decisionFactors[i] = (float) (Decision.BLOODLING_SUM[i]/Decision.BLOODLING_TOTAL);
-						}
-					}
+					Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING, Decision.STANDARD_BLOODLING, 
+							Constants.Species.BLOODLING, Decision.STANDARD_BLOODLING);
 				}
 				
 				public String messageName() { return "AddAnimal"; }
