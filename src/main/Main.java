@@ -50,9 +50,20 @@ public class Main
 	private static void spawnRandomAnimal(int speciesId) {
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
-			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-					Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-					null, Constants.Species.BLOODLING, null);
+			boolean useBestAnimal = true;
+			if (useBestAnimal) {
+				Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
+						Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
+						Constants.SpeciesId.bestBloodlingDecision, 
+						Constants.Species.BLOODLING, Constants.SpeciesId.secondBloodlingDecision);
+			}
+			else {
+				int i =	Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
+						Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
+						Constants.SpeciesId.bestBloodlingDecision, 
+						Constants.Species.BLOODLING, Constants.SpeciesId.secondBloodlingDecision);
+				Animal.pool[i].decision.initWeightsRandom();
+			}
 			break;
 		case Constants.SpeciesId.GRASSLER:
 			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 

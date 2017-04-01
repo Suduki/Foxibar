@@ -3,6 +3,7 @@ package constants;
 import java.util.Random;
 
 import agents.Animal;
+import agents.Decision;
 import vision.Vision;
 
 public class Constants {
@@ -12,7 +13,7 @@ public class Constants {
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
-	public static final int WANTED_FPS = 20;
+	public static final int WANTED_FPS = 2000;
 	public static final int PIXELS_Y = 800;
 	public static final int PIXELS_SIDEBOARD = 360;
 	public static final int WINDOW_WIDTH = 1080;
@@ -21,9 +22,8 @@ public class Constants {
 	public static final float PIXELS_PER_NODE_Y = ((float)PIXELS_Y)/WORLD_SIZE_Y;
 	public static final Random RANDOM = new Random(1);
 	public static final boolean WALK_THROUGH_EDGE = true;
-	public static final float GROWTH = 0.002f;
+	public static final float GROWTH = 0.005f*Species.GRASSLER_SPEED;
 	public static final int MAX_NUM_ANIMALS = 5000;
-	public static final short MAX_NUM_ANIMALS_PER_NODE = 10;
 	public static final float ZOOM_SPEED = 1.05f;
 	public static final int NUM_NEIGHBOURS = 6;
 	
@@ -61,19 +61,25 @@ public class Constants {
 	public static class Blood {
 		public static final float ADDITION_ON_DEATH = 1;
 		public static final float SPREAD = 0.25f * ADDITION_ON_DEATH;
-		public static final float DECAY_FACTOR = 0.5f;
+		public static final float DECAY_FACTOR = 0.99f;
 		public static final float DEATH_FROM_HUNGER_FACTOR = 0.0f;
 	}
 	public static class Species {
+		public static final float GRASSLER_SPEED = 0.2f;
 		public static final agents.Species GRASSLER = new agents.Species(
-				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.25f, 0f);
+				SpeciesId.GRASSLER, 0.3f, 20f, 0f, 0f, GRASSLER_SPEED, 0f);
 //				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
 		public static final agents.Species BLOODLING = new agents.Species(
 //				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
-				SpeciesId.BLOODLING, 0f, 0f, 1f, 300f, 1f, 1f);
+				SpeciesId.BLOODLING, 0f, 0f, 0.1f, 300f, 1f, 1f);
 	}
 	public static class SpeciesId {
 		public static final int BLOODLING = 1;
 		public static final int GRASSLER = 2;
+		
+		public static int bestBloodlingDecisionScore = 0;
+		public static Decision bestBloodlingDecision;
+		public static int secondBloodlingDecisionScore = 0;
+		public static Decision secondBloodlingDecision;
 	}
 }

@@ -4,7 +4,7 @@ import constants.Constants;
 
 public class Decision {
 	
-	private static final int NUM_NODES_LAYER1 = 20;
+	private static final int NUM_NODES_LAYER1 = 5;
 	float[][] weights1;
 	float[] weights2;
 	
@@ -43,9 +43,21 @@ public class Decision {
 	}
 	
 	private double sigmoid(double f) {
-		return 1d/(1d+Math.exp(f));
+		return 1d/(1d+Math.exp(-f));
 	}
 	
+	public void copy(Decision d) {
+		// Loop through all weights.
+		for (int i = 0; i < weights1.length; ++i) {
+			for (int j = 0; j < weights1[i].length; ++j) {
+				weights1[i][j] = d.weights1[i][j];
+			}
+		}
+		// Same for layer 2
+		for (int j = 0; j < weights2.length; ++j) {
+			weights2[j] = d.weights2[j];
+		}
+	}
 	
 	public void inherit(Decision decisionMom, Decision decisionDad) {
 		// First decide which parent to mostly resemble.
@@ -66,7 +78,7 @@ public class Decision {
 				weights1[i][j] = toInheritFrom.weights1[i][j];
 				// Add a randomness depending on the difference between mom and dad.
 				double diff = Math.abs(weights1[i][j] - other.weights1[i][j]);
-				weights1[i][j] += diff * (1 - 2*Constants.RANDOM.nextDouble());
+				weights1[i][j] += diff * (1f - 2*Constants.RANDOM.nextFloat());
 			}
 		}
 		
@@ -75,8 +87,9 @@ public class Decision {
 			weights2[j] = toInheritFrom.weights2[j];
 			
 			double diff = Math.abs(weights2[j] - other.weights2[j]);
-			weights2[j] += diff * (1 - 2*Constants.RANDOM.nextDouble());
+			weights2[j] += diff * (1f - 2*Constants.RANDOM.nextFloat());
 			
 		}
 	}
+	
 }

@@ -16,6 +16,7 @@ public class Animal {
 	public static final int BIRTH_HUNGER_COST = 40;
 	
 	private int age = 0;
+	private int numKids = 0;
 	private int sinceLastBaby = 0;
 	private int id;
 	public float size = 3f;
@@ -28,7 +29,7 @@ public class Animal {
 	
 	private float recover = 0f;
 	
-	private Decision decision;
+	public Decision decision;
 	
 	//************ GENETIC STATS ************
 	public Species species;
@@ -57,7 +58,7 @@ public class Animal {
 		}
 		for (Animal a : pool) {
 			if (a.isAlive) {
-				a.age++;
+				a.age();
 				a.sinceLastBaby++;
 				a.recover += a.species.speed;
 				if (a.recover > 1f) {
@@ -181,6 +182,28 @@ public class Animal {
 		
 	}
 	
+	private void age() {
+		age++;
+		if (species.speciesId == Constants.SpeciesId.BLOODLING) {
+			int score = age + numKids*100;
+			if (score > 1000) {
+				if (score > Constants.SpeciesId.bestBloodlingDecisionScore) {
+					Constants.SpeciesId.bestBloodlingDecision = decision;
+					Constants.SpeciesId.bestBloodlingDecisionScore = score;
+					color[1] = 1;
+				}
+				else if (score > Constants.SpeciesId.secondBloodlingDecisionScore) {
+					Constants.SpeciesId.secondBloodlingDecision = decision;
+					Constants.SpeciesId.secondBloodlingDecisionScore = score;
+					color[1] = 1;
+				}
+				else {
+					color[1] = 0;
+				}
+			}
+		}
+	}
+	
 	private boolean findBestDir(short[] bestDir, int[] animalIdToInteractWith) {
 		animalIdToInteractWith[0] = -1;
 		
@@ -271,7 +294,7 @@ public class Animal {
 
 	private int max(double[] nodeGoodness) {
 		int maxI = -1;
-		double maxVal = -100;
+		double maxVal = Double.MIN_VALUE;
 		for (short i = 0; i < nodeGoodness.length; ++i) {
 			if (nodeGoodness[i] > maxVal) {
 				maxVal = nodeGoodness[i];
@@ -304,9 +327,11 @@ public class Animal {
 				isFertile = false;
 				hunger -= BIRTH_HUNGER_COST;
 				sinceLastBaby = 0;
+				numKids ++;
 				pool[id2].isFertile = false;
 				pool[id2].hunger -= BIRTH_HUNGER_COST;
 				pool[id2].sinceLastBaby = 0;
+				pool[id2].numKids ++;
 			}
 			else if (looksWeak(id2)) {
 				pool[id2].die(1f);
