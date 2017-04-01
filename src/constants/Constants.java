@@ -7,7 +7,7 @@ import vision.Vision;
 
 public class Constants {
 
-	public static final short WORLD_MULTIPLIER = 9;
+	public static final short WORLD_MULTIPLIER = 8;
 	public static final float INIT_ZOOM = 1.0f;
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
@@ -22,7 +22,7 @@ public class Constants {
 	public static final Random RANDOM = new Random(1);
 	public static final boolean WALK_THROUGH_EDGE = true;
 	public static final float GROWTH = 0.002f;
-	public static final int MAX_NUM_ANIMALS = 100000;
+	public static final int MAX_NUM_ANIMALS = 5000;
 	public static final short MAX_NUM_ANIMALS_PER_NODE = 10;
 	public static final float ZOOM_SPEED = 1.05f;
 	public static final int NUM_NEIGHBOURS = 6;
@@ -66,7 +66,7 @@ public class Constants {
 	}
 	public static class Species {
 		public static final agents.Species GRASSLER = new agents.Species(
-				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.5f, 0f);
+				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.25f, 0f);
 //				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
 		public static final agents.Species BLOODLING = new agents.Species(
 //				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);

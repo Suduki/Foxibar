@@ -356,8 +356,8 @@ public class DisplayHandler extends MessageHandler
 					Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
 
 					int i = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;		
-					Animal.resurrectAnimal(i, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER, Decision.STANDARD_GRASSLER, 
-							Constants.Species.GRASSLER, Decision.STANDARD_GRASSLER);
+					Animal.resurrectAnimal(i, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER, 
+							null, Constants.Species.GRASSLER, null);
 				}
 				
 				public String messageName() { return "AddAnimal"; }
@@ -376,8 +376,8 @@ public class DisplayHandler extends MessageHandler
 
 					int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
 					
-					Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING, Decision.STANDARD_BLOODLING, 
-							Constants.Species.BLOODLING, Decision.STANDARD_BLOODLING);
+					Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
+							null, Constants.Species.BLOODLING, null);
 				}
 				
 				public String messageName() { return "AddAnimal"; }

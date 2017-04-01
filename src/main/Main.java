@@ -22,24 +22,16 @@ public class Main
 
 		try
 		{
-			int timeStep = 0;
 			while (simulation.handleMessages() && displayHandler.renderThreadThread.isAlive())
 			{
 				simulation.step();
 				fpsLimiter.waitForNextFrame();
 				
-				timeStep++;
-				if (timeStep % 1000 == 0) {
-					System.out.format("BLOODLING ("+Decision.BLOODLING_TOTAL+"): ");
-					for (int i = 0; i < Decision.NUM_WEIGHTS; ++i) {
-						System.out.format(Decision.FACTOR_NAMES[i] + ": %.2f, ", Decision.BLOODLING_SUM[i]/Decision.BLOODLING_TOTAL);
-					}
-					System.out.println("");
-					System.out.print("GRASSLER ("+Decision.GRASSLER_TOTAL+"): ");
-					for (int i = 0; i < Decision.NUM_WEIGHTS; ++i) {
-						System.out.format(Decision.FACTOR_NAMES[i] + ": %.2f, ", Decision.GRASSLER_SUM[i]/Decision.GRASSLER_TOTAL);
-					}
-					System.out.println("");
+				while (Animal.numBloodlings < 10) {
+					spawnRandomAnimal(Constants.SpeciesId.BLOODLING);
+				}
+				while (Animal.numGrasslers < 50) {
+					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 			}
 		}
@@ -53,5 +45,20 @@ public class Main
 		}
 
 		System.out.println("Simulation (main) thread finished.");
+	}
+
+	private static void spawnRandomAnimal(int speciesId) {
+		switch (speciesId) {
+		case Constants.SpeciesId.BLOODLING:
+			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
+					Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
+					null, Constants.Species.BLOODLING, null);
+			break;
+		case Constants.SpeciesId.GRASSLER:
+			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
+					Animal.BIRTH_HUNGER, Constants.Species.GRASSLER,  
+					null, Constants.Species.GRASSLER, null);
+			break;
+		}
 	}
 }
