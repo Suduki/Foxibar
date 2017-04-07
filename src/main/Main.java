@@ -22,16 +22,23 @@ public class Main
 
 		try
 		{
+			int timeStep = 0;
 			while (simulation.handleMessages() && displayHandler.renderThreadThread.isAlive())
 			{
+				timeStep++;
 				simulation.step();
 				fpsLimiter.waitForNextFrame();
 				
-				while (Animal.numBloodlings < 10) {
+				while (Animal.numBloodlings < 3) {
 					spawnRandomAnimal(Constants.SpeciesId.BLOODLING);
 				}
-				while (Animal.numGrasslers < 50) {
+				while (Animal.numGrasslers < 10) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
+				}
+				
+				if (timeStep % 100 == 0) {
+					System.out.format("grasslers = %d, bloodlings = %d\n", Animal.numGrasslers, Animal.numBloodlings);
+					System.out.flush();
 				}
 			}
 		}

@@ -13,7 +13,7 @@ public class Animal {
 	
 	public static final int BIRTH_HUNGER = 20;
 	public static final int HUNGRY_HUNGER = 100;
-	public static final int BIRTH_HUNGER_COST = 40;
+	public static final int BIRTH_HUNGER_COST = 20;
 	
 	private int age = 0;
 	private int numKids = 0;
@@ -110,17 +110,20 @@ public class Animal {
 		pool[id].recover = 0f;
 		pool[id].hunger = hunger;
 		
-		pool[id].color[0] = 0;
-		pool[id].color[1] = 0;
-		pool[id].color[2] = 0;
 		numAnimals++;
 		switch (pool[id].species.speciesId) {
 			case Constants.SpeciesId.BLOODLING:
 				pool[id].color[0] = 1;
+				pool[id].color[1] = 0;
+				pool[id].color[2] = 0;
+				pool[id].size = 3;
 				numBloodlings++;
 				break;
 			case Constants.SpeciesId.GRASSLER:
+				pool[id].color[0] = 1;
+				pool[id].color[1] = 1;
 				pool[id].color[2] = 1;
+				pool[id].size = 1;
 				numGrasslers++;
 				break;
 			default:
@@ -135,6 +138,7 @@ public class Animal {
 			id++;
 			if (id == Constants.MAX_NUM_ANIMALS) {
 				System.err.println("MAX_NUM_ANIMALS reached. Pool full.");
+				System.err.println("NUM GRASSLERS = " + numGrasslers + "NUM BLOODLINGS = " + numBloodlings);
 				return -1;
 			}
 		}
@@ -175,7 +179,7 @@ public class Animal {
 		
 		Vision.updateNearestNeighbours(id);
 		
-		hunger = hunger * 0.98f - 1f; //TODO: Why dOlof you do thies?
+		hunger = hunger * 0.99f - 1f; //TODO: Why dOlof you do thies?
 		if (hunger < 0) {
 			die(Constants.Blood.DEATH_FROM_HUNGER_FACTOR);
 		}
@@ -185,20 +189,18 @@ public class Animal {
 	private void age() {
 		age++;
 		if (species.speciesId == Constants.SpeciesId.BLOODLING) {
-			int score = age + numKids*100;
-			if (score > 1000) {
-				if (score > Constants.SpeciesId.bestBloodlingDecisionScore) {
+			int score = age + numKids*1000;
+//			int score = numKids;
+			if (score > 10000) {
+				if (score > Constants.SpeciesId.bestBloodlingDecisionScore*10) {
 					Constants.SpeciesId.bestBloodlingDecision = decision;
 					Constants.SpeciesId.bestBloodlingDecisionScore = score;
-					color[1] = 1;
+					color[2] = 0.5f;
 				}
-				else if (score > Constants.SpeciesId.secondBloodlingDecisionScore) {
+				else if (score > Constants.SpeciesId.secondBloodlingDecisionScore*10) {
 					Constants.SpeciesId.secondBloodlingDecision = decision;
 					Constants.SpeciesId.secondBloodlingDecisionScore = score;
-					color[1] = 1;
-				}
-				else {
-					color[1] = 0;
+					color[2] = 0.5f;
 				}
 			}
 		}
@@ -207,38 +209,39 @@ public class Animal {
 	private boolean findBestDir(short[] bestDir, int[] animalIdToInteractWith) {
 		animalIdToInteractWith[0] = -1;
 		
-		double[] nodeGoodness = new double[5];
-		float[] inputData = new float[DecisionFactors.NUM_DESICION_FACTORS];
-		
-		inputData[DecisionFactors.HUNGER] = this.hunger / HUNGRY_HUNGER; //TODO: Rescale this?
-		
-		if (isFertile) {
-			inputData[DecisionFactors.FERTILE] = 1f;
-		}
-		else {
-			inputData[DecisionFactors.FERTILE] = 0;
-		}
-		
-		inputData[DecisionFactors.AGE] = 0;
-		
-		for (int nodeNeighbour = 0; nodeNeighbour < 5; ++nodeNeighbour) {
+		double[] tileGoodness = new double[5];
+		for (int tile = 0; tile < 5; ++tile) {
 			
-			for (int i = 0; i < inputData.length; ++i) {
+			// Reset neural network.
+			decision.setZero();
+			
+			decision.z[0][DecisionFactors.HUNGER] = this.hunger / HUNGRY_HUNGER; //TODO: Rescale this?
+			
+			if (isFertile) {
+				decision.z[0][DecisionFactors.FERTILE] = 1f;
+			}
+			else {
+				decision.z[0][DecisionFactors.FERTILE] = 0;
+			}
+			
+			decision.z[0][DecisionFactors.AGE] = 0;
+			
+			for (int i = 0; i < decision.z[0].length; ++i) {
 				if (i != DecisionFactors.HUNGER && i != DecisionFactors.FERTILE && i != DecisionFactors.AGE) {
-					inputData[i] = 0;
+					decision.z[0][i] = 0;
 				}
 			}
 			
-			int x = World.neighbour[nodeNeighbour][pos] / Constants.WORLD_SIZE_X;
-			int y = World.neighbour[nodeNeighbour][pos] % Constants.WORLD_SIZE_X;
+			int x = World.neighbour[tile][pos] / Constants.WORLD_SIZE_X;
+			int y = World.neighbour[tile][pos] % Constants.WORLD_SIZE_X;
 			
-			inputData[DecisionFactors.TILE_GRASS] = World.grass.height[World.neighbour[nodeNeighbour][pos]];
-			inputData[DecisionFactors.TILE_BLOOD] = World.blood.height[World.neighbour[nodeNeighbour][pos]];
+			decision.z[0][DecisionFactors.TILE_GRASS] = World.grass.height[World.neighbour[tile][pos]];
+			decision.z[0][DecisionFactors.TILE_BLOOD] = World.blood.height[World.neighbour[tile][pos]];
 			
-			inputData[DecisionFactors.TILE_DANGER] = 1;
-			inputData[DecisionFactors.TILE_HUNT] = 1;
-			inputData[DecisionFactors.TILE_FRIENDS] = 1;
-			inputData[DecisionFactors.TILE_FERTILITY] = 1;
+			decision.z[0][DecisionFactors.TILE_DANGER] = 1;
+			decision.z[0][DecisionFactors.TILE_HUNT] = 1;
+			decision.z[0][DecisionFactors.TILE_FRIENDS] = 1;
+			decision.z[0][DecisionFactors.TILE_FERTILITY] = 1;
 			for (int nearbyAnimalId : nearbyAnimals) {
 				
 				if (nearbyAnimalId == -1) {
@@ -251,28 +254,28 @@ public class Animal {
 				float distance = ((float)(Math.abs(xNeigh-x) + Math.abs(yNeigh - y)))/Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE;
 				
 				if (looksDangerous(nearbyAnimalId)) {
-					inputData[DecisionFactors.TILE_DANGER] = Math.min(distance, inputData[DecisionFactors.TILE_DANGER]);
+					decision.z[0][DecisionFactors.TILE_DANGER] = Math.min(distance, decision.z[0][DecisionFactors.TILE_DANGER]);
 				}
 				if (looksWeak(nearbyAnimalId)) {
-					inputData[DecisionFactors.TILE_HUNT] = Math.min(distance, inputData[DecisionFactors.TILE_HUNT]);
+					decision.z[0][DecisionFactors.TILE_HUNT] = Math.min(distance, decision.z[0][DecisionFactors.TILE_HUNT]);
 					if (distance == 0) {
 						animalIdToInteractWith[0] = nearbyAnimalId;
 					}
 				}
 				if (!looksDangerous(nearbyAnimalId)) {
-					inputData[DecisionFactors.TILE_FRIENDS] = Math.min(distance, inputData[DecisionFactors.TILE_FRIENDS]);
+					decision.z[0][DecisionFactors.TILE_FRIENDS] = Math.min(distance, decision.z[0][DecisionFactors.TILE_FRIENDS]);
 				}
 				if (isFertileWith(nearbyAnimalId)) {
-					inputData[DecisionFactors.TILE_FERTILITY] = Math.min(distance, inputData[DecisionFactors.TILE_FERTILITY]);
+					decision.z[0][DecisionFactors.TILE_FERTILITY] = Math.min(distance, decision.z[0][DecisionFactors.TILE_FERTILITY]) * ((float)sinceLastBaby)/timeBetweenBabies;
 					if (distance == 0) {
 						animalIdToInteractWith[0] = nearbyAnimalId;
 					}
 				}
 			}
 			
-			nodeGoodness[nodeNeighbour] = decision.neuralMagic(inputData);
+			tileGoodness[tile] = decision.neuralMagic();
 		}
-		bestDir[0] = (short) max(nodeGoodness);
+		bestDir[0] = (short) max(tileGoodness);
 		return true;
 	}
 	
@@ -301,7 +304,7 @@ public class Animal {
 				maxI = i;
 			}
 		}
-		if (maxI == -1) {
+		if (maxI == -1 || Double.isNaN(maxVal)) {
 			maxI = Constants.RANDOM.nextInt(5);
 		}
 		return maxI;

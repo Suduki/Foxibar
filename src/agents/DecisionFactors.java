@@ -11,4 +11,16 @@ public class DecisionFactors {
 	public static final int TILE_FERTILITY	= NUM_DESICION_FACTORS++;
 	public static final int TILE_FRIENDS	= NUM_DESICION_FACTORS++;
 	public static final int TILE_HUNT		= NUM_DESICION_FACTORS++;
+	
+	public static final String[] NAMES = {
+			"HUNGER   ",
+			"FERTILE  ",
+			"AGE      ",
+			"GRASS    ",
+			"BLOOD    ",
+			"DANGER   ",
+			"FERTILITY",
+			"FRIENDS  ",
+			"HUNT     "
+	};
 }

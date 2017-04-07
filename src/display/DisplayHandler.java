@@ -495,7 +495,8 @@ public class DisplayHandler extends MessageHandler
 
 						glVertex2f(screenPositionX, screenPositionY);
 						glVertex2f(screenPositionX + Animal.pool[id].size*pixelsPerNodeX/2, screenPositionY - Animal.pool[id].size*pixelsPerNodeY);
-						glVertex2f(screenPositionX - Animal.pool[id].size*pixelsPerNodeX/2, screenPositionY - Animal.pool[id].size*pixelsPerNodeY); 
+						glVertex2f(screenPositionX - Animal.pool[id].size*pixelsPerNodeX/2, screenPositionY - Animal.pool[id].size*pixelsPerNodeY);
+						
 					}
 				}
 			}
