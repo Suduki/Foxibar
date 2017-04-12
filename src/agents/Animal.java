@@ -14,9 +14,9 @@ public class Animal {
 	public static final int BIRTH_HUNGER = 20;
 	public static final int HUNGRY_HUNGER = 100;
 	public static final int BIRTH_HUNGER_COST = 20;
-	public static final int AGE_DEATH = 1000;
+	public static final int AGE_DEATH = 10000;
 	
-	private int age = 0;
+	public int age = 0;
 	private int numKids = 0;
 	private int sinceLastBaby = 0;
 	private int id;
@@ -35,7 +35,7 @@ public class Animal {
 	//************ GENETIC STATS ************
 	public Species species;
 	private boolean isFertile;
-	private int timeBetweenBabies = 50;
+	private int timeBetweenBabies = 1;
 	
 	
 	//************ STATIC STUFF ************
@@ -182,7 +182,7 @@ public class Animal {
 		
 		Vision.updateNearestNeighbours(id);
 		
-		hunger = hunger * 0.999f - 1f; //TODO: Why dOlof you do thies?
+		hunger = hunger * 0.99f - 1f; //TODO: Why dOlof you do thies?
 		if (hunger < 0) {
 			die(Constants.Blood.DEATH_FROM_HUNGER_FACTOR);
 		}

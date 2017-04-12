@@ -8,7 +8,7 @@ import vision.Vision;
 
 public class Constants {
 
-	public static final short WORLD_MULTIPLIER = 7;
+	public static final short WORLD_MULTIPLIER = 8;
 	public static final float INIT_ZOOM = 1.0f;
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
@@ -34,7 +34,7 @@ public class Constants {
 	public static boolean RENDER_DIRT = false;
 	public static boolean RENDER_HUNGER = true;
 	public static boolean RENDER_AGE = true;
-	public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = WORLD_SIZE_X + WORLD_SIZE_Y;
+	public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = Vision.ZONE_HEIGHT;
 	
 	public static class Colors
 	{

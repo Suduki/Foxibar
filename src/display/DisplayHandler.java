@@ -488,11 +488,26 @@ public class DisplayHandler extends MessageHandler
 					// RENDER ANIMAL
 					int id;
 					if ((id = Animal.containsAnimals[i]) != -1) {
-						if (Animal.pool[id].species.speciesId == Constants.SpeciesId.GRASSLER) {
-
+//						if (Animal.pool[id].species.speciesId == Constants.SpeciesId.GRASSLER) {
+//							renderTriangle(Animal.pool[id].color, Animal.pool[id].size*pixelsPerNodeX, 
+//									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+//							continue;
+//						}
+						float ageFactor = 1f - ((float)Animal.pool[id].age)/(Animal.AGE_DEATH);
+						float hungerFactor = Animal.pool[id].hunger/(Animal.HUNGRY_HUNGER*2);
+						if (Constants.RENDER_AGE && Constants.RENDER_HUNGER) {
+							renderTwoPartsOfAnimal(Constants.Colors.DARK_BLUE, Animal.pool[id].color, 
+									ageFactor, hungerFactor, 
+									Animal.pool[id].size*pixelsPerNodeX, 
+									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 						}
-						if (Constants.RENDER_HUNGER) {
-							float hungerFactor = Animal.pool[id].hunger/(Animal.HUNGRY_HUNGER*2);
+						else if (Constants.RENDER_AGE) {
+							renderPartOfAnimal(Constants.Colors.DARK_BLUE, Animal.pool[id].color, ageFactor, 
+									Animal.pool[id].size*pixelsPerNodeX, 
+									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+							
+						}
+						else if (Constants.RENDER_HUNGER) {
 							renderPartOfAnimal(Constants.Colors.DARK_BLUE, Animal.pool[id].color, hungerFactor, 
 									Animal.pool[id].size*pixelsPerNodeX, 
 									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
@@ -510,6 +525,7 @@ public class DisplayHandler extends MessageHandler
 		}
 		
 		
+
 		private void renderPartOfAnimal(float[] colorBackground, float[] colorAnimal, float factor, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
 			renderTriangle(colorBackground, sizeX, 
 					sizeY, screenPositionX, screenPositionY);
@@ -518,15 +534,45 @@ public class DisplayHandler extends MessageHandler
 				renderTriangle(colorAnimal, sizeX*factor, 
 						sizeY*factor, screenPositionX, screenPositionY);
 			}
-				
-			
 		}
-
 		private void renderTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
 			glColor3f(color[0], color[1], color[2]);
 
 			glVertex2f(screenPositionX, screenPositionY);
 			glVertex2f(screenPositionX + sizeX, screenPositionY - sizeY);
+			glVertex2f(screenPositionX - sizeX, screenPositionY - sizeY);
+		}
+		
+		private void renderTwoPartsOfAnimal(float[] colorBackground, float[] colorAnimal,
+				float factorLeft, float factorRight, float sizeX, float sizeY,
+				float screenPositionX, float screenPositionY) {
+			renderTriangle(colorBackground, sizeX, 
+					sizeY, screenPositionX, screenPositionY);
+			
+			if (factorLeft > 1f) {
+				factorLeft = 1f;
+			}
+			if (factorRight > 1f) {
+				factorRight = 1f;
+			}
+			
+			renderLeftTriangle(colorAnimal, sizeX*factorLeft, 
+					sizeY*factorLeft, screenPositionX, screenPositionY);
+			renderRightTriangle(colorAnimal, sizeX*factorRight, 
+					sizeY*factorRight, screenPositionX, screenPositionY);
+		}
+		private void renderLeftTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
+			glColor3f(color[0], color[1], color[2]);
+
+			glVertex2f(screenPositionX, screenPositionY);
+			glVertex2f(screenPositionX + sizeX, screenPositionY - sizeY);
+			glVertex2f(screenPositionX, screenPositionY - sizeY);
+		}
+		private void renderRightTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
+			glColor3f(color[0], color[1], color[2]);
+
+			glVertex2f(screenPositionX, screenPositionY);
+			glVertex2f(screenPositionX, screenPositionY - sizeY);
 			glVertex2f(screenPositionX - sizeX, screenPositionY - sizeY);
 		}
 		
