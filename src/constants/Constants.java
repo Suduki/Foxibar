@@ -3,12 +3,12 @@ package constants;
 import java.util.Random;
 
 import agents.Animal;
-import agents.Decision;
+import agents.NeuralNetwork;
 import vision.Vision;
 
 public class Constants {
 
-	public static final short WORLD_MULTIPLIER = 6;
+	public static final short WORLD_MULTIPLIER = 7;
 	public static final float INIT_ZOOM = 1.0f;
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
@@ -21,7 +21,7 @@ public class Constants {
 	public static final float PIXELS_PER_NODE_X = ((float)PIXELS_X)/WORLD_SIZE_X;
 	public static final float PIXELS_PER_NODE_Y = ((float)PIXELS_Y)/WORLD_SIZE_Y;
 	public static final Random RANDOM = new Random(1);
-	public static final float TILES_PER_ANIMAL = 5;
+	public static final float TILES_PER_ANIMAL = 10;
 	public static final float GROWTH = Species.GRASSLER_SPEED / Species.GRASS_GAIN / TILES_PER_ANIMAL;
 	public static final int MAX_NUM_ANIMALS = 50000;
 	public static final float ZOOM_SPEED = 1.05f;
@@ -32,6 +32,8 @@ public class Constants {
 	public static boolean RENDER_BLOOD = true;
 	public static boolean RENDER_VISION = false;
 	public static boolean RENDER_DIRT = false;
+	public static boolean RENDER_HUNGER = true;
+	public static boolean RENDER_AGE = true;
 	public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = WORLD_SIZE_X + WORLD_SIZE_Y;
 	
 	public static class Colors
@@ -72,15 +74,15 @@ public class Constants {
 //				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
 		public static final agents.Species BLOODLING = new agents.Species(
 //				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
-				SpeciesId.BLOODLING, 0f, 0f, 0.1f, 300f, 1f, 1f);
+				SpeciesId.BLOODLING, 0f, 0f, 0.02f, 300f, 1f, 1f);
 	}
 	public static class SpeciesId {
 		public static final int BLOODLING = 1;
 		public static final int GRASSLER = 2;
 		
-		public static int bestBloodlingDecisionScore = 0;
-		public static Decision bestBloodlingDecision;
-		public static int secondBloodlingDecisionScore = 0;
-		public static Decision secondBloodlingDecision;
+		public static int bestBloodlingNeuralScore = 0;
+		public static NeuralNetwork bestBloodlingNeural;
+		public static int secondBloodlingNeuralScore = 0;
+		public static NeuralNetwork secondBloodlingNeural;
 	}
 }

@@ -4,8 +4,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import agents.Animal;
-import agents.Decision;
-import agents.DecisionFactors;
+import agents.NeuralNetwork;
+import agents.NeuralFactors;
 import constants.Constants;
 import display.DisplayHandler;
 import simulation.Simulation;
@@ -29,10 +29,10 @@ public class Main
 				simulation.step();
 				fpsLimiter.waitForNextFrame();
 				
-				while (Animal.numBloodlings < 3) {
+				while (Animal.numBloodlings < 0) {
 					spawnRandomAnimal(Constants.SpeciesId.BLOODLING);
 				}
-				while (Animal.numGrasslers < 10) {
+				while (Animal.numGrasslers < 0) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				
@@ -57,19 +57,19 @@ public class Main
 	private static void spawnRandomAnimal(int speciesId) {
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
-			boolean useBestAnimal = true;
+			boolean useBestAnimal = false;
 			if (useBestAnimal) {
 				Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
 						Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-						Constants.SpeciesId.bestBloodlingDecision, 
-						Constants.Species.BLOODLING, Constants.SpeciesId.secondBloodlingDecision);
+						Constants.SpeciesId.bestBloodlingNeural, 
+						Constants.Species.BLOODLING, Constants.SpeciesId.secondBloodlingNeural);
 			}
 			else {
 				int i =	Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
 						Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-						Constants.SpeciesId.bestBloodlingDecision, 
-						Constants.Species.BLOODLING, Constants.SpeciesId.secondBloodlingDecision);
-				Animal.pool[i].decision.initWeightsRandom();
+						Constants.SpeciesId.bestBloodlingNeural, 
+						Constants.Species.BLOODLING, Constants.SpeciesId.secondBloodlingNeural);
+				Animal.pool[i].neuralNetwork.initWeightsRandom();
 			}
 			break;
 		case Constants.SpeciesId.GRASSLER:

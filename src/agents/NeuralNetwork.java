@@ -2,16 +2,16 @@ package agents;
 
 import constants.Constants;
 
-public class Decision {
+public class NeuralNetwork {
 	
-	private static final int[] LAYERS = {DecisionFactors.NUM_DESICION_FACTORS, 8, 5, 5, 5, 1};
+	private static final int[] LAYERS = {NeuralFactors.NUM_DESICION_FACTORS, 8, 5, 1};
 	private static final int NUM_LAYERS = LAYERS.length;
 	private static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
 	private float[][][] weights;
 	double[][] z;
 	
-	public Decision() {
+	public NeuralNetwork() {
 		weights = new float[NUM_WEIGHTS][][];
 		z = new double[NUM_LAYERS][];
 		for (int weight = 0 ; weight < NUM_WEIGHTS; ++weight) {
@@ -34,8 +34,8 @@ public class Decision {
 		}
 	}
 
-	public void setZero() {
-		for (int layer = 1; layer < z.length ; ++layer) {
+	public void reset() {
+		for (int layer = 0; layer < z.length ; ++layer) {
 			for (int i = 0; i < z[layer].length; ++i) {
 				z[layer][i] = 0;
 			}
@@ -43,8 +43,6 @@ public class Decision {
 	}
 	
 	public double neuralMagic() {
-	
-		setZero();
 		for (int weight = 0; weight < NUM_WEIGHTS; ++weight) {
 			for (int i = 0; i < LAYERS[weight+1]; ++i) {
 				for (int j = 0; j < LAYERS[weight]; ++j) {
@@ -60,7 +58,7 @@ public class Decision {
 		return 1d/(1d+Math.exp(-f));
 	}
 	
-	public void copy(Decision d) {
+	public void copy(NeuralNetwork d) {
 		for (int weight = 0; weight < NUM_WEIGHTS; ++weight) {
 			for (int i = 0; i < weights[weight].length; ++i) {
 				for (int j = 0; j < weights[weight][i].length; ++j) {
@@ -70,16 +68,16 @@ public class Decision {
 		}
 	}
 	
-	public void inherit(Decision decisionMom, Decision decisionDad) {
+	public void inherit(NeuralNetwork neuralMom, NeuralNetwork neuralDad) {
 		double diff = 0.2;
 		for (int weight = 0; weight < NUM_WEIGHTS; ++weight) {
 			for (int i = 0; i < weights[weight].length; ++i) {
 				for (int j = 0; j < weights[weight][i].length; ++j) {
 					if (Constants.RANDOM.nextBoolean()) {
-						weights[weight][i][j] = decisionDad.weights[weight][i][j];
+						weights[weight][i][j] = neuralDad.weights[weight][i][j];
 					}
 					else {
-						weights[weight][i][j] = decisionMom.weights[weight][i][j];
+						weights[weight][i][j] = neuralMom.weights[weight][i][j];
 					}
 					weights[weight][i][j] += diff * (1f - 2*Constants.RANDOM.nextFloat());
 				}

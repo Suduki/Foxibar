@@ -14,6 +14,7 @@ public class Animal {
 	public static final int BIRTH_HUNGER = 20;
 	public static final int HUNGRY_HUNGER = 100;
 	public static final int BIRTH_HUNGER_COST = 20;
+	public static final int AGE_DEATH = 1000;
 	
 	private int age = 0;
 	private int numKids = 0;
@@ -23,13 +24,13 @@ public class Animal {
 	public float[] color;
 	public int pos;
 	public boolean isAlive;
-	private float hunger;
+	public float hunger;
 	public int[] nearbyAnimals;
 	public int[] nearbyAnimalsDistance;
 	
 	private float recover = 0f;
 	
-	public Decision decision;
+	public NeuralNetwork neuralNetwork;
 	
 	//************ GENETIC STATS ************
 	public Species species;
@@ -58,7 +59,9 @@ public class Animal {
 		}
 		for (Animal a : pool) {
 			if (a.isAlive) {
-				a.age();
+				if (!a.age()) {
+					continue;
+				}
 				a.sinceLastBaby++;
 				a.recover += a.species.speed;
 				if (a.recover > 1f) {
@@ -83,7 +86,7 @@ public class Animal {
 			pool[i] = new Animal();
 		}
 	}
-	public static int resurrectAnimal(int pos, float hunger, Species speciesMom, Decision decisionMom, Species speciesDad, Decision decisionDad) {
+	public static int resurrectAnimal(int pos, float hunger, Species speciesMom, NeuralNetwork neuralMom, Species speciesDad, NeuralNetwork neuralDad) {
 		int id = findFirstAvailablePoolSpot();
 		
 		if (id == -1) {
@@ -94,11 +97,11 @@ public class Animal {
 		pool[id].isAlive = true;
 		
 		pool[id].species.inherit(speciesMom, speciesDad);
-		if (decisionMom != null && decisionDad != null) {
-			pool[id].decision.inherit(decisionMom, decisionDad);
+		if (neuralMom != null && neuralDad != null) {
+			pool[id].neuralNetwork.inherit(neuralMom, neuralDad);
 		}
 		else {
-			pool[id].decision.initWeightsRandom();
+			pool[id].neuralNetwork.initWeightsRandom();
 		}
 		
 		
@@ -151,7 +154,7 @@ public class Animal {
 		this.color = new float[3];
 		this.nearbyAnimals = new int[Constants.NUM_NEIGHBOURS];
 		this.nearbyAnimalsDistance = new int[Constants.NUM_NEIGHBOURS];
-		this.decision = new Decision();
+		this.neuralNetwork = new NeuralNetwork();
 		this.species = new Species();
 	}
 	private void move() {
@@ -179,69 +182,76 @@ public class Animal {
 		
 		Vision.updateNearestNeighbours(id);
 		
-		hunger = hunger * 0.99f - 1f; //TODO: Why dOlof you do thies?
+		hunger = hunger * 0.999f - 1f; //TODO: Why dOlof you do thies?
 		if (hunger < 0) {
 			die(Constants.Blood.DEATH_FROM_HUNGER_FACTOR);
 		}
 		
 	}
 	
-	private void age() {
+	private boolean age() {
 		age++;
+		
+		if (age > AGE_DEATH) {
+			die(0f);
+			return false;
+		}
+		
 		if (species.speciesId == Constants.SpeciesId.BLOODLING) {
 			int score = age + numKids*1000;
 //			int score = numKids;
 			if (score > 10000) {
-				if (score > Constants.SpeciesId.bestBloodlingDecisionScore*10) {
-					Constants.SpeciesId.bestBloodlingDecision = decision;
-					Constants.SpeciesId.bestBloodlingDecisionScore = score;
+				if (score > Constants.SpeciesId.bestBloodlingNeuralScore*10) {
+					Constants.SpeciesId.bestBloodlingNeural = neuralNetwork;
+					Constants.SpeciesId.bestBloodlingNeuralScore = score;
 					color[2] = 0.5f;
 				}
-				else if (score > Constants.SpeciesId.secondBloodlingDecisionScore*10) {
-					Constants.SpeciesId.secondBloodlingDecision = decision;
-					Constants.SpeciesId.secondBloodlingDecisionScore = score;
+				else if (score > Constants.SpeciesId.secondBloodlingNeuralScore*10) {
+					Constants.SpeciesId.secondBloodlingNeural = neuralNetwork;
+					Constants.SpeciesId.secondBloodlingNeuralScore = score;
 					color[2] = 0.5f;
 				}
 			}
 		}
+		return true;
 	}
 	
+	private double[] tileGoodness = new double[5];
 	private boolean findBestDir(short[] bestDir, int[] animalIdToInteractWith) {
 		animalIdToInteractWith[0] = -1;
 		
-		double[] tileGoodness = new double[5];
 		for (int tile = 0; tile < 5; ++tile) {
 			
 			// Reset neural network.
-			decision.setZero();
+			neuralNetwork.reset();
 			
-			decision.z[0][DecisionFactors.HUNGER] = this.hunger / HUNGRY_HUNGER; //TODO: Rescale this?
+			neuralNetwork.z[0][NeuralFactors.HUNGER] = hunger / HUNGRY_HUNGER; //TODO: Rescale this?
 			
 			if (isFertile) {
-				decision.z[0][DecisionFactors.FERTILE] = 1f;
+				neuralNetwork.z[0][NeuralFactors.FERTILE] = 1f;
 			}
 			else {
-				decision.z[0][DecisionFactors.FERTILE] = 0;
+				neuralNetwork.z[0][NeuralFactors.FERTILE] = 0;
 			}
 			
-			decision.z[0][DecisionFactors.AGE] = 0;
+			neuralNetwork.z[0][NeuralFactors.AGE] = ((float)age)/AGE_DEATH;
 			
-			for (int i = 0; i < decision.z[0].length; ++i) {
-				if (i != DecisionFactors.HUNGER && i != DecisionFactors.FERTILE && i != DecisionFactors.AGE) {
-					decision.z[0][i] = 0;
+			for (int i = 0; i < neuralNetwork.z[0].length; ++i) {
+				if (i != NeuralFactors.HUNGER && i != NeuralFactors.FERTILE && i != NeuralFactors.AGE) {
+					neuralNetwork.z[0][i] = 0;
 				}
 			}
 			
 			int x = World.neighbour[tile][pos] / Constants.WORLD_SIZE_X;
 			int y = World.neighbour[tile][pos] % Constants.WORLD_SIZE_X;
 			
-			decision.z[0][DecisionFactors.TILE_GRASS] = World.grass.height[World.neighbour[tile][pos]];
-			decision.z[0][DecisionFactors.TILE_BLOOD] = World.blood.height[World.neighbour[tile][pos]];
+			neuralNetwork.z[0][NeuralFactors.TILE_GRASS] = World.grass.height[World.neighbour[tile][pos]];
+			neuralNetwork.z[0][NeuralFactors.TILE_BLOOD] = World.blood.height[World.neighbour[tile][pos]];
 			
-			decision.z[0][DecisionFactors.TILE_DANGER] = 1;
-			decision.z[0][DecisionFactors.TILE_HUNT] = 1;
-			decision.z[0][DecisionFactors.TILE_FRIENDS] = 1;
-			decision.z[0][DecisionFactors.TILE_FERTILITY] = 1;
+			neuralNetwork.z[0][NeuralFactors.TILE_DANGER] = 0;
+			neuralNetwork.z[0][NeuralFactors.TILE_HUNT] = 0;
+			neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] = 0;
+			neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY] = 0;
 			for (int nearbyAnimalId : nearbyAnimals) {
 				
 				if (nearbyAnimalId == -1) {
@@ -251,29 +261,29 @@ public class Animal {
 				int xNeigh = pool[nearbyAnimalId].pos / Constants.WORLD_SIZE_X;
 				int yNeigh = pool[nearbyAnimalId].pos % Constants.WORLD_SIZE_X;
 				
-				float distance = ((float)(Math.abs(xNeigh-x) + Math.abs(yNeigh - y)))/Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE;
+				float distance = 1f-((float)(Math.abs(xNeigh-x) + Math.abs(yNeigh - y)))/Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE;
 				
 				if (looksDangerous(nearbyAnimalId)) {
-					decision.z[0][DecisionFactors.TILE_DANGER] = Math.min(distance, decision.z[0][DecisionFactors.TILE_DANGER]);
+					neuralNetwork.z[0][NeuralFactors.TILE_DANGER] = Math.min(distance, neuralNetwork.z[0][NeuralFactors.TILE_DANGER]);
 				}
 				if (looksWeak(nearbyAnimalId)) {
-					decision.z[0][DecisionFactors.TILE_HUNT] = Math.min(distance, decision.z[0][DecisionFactors.TILE_HUNT]);
-					if (distance == 0) {
+					neuralNetwork.z[0][NeuralFactors.TILE_HUNT] = Math.min(distance, neuralNetwork.z[0][NeuralFactors.TILE_HUNT]);
+					if (distance == 1) {
 						animalIdToInteractWith[0] = nearbyAnimalId;
 					}
 				}
 				if (!looksDangerous(nearbyAnimalId)) {
-					decision.z[0][DecisionFactors.TILE_FRIENDS] = Math.min(distance, decision.z[0][DecisionFactors.TILE_FRIENDS]);
+					neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] = Math.min(distance, neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS]);
 				}
 				if (isFertileWith(nearbyAnimalId)) {
-					decision.z[0][DecisionFactors.TILE_FERTILITY] = Math.min(distance, decision.z[0][DecisionFactors.TILE_FERTILITY]) * ((float)sinceLastBaby)/timeBetweenBabies;
-					if (distance == 0) {
+					neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY] = Math.min(distance, neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY]) * ((float)sinceLastBaby)/timeBetweenBabies;
+					if (distance == 1) {
 						animalIdToInteractWith[0] = nearbyAnimalId;
 					}
 				}
 			}
 			
-			tileGoodness[tile] = decision.neuralMagic();
+			tileGoodness[tile] = neuralNetwork.neuralMagic();
 		}
 		bestDir[0] = (short) max(tileGoodness);
 		return true;
@@ -326,7 +336,7 @@ public class Animal {
 	private void interactWith(int id2) {
 		if (id2 != id) {
 			if (isFertileWith(id2)) {
-				resurrectAnimal(pos, BIRTH_HUNGER, pool[id].species, pool[id].decision, pool[id2].species, pool[id2].decision);
+				resurrectAnimal(pos, BIRTH_HUNGER, pool[id].species, pool[id].neuralNetwork, pool[id2].species, pool[id2].neuralNetwork);
 				isFertile = false;
 				hunger -= BIRTH_HUNGER_COST;
 				sinceLastBaby = 0;
