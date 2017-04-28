@@ -29,10 +29,12 @@ public class Main
 				simulation.step();
 				fpsLimiter.waitForNextFrame();
 				
-				while (Animal.numBloodlings < 0) {
-					spawnRandomAnimal(Constants.SpeciesId.BLOODLING);
+				if (Animal.numAnimals > 500) {
+					while (Animal.numBloodlings < 5) {
+						spawnRandomAnimal(Constants.SpeciesId.BLOODLING);
+					}
 				}
-				while (Animal.numGrasslers < 0) {
+				while (Animal.numGrasslers < 20) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				
@@ -67,9 +69,8 @@ public class Main
 			else {
 				int i =	Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
 						Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-						Constants.SpeciesId.bestBloodlingNeural, 
-						Constants.Species.BLOODLING, Constants.SpeciesId.secondBloodlingNeural);
-				Animal.pool[i].neuralNetwork.initWeightsRandom();
+						null, 
+						Constants.Species.BLOODLING, null);
 			}
 			break;
 		case Constants.SpeciesId.GRASSLER:

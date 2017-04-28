@@ -315,9 +315,9 @@ public class DisplayHandler extends MessageHandler
 		private void handleMouseEvents(long window, int button, int action, int mods) {
 			mouse.setButtonPressed(button, action == GLFW_PRESS);
 
-			switch(button) {
-			case GLFW_MOUSE_BUTTON_1:
-			{
+//			switch(button) {
+//			case GLFW_MOUSE_BUTTON_1:
+//			{
 				if (insideViewport(mouse.getPos())) {
 					if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
 						addGrassling();
@@ -337,11 +337,11 @@ public class DisplayHandler extends MessageHandler
 						guiEndClick(mouse.getPos());
 					}
 				}
-			} break;
-
-			default:
-				break;
-			}
+//			} break;
+//
+//			default:
+//				break;
+//			}
 		}
 
 		// TODO: This should be made sane.
@@ -355,9 +355,11 @@ public class DisplayHandler extends MessageHandler
 
 					Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
 
-					int i = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;		
-					Animal.resurrectAnimal(i, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER, 
-							null, Constants.Species.GRASSLER, null);
+					int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
+					if (Animal.containsAnimals[pos] == -1) {
+						Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER, 
+								null, Constants.Species.GRASSLER, null);
+					}
 				}
 
 				public String messageName() { return "AddAnimal"; }
@@ -375,9 +377,10 @@ public class DisplayHandler extends MessageHandler
 					Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
 
 					int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
-
-					Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-							null, Constants.Species.BLOODLING, null);
+					if (Animal.containsAnimals[pos] == -1) {
+						Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
+								null, Constants.Species.BLOODLING, null);
+					}
 				}
 
 				public String messageName() { return "AddAnimal"; }
@@ -541,11 +544,22 @@ public class DisplayHandler extends MessageHandler
 			glVertex2f(screenPositionX, screenPositionY);
 			glVertex2f(screenPositionX + sizeX, screenPositionY - sizeY);
 			glVertex2f(screenPositionX - sizeX, screenPositionY - sizeY);
+			
+		}
+		private void renderOuterTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
+			glColor3f(color[0], color[1], color[2]);
+
+			glVertex2f(screenPositionX, screenPositionY+1);
+			glVertex2f(screenPositionX+2 + sizeX, screenPositionY-1 - sizeY);
+			glVertex2f(screenPositionX-2 - sizeX, screenPositionY-1 - sizeY);
+			
 		}
 		
 		private void renderTwoPartsOfAnimal(float[] colorBackground, float[] colorAnimal,
 				float factorLeft, float factorRight, float sizeX, float sizeY,
 				float screenPositionX, float screenPositionY) {
+			renderOuterTriangle(colorAnimal, sizeX, 
+					sizeY, screenPositionX, screenPositionY);
 			renderTriangle(colorBackground, sizeX, 
 					sizeY, screenPositionX, screenPositionY);
 			

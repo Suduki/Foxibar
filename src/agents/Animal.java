@@ -13,8 +13,8 @@ public class Animal {
 	
 	public static final int BIRTH_HUNGER = 20;
 	public static final int HUNGRY_HUNGER = 100;
-	public static final int BIRTH_HUNGER_COST = 20;
-	public static final int AGE_DEATH = 10000;
+	public static final int BIRTH_HUNGER_COST = 60;
+	public static final int AGE_DEATH = 1000;
 	
 	public int age = 0;
 	private int numKids = 0;
@@ -23,6 +23,9 @@ public class Animal {
 	public float size = 3f;
 	public float[] color;
 	public int pos;
+	public int oldPos;
+	public int oldX;
+	public int oldY;
 	public boolean isAlive;
 	public float hunger;
 	public int[] nearbyAnimals;
@@ -35,7 +38,7 @@ public class Animal {
 	//************ GENETIC STATS ************
 	public Species species;
 	private boolean isFertile;
-	private int timeBetweenBabies = 1;
+	private int timeBetweenBabies = 3;
 	
 	
 	//************ STATIC STUFF ************
@@ -107,6 +110,7 @@ public class Animal {
 		
 		
 		pool[id].pos = pos;
+		pool[id].oldPos = pos;
 		pool[id].id = id;
 		pool[id].age = 0;
 		pool[id].sinceLastBaby = 0;
@@ -119,18 +123,18 @@ public class Animal {
 				pool[id].color[0] = 1;
 				pool[id].color[1] = 0;
 				pool[id].color[2] = 0;
-				pool[id].size = 3;
+				pool[id].size = 4;
 				numBloodlings++;
 				break;
 			case Constants.SpeciesId.GRASSLER:
 				pool[id].color[0] = 1;
 				pool[id].color[1] = 1;
 				pool[id].color[2] = 1;
-				pool[id].size = 1;
+				pool[id].size = 2;
 				numGrasslers++;
 				break;
 			default:
-				System.err.println("aa what is this?");
+				System.err.println("aaaaa what is this?");
 		}
 		containsAnimals[pool[id].pos] = id;
 		return id;
@@ -157,21 +161,25 @@ public class Animal {
 		this.neuralNetwork = new NeuralNetwork();
 		this.species = new Species();
 	}
+	private short bestDir;
+	private int animalIdToHunt;
+	private int animalIdToMateWith;
 	private void move() {
 
 		// Remove animal from the world temporarily :F
 		containsAnimals[pos] = -1;
 		
 		// Calculate to where we want to move
-		short[] bestDir = new short[1];
-		int[] animalIdToInteractWith = new int[1];
-		if (findBestDir(bestDir, animalIdToInteractWith)) {
-			moveTo(bestDir[0]);
+		if (findBestDir()) {
+			moveTo(bestDir);
+			if (animalIdToHunt != -1) {
+				interactWith(animalIdToHunt);
+			}
+			if (animalIdToMateWith != -1) {
+				interactWith(animalIdToMateWith);
+			}
 			harvestBlood();
 			harvestGrass();
-			if(animalIdToInteractWith[0] != -1) {
-				interactWith(animalIdToInteractWith[0]);
-			}
 		}
 		else {
 			moveRandom();
@@ -182,7 +190,7 @@ public class Animal {
 		
 		Vision.updateNearestNeighbours(id);
 		
-		hunger = hunger * 0.99f - 1f; //TODO: Why dOlof you do thies?
+		hunger = hunger * 0.999f - 1f; //TODO: Why dOlof you do thies?
 		if (hunger < 0) {
 			die(Constants.Blood.DEATH_FROM_HUNGER_FACTOR);
 		}
@@ -193,7 +201,7 @@ public class Animal {
 		age++;
 		
 		if (age > AGE_DEATH) {
-			die(0f);
+			die(Constants.Blood.DEATH_FROM_AGE_FACTOR);
 			return false;
 		}
 		
@@ -202,13 +210,10 @@ public class Animal {
 //			int score = numKids;
 			if (score > 10000) {
 				if (score > Constants.SpeciesId.bestBloodlingNeuralScore*10) {
+					Constants.SpeciesId.secondBloodlingNeural = Constants.SpeciesId.bestBloodlingNeural;
+					Constants.SpeciesId.secondBloodlingNeuralScore = Constants.SpeciesId.bestBloodlingNeuralScore;
 					Constants.SpeciesId.bestBloodlingNeural = neuralNetwork;
 					Constants.SpeciesId.bestBloodlingNeuralScore = score;
-					color[2] = 0.5f;
-				}
-				else if (score > Constants.SpeciesId.secondBloodlingNeuralScore*10) {
-					Constants.SpeciesId.secondBloodlingNeural = neuralNetwork;
-					Constants.SpeciesId.secondBloodlingNeuralScore = score;
 					color[2] = 0.5f;
 				}
 			}
@@ -217,8 +222,9 @@ public class Animal {
 	}
 	
 	private double[] tileGoodness = new double[5];
-	private boolean findBestDir(short[] bestDir, int[] animalIdToInteractWith) {
-		animalIdToInteractWith[0] = -1;
+	private boolean findBestDir() {
+		animalIdToHunt = -1;
+		animalIdToMateWith = -1;
 		
 		for (int tile = 0; tile < 5; ++tile) {
 			
@@ -236,12 +242,6 @@ public class Animal {
 			
 			neuralNetwork.z[0][NeuralFactors.AGE] = ((float)age)/AGE_DEATH;
 			
-			for (int i = 0; i < neuralNetwork.z[0].length; ++i) {
-				if (i != NeuralFactors.HUNGER && i != NeuralFactors.FERTILE && i != NeuralFactors.AGE) {
-					neuralNetwork.z[0][i] = 0;
-				}
-			}
-			
 			int x = World.neighbour[tile][pos] / Constants.WORLD_SIZE_X;
 			int y = World.neighbour[tile][pos] % Constants.WORLD_SIZE_X;
 			
@@ -252,6 +252,16 @@ public class Animal {
 			neuralNetwork.z[0][NeuralFactors.TILE_HUNT] = 0;
 			neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] = 0;
 			neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY] = 0;
+			
+			// Calculate tile in relation to old position.
+//			neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] = (float)Vision.calculateDistance(pos, oldPos);
+//			if (neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] != 0) {
+//				neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] = 1f;
+//			}
+			neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] = Math.max(Math.abs(x-oldX), Math.abs(y-oldY))/2;
+			
+			
+			// Loop through the sighted animals to determine tile goodnesses
 			for (int nearbyAnimalId : nearbyAnimals) {
 				
 				if (nearbyAnimalId == -1) {
@@ -263,29 +273,34 @@ public class Animal {
 				
 				float distance = 1f-((float)(Math.abs(xNeigh-x) + Math.abs(yNeigh - y)))/Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE;
 				
+				// 0 distance means the animal is too far away
+				if (distance < 0) {
+					distance = 0;
+				}
+				
 				if (looksDangerous(nearbyAnimalId)) {
-					neuralNetwork.z[0][NeuralFactors.TILE_DANGER] = Math.min(distance, neuralNetwork.z[0][NeuralFactors.TILE_DANGER]);
+					neuralNetwork.z[0][NeuralFactors.TILE_DANGER] = Math.max(distance, neuralNetwork.z[0][NeuralFactors.TILE_DANGER]);
 				}
 				if (looksWeak(nearbyAnimalId)) {
-					neuralNetwork.z[0][NeuralFactors.TILE_HUNT] = Math.min(distance, neuralNetwork.z[0][NeuralFactors.TILE_HUNT]);
+					neuralNetwork.z[0][NeuralFactors.TILE_HUNT] = Math.max(distance, neuralNetwork.z[0][NeuralFactors.TILE_HUNT]);
 					if (distance == 1) {
-						animalIdToInteractWith[0] = nearbyAnimalId;
+						animalIdToHunt = nearbyAnimalId;
 					}
 				}
 				if (!looksDangerous(nearbyAnimalId)) {
-					neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] = Math.min(distance, neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS]);
+					neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] = Math.max(distance, neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS]);
 				}
 				if (isFertileWith(nearbyAnimalId)) {
-					neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY] = Math.min(distance, neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY]) * ((float)sinceLastBaby)/timeBetweenBabies;
+					neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY] = Math.max(distance, neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY]);
 					if (distance == 1) {
-						animalIdToInteractWith[0] = nearbyAnimalId;
+						animalIdToMateWith = nearbyAnimalId;
 					}
 				}
 			}
 			
 			tileGoodness[tile] = neuralNetwork.neuralMagic();
 		}
-		bestDir[0] = (short) max(tileGoodness);
+		bestDir = (short) max(tileGoodness);
 		return true;
 	}
 	
@@ -331,6 +346,9 @@ public class Animal {
 	}
 	
 	private void moveTo(short to) {
+		oldPos = pos;
+		oldX = pos / Constants.WORLD_SIZE_X;
+		oldY = pos % Constants.WORLD_SIZE_X;
 		pos = World.neighbour[to][pos];
 	}
 	private void interactWith(int id2) {
@@ -345,6 +363,12 @@ public class Animal {
 				pool[id2].hunger -= BIRTH_HUNGER_COST;
 				pool[id2].sinceLastBaby = 0;
 				pool[id2].numKids ++;
+				
+				
+				// This will cause the mating animals to continue living, which is what we want in the end.
+				// A bit unconventional and forced.
+				age = 0;
+				pool[id2].age = 0;
 			}
 			else if (looksWeak(id2)) {
 				pool[id2].die(1f);

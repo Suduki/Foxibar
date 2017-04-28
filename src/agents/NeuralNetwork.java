@@ -4,7 +4,7 @@ import constants.Constants;
 
 public class NeuralNetwork {
 	
-	private static final int[] LAYERS = {NeuralFactors.NUM_DESICION_FACTORS, 8, 5, 1};
+	private static final int[] LAYERS = {NeuralFactors.NUM_DESICION_FACTORS, 7, 5, 2};
 	private static final int NUM_LAYERS = LAYERS.length;
 	private static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
@@ -69,7 +69,7 @@ public class NeuralNetwork {
 	}
 	
 	public void inherit(NeuralNetwork neuralMom, NeuralNetwork neuralDad) {
-		double diff = 0.2;
+		double diff = 0.5;
 		for (int weight = 0; weight < NUM_WEIGHTS; ++weight) {
 			for (int i = 0; i < weights[weight].length; ++i) {
 				for (int j = 0; j < weights[weight][i].length; ++j) {

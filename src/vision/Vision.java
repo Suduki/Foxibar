@@ -75,7 +75,7 @@ public class Vision {
 		}
 	}
 	
-	private static int calculateDistance(int pos, int pos2) {
+	public static int calculateDistance(int pos, int pos2) {
 		return Math.abs(getXFromAnimalPos(pos) - getXFromAnimalPos(pos2)) +
 				Math.abs(getYFromAnimalPos(pos) - getYFromAnimalPos(pos2));
 	}
