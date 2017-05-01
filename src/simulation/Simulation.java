@@ -33,7 +33,7 @@ public class Simulation extends MessageHandler {
 		{
 			mWorld.update();
 			Animal.moveAll();
-			Vision.updateAnimalVision();
+//			Vision.updateAnimalVision();
 		}
 	}
 	

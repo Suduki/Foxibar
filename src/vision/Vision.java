@@ -8,10 +8,12 @@ import constants.Constants;
 public class Vision {
 	public static Zone[][] zoneGrid;
 	
-	public static final int ZONE_HEIGHT = 8;
-	public static final int ZONE_WIDTH = 8;
+	public static final int ZONE_HEIGHT = 16;
+	public static final int ZONE_WIDTH = 16;
 	public static final int ZONES_X = Constants.WORLD_SIZE_X/ZONE_WIDTH;
 	public static final int ZONES_Y = Constants.WORLD_SIZE_Y/ZONE_HEIGHT;
+	
+	
 	
 	public static void init() {
 		zoneGrid = new Zone[ZONES_X][ZONES_Y];
@@ -22,10 +24,10 @@ public class Vision {
 		}
 	}
 	
-	public static void updateAnimalVision() {
-		empty();
-		fill();
-	}
+//	public static void updateAnimalVision() {
+//		empty();
+//		fill();
+//	}
 	
 	public static void updateNearestNeighbours(int animalId) {
 		int pos = Animal.pool[animalId].pos;
@@ -112,9 +114,6 @@ public class Vision {
 //					zoneGrid[zone].animalsInZone.add(i);
 					int zoneX = getZoneXFromAnimalPos(pos);
 					int zoneY = getZoneYFromAnimalPos(pos);
-//					Animal.pool[i].color[0] = zoneGrid[zoneX][zoneY].color[0];
-//					Animal.pool[i].color[1] = zoneGrid[zoneX][zoneY].color[1];
-//					Animal.pool[i].color[2] = zoneGrid[zoneX][zoneY].color[2];
 					zoneGrid[zoneX][zoneY].animalsInZone.add(i);
 				}
 				else {
@@ -126,6 +125,53 @@ public class Vision {
 		}
 	}
 	
+	public static void updateAnimalZone(int id) {
+		int oldPos = Animal.pool[id].oldPos;
+		int pos = Animal.pool[id].pos;
+		
+		int oldZoneX = getZoneXFromAnimalPos(oldPos);
+		int oldZoneY = getZoneYFromAnimalPos(oldPos);
+		int zoneX = getZoneXFromAnimalPos(pos);
+		int zoneY = getZoneYFromAnimalPos(pos);
+		
+		if (oldZoneX != zoneX && oldZoneY != zoneY) {
+			removeAnimalFromZone(id, oldZoneX, oldZoneY);
+			addAnimalToZone(id, zoneX, zoneY);
+		}
+		Animal.pool[id].color[0] = zoneGrid[zoneX][zoneY].color[0];
+		Animal.pool[id].color[1] = zoneGrid[zoneX][zoneY].color[1];
+		Animal.pool[id].color[2] = zoneGrid[zoneX][zoneY].color[2];
+	}
+	
+	public static void addAnimalToZone(int id) {
+		int zoneX = getZoneXFromAnimalPos(Animal.pool[id].pos);
+		int zoneY = getZoneYFromAnimalPos(Animal.pool[id].pos);
+		addAnimalToZone(id, zoneX, zoneY);
+	}
+	public static void removeAnimalFromZone(int id) {
+		int zoneX = getZoneXFromAnimalPos(Animal.pool[id].pos);
+		int zoneY = getZoneYFromAnimalPos(Animal.pool[id].pos);
+		removeAnimalFromZone(id, zoneX, zoneY);
+	}
+	
+	private static void addAnimalToZone(int id, int zoneX, int zoneY) {
+		zoneGrid[zoneX][zoneY].animalsInZone.add(id);
+	}
+	private static void removeAnimalFromZone(int id, int zoneX, int zoneY) {
+		if (zoneGrid[zoneX][zoneY].animalsInZone.size() > 50) {
+			System.out.println(zoneGrid[zoneX][zoneY].animalsInZone.size());
+		}
+		try {
+			zoneGrid[zoneX][zoneY].animalsInZone.remove(zoneGrid[zoneX][zoneY].animalsInZone.indexOf(id));
+		}
+		catch (Exception e) {
+			System.out.println("asdasdasdasd");
+			System.out.println(zoneGrid[zoneX][zoneY].animalsInZone.indexOf(id));
+			
+			
+			e.printStackTrace();
+		}
+	}
 	
 	private static class Zone {
 		public ArrayList<Integer> animalsInZone;

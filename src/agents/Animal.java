@@ -19,13 +19,14 @@ public class Animal {
 	public int age = 0;
 	private int numKids = 0;
 	private int sinceLastBaby = 0;
-	private int id;
+	private Integer id;
 	public float size = 3f;
 	public float[] color;
 	public int pos;
 	public int oldPos;
 	public int oldX;
 	public int oldY;
+	
 	public boolean isAlive;
 	public float hunger;
 	public int[] nearbyAnimals;
@@ -137,19 +138,26 @@ public class Animal {
 				System.err.println("aaaaa what is this?");
 		}
 		containsAnimals[pool[id].pos] = id;
+		Vision.addAnimalToZone(id);
 		return id;
 	}
+	
+	private static int poolSpotToStartFrom = 0;
 	private static int findFirstAvailablePoolSpot() {
-		int id = 0;
-		while (pool[id].isAlive) {
-			id++;
-			if (id == Constants.MAX_NUM_ANIMALS) {
+		int counter = 0;
+		while (pool[poolSpotToStartFrom].isAlive) {
+			poolSpotToStartFrom++;
+			counter++;
+			if (counter == Constants.MAX_NUM_ANIMALS) {
 				System.err.println("MAX_NUM_ANIMALS reached. Pool full.");
 				System.err.println("NUM GRASSLERS = " + numGrasslers + "NUM BLOODLINGS = " + numBloodlings);
 				return -1;
 			}
+			if (poolSpotToStartFrom == Constants.MAX_NUM_ANIMALS) {
+				poolSpotToStartFrom = 0;
+			}
 		}
-		return id;
+		return poolSpotToStartFrom;
 	}
 	
 // ************ INSTANCE STUFF ************
@@ -169,6 +177,8 @@ public class Animal {
 		// Remove animal from the world temporarily :F
 		containsAnimals[pos] = -1;
 		
+		Vision.updateNearestNeighbours(id);
+		
 		// Calculate to where we want to move
 		if (findBestDir()) {
 			moveTo(bestDir);
@@ -182,19 +192,18 @@ public class Animal {
 			harvestGrass();
 		}
 		else {
+			System.err.println("Warning: found no best dir, should not happen?");
 			moveRandom();
 		}
+		
 		
 		// Add animal to the world again :)
 		containsAnimals[pos] = id;
 		
-		Vision.updateNearestNeighbours(id);
-		
-		hunger = hunger * 0.999f - 1f; //TODO: Why dOlof you do thies?
+		hunger = hunger * 0.999f - 1f; //TODO: Why dOlof you do thies? Move to age()
 		if (hunger < 0) {
 			die(Constants.Blood.DEATH_FROM_HUNGER_FACTOR);
 		}
-		
 	}
 	
 	private boolean age() {
@@ -259,7 +268,9 @@ public class Animal {
 //				neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] = 1f;
 //			}
 			neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] = Math.max(Math.abs(x-oldX), Math.abs(y-oldY))/2;
-			
+			if (neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] > 1) {
+				neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] = 1f;
+			}
 			
 			// Loop through the sighted animals to determine tile goodnesses
 			for (int nearbyAnimalId : nearbyAnimals) {
@@ -350,6 +361,7 @@ public class Animal {
 		oldX = pos / Constants.WORLD_SIZE_X;
 		oldY = pos % Constants.WORLD_SIZE_X;
 		pos = World.neighbour[to][pos];
+		Vision.updateAnimalZone(id);
 	}
 	private void interactWith(int id2) {
 		if (id2 != id) {
@@ -379,7 +391,7 @@ public class Animal {
 		pos = World.neighbour[Constants.RANDOM.nextInt(5)][pos];
 	}
 	
-	private void die(float energyFactor) {
+	private void die(float bloodFactor) {
 		if (this.isAlive) {
 			numAnimals--;
 			switch (species.speciesId) {
@@ -392,9 +404,13 @@ public class Animal {
 				default:
 					System.err.println("aa what is this?");
 			}
-			World.blood.append(pos, energyFactor);
+			Vision.removeAnimalFromZone(id);
+			World.blood.append(pos, bloodFactor);
 		}
 		containsAnimals[pos] = -1;
 		isAlive = false;
+		
+		pos = -1;
+		oldPos = -1;
 	}
 }

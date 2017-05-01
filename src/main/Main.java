@@ -34,7 +34,7 @@ public class Main
 						spawnRandomAnimal(Constants.SpeciesId.BLOODLING);
 					}
 				}
-				while (Animal.numGrasslers < 20) {
+				while (Animal.numGrasslers < 1) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				
