@@ -4,7 +4,7 @@ import constants.Constants;
 
 public class NeuralNetwork {
 	
-	private static final int[] LAYERS = {NeuralFactors.NUM_DESICION_FACTORS, 7, 5, 2};
+	private static final int[] LAYERS = {NeuralFactors.NUM_DESICION_FACTORS, 7, 5, 3, 1};
 	private static final int NUM_LAYERS = LAYERS.length;
 	private static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 

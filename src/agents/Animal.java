@@ -14,7 +14,7 @@ public class Animal {
 	public static final int BIRTH_HUNGER = 20;
 	public static final int HUNGRY_HUNGER = 100;
 	public static final int BIRTH_HUNGER_COST = 60;
-	public static final int AGE_DEATH = 1000;
+	public static final int AGE_DEATH = 100;
 	
 	public int age = 0;
 	private int numKids = 0;
@@ -44,6 +44,8 @@ public class Animal {
 	
 	//************ STATIC STUFF ************
 	public static Animal[] pool = new Animal[Constants.MAX_NUM_ANIMALS];
+	public static ArrayList<Integer> alive = new ArrayList<>();
+	public static ArrayList<Integer> dead = new ArrayList<>();
 	public static int numAnimals = 0;
 	public static int numGrasslers = 0;
 	public static int numBloodlings = 0;
@@ -52,8 +54,8 @@ public class Animal {
 	
 	public static void moveAll() {
 		if (killAll) {
-			for (Animal a : pool) {
-				a.die(0f);
+			while (!alive.isEmpty()) {
+				pool[alive.get(0)].die(0f);
 			}
 			System.out.println("Num animals alive after killing them all: " + numAnimals);
 			System.out.println("Num bloodlings alive after killing them all: " + numBloodlings);
@@ -63,12 +65,12 @@ public class Animal {
 		}
 		for (Animal a : pool) {
 			if (a.isAlive) {
-				if (!a.age()) {
-					continue;
-				}
 				a.sinceLastBaby++;
 				a.recover += a.species.speed;
 				if (a.recover > 1f) {
+					if (!a.age()) {
+						continue;
+					}
 					a.recover--;
 					a.move();
 				}
@@ -82,12 +84,13 @@ public class Animal {
 	public static void init() {
 		containsAnimals = new int[Constants.WORLD_SIZE];
 		
-		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			containsAnimals[i] = -1;
+		for (int pos = 0; pos < Constants.WORLD_SIZE; ++pos) {
+			containsAnimals[pos] = -1;
 		}
 		
-		for(int i = 0; i < Constants.MAX_NUM_ANIMALS; ++i) {
-			pool[i] = new Animal();
+		for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
+			pool[id] = new Animal();
+			dead.add(id);
 		}
 	}
 	public static int resurrectAnimal(int pos, float hunger, Species speciesMom, NeuralNetwork neuralMom, Species speciesDad, NeuralNetwork neuralDad) {
@@ -97,6 +100,7 @@ public class Animal {
 			System.err.println("did not find pool spot.");
 			return -1;
 		}
+		alive.add(id);
 		
 		pool[id].isAlive = true;
 		
@@ -142,22 +146,13 @@ public class Animal {
 		return id;
 	}
 	
-	private static int poolSpotToStartFrom = 0;
 	private static int findFirstAvailablePoolSpot() {
-		int counter = 0;
-		while (pool[poolSpotToStartFrom].isAlive) {
-			poolSpotToStartFrom++;
-			counter++;
-			if (counter == Constants.MAX_NUM_ANIMALS) {
-				System.err.println("MAX_NUM_ANIMALS reached. Pool full.");
-				System.err.println("NUM GRASSLERS = " + numGrasslers + "NUM BLOODLINGS = " + numBloodlings);
-				return -1;
-			}
-			if (poolSpotToStartFrom == Constants.MAX_NUM_ANIMALS) {
-				poolSpotToStartFrom = 0;
-			}
+		if (dead.size() == 0) {
+			return -1;
 		}
-		return poolSpotToStartFrom;
+		int poolSpot = dead.get(0);
+		dead.remove(0);
+		return poolSpot;
 	}
 	
 // ************ INSTANCE STUFF ************
@@ -199,11 +194,6 @@ public class Animal {
 		
 		// Add animal to the world again :)
 		containsAnimals[pos] = id;
-		
-		hunger = hunger * 0.999f - 1f; //TODO: Why dOlof you do thies? Move to age()
-		if (hunger < 0) {
-			die(Constants.Blood.DEATH_FROM_HUNGER_FACTOR);
-		}
 	}
 	
 	private boolean age() {
@@ -213,20 +203,12 @@ public class Animal {
 			die(Constants.Blood.DEATH_FROM_AGE_FACTOR);
 			return false;
 		}
-		
-		if (species.speciesId == Constants.SpeciesId.BLOODLING) {
-			int score = age + numKids*1000;
-//			int score = numKids;
-			if (score > 10000) {
-				if (score > Constants.SpeciesId.bestBloodlingNeuralScore*10) {
-					Constants.SpeciesId.secondBloodlingNeural = Constants.SpeciesId.bestBloodlingNeural;
-					Constants.SpeciesId.secondBloodlingNeuralScore = Constants.SpeciesId.bestBloodlingNeuralScore;
-					Constants.SpeciesId.bestBloodlingNeural = neuralNetwork;
-					Constants.SpeciesId.bestBloodlingNeuralScore = score;
-					color[2] = 0.5f;
-				}
-			}
+		hunger = hunger * 0.999f - 1f;
+		if (hunger < 0) {
+			die(Constants.Blood.DEATH_FROM_HUNGER_FACTOR);
+			return false;
 		}
+		
 		return true;
 	}
 	
@@ -392,23 +374,26 @@ public class Animal {
 	}
 	
 	private void die(float bloodFactor) {
-		if (this.isAlive) {
-			numAnimals--;
-			switch (species.speciesId) {
-				case Constants.SpeciesId.BLOODLING:
-					numBloodlings--;
-					break;
-				case Constants.SpeciesId.GRASSLER:
-					numGrasslers--;
-					break;
-				default:
-					System.err.println("aa what is this?");
-			}
-			Vision.removeAnimalFromZone(id);
-			World.blood.append(pos, bloodFactor);
+		if (!this.isAlive) {
+			System.err.println("Trying to kill what is already dead.");
 		}
+		numAnimals--;
+		switch (species.speciesId) {
+		case Constants.SpeciesId.BLOODLING:
+			numBloodlings--;
+			break;
+		case Constants.SpeciesId.GRASSLER:
+			numGrasslers--;
+			break;
+		default:
+			System.err.println("aa what is this?");
+		}
+		Vision.removeAnimalFromZone(id);
+		World.blood.append(pos, bloodFactor);
 		containsAnimals[pos] = -1;
 		isAlive = false;
+		alive.remove(alive.indexOf(id));
+		dead.add(id);
 		
 		pos = -1;
 		oldPos = -1;

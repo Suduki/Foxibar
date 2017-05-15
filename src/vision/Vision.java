@@ -8,8 +8,8 @@ import constants.Constants;
 public class Vision {
 	public static Zone[][] zoneGrid;
 	
-	public static final int ZONE_HEIGHT = 16;
-	public static final int ZONE_WIDTH = 16;
+	public static final int ZONE_HEIGHT =8;
+	public static final int ZONE_WIDTH = 8;
 	public static final int ZONES_X = Constants.WORLD_SIZE_X/ZONE_WIDTH;
 	public static final int ZONES_Y = Constants.WORLD_SIZE_Y/ZONE_HEIGHT;
 	
@@ -134,13 +134,10 @@ public class Vision {
 		int zoneX = getZoneXFromAnimalPos(pos);
 		int zoneY = getZoneYFromAnimalPos(pos);
 		
-		if (oldZoneX != zoneX && oldZoneY != zoneY) {
+		if (oldZoneX != zoneX || oldZoneY != zoneY) {
 			removeAnimalFromZone(id, oldZoneX, oldZoneY);
 			addAnimalToZone(id, zoneX, zoneY);
 		}
-		Animal.pool[id].color[0] = zoneGrid[zoneX][zoneY].color[0];
-		Animal.pool[id].color[1] = zoneGrid[zoneX][zoneY].color[1];
-		Animal.pool[id].color[2] = zoneGrid[zoneX][zoneY].color[2];
 	}
 	
 	public static void addAnimalToZone(int id) {
@@ -158,19 +155,7 @@ public class Vision {
 		zoneGrid[zoneX][zoneY].animalsInZone.add(id);
 	}
 	private static void removeAnimalFromZone(int id, int zoneX, int zoneY) {
-		if (zoneGrid[zoneX][zoneY].animalsInZone.size() > 50) {
-			System.out.println(zoneGrid[zoneX][zoneY].animalsInZone.size());
-		}
-		try {
-			zoneGrid[zoneX][zoneY].animalsInZone.remove(zoneGrid[zoneX][zoneY].animalsInZone.indexOf(id));
-		}
-		catch (Exception e) {
-			System.out.println("asdasdasdasd");
-			System.out.println(zoneGrid[zoneX][zoneY].animalsInZone.indexOf(id));
-			
-			
-			e.printStackTrace();
-		}
+		zoneGrid[zoneX][zoneY].animalsInZone.remove(zoneGrid[zoneX][zoneY].animalsInZone.indexOf(id));
 	}
 	
 	private static class Zone {

@@ -21,7 +21,7 @@ public class Constants {
 	public static final float PIXELS_PER_NODE_X = ((float)PIXELS_X)/WORLD_SIZE_X;
 	public static final float PIXELS_PER_NODE_Y = ((float)PIXELS_Y)/WORLD_SIZE_Y;
 	public static final Random RANDOM = new Random(1);
-	public static final float TILES_PER_ANIMAL = 15;
+	public static final float TILES_PER_ANIMAL = 5;
 	public static final float GROWTH = Species.GRASSLER_SPEED / Species.GRASS_GAIN / TILES_PER_ANIMAL;
 	public static final int MAX_NUM_ANIMALS = 50000;
 	public static final float ZOOM_SPEED = 1.05f;
@@ -30,7 +30,7 @@ public class Constants {
 	public static boolean RENDER_TERRAIN = true;
 	public static boolean RENDER_ANIMALS = true;
 	public static boolean RENDER_BLOOD = true;
-	public static boolean RENDER_VISION = false;
+	public static boolean RENDER_VISION = true;
 	public static boolean RENDER_DIRT = false;
 	public static boolean RENDER_HUNGER = true;
 	public static boolean RENDER_AGE = true;
@@ -65,7 +65,7 @@ public class Constants {
 		public static final float SPREAD = 0.0f * ADDITION_ON_DEATH;
 		public static final float DECAY_FACTOR = 0.99f;
 		public static final float DEATH_FROM_HUNGER_FACTOR = 0.0f;
-		public static final float DEATH_FROM_AGE_FACTOR = 0.0f;
+		public static final float DEATH_FROM_AGE_FACTOR = 0.5f;
 	}
 	public static class Species {
 		public static final float GRASSLER_SPEED = 0.95f;
@@ -75,15 +75,10 @@ public class Constants {
 //				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
 		public static final agents.Species BLOODLING = new agents.Species(
 //				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
-				SpeciesId.BLOODLING, 0f, 0f, 0.02f, 300f, 1f, 1f);
+				SpeciesId.BLOODLING, 0f, 0f, 0.02f, 200f, 1f, 1f);
 	}
 	public static class SpeciesId {
 		public static final int BLOODLING = 1;
 		public static final int GRASSLER = 2;
-		
-		public static int bestBloodlingNeuralScore = 0;
-		public static NeuralNetwork bestBloodlingNeural;
-		public static int secondBloodlingNeuralScore = 0;
-		public static NeuralNetwork secondBloodlingNeural;
 	}
 }

@@ -413,7 +413,7 @@ public class DisplayHandler extends MessageHandler
 			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
 			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
 
-			for (int id = 0; id < Animal.pool.length; ++id) {
+			for (int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
 				if (Animal.pool[id].isAlive) {
 					int pos = Animal.pool[id].pos;
 					float x = (pos % Constants.WORLD_SIZE_X)*pixelsPerNodeY + pixelsPerNodeY/2;
@@ -424,16 +424,16 @@ public class DisplayHandler extends MessageHandler
 							float x2 = (pos2 % Constants.WORLD_SIZE_X)*pixelsPerNodeY + pixelsPerNodeY/2;
 							float y2 = (pos2 / Constants.WORLD_SIZE_X)*pixelsPerNodeX + pixelsPerNodeX/2;
 							float distance = Math.abs(x-x2) + Math.abs(y-y2);
-							//							if (distance < Constants.DISTANCE_TOO_LONG_TO_RENDER) {
-							if (Animal.pool[id].species.speciesId == Constants.SpeciesId.BLOODLING) {
+							if (distance < Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE) {
+								if (Animal.pool[id].species.speciesId == Constants.SpeciesId.BLOODLING) {
 
-								glBegin(GL_LINES);
-								glColor3f(Animal.pool[id].color[0], Animal.pool[id].color[1], Animal.pool[id].color[2]);
-								glVertex2f(y, x);
-								glVertex2f(y2, x2);
-								glEnd();
+									glBegin(GL_LINES);
+									glColor3f(Animal.pool[id].color[0], Animal.pool[id].color[1], Animal.pool[id].color[2]);
+									glVertex2f(y, x);
+									glVertex2f(y2, x2);
+									glEnd();
+								}
 							}
-							//							}
 						}
 					}
 				}

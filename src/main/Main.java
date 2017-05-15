@@ -30,11 +30,11 @@ public class Main
 				fpsLimiter.waitForNextFrame();
 				
 				if (Animal.numAnimals > 500) {
-					while (Animal.numBloodlings < 5) {
+					while (Animal.numBloodlings < 20) {
 						spawnRandomAnimal(Constants.SpeciesId.BLOODLING);
 					}
 				}
-				while (Animal.numGrasslers < 1) {
+				while (Animal.numGrasslers < 20) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				
@@ -59,19 +59,10 @@ public class Main
 	private static void spawnRandomAnimal(int speciesId) {
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
-			boolean useBestAnimal = false;
-			if (useBestAnimal) {
-				Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-						Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-						Constants.SpeciesId.bestBloodlingNeural, 
-						Constants.Species.BLOODLING, Constants.SpeciesId.secondBloodlingNeural);
-			}
-			else {
-				int i =	Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-						Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-						null, 
-						Constants.Species.BLOODLING, null);
-			}
+			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
+					Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
+					null, 
+					Constants.Species.BLOODLING, null);
 			break;
 		case Constants.SpeciesId.GRASSLER:
 			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 

@@ -31,7 +31,7 @@ public class Species {
 	}
 
 	public void inherit(Species mom, Species dad) {
-		this.speciesId = mom.speciesId; // Mom and dad are the same here.
+		this.speciesId = mom.speciesId; 
 		
 		float evolution = 0.0f; // Needs balance otherwise. Evolving this is advanced stuff.
 		this.grassHarvest = (mom.grassHarvest + dad.grassHarvest)/2 + evolution*(Constants.RANDOM.nextFloat()-0.5f);
