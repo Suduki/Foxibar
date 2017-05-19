@@ -14,10 +14,10 @@ public class Animal {
 	public static final int BIRTH_HUNGER = 20;
 	public static final int HUNGRY_HUNGER = 100;
 	public static final int BIRTH_HUNGER_COST = 60;
-	public static final int AGE_DEATH = 100;
+	public static final int AGE_DEATH = 1000;
 	
 	public int age = 0;
-	private int numKids = 0;
+	public int trueAge = 0;
 	private int sinceLastBaby = 0;
 	private Integer id;
 	public float size = 3f;
@@ -118,6 +118,7 @@ public class Animal {
 		pool[id].oldPos = pos;
 		pool[id].id = id;
 		pool[id].age = 0;
+		pool[id].trueAge = 0;
 		pool[id].sinceLastBaby = 0;
 		pool[id].recover = 0f;
 		pool[id].hunger = hunger;
@@ -198,6 +199,7 @@ public class Animal {
 	
 	private boolean age() {
 		age++;
+		trueAge++;
 		
 		if (age > AGE_DEATH) {
 			die(Constants.Blood.DEATH_FROM_AGE_FACTOR);
@@ -223,18 +225,7 @@ public class Animal {
 			neuralNetwork.reset();
 			
 			neuralNetwork.z[0][NeuralFactors.HUNGER] = hunger / HUNGRY_HUNGER; //TODO: Rescale this?
-			
-			if (isFertile) {
-				neuralNetwork.z[0][NeuralFactors.FERTILE] = 1f;
-			}
-			else {
-				neuralNetwork.z[0][NeuralFactors.FERTILE] = 0;
-			}
-			
 			neuralNetwork.z[0][NeuralFactors.AGE] = ((float)age)/AGE_DEATH;
-			
-			int x = World.neighbour[tile][pos] / Constants.WORLD_SIZE_X;
-			int y = World.neighbour[tile][pos] % Constants.WORLD_SIZE_X;
 			
 			neuralNetwork.z[0][NeuralFactors.TILE_GRASS] = World.grass.height[World.neighbour[tile][pos]];
 			neuralNetwork.z[0][NeuralFactors.TILE_BLOOD] = World.blood.height[World.neighbour[tile][pos]];
@@ -245,14 +236,7 @@ public class Animal {
 			neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY] = 0;
 			
 			// Calculate tile in relation to old position.
-//			neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] = (float)Vision.calculateDistance(pos, oldPos);
-//			if (neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] != 0) {
-//				neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] = 1f;
-//			}
-			neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] = Math.max(Math.abs(x-oldX), Math.abs(y-oldY))/2;
-			if (neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] > 1) {
-				neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] = 1f;
-			}
+			neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] =  (float)Vision.calculateCircularDistance(World.neighbour[tile][pos], oldPos);
 			
 			// Loop through the sighted animals to determine tile goodnesses
 			for (int nearbyAnimalId : nearbyAnimals) {
@@ -261,31 +245,32 @@ public class Animal {
 					continue;
 				}
 				
-				int xNeigh = pool[nearbyAnimalId].pos / Constants.WORLD_SIZE_X;
-				int yNeigh = pool[nearbyAnimalId].pos % Constants.WORLD_SIZE_X;
-				
-				float distance = 1f-((float)(Math.abs(xNeigh-x) + Math.abs(yNeigh - y)))/Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE;
+				float distance = (float) Vision.calculateCircularDistance(World.neighbour[tile][pos], pool[nearbyAnimalId].pos);
+				if (distance > Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE) {
+					continue;
+				}
+				float distanceFactor = 1f-distance/Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE;
 				
 				// 0 distance means the animal is too far away
-				if (distance < 0) {
-					distance = 0;
+				if (distanceFactor < 0  || distanceFactor > 1) {
+					System.err.println("distanceFactor = " + distanceFactor);
 				}
 				
 				if (looksDangerous(nearbyAnimalId)) {
-					neuralNetwork.z[0][NeuralFactors.TILE_DANGER] = Math.max(distance, neuralNetwork.z[0][NeuralFactors.TILE_DANGER]);
+					neuralNetwork.z[0][NeuralFactors.TILE_DANGER] = Math.max(distanceFactor, neuralNetwork.z[0][NeuralFactors.TILE_DANGER]);
 				}
 				if (looksWeak(nearbyAnimalId)) {
-					neuralNetwork.z[0][NeuralFactors.TILE_HUNT] = Math.max(distance, neuralNetwork.z[0][NeuralFactors.TILE_HUNT]);
-					if (distance == 1) {
+					neuralNetwork.z[0][NeuralFactors.TILE_HUNT] = Math.max(distanceFactor, neuralNetwork.z[0][NeuralFactors.TILE_HUNT]);
+					if (distanceFactor == 1) {
 						animalIdToHunt = nearbyAnimalId;
 					}
 				}
 				if (!looksDangerous(nearbyAnimalId)) {
-					neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] = Math.max(distance, neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS]);
+					neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] = Math.max(distanceFactor, neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS]);
 				}
 				if (isFertileWith(nearbyAnimalId)) {
-					neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY] = Math.max(distance, neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY]);
-					if (distance == 1) {
+					neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY] = Math.max(distanceFactor, neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY]);
+					if (distanceFactor == 1) {
 						animalIdToMateWith = nearbyAnimalId;
 					}
 				}
@@ -352,11 +337,10 @@ public class Animal {
 				isFertile = false;
 				hunger -= BIRTH_HUNGER_COST;
 				sinceLastBaby = 0;
-				numKids ++;
+				
 				pool[id2].isFertile = false;
 				pool[id2].hunger -= BIRTH_HUNGER_COST;
 				pool[id2].sinceLastBaby = 0;
-				pool[id2].numKids ++;
 				
 				
 				// This will cause the mating animals to continue living, which is what we want in the end.

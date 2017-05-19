@@ -8,8 +8,8 @@ import constants.Constants;
 public class Vision {
 	public static Zone[][] zoneGrid;
 	
-	public static final int ZONE_HEIGHT =8;
-	public static final int ZONE_WIDTH = 8;
+	public static final int ZONE_HEIGHT = 16;
+	public static final int ZONE_WIDTH  = 16;
 	public static final int ZONES_X = Constants.WORLD_SIZE_X/ZONE_WIDTH;
 	public static final int ZONES_Y = Constants.WORLD_SIZE_Y/ZONE_HEIGHT;
 	
@@ -31,8 +31,8 @@ public class Vision {
 	
 	public static void updateNearestNeighbours(int animalId) {
 		int pos = Animal.pool[animalId].pos;
-		int zoneX = getZoneXFromAnimalPos(pos);
-		int zoneY = getZoneYFromAnimalPos(pos);
+		int zoneX = getZoneXFromPos(pos);
+		int zoneY = getZoneYFromPos(pos);
 		for (int i = 0; i < Animal.pool[animalId].nearbyAnimalsDistance.length; ++i) {
 			Animal.pool[animalId].nearbyAnimalsDistance[i] = -1;
 		}
@@ -77,9 +77,31 @@ public class Vision {
 		}
 	}
 	
+	private static boolean WARNING_PRINTED = false;
+	public static double calculateCircularDistance(int pos, int pos2) {
+		if (!WARNING_PRINTED) {
+			System.err.println("USING CIRCULAR DISTANCE. NOT OPTIMAL FOR SIMULATIONS (I THINK)");
+			WARNING_PRINTED = true;
+		}
+		int xDirect      = Math.abs(getXFromPos(pos) - getXFromPos(pos2));
+		int xThroughWall = Constants.WORLD_SIZE_X - xDirect;
+		
+		int yDirect      = Math.abs(getYFromPos(pos) - getYFromPos(pos2));
+		int yThroughWall = Constants.WORLD_SIZE_Y - yDirect;
+		
+		return Math.sqrt(Math.min(xDirect, xThroughWall)*Math.min(xDirect, xThroughWall) +
+				Math.min(yDirect, yThroughWall)*Math.min(yDirect, yThroughWall));
+	}
+	
 	public static int calculateDistance(int pos, int pos2) {
-		return Math.abs(getXFromAnimalPos(pos) - getXFromAnimalPos(pos2)) +
-				Math.abs(getYFromAnimalPos(pos) - getYFromAnimalPos(pos2));
+		int xDirect      = Math.abs(getXFromPos(pos) - getXFromPos(pos2));
+		int xThroughWall = Constants.WORLD_SIZE_X - xDirect;
+		
+		int yDirect      = Math.abs(getYFromPos(pos) - getYFromPos(pos2));
+		int yThroughWall = Constants.WORLD_SIZE_Y - yDirect;
+		
+		return Math.min(xDirect, xThroughWall) +
+				Math.min(yDirect, yThroughWall);
 	}
 	
 	private static void empty() {
@@ -90,17 +112,17 @@ public class Vision {
 		}
 	}
 	
-	private static int getXFromAnimalPos(int pos) {
+	private static int getXFromPos(int pos) {
 		return pos % Constants.WORLD_SIZE_X;
 	}
-	private static int getYFromAnimalPos(int pos) {
+	private static int getYFromPos(int pos) {
 		return pos / Constants.WORLD_SIZE_X;
 	}
 	
-	private static int getZoneXFromAnimalPos(int pos) {
+	private static int getZoneXFromPos(int pos) {
 		return (pos % Constants.WORLD_SIZE_X) / ZONE_WIDTH; 
 	}
-	private static int getZoneYFromAnimalPos(int pos) {
+	private static int getZoneYFromPos(int pos) {
 		return pos / Constants.WORLD_SIZE_X / ZONE_HEIGHT;
 	}
 	
@@ -112,13 +134,13 @@ public class Vision {
 					int x = (pos % Constants.WORLD_SIZE_X) / ZONE_WIDTH;
 					int y = pos / Constants.WORLD_SIZE_X / ZONE_HEIGHT;
 //					zoneGrid[zone].animalsInZone.add(i);
-					int zoneX = getZoneXFromAnimalPos(pos);
-					int zoneY = getZoneYFromAnimalPos(pos);
+					int zoneX = getZoneXFromPos(pos);
+					int zoneY = getZoneYFromPos(pos);
 					zoneGrid[zoneX][zoneY].animalsInZone.add(i);
 				}
 				else {
-					int zoneX = getZoneXFromAnimalPos(pos);
-					int zoneY = getZoneYFromAnimalPos(pos);
+					int zoneX = getZoneXFromPos(pos);
+					int zoneY = getZoneYFromPos(pos);
 					zoneGrid[zoneX][zoneY].animalsInZone.add(i);
 				}
 			}
@@ -129,10 +151,10 @@ public class Vision {
 		int oldPos = Animal.pool[id].oldPos;
 		int pos = Animal.pool[id].pos;
 		
-		int oldZoneX = getZoneXFromAnimalPos(oldPos);
-		int oldZoneY = getZoneYFromAnimalPos(oldPos);
-		int zoneX = getZoneXFromAnimalPos(pos);
-		int zoneY = getZoneYFromAnimalPos(pos);
+		int oldZoneX = getZoneXFromPos(oldPos);
+		int oldZoneY = getZoneYFromPos(oldPos);
+		int zoneX = getZoneXFromPos(pos);
+		int zoneY = getZoneYFromPos(pos);
 		
 		if (oldZoneX != zoneX || oldZoneY != zoneY) {
 			removeAnimalFromZone(id, oldZoneX, oldZoneY);
@@ -141,13 +163,13 @@ public class Vision {
 	}
 	
 	public static void addAnimalToZone(int id) {
-		int zoneX = getZoneXFromAnimalPos(Animal.pool[id].pos);
-		int zoneY = getZoneYFromAnimalPos(Animal.pool[id].pos);
+		int zoneX = getZoneXFromPos(Animal.pool[id].pos);
+		int zoneY = getZoneYFromPos(Animal.pool[id].pos);
 		addAnimalToZone(id, zoneX, zoneY);
 	}
 	public static void removeAnimalFromZone(int id) {
-		int zoneX = getZoneXFromAnimalPos(Animal.pool[id].pos);
-		int zoneY = getZoneYFromAnimalPos(Animal.pool[id].pos);
+		int zoneX = getZoneXFromPos(Animal.pool[id].pos);
+		int zoneY = getZoneYFromPos(Animal.pool[id].pos);
 		removeAnimalFromZone(id, zoneX, zoneY);
 	}
 	
@@ -170,4 +192,5 @@ public class Vision {
 			color[2] = Constants.RANDOM.nextFloat();
 		}
 	}
+
 }

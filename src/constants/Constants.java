@@ -30,7 +30,7 @@ public class Constants {
 	public static boolean RENDER_TERRAIN = true;
 	public static boolean RENDER_ANIMALS = true;
 	public static boolean RENDER_BLOOD = true;
-	public static boolean RENDER_VISION = true;
+	public static boolean RENDER_VISION = false;
 	public static boolean RENDER_DIRT = false;
 	public static boolean RENDER_HUNGER = true;
 	public static boolean RENDER_AGE = true;
@@ -68,14 +68,14 @@ public class Constants {
 		public static final float DEATH_FROM_AGE_FACTOR = 0.5f;
 	}
 	public static class Species {
-		public static final float GRASSLER_SPEED = 0.95f;
+		public static final float GRASSLER_SPEED = 0.9f;
 		public static final float GRASS_GAIN = 20f;
 		public static final agents.Species GRASSLER = new agents.Species(
 				SpeciesId.GRASSLER, 0.3f, GRASS_GAIN, 0f, 0f, GRASSLER_SPEED, 0f);
 //				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
 		public static final agents.Species BLOODLING = new agents.Species(
 //				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
-				SpeciesId.BLOODLING, 0f, 0f, 0.02f, 200f, 1f, 1f);
+				SpeciesId.BLOODLING, 0f, 0f, 0.02f, 100f, 1f, 1f);
 	}
 	public static class SpeciesId {
 		public static final int BLOODLING = 1;
