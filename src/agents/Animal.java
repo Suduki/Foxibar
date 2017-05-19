@@ -238,6 +238,7 @@ public class Animal {
 			// Calculate tile in relation to old position.
 			neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] =  (float)Vision.calculateCircularDistance(World.neighbour[tile][pos], oldPos);
 			
+			int eldestNearbyAnimal = -1;
 			// Loop through the sighted animals to determine tile goodnesses
 			for (int nearbyAnimalId : nearbyAnimals) {
 				
@@ -274,12 +275,22 @@ public class Animal {
 						animalIdToMateWith = nearbyAnimalId;
 					}
 				}
+				
+				// Determine whom to learn from
+				if ((eldestNearbyAnimal == -1 || pool[nearbyAnimalId].trueAge > pool[eldestNearbyAnimal].trueAge) 
+						&& pool[nearbyAnimalId].trueAge > this.trueAge) {
+					eldestNearbyAnimal = nearbyAnimalId;
+				}
 			}
+			tileGoodness[tile] = neuralNetwork.neuralMagic(eldestNearbyAnimal);
 			
-			tileGoodness[tile] = neuralNetwork.neuralMagic();
 		}
 		bestDir = (short) max(tileGoodness);
 		return true;
+	}
+	
+	private void learnFromRoleModel(int roleModelId) {
+		
 	}
 	
 	private boolean looksDangerous(int nearbyAnimalId) {
