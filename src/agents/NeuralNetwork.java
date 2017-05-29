@@ -3,6 +3,7 @@ package agents;
 import constants.Constants;
 
 public class NeuralNetwork {
+	public static final NeuralNetwork idiotNeural = new NeuralNetwork(true);
 	
 	private static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 5, 3, 1};
 	private static final int NUM_LAYERS = LAYER_SIZES.length;
@@ -11,7 +12,7 @@ public class NeuralNetwork {
 	private float[][][] weights;
 	double[][] z;
 	
-	public NeuralNetwork() {
+	public NeuralNetwork(boolean initZero) {
 		weights = new float[NUM_WEIGHTS][][];
 		z = new double[NUM_LAYERS][];
 		for (int weight = 0 ; weight < NUM_WEIGHTS; ++weight) {
@@ -21,9 +22,24 @@ public class NeuralNetwork {
 			z[layer] = new double[LAYER_SIZES[layer]];
 		}
 		
-		initWeightsRandom();
+		if (initZero) {
+			initWeightsZero();
+		}
+		else {
+			initWeightsRandom();
+		}
+		
 	}
 	
+	public void initWeightsZero() {
+		for (int weight = 0; weight < weights.length ; ++weight) {
+			for (int i = 0; i < weights[weight].length; ++i) {
+				for (int j = 0; j < weights[weight][i].length; ++j) {
+					weights[weight][i][j] = 0;
+				}
+			}
+		}
+	}
 	public void initWeightsRandom() {
 		for (int weight = 0; weight < weights.length ; ++weight) {
 			for (int i = 0; i < weights[weight].length; ++i) {
@@ -35,7 +51,7 @@ public class NeuralNetwork {
 	}
 
 	public void reset() {
-		for (int layer = 1; layer < z.length ; ++layer) {
+		for (int layer = 1; layer < z.length ; ++layer) { // Not resetting first layer.
 			for (int i = 0; i < z[layer].length; ++i) {
 				z[layer][i] = 0;
 			}
@@ -56,14 +72,16 @@ public class NeuralNetwork {
 	}
 	
 	private void backPropagationLearning(double output, double facit) {
-		
+		//TODO
 	}
 	
-	public double neuralMagic(int roleModel) {
+
+	public double neuralMagic(int toLearnFrom) {
 		double myGoodness = evaluateNeuralNetwork(this.z, this.weights);
-		if (roleModel != -1) {
-			double roleModelGoodness = evaluateNeuralNetwork(this.z, Animal.pool[roleModel].neuralNetwork.weights);
+		if (Constants.LEARN_FROM_ELDERS && toLearnFrom != -1) {
+			double roleModelGoodness = evaluateNeuralNetwork(this.z, Animal.pool[toLearnFrom].neuralNetwork.weights);
 			backPropagationLearning(myGoodness, roleModelGoodness);
+			return roleModelGoodness;
 		}
 		
 		return myGoodness;
@@ -72,6 +90,17 @@ public class NeuralNetwork {
 	private double sigmoid(double f) {
 		return 1d/(1d+Math.exp(-f));
 	}
+	
+	private double sigmoidPrime(double f) {
+		double expo = Math.exp(-f);
+		return expo/((1d+expo)*(1d+expo));
+	}
+	
+//	private double costFunctionPrime(double X, double y, double yHat) {
+//		
+//		double[] delta3 
+//		return 0;
+//	}
 	
 	public void copy(NeuralNetwork d) {
 		for (int weight = 0; weight < NUM_WEIGHTS; ++weight) {
@@ -100,7 +129,5 @@ public class NeuralNetwork {
 		}
 	}
 	
-	public void train(NeuralNetwork roleModel) {
-		
-	}
+	
 }

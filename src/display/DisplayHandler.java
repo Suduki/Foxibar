@@ -358,7 +358,7 @@ public class DisplayHandler extends MessageHandler
 					int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
 					if (Animal.containsAnimals[pos] == -1) {
 						Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER, 
-								null, Constants.Species.GRASSLER, null);
+								NeuralNetwork.idiotNeural, Constants.Species.GRASSLER, NeuralNetwork.idiotNeural);
 					}
 				}
 
@@ -379,7 +379,7 @@ public class DisplayHandler extends MessageHandler
 					int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
 					if (Animal.containsAnimals[pos] == -1) {
 						Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-								null, Constants.Species.BLOODLING, null);
+								NeuralNetwork.idiotNeural, Constants.Species.BLOODLING, NeuralNetwork.idiotNeural);
 					}
 				}
 

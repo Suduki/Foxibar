@@ -1,13 +1,10 @@
 package agents;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import vision.Vision;
 import world.World;
 import constants.Constants;
-import constants.Constants.Neighbours;
-import static constants.Constants.Neighbours.*;
 
 public class Animal {
 	
@@ -17,7 +14,7 @@ public class Animal {
 	public static final int AGE_DEATH = 1000;
 	
 	public int age = 0;
-	public int trueAge = 0;
+	public int score = 0;
 	private int sinceLastBaby = 0;
 	private Integer id;
 	public float size = 3f;
@@ -118,7 +115,7 @@ public class Animal {
 		pool[id].oldPos = pos;
 		pool[id].id = id;
 		pool[id].age = 0;
-		pool[id].trueAge = 0;
+		pool[id].score = 0;
 		pool[id].sinceLastBaby = 0;
 		pool[id].recover = 0f;
 		pool[id].hunger = hunger;
@@ -129,14 +126,14 @@ public class Animal {
 				pool[id].color[0] = 1;
 				pool[id].color[1] = 0;
 				pool[id].color[2] = 0;
-				pool[id].size = 4;
+				pool[id].size = 2;
 				numBloodlings++;
 				break;
 			case Constants.SpeciesId.GRASSLER:
 				pool[id].color[0] = 1;
 				pool[id].color[1] = 1;
 				pool[id].color[2] = 1;
-				pool[id].size = 2;
+				pool[id].size = 1;
 				numGrasslers++;
 				break;
 			default:
@@ -162,7 +159,7 @@ public class Animal {
 		this.color = new float[3];
 		this.nearbyAnimals = new int[Constants.NUM_NEIGHBOURS];
 		this.nearbyAnimalsDistance = new int[Constants.NUM_NEIGHBOURS];
-		this.neuralNetwork = new NeuralNetwork();
+		this.neuralNetwork = new NeuralNetwork(false);
 		this.species = new Species();
 	}
 	private short bestDir;
@@ -179,10 +176,10 @@ public class Animal {
 		if (findBestDir()) {
 			moveTo(bestDir);
 			if (animalIdToHunt != -1) {
-				interactWith(animalIdToHunt);
+				fightWith(animalIdToHunt);
 			}
 			if (animalIdToMateWith != -1) {
-				interactWith(animalIdToMateWith);
+				mateWith(animalIdToMateWith);
 			}
 			harvestBlood();
 			harvestGrass();
@@ -199,7 +196,7 @@ public class Animal {
 	
 	private boolean age() {
 		age++;
-		trueAge++;
+		score++;
 		
 		if (age > AGE_DEATH) {
 			die(Constants.Blood.DEATH_FROM_AGE_FACTOR);
@@ -277,8 +274,9 @@ public class Animal {
 				}
 				
 				// Determine whom to learn from
-				if ((eldestNearbyAnimal == -1 || pool[nearbyAnimalId].trueAge > pool[eldestNearbyAnimal].trueAge) 
-						&& pool[nearbyAnimalId].trueAge > this.trueAge) {
+				if ((eldestNearbyAnimal == -1 || pool[nearbyAnimalId].score > pool[eldestNearbyAnimal].score) 
+						&& pool[nearbyAnimalId].score > this.score*100
+						&& isFriendWith(nearbyAnimalId)) {
 					eldestNearbyAnimal = nearbyAnimalId;
 				}
 			}
@@ -287,10 +285,6 @@ public class Animal {
 		}
 		bestDir = (short) max(tileGoodness);
 		return true;
-	}
-	
-	private void learnFromRoleModel(int roleModelId) {
-		
 	}
 	
 	private boolean looksDangerous(int nearbyAnimalId) {
@@ -302,9 +296,13 @@ public class Animal {
 	}
 
 	private boolean isFertileWith(int nearbyAnimalId) {
-		return species.speciesId == pool[nearbyAnimalId].species.speciesId && isFertile() && pool[nearbyAnimalId].isFertile();
+		return isFriendWith(nearbyAnimalId) && isFertile() && pool[nearbyAnimalId].isFertile();
 	}
 
+	private boolean isFriendWith(int nearbyAnimalId) {
+		return species.speciesId == pool[nearbyAnimalId].species.speciesId;
+	}
+	
 	private boolean isFertile() {
 		return isFertile && !isHungry();
 	}
@@ -341,28 +339,25 @@ public class Animal {
 		pos = World.neighbour[to][pos];
 		Vision.updateAnimalZone(id);
 	}
-	private void interactWith(int id2) {
-		if (id2 != id) {
-			if (isFertileWith(id2)) {
-				resurrectAnimal(pos, BIRTH_HUNGER, pool[id].species, pool[id].neuralNetwork, pool[id2].species, pool[id2].neuralNetwork);
-				isFertile = false;
-				hunger -= BIRTH_HUNGER_COST;
-				sinceLastBaby = 0;
-				
-				pool[id2].isFertile = false;
-				pool[id2].hunger -= BIRTH_HUNGER_COST;
-				pool[id2].sinceLastBaby = 0;
-				
-				
-				// This will cause the mating animals to continue living, which is what we want in the end.
-				// A bit unconventional and forced.
-				age = 0;
-				pool[id2].age = 0;
-			}
-			else if (looksWeak(id2)) {
-				pool[id2].die(1f);
-			}
-		}
+	
+	private void mateWith(int id2) {
+		resurrectAnimal(pos, BIRTH_HUNGER, pool[id].species, pool[id].neuralNetwork, pool[id2].species, pool[id2].neuralNetwork);
+		isFertile = false;
+		hunger -= BIRTH_HUNGER_COST;
+		sinceLastBaby = 0;
+		
+		pool[id2].isFertile = false;
+		pool[id2].hunger -= BIRTH_HUNGER_COST;
+		pool[id2].sinceLastBaby = 0;
+		
+		
+		// This will cause the mating animals to continue living, which is what we want in the end.
+		// A bit unconventional and forced.
+		age = 0;
+		pool[id2].age = 0;
+	}
+	private void fightWith(int id2) {
+		pool[id2].die(1f);
 	}
 	private void moveRandom() {
 		pos = World.neighbour[Constants.RANDOM.nextInt(5)][pos];

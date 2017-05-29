@@ -93,13 +93,20 @@ public class World {
 
 	public static void updateColor(float[][] a, int pos) {
 		float grassness, dirtness;
-		float[] temp = new float[3]; //TODO remove new somehow.
+
+		a[pos][0] = 0f;
+		a[pos][1] = 0f;
+		a[pos][2] = 0f;
 
 		grassness = grass.height[pos];
-		a[pos][0] = grassness*grass.color[0];
-		a[pos][1] = grassness*grass.color[1];
-		a[pos][2] = grassness*grass.color[2];
+//		if (!grass.toBeUpdated[pos]) {
+//			a[pos][2] += 0.7f;
+//		}
+		a[pos][0] += grassness*grass.color[0];
+		a[pos][1] += grassness*grass.color[1];
+		a[pos][2] += grassness*grass.color[2];
 
+		float[] temp = new float[3]; //TODO remove new somehow.
 		terrain.getColor(pos, temp);
 		dirtness = 1 - grassness;
 		a[pos][0] += dirtness*temp[0];

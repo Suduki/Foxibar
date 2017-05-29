@@ -30,11 +30,11 @@ public class Main
 				fpsLimiter.waitForNextFrame();
 				
 				if (Animal.numAnimals > 500) {
-					while (Animal.numBloodlings < 10) {
+					while (Animal.numBloodlings < 15) {
 						spawnRandomAnimal(Constants.SpeciesId.BLOODLING);
 					}
 				}
-				while (Animal.numGrasslers < 20) {
+				while (Animal.numGrasslers < 5) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				

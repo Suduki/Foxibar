@@ -2,8 +2,6 @@ package constants;
 
 import java.util.Random;
 
-import agents.Animal;
-import agents.NeuralNetwork;
 import vision.Vision;
 
 public class Constants {
@@ -35,6 +33,7 @@ public class Constants {
 	public static boolean RENDER_HUNGER = true;
 	public static boolean RENDER_AGE = true;
 	public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = Vision.ZONE_HEIGHT;
+	public static final boolean LEARN_FROM_ELDERS = false;
 	
 	public static class Colors
 	{
@@ -64,7 +63,7 @@ public class Constants {
 		public static final float ADDITION_ON_DEATH = 1;
 		public static final float SPREAD = 0.0f * ADDITION_ON_DEATH;
 		public static final float DECAY_FACTOR = 0.99f;
-		public static final float DEATH_FROM_HUNGER_FACTOR = 0.0f;
+		public static final float DEATH_FROM_HUNGER_FACTOR = 0.5f;
 		public static final float DEATH_FROM_AGE_FACTOR = 0.5f;
 	}
 	public static class Species {
@@ -75,7 +74,7 @@ public class Constants {
 //				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
 		public static final agents.Species BLOODLING = new agents.Species(
 //				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
-				SpeciesId.BLOODLING, 0f, 0f, 0.02f, 100f, 1f, 1f);
+				SpeciesId.BLOODLING, 0f, 0f, 0.05f, 90f, 1f, 1f);
 	}
 	public static class SpeciesId {
 		public static final int BLOODLING = 1;

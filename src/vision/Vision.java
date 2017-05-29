@@ -9,7 +9,7 @@ public class Vision {
 	public static Zone[][] zoneGrid;
 	
 	public static final int ZONE_HEIGHT = 16;
-	public static final int ZONE_WIDTH  = 16;
+	public static final int ZONE_WIDTH  =16;
 	public static final int ZONES_X = Constants.WORLD_SIZE_X/ZONE_WIDTH;
 	public static final int ZONES_Y = Constants.WORLD_SIZE_Y/ZONE_HEIGHT;
 	
@@ -23,11 +23,6 @@ public class Vision {
 			}
 		}
 	}
-	
-//	public static void updateAnimalVision() {
-//		empty();
-//		fill();
-//	}
 	
 	public static void updateNearestNeighbours(int animalId) {
 		int pos = Animal.pool[animalId].pos;
@@ -67,10 +62,6 @@ public class Vision {
 								Animal.pool[animalId].nearbyAnimals[neighId] = tmpI;
 							}
 						}
-//						if (bestDistances[0] == -1 || d <= bestDistances[0]) {
-//							bestDistances[0] = d;
-//							Animal.pool[animalId].neighbours[0] = anI;
-//						}
 					}
 				}
 			}
@@ -104,14 +95,6 @@ public class Vision {
 				Math.min(yDirect, yThroughWall);
 	}
 	
-	private static void empty() {
-		for (int i = 0; i < ZONES_X; ++i) {
-			for (int j = 0; j < ZONES_Y; ++j) {
-				zoneGrid[i][j].animalsInZone.clear();
-			}
-		}
-	}
-	
 	private static int getXFromPos(int pos) {
 		return pos % Constants.WORLD_SIZE_X;
 	}
@@ -124,27 +107,6 @@ public class Vision {
 	}
 	private static int getZoneYFromPos(int pos) {
 		return pos / Constants.WORLD_SIZE_X / ZONE_HEIGHT;
-	}
-	
-	private static void fill() {
-		for (int i = 0; i < Animal.pool.length; ++i) {
-			if (Animal.pool[i].isAlive) {
-				int pos = Animal.pool[i].pos;
-				if (Constants.RENDER_VISION) {
-					int x = (pos % Constants.WORLD_SIZE_X) / ZONE_WIDTH;
-					int y = pos / Constants.WORLD_SIZE_X / ZONE_HEIGHT;
-//					zoneGrid[zone].animalsInZone.add(i);
-					int zoneX = getZoneXFromPos(pos);
-					int zoneY = getZoneYFromPos(pos);
-					zoneGrid[zoneX][zoneY].animalsInZone.add(i);
-				}
-				else {
-					int zoneX = getZoneXFromPos(pos);
-					int zoneY = getZoneYFromPos(pos);
-					zoneGrid[zoneX][zoneY].animalsInZone.add(i);
-				}
-			}
-		}
 	}
 	
 	public static void updateAnimalZone(int id) {
