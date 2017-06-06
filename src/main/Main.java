@@ -31,10 +31,10 @@ public class Main
 				
 				if (Animal.numAnimals > 500) {
 					while (Animal.numBloodlings < 15) {
-						spawnRandomAnimal(Constants.SpeciesId.BLOODLING);
+						spawnPseudoRandomAnimal(Constants.SpeciesId.BLOODLING);
 					}
 				}
-				while (Animal.numGrasslers < 5) {
+				while (Animal.numGrasslers < 15) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				
@@ -54,6 +54,31 @@ public class Main
 		}
 
 		System.out.println("Simulation (main) thread finished.");
+	}
+
+	private static void spawnPseudoRandomAnimal(int speciesId) {
+		int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
+		int posX = pos / Constants.WORLD_SIZE_X;
+		int posY = pos % Constants.WORLD_SIZE_X;
+		
+		posX /= 5;
+		posY /= 5;
+		
+		pos = (posX+Constants.WORLD_SIZE_X/2) + Constants.WORLD_SIZE_X * (posY+Constants.WORLD_SIZE_X/2);
+		
+		switch (speciesId) {
+		case Constants.SpeciesId.BLOODLING:
+			Animal.resurrectAnimal(pos, 
+					Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
+					null, 
+					Constants.Species.BLOODLING, null);
+			break;
+		case Constants.SpeciesId.GRASSLER:
+			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
+					Animal.BIRTH_HUNGER, Constants.Species.GRASSLER,  
+					null, Constants.Species.GRASSLER, null);
+			break;
+		}		
 	}
 
 	private static void spawnRandomAnimal(int speciesId) {

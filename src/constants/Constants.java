@@ -21,7 +21,7 @@ public class Constants {
 	public static final Random RANDOM = new Random(1);
 	public static final float TILES_PER_ANIMAL = 5;
 	public static final float GROWTH = Species.GRASSLER_SPEED / Species.GRASS_GAIN / TILES_PER_ANIMAL;
-	public static final int MAX_NUM_ANIMALS = 50000;
+	public static final int MAX_NUM_ANIMALS = 7000;
 	public static final float ZOOM_SPEED = 1.05f;
 	public static final int NUM_NEIGHBOURS = 10;
 	
@@ -33,7 +33,7 @@ public class Constants {
 	public static boolean RENDER_HUNGER = true;
 	public static boolean RENDER_AGE = true;
 	public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = Vision.ZONE_HEIGHT;
-	public static final boolean LEARN_FROM_ELDERS = false;
+	public static final boolean LEARN_FROM_ELDERS = true;
 	
 	public static class Colors
 	{

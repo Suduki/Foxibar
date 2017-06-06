@@ -1,11 +1,11 @@
 package agents;
 
+import com.sun.javafx.geom.Vec2f;
+
 import constants.Constants;
 
 public class NeuralNetwork {
-	public static final NeuralNetwork idiotNeural = new NeuralNetwork(true);
-	
-	private static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 5, 3, 1};
+	private static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 2, 1};
 	private static final int NUM_LAYERS = LAYER_SIZES.length;
 	private static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
@@ -60,19 +60,51 @@ public class NeuralNetwork {
 	
 	private double evaluateNeuralNetwork(final double[][] z, final float[][][] weights) {
 		reset();
-		for (int weight = 0; weight < NUM_WEIGHTS; ++weight) {
-			for (int i = 0; i < LAYER_SIZES[weight+1]; ++i) {
-				for (int j = 0; j < LAYER_SIZES[weight]; ++j) {
-					z[weight+1][i] += z[weight][j]*weights[weight][j][i];
+		for (int weightLayer = 0; weightLayer < NUM_WEIGHTS; ++weightLayer) {
+			for (int nodeNextLayer = 0; nodeNextLayer < LAYER_SIZES[weightLayer+1]; ++nodeNextLayer) {
+				for (int nodeCurrentLayer = 0; nodeCurrentLayer < LAYER_SIZES[weightLayer]; ++nodeCurrentLayer) {
+					z[weightLayer+1][nodeNextLayer] += 
+							(z[weightLayer][nodeCurrentLayer] * weights[weightLayer][nodeCurrentLayer][nodeNextLayer]);
 				}
-				z[weight+1][i] = sigmoid(z[weight+1][i]); 
+				z[weightLayer+1][nodeNextLayer] = sigmoid(z[weightLayer+1][nodeNextLayer]);
 			}
 		}
-		return z[z.length-1][z[z.length-1].length-1];
+		return z[NUM_LAYERS-1][0]; // Last layer only has 1 element.
 	}
 	
-	private void backPropagationLearning(double output, double facit) {
-		//TODO
+	private void backPropagationLearning(double prediction, double actual) {
+		double l2Error = actual - prediction;
+		
+		double l2Delta = l2Error * sigmoidPrime(prediction);
+		
+		int learningRate = 10; // Should be coupled to age differential or something similar.
+//		for (int weight = NUM_WEIGHTS - 1; weight >= 0; --weight) {
+		int  weight = NUM_WEIGHTS - 1;
+		double[] l1Error = new double[LAYER_SIZES[weight]];
+		for (int i = 0; i < LAYER_SIZES[weight]; ++i) {
+			// l1Error = l2Delta *dot* w1
+			l1Error[i] = l2Delta*weights[weight][i][0];
+
+			weights[weight][i][0] += learningRate*z[weight][i]*l2Delta;
+		}
+		
+		weight = NUM_WEIGHTS - 2;
+		for (int i = 0; i < LAYER_SIZES[weight]; ++i) {
+			for (int j = 0; j < LAYER_SIZES[weight + 1]; ++j) {
+				l1Error[i] = l2Delta*weights[weight][i][j];
+			}
+		}
+		
+//		}
+	}
+	
+	public static double dot(double[] a, double[] b) {
+		if (a.length != b.length) System.err.println("Bad sizes; a = " + a + ", b = " + b);
+		double val = 0;
+		for (int i = 0; i < a.length; ++i) {
+			val += a[i]*b[i];
+		}
+		return val;
 	}
 	
 
@@ -81,7 +113,10 @@ public class NeuralNetwork {
 		if (Constants.LEARN_FROM_ELDERS && toLearnFrom != -1) {
 			double roleModelGoodness = evaluateNeuralNetwork(this.z, Animal.pool[toLearnFrom].neuralNetwork.weights);
 			backPropagationLearning(myGoodness, roleModelGoodness);
-			return roleModelGoodness;
+			System.out.print("old: " + Math.abs(myGoodness - roleModelGoodness));
+			myGoodness = evaluateNeuralNetwork(this.z, this.weights);
+			System.out.println("new: " + Math.abs(myGoodness - roleModelGoodness));
+			return myGoodness;
 		}
 		
 		return myGoodness;
@@ -95,12 +130,6 @@ public class NeuralNetwork {
 		double expo = Math.exp(-f);
 		return expo/((1d+expo)*(1d+expo));
 	}
-	
-//	private double costFunctionPrime(double X, double y, double yHat) {
-//		
-//		double[] delta3 
-//		return 0;
-//	}
 	
 	public void copy(NeuralNetwork d) {
 		for (int weight = 0; weight < NUM_WEIGHTS; ++weight) {
@@ -128,6 +157,5 @@ public class NeuralNetwork {
 			}
 		}
 	}
-	
 	
 }
