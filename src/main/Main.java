@@ -7,6 +7,7 @@ import agents.Animal;
 import agents.NeuralNetwork;
 import agents.NeuralFactors;
 import constants.Constants;
+import constants.RenderState;
 import display.DisplayHandler;
 import simulation.Simulation;
 import utils.FPSLimiter;
@@ -19,6 +20,7 @@ public class Main
 		Simulation     simulation     = new Simulation();
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
+		RenderState.activateState(RenderState.RENDER_WORLD_FOLLOW_OLDEST_LIMIT_VISION);
 
 		try
 		{
@@ -29,8 +31,8 @@ public class Main
 				simulation.step();
 				fpsLimiter.waitForNextFrame();
 				
-				if (Animal.numAnimals > 500) {
-					while (Animal.numBloodlings < 15) {
+				if (Animal.numAnimals > Constants.WORLD_SIZE/Constants.TILES_PER_ANIMAL/2) {
+					while (Animal.numBloodlings < 8) {
 						spawnPseudoRandomAnimal(Constants.SpeciesId.BLOODLING);
 					}
 				}

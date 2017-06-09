@@ -1,6 +1,7 @@
 package messages;
 
 import constants.Constants;
+import constants.RenderState;
 import display.DisplayHandler;
 
 public class ToggleRenderAnimals extends Message {
@@ -13,7 +14,7 @@ public class ToggleRenderAnimals extends Message {
 	@Override
 	public void evaluate(DisplayHandler pDisplayHandler)
 	{
-		Constants.RENDER_ANIMALS = !Constants.RENDER_ANIMALS;
+		RenderState.stepState();
 	}
 
 }

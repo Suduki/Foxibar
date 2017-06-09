@@ -26,6 +26,7 @@ public class Animal {
 	
 	public boolean isAlive;
 	public float hunger;
+	public float health;
 	public int[] nearbyAnimals;
 	public int[] nearbyAnimalsDistance;
 	
@@ -119,6 +120,7 @@ public class Animal {
 		pool[id].sinceLastBaby = 0;
 		pool[id].recover = 0f;
 		pool[id].hunger = hunger;
+		pool[id].health = 1f;
 		
 		numAnimals++;
 		switch (pool[id].species.speciesId) {
@@ -198,6 +200,16 @@ public class Animal {
 		age++;
 		score++;
 		
+		if (score > Constants.BEST_SCORE) {
+			if (Constants.BEST_ID == id) {
+				color[0] = 0.5f;
+				color[1] = 0.5f;
+				color[2] = 0.5f;
+			}
+			Constants.BEST_SCORE = score;
+			Constants.BEST_ID = id;
+		}
+		
 		if (age > AGE_DEATH) {
 			die(Constants.Blood.DEATH_FROM_AGE_FACTOR);
 			return false;
@@ -206,6 +218,16 @@ public class Animal {
 		if (hunger < 0) {
 			die(Constants.Blood.DEATH_FROM_HUNGER_FACTOR);
 			return false;
+		}
+		if (health < 0) {
+			die(Constants.Blood.DEATH_FROM_LOW_HEALTH);
+			return false;
+		}
+		if (health < 1f) {
+			health = health + species.healing;
+			if (health > 1f) {
+				health = 1f;
+			}
 		}
 		
 		return true;
@@ -265,6 +287,7 @@ public class Animal {
 				}
 				if (!looksDangerous(nearbyAnimalId)) {
 					neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] = Math.max(distanceFactor, neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS]);
+//					neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] += distanceFactor / Constants.NUM_NEIGHBOURS;
 				}
 				if (isFertileWith(nearbyAnimalId)) {
 					neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY] = Math.max(distanceFactor, neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY]);
@@ -336,8 +359,10 @@ public class Animal {
 		oldPos = pos;
 		oldX = pos / Constants.WORLD_SIZE_X;
 		oldY = pos % Constants.WORLD_SIZE_X;
-		pos = World.neighbour[to][pos];
-		Vision.updateAnimalZone(id);
+		if (containsAnimals[World.neighbour[to][pos]] == -1) {
+			pos = World.neighbour[to][pos];
+			Vision.updateAnimalZone(id);
+		}
 	}
 	
 	private void mateWith(int id2) {
@@ -357,16 +382,14 @@ public class Animal {
 		pool[id2].age = 0;
 	}
 	private void fightWith(int id2) {
-		pool[id2].die(1f);
+		health -= pool[id2].species.fight;
+		pool[id2].health -= species.fight;
 	}
 	private void moveRandom() {
 		pos = World.neighbour[Constants.RANDOM.nextInt(5)][pos];
 	}
 	
 	private void die(float bloodFactor) {
-		if (!this.isAlive) {
-			System.err.println("Trying to kill what is already dead.");
-		}
 		numAnimals--;
 		switch (species.speciesId) {
 		case Constants.SpeciesId.BLOODLING:
@@ -384,6 +407,11 @@ public class Animal {
 		isAlive = false;
 		alive.remove(alive.indexOf(id));
 		dead.add(id);
+		
+		if (Constants.BEST_ID == id) {
+			Constants.BEST_ID = -1;
+			Constants.BEST_SCORE = 0;
+		}
 		
 		pos = -1;
 		oldPos = -1;

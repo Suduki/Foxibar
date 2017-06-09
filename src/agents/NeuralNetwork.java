@@ -5,13 +5,13 @@ import com.sun.javafx.geom.Vec2f;
 import constants.Constants;
 
 public class NeuralNetwork {
-	private static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 2, 1};
+	private static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 3, 1};
 	private static final int NUM_LAYERS = LAYER_SIZES.length;
 	private static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
 	private float[][][] weights;
 	double[][] z;
-	
+
 	public NeuralNetwork(boolean initZero) {
 		weights = new float[NUM_WEIGHTS][][];
 		z = new double[NUM_LAYERS][];
@@ -88,12 +88,12 @@ public class NeuralNetwork {
 			weights[weight][i][0] += learningRate*z[weight][i]*l2Delta;
 		}
 		
-		weight = NUM_WEIGHTS - 2;
-		for (int i = 0; i < LAYER_SIZES[weight]; ++i) {
-			for (int j = 0; j < LAYER_SIZES[weight + 1]; ++j) {
-				l1Error[i] = l2Delta*weights[weight][i][j];
-			}
-		}
+//		weight = NUM_WEIGHTS - 2;
+//		for (int i = 0; i < LAYER_SIZES[weight]; ++i) {
+//			for (int j = 0; j < LAYER_SIZES[weight + 1]; ++j) {
+//				l1Error[i] = l2Delta*weights[weight][i][j];
+//			}
+//		}
 		
 //		}
 	}
@@ -113,9 +113,7 @@ public class NeuralNetwork {
 		if (Constants.LEARN_FROM_ELDERS && toLearnFrom != -1) {
 			double roleModelGoodness = evaluateNeuralNetwork(this.z, Animal.pool[toLearnFrom].neuralNetwork.weights);
 			backPropagationLearning(myGoodness, roleModelGoodness);
-			System.out.print("old: " + Math.abs(myGoodness - roleModelGoodness));
 			myGoodness = evaluateNeuralNetwork(this.z, this.weights);
-			System.out.println("new: " + Math.abs(myGoodness - roleModelGoodness));
 			return myGoodness;
 		}
 		

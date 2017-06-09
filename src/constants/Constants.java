@@ -19,19 +19,15 @@ public class Constants {
 	public static final float PIXELS_PER_NODE_X = ((float)PIXELS_X)/WORLD_SIZE_X;
 	public static final float PIXELS_PER_NODE_Y = ((float)PIXELS_Y)/WORLD_SIZE_Y;
 	public static final Random RANDOM = new Random(1);
-	public static final float TILES_PER_ANIMAL = 5;
+	public static final float TILES_PER_ANIMAL = 30;
 	public static final float GROWTH = Species.GRASSLER_SPEED / Species.GRASS_GAIN / TILES_PER_ANIMAL;
-	public static final int MAX_NUM_ANIMALS = 7000;
+	public static final int MAX_NUM_ANIMALS = 10000;
 	public static final float ZOOM_SPEED = 1.05f;
 	public static final int NUM_NEIGHBOURS = 10;
 	
-	public static boolean RENDER_TERRAIN = true;
-	public static boolean RENDER_ANIMALS = true;
-	public static boolean RENDER_BLOOD = true;
-	public static boolean RENDER_VISION = false;
-	public static boolean RENDER_DIRT = false;
-	public static boolean RENDER_HUNGER = true;
-	public static boolean RENDER_AGE = true;
+	public static int BEST_SCORE = 0;
+	public static int BEST_ID = -1;
+	
 	public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = Vision.ZONE_HEIGHT;
 	public static final boolean LEARN_FROM_ELDERS = true;
 	
@@ -63,18 +59,22 @@ public class Constants {
 		public static final float ADDITION_ON_DEATH = 1;
 		public static final float SPREAD = 0.0f * ADDITION_ON_DEATH;
 		public static final float DECAY_FACTOR = 0.99f;
-		public static final float DEATH_FROM_HUNGER_FACTOR = 0.5f;
-		public static final float DEATH_FROM_AGE_FACTOR = 0.5f;
+		public static final float DEATH_FROM_HUNGER_FACTOR = 0.0f;
+		public static final float DEATH_FROM_AGE_FACTOR = 0.0f;
+		public static final float DEATH_FROM_LOW_HEALTH = 1f;
 	}
 	public static class Species {
 		public static final float GRASSLER_SPEED = 0.9f;
+		
 		public static final float GRASS_GAIN = 20f;
+		public static final float BLOOD_GAIN = 300f;
+		
 		public static final agents.Species GRASSLER = new agents.Species(
-				SpeciesId.GRASSLER, 0.3f, GRASS_GAIN, 0f, 0f, GRASSLER_SPEED, 0f);
+				SpeciesId.GRASSLER, 0.3f, GRASS_GAIN, 0f, 0f, GRASSLER_SPEED, 0.1f, 0.01f);
 //				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
 		public static final agents.Species BLOODLING = new agents.Species(
 //				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
-				SpeciesId.BLOODLING, 0f, 0f, 0.05f, 90f, 1f, 1f);
+				SpeciesId.BLOODLING, 0f, 0f, 0.05f, BLOOD_GAIN, 1f, 1f, 0.1f);
 	}
 	public static class SpeciesId {
 		public static final int BLOODLING = 1;

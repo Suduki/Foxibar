@@ -2,6 +2,7 @@ package world;
 
 import noise.Noise;
 import constants.Constants;
+import constants.RenderState;
 
 public class Terrain {
 	public float[] height;
@@ -11,7 +12,7 @@ public class Terrain {
 	}
 	
 	public float[] getColor(int i, float[] color) {
-		if (Constants.RENDER_DIRT){
+		if (RenderState.RENDER_DIRT){
 			color[0] = Constants.Colors.DIRT[0]*height[i] + Constants.Colors.SAND[0]*(1-height[i]);
 			color[1] = Constants.Colors.DIRT[1]*height[i] + Constants.Colors.SAND[1]*(1-height[i]);
 			color[2] = Constants.Colors.DIRT[2]*height[i] + Constants.Colors.SAND[2]*(1-height[i]);

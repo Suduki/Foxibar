@@ -1,7 +1,7 @@
 package buttons;
 
 
-import constants.Constants;
+import constants.RenderState;
 import math.Vector2f;
 
 public class RenderVision extends Button {
@@ -12,7 +12,7 @@ public class RenderVision extends Button {
 
 	//@Override
 	public void onClick() {
-		Constants.RENDER_TERRAIN = !Constants.RENDER_TERRAIN;
+		RenderState.RENDER_TERRAIN = !RenderState.RENDER_TERRAIN;
 	}
 
 }

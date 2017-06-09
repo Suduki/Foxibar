@@ -13,10 +13,12 @@ public class Species {
 
 	float speed;
 	float fight;
+
+	float healing;
 	
 	public Species(int speciesId, float grassHarvest, float grassDigestion,
 			float bloodHarvest, float bloodDigestion, float speed,
-			float fight) {
+			float fight, float healing) {
 		this.speciesId = speciesId;
 		this.grassHarvest = grassHarvest;
 		this.grassDigestion = grassDigestion;
@@ -24,6 +26,7 @@ public class Species {
 		this.bloodHarvest = bloodHarvest;
 		this.speed = speed;
 		this.fight = fight;
+		this.healing = healing;
 
 	}
 	
@@ -42,5 +45,7 @@ public class Species {
 		
 		this.speed = (mom.speed + dad.speed)/2 + evolution*(Constants.RANDOM.nextFloat()-0.5f);
 		this.fight = (mom.fight + dad.fight)/2;
+		
+		this.healing = (mom.healing + dad.healing)/2;
 	}
 }
