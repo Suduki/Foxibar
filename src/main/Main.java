@@ -36,7 +36,7 @@ public class Main
 						spawnPseudoRandomAnimal(Constants.SpeciesId.BLOODLING);
 					}
 				}
-				while (Animal.numGrasslers < 15) {
+				while (Animal.numAnimals < 15) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				
@@ -63,8 +63,8 @@ public class Main
 		int posX = pos / Constants.WORLD_SIZE_X;
 		int posY = pos % Constants.WORLD_SIZE_X;
 		
-		posX /= 5;
-		posY /= 5;
+		posX /= Constants.WORLD_MULTIPLIER;
+		posY /= Constants.WORLD_MULTIPLIER;
 		
 		pos = (posX+Constants.WORLD_SIZE_X/2) + Constants.WORLD_SIZE_X * (posY+Constants.WORLD_SIZE_X/2);
 		

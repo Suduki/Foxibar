@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import vision.Vision;
 import world.World;
 import constants.Constants;
+import constants.RenderState;
 
 public class Animal {
 	
@@ -18,7 +19,8 @@ public class Animal {
 	private int sinceLastBaby = 0;
 	private Integer id;
 	public float size = 3f;
-	public float[] color;
+	public float[] secondaryColor;
+	public float[] mainColor;
 	public int pos;
 	public int oldPos;
 	public int oldX;
@@ -125,16 +127,17 @@ public class Animal {
 		numAnimals++;
 		switch (pool[id].species.speciesId) {
 			case Constants.SpeciesId.BLOODLING:
-				pool[id].color[0] = 1;
-				pool[id].color[1] = 0;
-				pool[id].color[2] = 0;
+				pool[id].secondaryColor[0] = 1;
+				pool[id].secondaryColor[1] = 0;
+				pool[id].secondaryColor[2] = 0;
+				
 				pool[id].size = 2;
 				numBloodlings++;
 				break;
 			case Constants.SpeciesId.GRASSLER:
-				pool[id].color[0] = 1;
-				pool[id].color[1] = 1;
-				pool[id].color[2] = 1;
+				pool[id].secondaryColor[0] = 1;
+				pool[id].secondaryColor[1] = 1;
+				pool[id].secondaryColor[2] = 1;
 				pool[id].size = 1;
 				numGrasslers++;
 				break;
@@ -158,7 +161,12 @@ public class Animal {
 // ************ INSTANCE STUFF ************
 	private Animal() {
 		this.isAlive = false;
-		this.color = new float[3];
+		this.secondaryColor = new float[3];
+		this.mainColor = new float[3];
+		this.mainColor[0] = Constants.RANDOM.nextFloat();
+		this.mainColor[1] = Constants.RANDOM.nextFloat();
+		this.mainColor[2] = Constants.RANDOM.nextFloat();
+		
 		this.nearbyAnimals = new int[Constants.NUM_NEIGHBOURS];
 		this.nearbyAnimalsDistance = new int[Constants.NUM_NEIGHBOURS];
 		this.neuralNetwork = new NeuralNetwork(false);
@@ -200,14 +208,12 @@ public class Animal {
 		age++;
 		score++;
 		
-		if (score > Constants.BEST_SCORE) {
-			if (Constants.BEST_ID == id) {
-				color[0] = 0.5f;
-				color[1] = 0.5f;
-				color[2] = 0.5f;
+		if ((this.species.speciesId == Constants.SpeciesId.BLOODLING && RenderState.FOLLOW_BLOODLING) ||
+				(this.species.speciesId == Constants.SpeciesId.GRASSLER && RenderState.FOLLOW_GRASSLER)) {
+			if (score > Constants.BEST_SCORE) {
+				Constants.BEST_ID = id;
+				Constants.BEST_SCORE = score;
 			}
-			Constants.BEST_SCORE = score;
-			Constants.BEST_ID = id;
 		}
 		
 		if (age > AGE_DEATH) {
@@ -298,7 +304,7 @@ public class Animal {
 				
 				// Determine whom to learn from
 				if ((eldestNearbyAnimal == -1 || pool[nearbyAnimalId].score > pool[eldestNearbyAnimal].score) 
-						&& pool[nearbyAnimalId].score > this.score*100
+						&& pool[nearbyAnimalId].score > this.score*10000
 						&& isFriendWith(nearbyAnimalId)) {
 					eldestNearbyAnimal = nearbyAnimalId;
 				}

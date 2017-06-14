@@ -12,9 +12,9 @@ public class Blood {
 	}
 	
 	public void append(int pos, float factor) {
-		height[pos] = factor*Constants.Blood.ADDITION_ON_DEATH;
+		height[pos] += factor*Constants.Blood.ADDITION_ON_DEATH;
 		for (short dir = 0; dir < 4; ++dir) {
-			height[World.neighbour[dir][pos]] += factor*Constants.Blood.SPREAD;
+			height[World.neighbour[dir][pos]] += factor*Constants.Blood.SPLASH*Constants.Blood.ADDITION_ON_DEATH;
 			if (height[World.neighbour[dir][pos]] > 1f) {
 				height[World.neighbour[dir][pos]] = 1f;
 			}

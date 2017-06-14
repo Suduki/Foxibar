@@ -429,7 +429,7 @@ public class DisplayHandler extends MessageHandler
 								if (Animal.pool[id].species.speciesId == Constants.SpeciesId.BLOODLING) {
 
 									glBegin(GL_LINES);
-									glColor3f(Animal.pool[id].color[0], Animal.pool[id].color[1], Animal.pool[id].color[2]);
+									glColor3f(Animal.pool[id].secondaryColor[0], Animal.pool[id].secondaryColor[1], Animal.pool[id].secondaryColor[2]);
 									glVertex2f(y, x);
 									glVertex2f(y2, x2);
 									glEnd();
@@ -497,24 +497,24 @@ public class DisplayHandler extends MessageHandler
 						float ageFactor = 1f - ((float)Animal.pool[id].age)/(Animal.AGE_DEATH);
 						float hungerFactor = Animal.pool[id].hunger/(Animal.HUNGRY_HUNGER*2);
 						if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
-							renderTwoPartsOfAnimal(Constants.Colors.DARK_BLUE, Animal.pool[id].color, 
+							renderTwoPartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].mainColor, 
 									ageFactor, hungerFactor, 
 									Animal.pool[id].size*pixelsPerNodeX, 
 									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 						}
 						else if (RenderState.RENDER_AGE) {
-							renderPartOfAnimal(Constants.Colors.DARK_BLUE, Animal.pool[id].color, ageFactor, 
+							renderPartOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].mainColor, ageFactor, 
 									Animal.pool[id].size*pixelsPerNodeX, 
 									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 							
 						}
 						else if (RenderState.RENDER_HUNGER) {
-							renderPartOfAnimal(Constants.Colors.DARK_BLUE, Animal.pool[id].color, hungerFactor, 
+							renderPartOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].mainColor, hungerFactor, 
 									Animal.pool[id].size*pixelsPerNodeX, 
 									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 						}
 						else {
-							renderTriangle(Animal.pool[id].color, Animal.pool[id].size*pixelsPerNodeX, 
+							renderTriangle(Animal.pool[id].mainColor, Animal.pool[id].size*pixelsPerNodeX, 
 									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 						}
 
@@ -525,21 +525,14 @@ public class DisplayHandler extends MessageHandler
 			glEnd();
 		}
 		
-		private void renderAllAnimals2() {
-			width = Math.round(zoomFactor*Constants.WORLD_SIZE_X);
-			height = Math.round(zoomFactor*Constants.WORLD_SIZE_Y);
-			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
-			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
-
-			glBegin(GL_TRIANGLES);
-		}
-		
-
 		private boolean shouldThisAnimalBePrinted(int id) {
 			if (!RenderState.LIMIT_VISION) {
 				return true;
 			}
 			else {
+				if (Constants.BEST_ID == -1) {
+					return true;
+				}
 				for (int nearby : Animal.pool[Constants.BEST_ID].nearbyAnimals) {
 					if (nearby == id || id == Constants.BEST_ID) {
 						return true;
@@ -590,10 +583,11 @@ public class DisplayHandler extends MessageHandler
 				factorRight = 1f;
 			}
 			
-			renderLeftTriangle(colorAnimal, sizeX*factorLeft, 
-					sizeY*factorLeft, screenPositionX, screenPositionY);
-			renderRightTriangle(colorAnimal, sizeX*factorRight, 
-					sizeY*factorRight, screenPositionX, screenPositionY);
+			float scale = 0.5f;
+			renderLeftTriangle(colorAnimal, sizeX*factorLeft*scale, 
+					sizeY*factorLeft*scale, screenPositionX, screenPositionY - sizeY*scale/2);
+			renderRightTriangle(colorAnimal, sizeX*factorRight*scale, 
+					sizeY*factorRight*scale, screenPositionX, screenPositionY - sizeY*scale/2);
 		}
 		private void renderLeftTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
 			glColor3f(color[0], color[1], color[2]);
@@ -623,7 +617,7 @@ public class DisplayHandler extends MessageHandler
 			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
 
 			glBegin(GL_QUADS);
-			int i = yOffset + Constants.WORLD_SIZE_X * xOffset; 
+			int i = (yOffset + Constants.WORLD_SIZE_X * xOffset) % Constants.WORLD_SIZE; 
 			int j = i;
 			for (int x = 0; x < width; ++x, j = World.south[j])
 			{
@@ -647,7 +641,8 @@ public class DisplayHandler extends MessageHandler
 		private int getXOffset() {
 			int xOffset;
 			if (RenderState.PAN_OLD_MAN && Constants.BEST_ID != -1) {
-				xOffset = (Animal.pool[Constants.BEST_ID].oldX + Constants.WORLD_SIZE_X/2) % Constants.WORLD_SIZE_X;
+				xOffset = (int) (Animal.pool[Constants.BEST_ID].oldX + (2 - zoomFactor)*Constants.WORLD_SIZE_X/2);
+				xOffset =  xOffset % Constants.WORLD_SIZE_X;
 			}
 			else {
 				xOffset = (int) (x0 * Constants.WORLD_SIZE_X);
@@ -657,12 +652,12 @@ public class DisplayHandler extends MessageHandler
 			return xOffset;
 		}
 		private int getYOffset() {
-			int yOffset;
+			int yOffset = (int)(y0 * Constants.WORLD_SIZE_Y);
 			if (RenderState.PAN_OLD_MAN && Constants.BEST_ID != -1) {
-				yOffset = (Animal.pool[Constants.BEST_ID].oldY + Constants.WORLD_SIZE_Y/2) % Constants.WORLD_SIZE_Y;
+				yOffset = (int) (Animal.pool[Constants.BEST_ID].oldY + (2 - zoomFactor)*Constants.WORLD_SIZE_Y/2);
+				yOffset = yOffset % Constants.WORLD_SIZE_Y;
 			}
 			else {
-				yOffset = (int)(y0 * Constants.WORLD_SIZE_Y);
 				for (;yOffset < 0; yOffset+=Constants.WORLD_SIZE_Y);
 				for (;yOffset >= Constants.WORLD_SIZE_Y; yOffset-=Constants.WORLD_SIZE_Y);
 			}
