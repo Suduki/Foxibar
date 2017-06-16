@@ -5,7 +5,7 @@ import com.sun.javafx.geom.Vec2f;
 import constants.Constants;
 
 public class NeuralNetwork {
-	private static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 5, 2, 1};
+	private static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 8, 4, 1};
 	private static final int NUM_LAYERS = LAYER_SIZES.length;
 	private static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
@@ -144,12 +144,12 @@ public class NeuralNetwork {
 		for (int weight = 0; weight < NUM_WEIGHTS; ++weight) {
 			for (int i = 0; i < weights[weight].length; ++i) {
 				for (int j = 0; j < weights[weight][i].length; ++j) {
-					if (Constants.RANDOM.nextBoolean()) {
-						weights[weight][i][j] = neuralDad.weights[weight][i][j];
-					}
-					else {
+//					if (Constants.RANDOM.nextBoolean()) {
+//						weights[weight][i][j] = neuralDad.weights[weight][i][j];
+//					}
+//					else {
 						weights[weight][i][j] = neuralMom.weights[weight][i][j];
-					}
+//					}
 					weights[weight][i][j] += evolution * (1f - 2*Constants.RANDOM.nextFloat());
 				}
 			}

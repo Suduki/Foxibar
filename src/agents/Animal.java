@@ -51,6 +51,7 @@ public class Animal {
 	public static int numBloodlings = 0;
 	public static int[] containsAnimals;
 	public static boolean killAll = false;
+	public static boolean saveBrains = false;
 	
 	public static void moveAll() {
 		if (killAll) {
@@ -62,6 +63,10 @@ public class Animal {
 			System.out.println("Num grasslers alive after killing them all: " + numGrasslers);
 			numAnimals = 0;
 			killAll = false;
+		}
+		if (saveBrains) {
+			System.out.println("Save brains");
+			saveBrains = false;
 		}
 		for (Animal a : pool) {
 			if (a.isAlive) {
@@ -122,7 +127,7 @@ public class Animal {
 		pool[id].sinceLastBaby = 0;
 		pool[id].recover = 0f;
 		pool[id].hunger = hunger;
-		pool[id].health = 1f;
+		pool[id].health = 0.1f;
 		
 		numAnimals++;
 		switch (pool[id].species.speciesId) {
@@ -208,11 +213,16 @@ public class Animal {
 		age++;
 		score++;
 		
-		if ((this.species.speciesId == Constants.SpeciesId.BLOODLING && RenderState.FOLLOW_BLOODLING) ||
-				(this.species.speciesId == Constants.SpeciesId.GRASSLER && RenderState.FOLLOW_GRASSLER)) {
-			if (score > Constants.BEST_SCORE) {
-				Constants.BEST_ID = id;
-				Constants.BEST_SCORE = score;
+		if (this.species.speciesId == Constants.SpeciesId.GRASSLER) {
+			if (score > Constants.SpeciesId.BEST_GRASSLER_SCORE) {
+				Constants.SpeciesId.BEST_GRASSLER_ID = id;
+				Constants.SpeciesId.BEST_GRASSLER_SCORE = score;
+			}
+		}
+		if (this.species.speciesId == Constants.SpeciesId.BLOODLING) {
+			if (score > Constants.SpeciesId.BEST_BLOODLING_SCORE) {
+				Constants.SpeciesId.BEST_BLOODLING_ID = id;
+				Constants.SpeciesId.BEST_BLOODLING_SCORE = score;
 			}
 		}
 		
@@ -414,9 +424,13 @@ public class Animal {
 		alive.remove(alive.indexOf(id));
 		dead.add(id);
 		
-		if (Constants.BEST_ID == id) {
-			Constants.BEST_ID = -1;
-			Constants.BEST_SCORE = 0;
+		if (Constants.SpeciesId.BEST_BLOODLING_ID == id) {
+			Constants.SpeciesId.BEST_BLOODLING_ID = -1;
+			Constants.SpeciesId.BEST_BLOODLING_SCORE = 0;
+		}
+		if (Constants.SpeciesId.BEST_GRASSLER_ID == id) {
+			Constants.SpeciesId.BEST_GRASSLER_ID = -1;
+			Constants.SpeciesId.BEST_GRASSLER_SCORE = 0;
 		}
 		
 		pos = -1;

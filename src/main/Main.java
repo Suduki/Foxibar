@@ -20,7 +20,7 @@ public class Main
 		Simulation     simulation     = new Simulation();
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
-		RenderState.activateState(RenderState.RENDER_WORLD_FOLLOW_OLDEST_LIMIT_VISION);
+		RenderState.activateState(RenderState.RENDER_WORLD_STILL);
 
 		try
 		{

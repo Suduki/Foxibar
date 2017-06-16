@@ -496,7 +496,20 @@ public class DisplayHandler extends MessageHandler
 //						}
 						float ageFactor = 1f - ((float)Animal.pool[id].age)/(Animal.AGE_DEATH);
 						float hungerFactor = Animal.pool[id].hunger/(Animal.HUNGRY_HUNGER*2);
-						if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
+						float healthFactor = Animal.pool[id].health;
+						if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
+//							if (Constants.BEST_ID == id) {
+								renderThreePartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].mainColor, 
+										ageFactor, healthFactor, hungerFactor, 
+										Animal.pool[id].size*pixelsPerNodeX, 
+										Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+//							}
+//							else {
+//								renderTriangle(Animal.pool[id].secondaryColor, Animal.pool[id].size*pixelsPerNodeX, 
+//										Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+//							}
+						}
+						else if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
 							renderTwoPartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].mainColor, 
 									ageFactor, hungerFactor, 
 									Animal.pool[id].size*pixelsPerNodeX, 
@@ -525,17 +538,30 @@ public class DisplayHandler extends MessageHandler
 			glEnd();
 		}
 		
+
 		private boolean shouldThisAnimalBePrinted(int id) {
 			if (!RenderState.LIMIT_VISION) {
 				return true;
 			}
 			else {
-				if (Constants.BEST_ID == -1) {
-					return true;
-				}
-				for (int nearby : Animal.pool[Constants.BEST_ID].nearbyAnimals) {
-					if (nearby == id || id == Constants.BEST_ID) {
+				if (RenderState.FOLLOW_BLOODLING) {
+					if (Constants.SpeciesId.BEST_BLOODLING_ID == -1) {
 						return true;
+					}
+					for (int nearby : Animal.pool[Constants.SpeciesId.BEST_BLOODLING_ID].nearbyAnimals) {
+						if (nearby == id || id == Constants.SpeciesId.BEST_BLOODLING_ID) {
+							return true;
+						}
+					}
+				}
+				else if (RenderState.FOLLOW_GRASSLER) {
+					if (Constants.SpeciesId.BEST_GRASSLER_ID == -1) {
+						return true;
+					}
+					for (int nearby : Animal.pool[Constants.SpeciesId.BEST_GRASSLER_ID].nearbyAnimals) {
+						if (nearby == id || id == Constants.SpeciesId.BEST_GRASSLER_ID) {
+							return true;
+						}
 					}
 				}
 			}
@@ -568,6 +594,38 @@ public class DisplayHandler extends MessageHandler
 			
 		}
 		
+		private void renderThreePartsOfAnimal(float[] colorBackground, float[] colorAnimal,
+				float factorLeft, float factorTop, float factorRight, float sizeX, float sizeY,
+				float screenPositionX, float screenPositionY) {
+
+			renderOuterTriangle(colorBackground, sizeX, 
+					sizeY, screenPositionX, screenPositionY);
+			
+			if (factorLeft > 1f) {
+				factorLeft = 1f;
+			}
+			if (factorTop > 1f) {
+				factorTop = 1f;
+			}
+			if (factorRight > 1f) {
+				factorRight = 1f;
+			}
+			
+			float scale = 0.7f;
+			renderLeftTriangle(colorAnimal, sizeX*factorLeft*scale, 
+					sizeY*factorLeft*scale, screenPositionX, screenPositionY);
+			renderRightTriangle(colorAnimal, sizeX*factorRight*scale, 
+					sizeY*factorRight*scale, screenPositionX, screenPositionY);
+			renderTopBar(colorAnimal, sizeX, sizeY, screenPositionX, screenPositionY, scale*sizeY, factorTop);
+		}
+		private void renderTopBar(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY, float height, float factor) {
+			glColor3f(color[0], color[1], color[2]);
+
+			glVertex2f(screenPositionX, screenPositionY - height);
+			glVertex2f(screenPositionX + sizeX * (2*factor - 1f), screenPositionY - sizeY);
+			glVertex2f(screenPositionX - sizeX, screenPositionY - sizeY);
+		}
+
 		private void renderTwoPartsOfAnimal(float[] colorBackground, float[] colorAnimal,
 				float factorLeft, float factorRight, float sizeX, float sizeY,
 				float screenPositionX, float screenPositionY) {
@@ -583,20 +641,19 @@ public class DisplayHandler extends MessageHandler
 				factorRight = 1f;
 			}
 			
-			float scale = 0.5f;
-			renderLeftTriangle(colorAnimal, sizeX*factorLeft*scale, 
-					sizeY*factorLeft*scale, screenPositionX, screenPositionY - sizeY*scale/2);
-			renderRightTriangle(colorAnimal, sizeX*factorRight*scale, 
-					sizeY*factorRight*scale, screenPositionX, screenPositionY - sizeY*scale/2);
+			renderLeftTriangle(colorAnimal, sizeX*factorLeft, 
+					sizeY*factorLeft, screenPositionX, screenPositionY);
+			renderRightTriangle(colorAnimal, sizeX*factorRight, 
+					sizeY*factorRight, screenPositionX, screenPositionY);
 		}
-		private void renderLeftTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
+		private void renderRightTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
 			glColor3f(color[0], color[1], color[2]);
 
 			glVertex2f(screenPositionX, screenPositionY);
 			glVertex2f(screenPositionX + sizeX, screenPositionY - sizeY);
 			glVertex2f(screenPositionX, screenPositionY - sizeY);
 		}
-		private void renderRightTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
+		private void renderLeftTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
 			glColor3f(color[0], color[1], color[2]);
 
 			glVertex2f(screenPositionX, screenPositionY);
@@ -639,9 +696,16 @@ public class DisplayHandler extends MessageHandler
 		}
 		
 		private int getXOffset() {
-			int xOffset;
-			if (RenderState.PAN_OLD_MAN && Constants.BEST_ID != -1) {
-				xOffset = (int) (Animal.pool[Constants.BEST_ID].oldX + (2 - zoomFactor)*Constants.WORLD_SIZE_X/2);
+			int xOffset = 0;
+			int bestId = -1;
+			if (RenderState.FOLLOW_BLOODLING && Constants.SpeciesId.BEST_BLOODLING_ID != -1) {
+				bestId = Constants.SpeciesId.BEST_BLOODLING_ID;
+				xOffset = (int) (Animal.pool[bestId].oldX + (2f - zoomFactor)*Constants.WORLD_SIZE_X/2);
+				xOffset =  xOffset % Constants.WORLD_SIZE_X;
+			}
+			else if (RenderState.FOLLOW_GRASSLER && Constants.SpeciesId.BEST_GRASSLER_ID != -1) {
+				bestId = Constants.SpeciesId.BEST_GRASSLER_ID;
+				xOffset = (int) (Animal.pool[bestId].oldX + (2f - zoomFactor)*Constants.WORLD_SIZE_X/2);
 				xOffset =  xOffset % Constants.WORLD_SIZE_X;
 			}
 			else {
@@ -652,16 +716,24 @@ public class DisplayHandler extends MessageHandler
 			return xOffset;
 		}
 		private int getYOffset() {
-			int yOffset = (int)(y0 * Constants.WORLD_SIZE_Y);
-			if (RenderState.PAN_OLD_MAN && Constants.BEST_ID != -1) {
-				yOffset = (int) (Animal.pool[Constants.BEST_ID].oldY + (2 - zoomFactor)*Constants.WORLD_SIZE_Y/2);
-				yOffset = yOffset % Constants.WORLD_SIZE_Y;
+			int yOffset = 0;
+			int bestId = -1;
+			if (RenderState.FOLLOW_BLOODLING && Constants.SpeciesId.BEST_BLOODLING_ID != -1) {
+				bestId = Constants.SpeciesId.BEST_BLOODLING_ID;
+				yOffset = (int) (Animal.pool[bestId].oldY + (2f - zoomFactor)*Constants.WORLD_SIZE_Y/2);
+				yOffset =  yOffset % Constants.WORLD_SIZE_Y;
+
+			}
+			else if (RenderState.FOLLOW_GRASSLER && Constants.SpeciesId.BEST_GRASSLER_ID != -1) {
+				bestId = Constants.SpeciesId.BEST_GRASSLER_ID;
+				yOffset = (int) (Animal.pool[bestId].oldY + (2f - zoomFactor)*Constants.WORLD_SIZE_Y/2);
+				yOffset =  yOffset % Constants.WORLD_SIZE_Y;
 			}
 			else {
+				yOffset = (int) (y0 * Constants.WORLD_SIZE_Y);
 				for (;yOffset < 0; yOffset+=Constants.WORLD_SIZE_Y);
 				for (;yOffset >= Constants.WORLD_SIZE_Y; yOffset-=Constants.WORLD_SIZE_Y);
 			}
-			
 			return yOffset;
 		}
 
@@ -791,9 +863,15 @@ public class DisplayHandler extends MessageHandler
 			button.setClickMessage(mSimulation, new messages.RegenerateWorld());
 			mButtons.add(button);
 
+			button = new Button(x[1], y[4]);
+			button.setTexture(display.Texture.fromFile("pics/savebrain.png"));
+			button.setClickMessage(mSimulation, new messages.SaveBrains());
+			mButtons.add(button);
+			
 			button = new Button(x[0], y[1]);
 			button.setTexture(defaultTexture);
-			mButtons.add(button);		
+			mButtons.add(button);
+			
 		}
 	}
 
