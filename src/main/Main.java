@@ -9,6 +9,8 @@ import agents.NeuralFactors;
 import constants.Constants;
 import constants.RenderState;
 import display.DisplayHandler;
+import messages.LoadBrains;
+import messages.SaveBrains;
 import simulation.Simulation;
 import utils.FPSLimiter;
 
@@ -21,6 +23,9 @@ public class Main
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
 		RenderState.activateState(RenderState.RENDER_WORLD_STILL);
+		
+		LoadBrains.loadBrains(Constants.SpeciesId.BLOODLING);
+		LoadBrains.loadBrains(Constants.SpeciesId.GRASSLER);
 
 		try
 		{

@@ -1,15 +1,21 @@
 package agents;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import com.sun.javafx.geom.Vec2f;
 
 import constants.Constants;
 
 public class NeuralNetwork {
-	private static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 8, 4, 1};
-	private static final int NUM_LAYERS = LAYER_SIZES.length;
-	private static final int NUM_WEIGHTS = NUM_LAYERS - 1;
+	public static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 8, 4, 1};
+	public static final int NUM_LAYERS = LAYER_SIZES.length;
+	public static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
-	private float[][][] weights;
+	public float[][][] weights;
 	double[][] z;
 
 	public NeuralNetwork(boolean initZero) {
@@ -155,5 +161,4 @@ public class NeuralNetwork {
 			}
 		}
 	}
-	
 }

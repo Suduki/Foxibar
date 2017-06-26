@@ -56,25 +56,26 @@ public class Constants {
 	public static class Blood {
 		public static final float SPLASH = 1f;
 		public static final float ADDITION_ON_DEATH = 1f;
-		public static final float DECAY_FACTOR = 0.99f;
-		public static final float DEATH_FROM_HUNGER_FACTOR = 0.0f;
-		public static final float DEATH_FROM_AGE_FACTOR = 0.0f;
+		public static final float DECAY_FACTOR = 0.999f;
+		public static final float DEATH_FROM_HUNGER_FACTOR = 1f;
+		public static final float DEATH_FROM_AGE_FACTOR = 1.0f;
 		public static final float DEATH_FROM_LOW_HEALTH = 1f;
 	}
 	public static class Species {
 		public static final float GRASSLER_SPEED = 0.8f;
 		
+		public static final float GRASS_EXPLOSIVITY = 0.4f;
 		public static final float GRASS_GAIN = 20f;
 		
-		public static final float BLOOD_GAIN = 300f;
+		public static final float BLOOD_GAIN = 100f;
 		public static final float BLOOD_ENERGY = BLOOD_GAIN / (Blood.ADDITION_ON_DEATH + 4*Blood.SPLASH);
 		
 		public static final agents.Species GRASSLER = new agents.Species(
-				SpeciesId.GRASSLER, 0.3f, GRASS_GAIN, 0f, 0f, GRASSLER_SPEED, 0.01f, 0.001f);
+				SpeciesId.GRASSLER, GRASS_EXPLOSIVITY, GRASS_GAIN, 0f, 0f, GRASSLER_SPEED, 0.01f, 0.001f);
 //				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
 		public static final agents.Species BLOODLING = new agents.Species(
 //				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
-				SpeciesId.BLOODLING, 0f, 0f, 0.05f, BLOOD_ENERGY, 1f, 0.4f, 0.1f);
+				SpeciesId.BLOODLING, 0f, 0f, 0.1f, BLOOD_ENERGY, 1f, 0.3f, 0.1f);
 	}
 	public static class SpeciesId {
 		public static final int BLOODLING = 1;

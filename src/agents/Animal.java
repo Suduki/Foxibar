@@ -6,12 +6,14 @@ import vision.Vision;
 import world.World;
 import constants.Constants;
 import constants.RenderState;
+import messages.LoadBrains;
+import messages.SaveBrains;
 
 public class Animal {
 	
-	public static final int BIRTH_HUNGER = 20;
+	public static final int BIRTH_HUNGER = 60;
 	public static final int HUNGRY_HUNGER = 100;
-	public static final int BIRTH_HUNGER_COST = 60;
+	public static final int BIRTH_HUNGER_COST = 80;
 	public static final int AGE_DEATH = 1000;
 	
 	public int age = 0;
@@ -52,6 +54,7 @@ public class Animal {
 	public static int[] containsAnimals;
 	public static boolean killAll = false;
 	public static boolean saveBrains = false;
+	public static boolean loadBrains = false;
 	
 	public static void moveAll() {
 		if (killAll) {
@@ -66,8 +69,31 @@ public class Animal {
 		}
 		if (saveBrains) {
 			System.out.println("Save brains");
+			if (RenderState.FOLLOW_BLOODLING) {
+				SaveBrains.saveBrains(Constants.SpeciesId.BLOODLING);
+			}
+			else if (RenderState.FOLLOW_GRASSLER) {
+				SaveBrains.saveBrains(Constants.SpeciesId.GRASSLER);
+			}
+			else {
+				System.err.println("You need to follow the species you want to save, press the render animal button!");
+			}
 			saveBrains = false;
 		}
+		if (loadBrains) {
+			System.out.println("Load brains");
+			if (RenderState.FOLLOW_BLOODLING) {
+				LoadBrains.loadBrains(Constants.SpeciesId.BLOODLING);
+			}
+			else if (RenderState.FOLLOW_GRASSLER) {
+				LoadBrains.loadBrains(Constants.SpeciesId.GRASSLER);
+			}
+			else {
+				System.err.println("You need to follow the species you want to load, press the render animal button!");
+			}
+			loadBrains = false;
+		}
+		
 		for (Animal a : pool) {
 			if (a.isAlive) {
 				a.sinceLastBaby++;
@@ -114,7 +140,13 @@ public class Animal {
 			pool[id].neuralNetwork.inherit(neuralMom, neuralDad);
 		}
 		else {
-			pool[id].neuralNetwork.initWeightsRandom();
+//			pool[id].neuralNetwork.initWeightsRandom();
+			if (LoadBrains.bestBloodling != null && pool[id].species.speciesId == Constants.SpeciesId.BLOODLING) {
+				pool[id].neuralNetwork.inherit(LoadBrains.bestBloodling, LoadBrains.bestBloodling);
+			}
+			else if (LoadBrains.bestGrassler != null && pool[id].species.speciesId == Constants.SpeciesId.GRASSLER) {
+				pool[id].neuralNetwork.inherit(LoadBrains.bestGrassler, LoadBrains.bestGrassler);
+			}
 		}
 		
 		
@@ -135,6 +167,7 @@ public class Animal {
 				pool[id].secondaryColor[0] = 1;
 				pool[id].secondaryColor[1] = 0;
 				pool[id].secondaryColor[2] = 0;
+				
 				
 				pool[id].size = 2;
 				numBloodlings++;
@@ -230,7 +263,7 @@ public class Animal {
 			die(Constants.Blood.DEATH_FROM_AGE_FACTOR);
 			return false;
 		}
-		hunger = hunger * 0.999f - 1f;
+		hunger = hunger - 1f;
 		if (hunger < 0) {
 			die(Constants.Blood.DEATH_FROM_HUNGER_FACTOR);
 			return false;
@@ -319,6 +352,10 @@ public class Animal {
 					eldestNearbyAnimal = nearbyAnimalId;
 				}
 			}
+			if (containsAnimals[World.neighbour[tile][pos]] != -1 && containsAnimals[World.neighbour[tile][pos]] != id) {
+				tileGoodness[tile] = Double.NEGATIVE_INFINITY;
+				continue;
+			}
 			tileGoodness[tile] = neuralNetwork.neuralMagic(eldestNearbyAnimal);
 			
 		}
@@ -356,6 +393,7 @@ public class Animal {
 			}
 		}
 		if (maxI == -1 || Double.isNaN(maxVal)) {
+			System.err.println("maxVal isNaN? " + maxVal);
 			maxI = Constants.RANDOM.nextInt(5);
 		}
 		return maxI;

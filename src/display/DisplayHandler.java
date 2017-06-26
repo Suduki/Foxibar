@@ -868,6 +868,11 @@ public class DisplayHandler extends MessageHandler
 			button.setClickMessage(mSimulation, new messages.SaveBrains());
 			mButtons.add(button);
 			
+			button = new Button(x[0], y[4]);
+			button.setTexture(display.Texture.fromFile("pics/loadbrain.png"));
+			button.setClickMessage(mSimulation, new messages.LoadBrains());
+			mButtons.add(button);
+			
 			button = new Button(x[0], y[1]);
 			button.setTexture(defaultTexture);
 			mButtons.add(button);

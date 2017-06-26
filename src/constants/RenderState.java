@@ -32,7 +32,7 @@ public class RenderState {
 		RENDER_ANIMALS = true;
 		RENDER_BLOOD = true;
 		RENDER_VISION = false;
-		RENDER_DIRT = true;
+		RENDER_DIRT = false;
 		RENDER_HUNGER = true;
 		RENDER_AGE = true;
 		RENDER_HEALTH = true;
