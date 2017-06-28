@@ -33,7 +33,7 @@ public class Main
 			while (simulation.handleMessages() && displayHandler.renderThreadThread.isAlive())
 			{
 				timeStep++;
-				simulation.step();
+				simulation.step(timeStep);
 				fpsLimiter.waitForNextFrame();
 				
 				if (Animal.numAnimals > Constants.WORLD_SIZE/Constants.TILES_PER_ANIMAL/2) {

@@ -16,21 +16,25 @@ public class Grass {
 		color = Constants.Colors.GRASS;
 	}
 
-	public void grow() {
+	public static final boolean USE_DESSERT = true;
+	public void grow(int updateFrequency) {
 		for(int i = 0; i < Constants.WORLD_SIZE; ++i) {
 			if (toBeUpdated[i]) {
 				if (GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT) {
-					height[i] += Constants.GROWTH * World.terrain.height[i];
-					if (height[i] > World.terrain.height[i]) {
-						toBeUpdated[i] = false;
+					if (!USE_DESSERT || World.terrain.height[i] > 0.3f) {
+						height[i] += Constants.GROWTH * World.terrain.height[i] * updateFrequency;
+						if (height[i] > World.terrain.height[i]) {
+							toBeUpdated[i] = false;
+							height[i] = World.terrain.height[i];
+						}
 					}
 				}
 				else {
-					height[i] += Constants.GROWTH;
+					height[i] += Constants.GROWTH * updateFrequency;
 					if (height[i] > 1f) {
 						toBeUpdated[i] = false;
+						height[i] = 1f;
 					}
-
 				}
 			}
 		}

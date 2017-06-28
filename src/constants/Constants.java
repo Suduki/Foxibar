@@ -23,7 +23,7 @@ public class Constants {
 	public static final float GROWTH = Species.GRASSLER_SPEED / Species.GRASS_GAIN / TILES_PER_ANIMAL;
 	public static final int MAX_NUM_ANIMALS = 30000;
 	public static final float ZOOM_SPEED = 1.05f;
-	public static final int NUM_NEIGHBOURS = 10;
+	public static final int NUM_NEIGHBOURS = 3;
 	
 	
 	public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = Vision.ZONE_HEIGHT;
@@ -67,7 +67,7 @@ public class Constants {
 		public static final float GRASS_EXPLOSIVITY = 0.4f;
 		public static final float GRASS_GAIN = 20f;
 		
-		public static final float BLOOD_GAIN = 100f;
+		public static final float BLOOD_GAIN = 70f;
 		public static final float BLOOD_ENERGY = BLOOD_GAIN / (Blood.ADDITION_ON_DEATH + 4*Blood.SPLASH);
 		
 		public static final agents.Species GRASSLER = new agents.Species(
@@ -75,7 +75,7 @@ public class Constants {
 //				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
 		public static final agents.Species BLOODLING = new agents.Species(
 //				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
-				SpeciesId.BLOODLING, 0f, 0f, 0.1f, BLOOD_ENERGY, 1f, 0.3f, 0.1f);
+				SpeciesId.BLOODLING, 0f, 0f, 0.3f, BLOOD_ENERGY, 1f, 0.3f, 0.1f);
 	}
 	public static class SpeciesId {
 		public static final int BLOODLING = 1;

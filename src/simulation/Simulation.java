@@ -27,13 +27,12 @@ public class Simulation extends MessageHandler {
 		pMessage.evaluate(this);
 	}
 	
-	public void step()
+	public void step(int timeStep)
 	{
 		if (!mPaused)
 		{
-			mWorld.update();
+			mWorld.update(timeStep);
 			Animal.moveAll();
-//			Vision.updateAnimalVision();
 		}
 	}
 	

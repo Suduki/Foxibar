@@ -83,9 +83,12 @@ public class World {
 		}
 	}
 
-	public void update() {
-		grass.grow();
-		blood.decay();
+	final static int UPDATE_FREQUENCY = 50;
+	public void update(int timeStep) {
+		if (timeStep % UPDATE_FREQUENCY == 0) {
+			grass.grow(UPDATE_FREQUENCY);
+			blood.decay(UPDATE_FREQUENCY);
+		}
 	}
 
 	public static void regenerate() {

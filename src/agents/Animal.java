@@ -41,7 +41,7 @@ public class Animal {
 	//************ GENETIC STATS ************
 	public Species species;
 	private boolean isFertile;
-	private int timeBetweenBabies = 3;
+	private int timeBetweenBabies = 10;
 	
 	
 	//************ STATIC STUFF ************
@@ -140,12 +140,14 @@ public class Animal {
 			pool[id].neuralNetwork.inherit(neuralMom, neuralDad);
 		}
 		else {
-//			pool[id].neuralNetwork.initWeightsRandom();
 			if (LoadBrains.bestBloodling != null && pool[id].species.speciesId == Constants.SpeciesId.BLOODLING) {
 				pool[id].neuralNetwork.inherit(LoadBrains.bestBloodling, LoadBrains.bestBloodling);
 			}
 			else if (LoadBrains.bestGrassler != null && pool[id].species.speciesId == Constants.SpeciesId.GRASSLER) {
 				pool[id].neuralNetwork.inherit(LoadBrains.bestGrassler, LoadBrains.bestGrassler);
+			}
+			else {
+				pool[id].neuralNetwork.initWeightsRandom();
 			}
 		}
 		
@@ -320,7 +322,7 @@ public class Animal {
 				}
 				float distanceFactor = 1f-distance/Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE;
 				
-				// 0 distance means the animal is too far away
+				// 0 distanceF means the animal is too far away
 				if (distanceFactor < 0  || distanceFactor > 1) {
 					System.err.println("distanceFactor = " + distanceFactor);
 				}
