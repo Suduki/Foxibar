@@ -16,6 +16,8 @@ public class Species {
 
 	float healing;
 	
+	float babyHungerLimit;
+	
 	public Species(int speciesId, float grassHarvest, float grassDigestion,
 			float bloodHarvest, float bloodDigestion, float speed,
 			float fight, float healing) {
@@ -27,6 +29,7 @@ public class Species {
 		this.speed = speed;
 		this.fight = fight;
 		this.healing = healing;
+		this.babyHungerLimit = babyHungerLimit;
 
 	}
 	
@@ -47,5 +50,7 @@ public class Species {
 		this.fight = (mom.fight + dad.fight)/2;
 		
 		this.healing = (mom.healing + dad.healing)/2;
+		
+		this.babyHungerLimit = (mom.babyHungerLimit + dad.babyHungerLimit)/2;
 	}
 }

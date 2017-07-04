@@ -71,4 +71,12 @@ public class Grass {
 		toBeUpdated[pos] = true;
 		return old - height[pos];
 	}
+
+	public double getTotalHeight() {
+		double heightTot = 0;
+		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
+			heightTot += height[i];
+		}
+		return heightTot;
+	}
 }

@@ -64,8 +64,8 @@ public class Constants {
 	public static class Species {
 		public static final float GRASSLER_SPEED = 0.8f;
 		
-		public static final float GRASS_EXPLOSIVITY = 0.4f;
-		public static final float GRASS_GAIN = 20f;
+		public static final float GRASS_EXPLOSIVITY = 0.3f;
+		public static final float GRASS_GAIN = 15f; // Lower this to stabilize (Increases grass growth and reduces grass gain)
 		
 		public static final float BLOOD_GAIN = 70f;
 		public static final float BLOOD_ENERGY = BLOOD_GAIN / (Blood.ADDITION_ON_DEATH + 4*Blood.SPLASH);

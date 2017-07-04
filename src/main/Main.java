@@ -3,11 +3,21 @@ package main;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.ApplicationFrame;
+import org.jfree.ui.RefineryUtilities;
+
 import agents.Animal;
 import agents.NeuralNetwork;
 import agents.NeuralFactors;
 import constants.Constants;
 import constants.RenderState;
+import dataPlotting.XYPlotThingVersusTime;
 import display.DisplayHandler;
 import messages.LoadBrains;
 import messages.SaveBrains;
@@ -16,9 +26,11 @@ import utils.FPSLimiter;
 
 public class Main
 {
+	public final static int plottingNumber = 50;
 	public static void main(String[] args)
 	{
 		
+		XYPlotThingVersusTime.plotStuff();
 		Simulation     simulation     = new Simulation();
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
@@ -37,17 +49,26 @@ public class Main
 				fpsLimiter.waitForNextFrame();
 				
 				if (Animal.numAnimals > Constants.WORLD_SIZE/Constants.TILES_PER_ANIMAL/2) {
-					while (Animal.numBloodlings < 8) {
+					while (Animal.numBloodlings < 15) {
 						spawnPseudoRandomAnimal(Constants.SpeciesId.BLOODLING);
 					}
 				}
-				while (Animal.numAnimals < 15) {
+				while (Animal.numAnimals < 25) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				
-				if (timeStep % 100 == 0) {
-					System.out.format("grasslers = %d, bloodlings = %d\n", Animal.numGrasslers, Animal.numBloodlings);
-					System.out.flush();
+				if (timeStep % plottingNumber == 0) {
+					XYPlotThingVersusTime.myInstance.step();
+					
+					
+					if (SaveBrains.goodTimeToSave(Constants.SpeciesId.BLOODLING)) {
+						SaveBrains.saveBrains(Constants.SpeciesId.BLOODLING);
+						LoadBrains.loadBrains(Constants.SpeciesId.BLOODLING);
+					}
+					if (SaveBrains.goodTimeToSave(Constants.SpeciesId.GRASSLER)) {
+						SaveBrains.saveBrains(Constants.SpeciesId.GRASSLER);
+						LoadBrains.loadBrains(Constants.SpeciesId.GRASSLER);
+					}
 				}
 			}
 		}
@@ -59,10 +80,10 @@ public class Main
 		{
 			displayHandler.exit();
 		}
-
 		System.out.println("Simulation (main) thread finished.");
 	}
 
+	
 	private static void spawnPseudoRandomAnimal(int speciesId) {
 		int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
 		int posX = pos / Constants.WORLD_SIZE_X;

@@ -56,4 +56,25 @@ public class SaveBrains extends Message {
 			e.printStackTrace();
 		}
 	}
+
+	public static boolean goodTimeToSave(final int speciesId) {
+		int bestId;
+		switch (speciesId) {
+		case Constants.SpeciesId.BLOODLING:
+			bestId = Constants.SpeciesId.BEST_BLOODLING_ID;
+			break;
+		case Constants.SpeciesId.GRASSLER:
+			bestId = Constants.SpeciesId.BEST_GRASSLER_ID;
+			break;
+		default:
+			System.err.println("aa what is this3?");
+			return false;
+		}
+		
+		if (bestId == -1 || Animal.pool[bestId].score < Animal.AGE_DEATH) {
+			return false;
+		}
+		return true;
+
+	}
 }
