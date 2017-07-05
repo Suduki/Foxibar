@@ -11,14 +11,17 @@ import com.sun.javafx.geom.Vec2f;
 import constants.Constants;
 
 public class NeuralNetwork {
-	public static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 8, 4, 1};
+	public static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS + NeuralFactors.NUM_HORMONES, 8, 4, 1 + NeuralFactors.NUM_HORMONES};
 	public static final int NUM_LAYERS = LAYER_SIZES.length;
 	public static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
+	
+	public double[] hormones;
 	public float[][][] weights;
-	double[][] z;
+	public double[][] z;
 
 	public NeuralNetwork(boolean initZero) {
+		hormones = new double[NeuralFactors.NUM_HORMONES];
 		weights = new float[NUM_WEIGHTS][][];
 		z = new double[NUM_LAYERS][];
 		for (int weight = 0 ; weight < NUM_WEIGHTS; ++weight) {
@@ -75,7 +78,26 @@ public class NeuralNetwork {
 				z[weightLayer+1][nodeNextLayer] = sigmoid(z[weightLayer+1][nodeNextLayer]);
 			}
 		}
-		return z[NUM_LAYERS-1][0]; // Last layer only has 1 element.
+		
+		// Append hormones
+		for (int horm = 0; horm < z[NUM_LAYERS-1].length-1; ++horm) {
+			hormones[horm] += z[NUM_LAYERS-1][horm+1];
+		}
+		
+		return z[NUM_LAYERS-1][0]; // Return nodegoodness
+	}
+	
+	public void stepHormones() {
+		double decay = 0.8;
+		for (int horm = 0; horm < hormones.length; ++horm) {
+			z[0][NeuralFactors.NUM_DESICION_FACTORS + horm] += hormones[horm];
+			hormones[horm] = 0;
+			z[0][NeuralFactors.NUM_DESICION_FACTORS + horm] = sigmoid(z[0][NeuralFactors.NUM_DESICION_FACTORS + horm]);
+			z[0][NeuralFactors.NUM_DESICION_FACTORS + horm] *= decay;
+//			if (Constants.RANDOM.nextDouble() < 0.001) {
+//				System.out.println(z[0][NeuralFactors.NUM_DESICION_FACTORS + horm]);
+//			}
+		}
 	}
 	
 	private void backPropagationLearning(double prediction, double actual) {
@@ -127,7 +149,8 @@ public class NeuralNetwork {
 	}
 	
 	private double sigmoid(double f) {
-		return 1d/(1d+Math.exp(-f));
+		double result = 1d/(1d+Math.exp(-f));
+		return result;
 	}
 	
 	private double sigmoidPrime(double f) {

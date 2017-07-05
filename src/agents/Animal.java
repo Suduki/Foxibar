@@ -104,6 +104,7 @@ public class Animal {
 					}
 					a.recover--;
 					a.move();
+					a.neuralNetwork.stepHormones();
 				}
 				if (!a.isFertile && a.sinceLastBaby > a.timeBetweenBabies) {
 					a.isFertile = true;

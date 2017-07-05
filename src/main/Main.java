@@ -36,8 +36,13 @@ public class Main
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
 		RenderState.activateState(RenderState.RENDER_WORLD_STILL);
 		
-		LoadBrains.loadBrains(Constants.SpeciesId.BLOODLING);
-		LoadBrains.loadBrains(Constants.SpeciesId.GRASSLER);
+		try {
+			LoadBrains.loadBrains(Constants.SpeciesId.BLOODLING);
+			LoadBrains.loadBrains(Constants.SpeciesId.GRASSLER);
+		}
+		catch (Exception e ){
+			System.err.println("Somethnig wrong with loading files.");
+		}
 
 		try
 		{
@@ -60,15 +65,19 @@ public class Main
 				if (timeStep % plottingNumber == 0) {
 					XYPlotThingVersusTime.myInstance.step();
 					
-					
-					if (SaveBrains.goodTimeToSave(Constants.SpeciesId.BLOODLING)) {
-						SaveBrains.saveBrains(Constants.SpeciesId.BLOODLING);
-						LoadBrains.loadBrains(Constants.SpeciesId.BLOODLING);
+					try {
+						if (SaveBrains.goodTimeToSave(Constants.SpeciesId.BLOODLING)) {
+							SaveBrains.saveBrains(Constants.SpeciesId.BLOODLING);
+							LoadBrains.loadBrains(Constants.SpeciesId.BLOODLING);
+						}
+						if (SaveBrains.goodTimeToSave(Constants.SpeciesId.GRASSLER)) {
+							SaveBrains.saveBrains(Constants.SpeciesId.GRASSLER);
+							LoadBrains.loadBrains(Constants.SpeciesId.GRASSLER);
+						}
 					}
-					if (SaveBrains.goodTimeToSave(Constants.SpeciesId.GRASSLER)) {
-						SaveBrains.saveBrains(Constants.SpeciesId.GRASSLER);
-						LoadBrains.loadBrains(Constants.SpeciesId.GRASSLER);
-					}
+					catch (Exception e ){
+						System.err.println("Somethnig wrong with loading/saving brain during runtime.");
+					}			
 				}
 			}
 		}

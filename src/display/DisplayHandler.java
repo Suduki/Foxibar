@@ -26,6 +26,7 @@ import math.Vector2f;
 import messages.Message;
 import messages.MessageHandler;
 import agents.Animal;
+import agents.NeuralFactors;
 import agents.NeuralNetwork;
 import buttons.Button;
 import input.Mouse;
@@ -499,15 +500,35 @@ public class DisplayHandler extends MessageHandler
 						float healthFactor = Animal.pool[id].health;
 						if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
 //							if (Constants.BEST_ID == id) {
-								renderThreePartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].mainColor, 
-										ageFactor, healthFactor, hungerFactor, 
-										Animal.pool[id].size*pixelsPerNodeX, 
-										Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
-//							}
-//							else {
-//								renderTriangle(Animal.pool[id].secondaryColor, Animal.pool[id].size*pixelsPerNodeX, 
+							float[] tmp = new float[3];
+							tmp[0] = (float)Animal.pool[id].neuralNetwork.z[0][NeuralFactors.NUM_DESICION_FACTORS+0];
+							tmp[1] = (float)Animal.pool[id].neuralNetwork.z[0][NeuralFactors.NUM_DESICION_FACTORS+1];
+							tmp[2] = (float)Animal.pool[id].neuralNetwork.z[0][NeuralFactors.NUM_DESICION_FACTORS+2];
+							if (tmp[0] > tmp[1] && tmp[0] > tmp[2]) {
+								tmp[1] = 0;
+								tmp[2] = 0;
+							}
+							if (tmp[1] > tmp[2] && tmp[1] > tmp[0]) {
+								tmp[0] = 0;
+								tmp[2] = 0;
+							}
+							if (tmp[2] > tmp[1] && tmp[2] > tmp[0]) {
+								tmp[1] = 0;
+								tmp[0] = 0;
+							}
+							renderThreePartsOfAnimal(Animal.pool[id].secondaryColor, tmp, 
+									ageFactor, healthFactor, hungerFactor, 
+									Animal.pool[id].size*pixelsPerNodeX, 
+									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+//								renderThreePartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].mainColor, 
+//										ageFactor, healthFactor, hungerFactor, 
+//										Animal.pool[id].size*pixelsPerNodeX, 
 //										Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
-//							}
+////							}
+////							else {
+////								renderTriangle(Animal.pool[id].secondaryColor, Animal.pool[id].size*pixelsPerNodeX, 
+////										Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+////							}
 						}
 						else if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
 							renderTwoPartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].mainColor, 
@@ -612,6 +633,7 @@ public class DisplayHandler extends MessageHandler
 			}
 			
 			float scale = 0.7f;
+			
 			renderLeftTriangle(colorAnimal, sizeX*factorLeft*scale, 
 					sizeY*factorLeft*scale, screenPositionX, screenPositionY);
 			renderRightTriangle(colorAnimal, sizeX*factorRight*scale, 

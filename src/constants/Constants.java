@@ -56,7 +56,7 @@ public class Constants {
 	public static class Blood {
 		public static final float SPLASH = 1f;
 		public static final float ADDITION_ON_DEATH = 1f;
-		public static final float DECAY_FACTOR = 0.999f;
+		public static final float DECAY_FACTOR = 1f;
 		public static final float DEATH_FROM_HUNGER_FACTOR = 1f;
 		public static final float DEATH_FROM_AGE_FACTOR = 1.0f;
 		public static final float DEATH_FROM_LOW_HEALTH = 1f;

@@ -1,5 +1,7 @@
 package messages;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -36,7 +38,12 @@ public class SaveBrains extends Message {
 			return;
 		}
 		try{
-		    PrintWriter writer = new PrintWriter("the-file-name" + speciesId + ".txt", "UTF-8");
+			String filename = "brain" + speciesId;
+			for (int i : NeuralNetwork.LAYER_SIZES) {
+				filename = filename + "_" + i;
+			}
+			filename = filename + ".txt";
+		    PrintWriter writer = new PrintWriter(filename, "UTF-8");
 		    writer.println(NeuralNetwork.NUM_LAYERS);
 		    for (int i = 0; i < NeuralNetwork.LAYER_SIZES.length; ++i) {
 		    	writer.print(NeuralNetwork.LAYER_SIZES[i] + " ");

@@ -30,7 +30,12 @@ public class LoadBrains extends Message {
 		NeuralNetwork best = new NeuralNetwork(true);
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader("the-file-name" + speciesId + ".txt"));
+			String filename = "brain" + speciesId;
+			for (int i : NeuralNetwork.LAYER_SIZES) {
+				filename = filename + "_" + i;
+			}
+			filename = filename + ".txt";
+			br = new BufferedReader(new FileReader(filename));
 		    StringBuilder sb = new StringBuilder();
 		    String line = br.readLine();
 
@@ -63,10 +68,10 @@ public class LoadBrains extends Message {
 				for (int i = 0; i < best.weights[weight].length; ++i) {
 					String[] tmpDataFromFile = a[fileRow++].split(" ");
 					for (int j = 0; j < best.weights[weight][i].length; ++j) {
-						System.out.print(tmpDataFromFile[j] + " ");
+//						System.out.print(tmpDataFromFile[j] + " ");
 						best.weights[weight][i][j] = Float.valueOf(tmpDataFromFile[j]); 
 					}
-					System.out.println();
+//					System.out.println();
 				}
 			}
 		} catch (IOException e) {
@@ -80,9 +85,11 @@ public class LoadBrains extends Message {
 		}
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
+			System.out.println("Loading bloodling brain");
 			bestBloodling = best;
 			break;
 		case Constants.SpeciesId.GRASSLER:
+			System.out.println("Loading grassler brain");
 			bestGrassler = best;
 			break;
 		default:
