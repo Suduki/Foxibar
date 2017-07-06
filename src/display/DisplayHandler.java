@@ -501,9 +501,9 @@ public class DisplayHandler extends MessageHandler
 						if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
 //							if (Constants.BEST_ID == id) {
 							float[] tmp = new float[3];
-							tmp[0] = (float)Animal.pool[id].neuralNetwork.z[0][NeuralFactors.NUM_DESICION_FACTORS+0];
-							tmp[1] = (float)Animal.pool[id].neuralNetwork.z[0][NeuralFactors.NUM_DESICION_FACTORS+1];
-							tmp[2] = (float)Animal.pool[id].neuralNetwork.z[0][NeuralFactors.NUM_DESICION_FACTORS+2];
+							tmp[0] = (float)Math.abs(Animal.pool[id].neuralNetwork.z[0][NeuralFactors.NUM_DESICION_FACTORS+0]);
+							tmp[1] = (float)Math.abs(Animal.pool[id].neuralNetwork.z[0][NeuralFactors.NUM_DESICION_FACTORS+1]);
+							tmp[2] = (float)Math.abs(Animal.pool[id].neuralNetwork.z[0][NeuralFactors.NUM_DESICION_FACTORS+2]);
 							if (tmp[0] > tmp[1] && tmp[0] > tmp[2]) {
 								tmp[1] = 0;
 								tmp[2] = 0;
