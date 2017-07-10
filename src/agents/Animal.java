@@ -298,6 +298,10 @@ public class Animal {
 			neuralNetwork.z[0][NeuralFactors.HUNGER] = hunger / HUNGRY_HUNGER; //TODO: Rescale this?
 			neuralNetwork.z[0][NeuralFactors.AGE] = ((float)age)/AGE_DEATH;
 			
+			if(neuralNetwork.z[0][NeuralFactors.AGE] > 1) {
+				System.out.println(age + "  " + AGE_DEATH + "   " + neuralNetwork.z[0][NeuralFactors.AGE]);
+			}
+			
 			neuralNetwork.z[0][NeuralFactors.TILE_GRASS] = World.grass.height[World.neighbour[tile][pos]];
 			neuralNetwork.z[0][NeuralFactors.TILE_BLOOD] = World.blood.height[World.neighbour[tile][pos]];
 			

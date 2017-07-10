@@ -18,6 +18,7 @@ import agents.NeuralFactors;
 import constants.Constants;
 import constants.RenderState;
 import dataPlotting.XYPlotThingVersusTime;
+import dataPlotting.XYPlotThingVersusTime2;
 import display.DisplayHandler;
 import messages.LoadBrains;
 import messages.SaveBrains;
@@ -31,6 +32,7 @@ public class Main
 	{
 		
 		XYPlotThingVersusTime.plotStuff();
+		XYPlotThingVersusTime2.plotStuff();
 		Simulation     simulation     = new Simulation();
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
@@ -52,6 +54,7 @@ public class Main
 				timeStep++;
 				simulation.step(timeStep);
 				fpsLimiter.waitForNextFrame();
+				XYPlotThingVersusTime2.myInstance.step();
 				
 				if (Animal.numAnimals > Constants.WORLD_SIZE/Constants.TILES_PER_ANIMAL/2) {
 					while (Animal.numBloodlings < 15) {
