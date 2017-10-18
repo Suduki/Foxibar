@@ -1,8 +1,8 @@
 package messages;
 
 import constants.Constants;
-import constants.RenderState;
 import display.DisplayHandler;
+import display.RenderState;
 
 public class ToggleRenderAnimals extends Message {
 

@@ -21,7 +21,6 @@ import org.lwjgl.opengl.GL11;
 
 import world.World;
 import constants.Constants;
-import constants.RenderState;
 import math.Vector2f;
 import messages.Message;
 import messages.MessageHandler;
@@ -31,6 +30,7 @@ import agents.NeuralNetwork;
 import buttons.Button;
 import input.Mouse;
 import javafx.scene.input.MouseButton;
+import jdk.nashorn.internal.runtime.regexp.joni.MatcherFactory;
 
 public class DisplayHandler extends MessageHandler
 {
@@ -498,24 +498,17 @@ public class DisplayHandler extends MessageHandler
 						float ageFactor = 1f - ((float)Animal.pool[id].age)/(Animal.AGE_DEATH);
 						float hungerFactor = Animal.pool[id].hunger/(Animal.HUNGRY_HUNGER*2);
 						float healthFactor = Animal.pool[id].health;
+						if (RenderState.DRAW_VISION_CIRCLE) {
+							if (RenderState.FOLLOW_BLOODLING && id == Constants.SpeciesId.BEST_BLOODLING_ID) {
+								renderCircle(Constants.Colors.LIGHT_BLUE, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
+							}
+							else if (RenderState.FOLLOW_GRASSLER && id == Constants.SpeciesId.BEST_GRASSLER_ID) {
+								renderCircle(Constants.Colors.LIGHT_BLUE, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
+							}
+						}
 						if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
 //							if (Constants.BEST_ID == id) {
 							float[] tmp = new float[3];
-							tmp[0] = (float)Math.abs(Animal.pool[id].neuralNetwork.z[0][NeuralFactors.NUM_DESICION_FACTORS+0]);
-							tmp[1] = (float)Math.abs(Animal.pool[id].neuralNetwork.z[0][NeuralFactors.NUM_DESICION_FACTORS+1]);
-							tmp[2] = (float)Math.abs(Animal.pool[id].neuralNetwork.z[0][NeuralFactors.NUM_DESICION_FACTORS+2]);
-							if (tmp[0] > tmp[1] && tmp[0] > tmp[2]) {
-								tmp[1] = 0;
-								tmp[2] = 0;
-							}
-							if (tmp[1] > tmp[2] && tmp[1] > tmp[0]) {
-								tmp[0] = 0;
-								tmp[2] = 0;
-							}
-							if (tmp[2] > tmp[1] && tmp[2] > tmp[0]) {
-								tmp[1] = 0;
-								tmp[0] = 0;
-							}
 							renderThreePartsOfAnimal(Animal.pool[id].secondaryColor, tmp, 
 									ageFactor, healthFactor, hungerFactor, 
 									Animal.pool[id].size*pixelsPerNodeX, 
@@ -613,6 +606,45 @@ public class DisplayHandler extends MessageHandler
 			glVertex2f(screenPositionX+2 + sizeX, screenPositionY-1 - sizeY);
 			glVertex2f(screenPositionX-2 - sizeX, screenPositionY-1 - sizeY);
 			
+		}
+		
+		private float[] circleVerticesX;
+		private float[] circleVerticesY;
+		private void renderCircle(float[] color, float radius, float screenPositionX, float screenPositionY) {
+			glEnd();
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//			glBlendFunc(GL_ONE, GL_ONE);
+			glBegin(GL_TRIANGLES);
+			glColor4f(color[0], color[1], color[2], 0.3f);
+
+			if (circleVerticesX == null) {
+				initCircle();
+			}
+			for (int i = 0; i < circleVerticesX.length; i++) {
+				glVertex2f(screenPositionX, screenPositionY);
+				glVertex2f(circleVerticesX[i]*radius + screenPositionX, circleVerticesY[i]*radius + screenPositionY);
+				if (i+1 < circleVerticesX.length) {
+					glVertex2f(circleVerticesX[i+1]*radius + screenPositionX, circleVerticesY[i+1]*radius + screenPositionY);
+				}
+				else {
+					glVertex2f(circleVerticesX[0]*radius + screenPositionX, circleVerticesY[0]*radius + screenPositionY);
+				}
+			}
+			glEnd();
+			glDisable(GL_BLEND);
+			glBegin(GL_TRIANGLES);
+		}
+		private void initCircle() {
+			int numVertices = 20;
+			circleVerticesX = new float[numVertices];
+			circleVerticesY = new float[numVertices];
+			float angle = 0;
+			for (int i = 0; i < numVertices; ++i) {
+				angle += Math.PI*2 /numVertices;
+				circleVerticesX[i] = (float)Math.cos(angle);
+				circleVerticesY[i] = (float)Math.sin(angle);
+			}
 		}
 		
 		private void renderThreePartsOfAnimal(float[] colorBackground, float[] colorAnimal,
@@ -829,6 +861,7 @@ public class DisplayHandler extends MessageHandler
 
 			// Make the window visible
 			glfwShowWindow(window);
+			
 		}
 
 		private void initOpenGL()

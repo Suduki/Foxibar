@@ -2,7 +2,7 @@ package world;
 
 import noise.Noise;
 import constants.Constants;
-import constants.RenderState;
+import display.RenderState;
 
 public class Terrain {
 	public float[] height;

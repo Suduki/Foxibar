@@ -42,6 +42,7 @@ public class Constants {
 		public static final float[] BLOOD = new float[]{1f, 0f, 0f};
 		public static final float[] DARK_RED = new float[]{0.3f, 0f, 0f};
 		public static final float[] DARK_BLUE = new float[]{0f, 0f, 0.3f};
+		public static final float[] LIGHT_BLUE = new float[]{0.6f, 0.6f, 0.9f};
 	}
 
 	public static class Neighbours {

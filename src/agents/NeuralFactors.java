@@ -12,8 +12,6 @@ public class NeuralFactors {
 	public static final int TILE_HUNT			= NUM_DESICION_FACTORS++;
 	public static final int TILE_OLD_POSITION	= NUM_DESICION_FACTORS++;
 	
-	public static final int NUM_HORMONES = 4;
-	
 	public static final String[] NAMES = {
 			"HUNGER   ",
 			"AGE      ",

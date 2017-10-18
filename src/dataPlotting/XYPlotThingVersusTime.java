@@ -33,9 +33,9 @@ public class XYPlotThingVersusTime extends ApplicationFrame {
 		data.addSeries(bloodlingSeries);
 		data.addSeries(grassSeries);
 		final JFreeChart chart = ChartFactory.createXYLineChart(
-				"XY Series Demo",
-				"X", 
-				"Y", 
+				"POPULATION",
+				"TIME", 
+				"SIZE", 
 				data,
 				PlotOrientation.VERTICAL,
 				true,

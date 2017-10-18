@@ -17,8 +17,8 @@ public class Grass {
 	}
 
 	public static final boolean USE_DESSERT = true;
-	public void grow(int updateFrequency) {
-		for(int i = 0; i < Constants.WORLD_SIZE; ++i) {
+	public void grow(int timeStep, int updateFrequency) {
+		for(int i = timeStep%updateFrequency; i < Constants.WORLD_SIZE; i+=updateFrequency) {
 			if (toBeUpdated[i]) {
 				if (GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT) {
 					if (!USE_DESSERT || World.terrain.height[i] > 0.3f) {

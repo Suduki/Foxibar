@@ -1,4 +1,4 @@
-package constants;
+package display;
 
 public class RenderState {
 	public static boolean RENDER_TERRAIN;
@@ -13,6 +13,7 @@ public class RenderState {
 	public static boolean LIMIT_VISION;
 	public static boolean FOLLOW_BLOODLING;
 	public static boolean FOLLOW_GRASSLER;
+	public static boolean DRAW_VISION_CIRCLE;
 	
 	private static int renderState;
 	private static int NUM_RENDER_STATES = 3;
@@ -43,18 +44,21 @@ public class RenderState {
 				LIMIT_VISION = false;
 				FOLLOW_BLOODLING = false;
 				FOLLOW_GRASSLER = false;
+				DRAW_VISION_CIRCLE = false;
 				break;
 			case RENDER_WORLD_FOLLOW_BLOODLING_LIMIT_VISION:
 				PAN_OLD_MAN = true;
 				LIMIT_VISION = true;
 				FOLLOW_BLOODLING = true;
 				FOLLOW_GRASSLER = false;
+				DRAW_VISION_CIRCLE = true;
 				break;
 			case RENDER_WORLD_FOLLOW_GRASSLER_LIMIT_VISION:
 				PAN_OLD_MAN = true;
 				LIMIT_VISION = true;
 				FOLLOW_BLOODLING = false;
 				FOLLOW_GRASSLER = true;
+				DRAW_VISION_CIRCLE = true;
 				break;
 		}
 	}

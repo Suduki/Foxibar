@@ -11,24 +11,41 @@ import com.sun.javafx.geom.Vec2f;
 import constants.Constants;
 
 public class NeuralNetwork {
-	public static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS + NeuralFactors.NUM_HORMONES, 8, 4, 1 + NeuralFactors.NUM_HORMONES};
+	public static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 8, 4, 1};
 	public static final int NUM_LAYERS = LAYER_SIZES.length;
 	public static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
+	public static final int NUM_OPTIONS = 5;
 	
-	public double[] hormones;
 	public float[][][] weights;
-	public double[][] z;
+	public float[][][] weightsOld;
+	public double[][][] z;
+	public double[][][] zOld;
+	public int bestDirection;
+	public double[][] bias;
 
 	public NeuralNetwork(boolean initZero) {
-		hormones = new double[NeuralFactors.NUM_HORMONES];
 		weights = new float[NUM_WEIGHTS][][];
-		z = new double[NUM_LAYERS][];
+		weightsOld = new float[NUM_WEIGHTS][][];
+		z = new double[NUM_OPTIONS][NUM_LAYERS][];
+		zOld = new double[NUM_OPTIONS][NUM_LAYERS][];
+		bias = new double[NUM_LAYERS-2][]; // Skip input layer and output layer.
+		bestDirection = -1;
+		
 		for (int weight = 0 ; weight < NUM_WEIGHTS; ++weight) {
 			weights[weight] = new float[LAYER_SIZES[weight]][LAYER_SIZES[weight+1]];
+			if (weight > 0) {
+				weightsOld[weight] = new float[LAYER_SIZES[weight+1]][LAYER_SIZES[weight+1]];
+			}
 		}
-		for (int layer = 0 ; layer < NUM_LAYERS; ++layer) {
-			z[layer] = new double[LAYER_SIZES[layer]];
+		for (int direction = 0; direction < NUM_OPTIONS; ++direction) {
+			for (int layer = 0 ; layer < NUM_LAYERS; ++layer) {
+				z[direction][layer] = new double[LAYER_SIZES[layer]];
+
+				if (layer != 0) { // We do not use these at the first layer.	
+					zOld[direction][layer] = new double[LAYER_SIZES[layer]];
+				}
+			}
 		}
 		
 		if (initZero) {
@@ -37,10 +54,24 @@ public class NeuralNetwork {
 		else {
 			initWeightsRandom();
 		}
+		initBias();
 		
 	}
 	
-	public void initWeightsZero() {
+	private void initBias() {
+		for (int layer = 0 ; layer < bias.length; ++layer) {
+			bias[layer] = new double[LAYER_SIZES[layer]];
+			for (int i = 0; i < bias[layer].length; ++i) {
+				bias[layer][i] = getRandom();
+			}
+		}
+	}
+	
+	private float getRandom() {
+		return Constants.RANDOM.nextFloat()*2 - 1;
+	}
+
+	private void initWeightsZero() {
 		for (int weight = 0; weight < weights.length ; ++weight) {
 			for (int i = 0; i < weights[weight].length; ++i) {
 				for (int j = 0; j < weights[weight][i].length; ++j) {
@@ -48,104 +79,90 @@ public class NeuralNetwork {
 				}
 			}
 		}
+		for (int weight = 1; weight < weightsOld.length ; ++weight) {
+			for (int i = 0; i < weightsOld[weight].length; ++i) {
+				for (int j = 0; j < weightsOld[weight][i].length; ++j) {
+					weightsOld[weight][i][j] = 0;
+				}
+			}
+		}
 	}
-	public void initWeightsRandom() {
+	void initWeightsRandom() {
 		for (int weight = 0; weight < weights.length ; ++weight) {
 			for (int i = 0; i < weights[weight].length; ++i) {
 				for (int j = 0; j < weights[weight][i].length; ++j) {
-					weights[weight][i][j] = 1 - 2*Constants.RANDOM.nextFloat();
+					weights[weight][i][j] = getRandom();
+				}
+			}
+		}
+		for (int weight = 1; weight < weightsOld.length ; ++weight) {
+			for (int i = 0; i < weightsOld[weight].length; ++i) {
+				for (int j = 0; j < weightsOld[weight][i].length; ++j) {
+					weightsOld[weight][i][j] = getRandom();
 				}
 			}
 		}
 	}
 
-	public void reset() {
-		for (int layer = 1; layer < z.length ; ++layer) { // Not resetting first layer.
-			for (int i = 0; i < z[layer].length; ++i) {
-				z[layer][i] = 0;
-			}
-		}
-	}
-	
-	private double evaluateNeuralNetwork(final double[][] z, final float[][][] weights) {
-		reset();
-		for (int weightLayer = 0; weightLayer < NUM_WEIGHTS; ++weightLayer) {
-			for (int nodeNextLayer = 0; nodeNextLayer < LAYER_SIZES[weightLayer+1]; ++nodeNextLayer) {
-				for (int nodeCurrentLayer = 0; nodeCurrentLayer < LAYER_SIZES[weightLayer]; ++nodeCurrentLayer) {
-					z[weightLayer+1][nodeNextLayer] += 
-							(z[weightLayer][nodeCurrentLayer] * weights[weightLayer][nodeCurrentLayer][nodeNextLayer]);
+	private void evaluateNeuralNetwork() {
+		for (int direction = 0; direction < NUM_OPTIONS; direction++) {
+			for (int weightLayer = 0; weightLayer < NUM_WEIGHTS; ++weightLayer) {
+				for (int nodeNextLayer = 0; nodeNextLayer < LAYER_SIZES[weightLayer+1]; ++nodeNextLayer) {
+					
+					// Reset
+					z[direction][weightLayer+1][nodeNextLayer] = 0;
+					
+					// Append from previous node layer
+					for (int nodeCurrentLayer = 0; nodeCurrentLayer < LAYER_SIZES[weightLayer]; ++nodeCurrentLayer) {
+						z[direction][weightLayer+1][nodeNextLayer] += 
+								(z[direction][weightLayer][nodeCurrentLayer] * 
+										weights[weightLayer][nodeCurrentLayer][nodeNextLayer]);
+					}
+					
+					// Append from previous time step
+					if (weightLayer != 0 && bestDirection != -1) {
+						for (int oldNodeLayer = 0; oldNodeLayer < LAYER_SIZES[weightLayer+1]; oldNodeLayer++) {
+							z[direction][weightLayer+1][nodeNextLayer] += 
+									(zOld[bestDirection][weightLayer+1][oldNodeLayer] * 
+											weightsOld[weightLayer][oldNodeLayer][nodeNextLayer]);
+						}
+					}
+					
+					// Append from bias
+					if (weightLayer < bias.length) {
+						z[direction][weightLayer+1][nodeNextLayer] += bias[weightLayer][nodeNextLayer]; 
+					}
+					
+					// Apply sigmoid
+					z[direction][weightLayer+1][nodeNextLayer] = sigmoid(z[direction][weightLayer+1][nodeNextLayer]);
 				}
-				z[weightLayer+1][nodeNextLayer] = sigmoid(z[weightLayer+1][nodeNextLayer]);
+			}
+			for (int weightLayer = 0; weightLayer < NUM_WEIGHTS; ++weightLayer) {
+				for (int nodeNextLayer = 0; nodeNextLayer < LAYER_SIZES[weightLayer+1]; ++nodeNextLayer) {
+					zOld[direction][weightLayer+1][nodeNextLayer] = z[direction][weightLayer+1][nodeNextLayer];
+				}
 			}
 		}
-		
-		// Append hormones
-		for (int horm = 0; horm < z[NUM_LAYERS-1].length-1; ++horm) {
-			hormones[horm] += z[NUM_LAYERS-1][horm+1];
-		}
-		
-		return z[NUM_LAYERS-1][0]; // Return nodegoodness
 	}
 	
-	public void stepHormones() {
-		double decay = 0.8;
-		for (int horm = 0; horm < hormones.length; ++horm) {
-			z[0][NeuralFactors.NUM_DESICION_FACTORS + horm] += hormones[horm];
-			hormones[horm] = 0;
-			z[0][NeuralFactors.NUM_DESICION_FACTORS + horm] = sigmoid(z[0][NeuralFactors.NUM_DESICION_FACTORS + horm]);
-			z[0][NeuralFactors.NUM_DESICION_FACTORS + horm] *= decay;
-//			if (Constants.RANDOM.nextDouble() < 0.001) {
-//				System.out.println(z[0][NeuralFactors.NUM_DESICION_FACTORS + horm]);
-//			}
+	public int neuralMagic(boolean[] directionWalkable) {
+		evaluateNeuralNetwork();
+		double bestVal = Double.NEGATIVE_INFINITY;
+		bestDirection = -1;
+		for(int direction = 0; direction < NUM_OPTIONS; ++direction) {
+			if (!directionWalkable[direction]) {
+				continue;
+			}
+			if (z[direction][LAYER_SIZES.length-1][0] > bestVal) {
+				bestVal = z[direction][LAYER_SIZES.length-1][0];
+				bestDirection = direction;
+			}
 		}
-	}
-	
-	private void backPropagationLearning(double prediction, double actual) {
-		double l2Error = actual - prediction;
-		
-		double l2Delta = l2Error * sigmoidPrime(prediction);
-		
-		int learningRate = 10; // Should be coupled to age differential or something similar.
-//		for (int weight = NUM_WEIGHTS - 1; weight >= 0; --weight) {
-		int  weight = NUM_WEIGHTS - 1;
-		double[] l1Error = new double[LAYER_SIZES[weight]];
-		for (int i = 0; i < LAYER_SIZES[weight]; ++i) {
-			// l1Error = l2Delta *dot* w1
-			l1Error[i] = l2Delta*weights[weight][i][0];
-
-			weights[weight][i][0] += learningRate*z[weight][i]*l2Delta;
+		if (bestDirection == -1) {
+			System.err.println("Found no best direction. Is map crowded?");
+			bestDirection = 0;
 		}
-		
-//		weight = NUM_WEIGHTS - 2;
-//		for (int i = 0; i < LAYER_SIZES[weight]; ++i) {
-//			for (int j = 0; j < LAYER_SIZES[weight + 1]; ++j) {
-//				l1Error[i] = l2Delta*weights[weight][i][j];
-//			}
-//		}
-		
-//		}
-	}
-	
-	public static double dot(double[] a, double[] b) {
-		if (a.length != b.length) System.err.println("Bad sizes; a = " + a + ", b = " + b);
-		double val = 0;
-		for (int i = 0; i < a.length; ++i) {
-			val += a[i]*b[i];
-		}
-		return val;
-	}
-	
-
-	public double neuralMagic(int toLearnFrom) {
-		double myGoodness = evaluateNeuralNetwork(this.z, this.weights);
-		if (Constants.LEARN_FROM_ELDERS && toLearnFrom != -1) {
-			double roleModelGoodness = evaluateNeuralNetwork(this.z, Animal.pool[toLearnFrom].neuralNetwork.weights);
-			backPropagationLearning(myGoodness, roleModelGoodness);
-			myGoodness = evaluateNeuralNetwork(this.z, this.weights);
-			return myGoodness;
-		}
-		
-		return myGoodness;
+		return bestDirection;
 	}
 	
 	private double sigmoid(double f) {
@@ -158,30 +175,29 @@ public class NeuralNetwork {
 		return expo/((1d+expo)*(1d+expo));
 	}
 	
-	public void copy(NeuralNetwork d) {
+	public void copy(NeuralNetwork d, float mutation) {
 		for (int weight = 0; weight < NUM_WEIGHTS; ++weight) {
 			for (int i = 0; i < weights[weight].length; ++i) {
 				for (int j = 0; j < weights[weight][i].length; ++j) {
-					weights[weight][i][j] = d.weights[weight][i][j];
+					weights[weight][i][j] = d.weights[weight][i][j] + mutation * getRandom();
 				}
+			}
+		}
+		for (int layer = 0; layer < bias.length; ++layer) {
+			for (int i = 0; i < bias[layer].length; ++i) {
+				bias[layer][i] = d.bias[layer][i] + mutation * getRandom();
 			}
 		}
 	}
 	
 	public void inherit(NeuralNetwork neuralMom, NeuralNetwork neuralDad) {
-		double evolution = 0.1;
-		for (int weight = 0; weight < NUM_WEIGHTS; ++weight) {
-			for (int i = 0; i < weights[weight].length; ++i) {
-				for (int j = 0; j < weights[weight][i].length; ++j) {
-//					if (Constants.RANDOM.nextBoolean()) {
-//						weights[weight][i][j] = neuralDad.weights[weight][i][j];
-//					}
-//					else {
-						weights[weight][i][j] = neuralMom.weights[weight][i][j];
-//					}
-					weights[weight][i][j] += evolution * (1f - 2*Constants.RANDOM.nextFloat());
-				}
-			}
+		bestDirection = -1;
+		float evolution = 0.1f;
+		if (Constants.RANDOM.nextBoolean()) {
+			copy(neuralMom, evolution);
+		}
+		else {
+			copy(neuralDad, evolution);
 		}
 	}
 }

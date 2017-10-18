@@ -74,6 +74,16 @@ public class LoadBrains extends Message {
 //					System.out.println();
 				}
 			}
+			for (int weight = 1; weight < NeuralNetwork.NUM_WEIGHTS; ++weight) {
+				for (int i = 0; i < best.weightsOld[weight].length; ++i) {
+					String[] tmpDataFromFile = a[fileRow++].split(" ");
+					for (int j = 0; j < best.weightsOld[weight][i].length; ++j) {
+//						System.out.print(tmpDataFromFile[j] + " ");
+						best.weightsOld[weight][i][j] = Float.valueOf(tmpDataFromFile[j]); 
+					}
+//					System.out.println();
+				}
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

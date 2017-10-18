@@ -13,7 +13,7 @@ import agents.Animal;
 import agents.NeuralFactors;
 import agents.NeuralNetwork;
 import constants.Constants;
-import constants.RenderState;
+import display.RenderState;
 import main.Main;
 import world.World;
 
@@ -22,7 +22,7 @@ public class XYPlotThingVersusTime2 extends ApplicationFrame {
 
 	public static final XYPlotThingVersusTime2 myInstance = new XYPlotThingVersusTime2("Plot versus time");
 
-	public static final int NUM_STUFF = 2;
+	public static final int NUM_STUFF = NeuralNetwork.LAYER_SIZES[0];
 	
 	public static XYSeries[] h = new XYSeries[NUM_STUFF];
 
@@ -56,32 +56,25 @@ public class XYPlotThingVersusTime2 extends ApplicationFrame {
 		
 	}
 	
-	private final int width = 1000;
+	private final int width = 50;
 	private int index = 0;
 	public void step() {
-		NeuralNetwork brain;
-		if (RenderState.FOLLOW_BLOODLING) {
-			if (Constants.SpeciesId.BEST_BLOODLING_ID == -1) {
-				return;
+		int bestId;
+		if ((bestId = Constants.SpeciesId.BEST_GRASSLER_ID) != -1) {
+			Animal bestAni = Animal.pool[bestId];
+			if (bestAni.neuralNetwork.bestDirection != -1) {
+				index++;
+				for (int i = 0; i < h.length; ++i) {
+					h[i].add(index*Main.plottingNumber, bestAni.neuralNetwork.z[bestAni.neuralNetwork.bestDirection][0][i]);
+					
+					if (index > width) {
+						h[i].remove(0); //TODO: These cause stack traces, better to reduce the viewport
+					}
+				}
+
 			}
-			brain = Animal.pool[Constants.SpeciesId.BEST_BLOODLING_ID].neuralNetwork;
-		}
-		else {
-			if (Constants.SpeciesId.BEST_GRASSLER_ID == -1) {
-				return;
-			}
-			brain = Animal.pool[Constants.SpeciesId.BEST_GRASSLER_ID].neuralNetwork;
 		}
 		
-		for (int i = 0; i < NUM_STUFF; ++i) {
-			h[i].add(index, brain.z[0][i]);
-		}
 		
-		index++;
-		if (index > width) {
-			for (int i = 0; i < NUM_STUFF; ++i) {
-				h[i].remove(0); //TODO: These cause stack traces, better to reduce the viewport
-			}
-		}
 	}
 }

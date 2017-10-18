@@ -50,6 +50,7 @@ public class SaveBrains extends Message {
 		    }
 		    writer.println();
 		    
+		    // Write all weights used based on current time step
 			for (int weight = 0; weight < NeuralNetwork.NUM_WEIGHTS; ++weight) {
 				for (int i = 0; i < best.weights[weight].length; ++i) {
 					for (int j = 0; j < best.weights[weight][i].length; ++j) {
@@ -58,7 +59,18 @@ public class SaveBrains extends Message {
 					writer.println();					
 				}
 			}
+			
+			// Write all weights used based on previous time steps
+			for (int weight = 1; weight < NeuralNetwork.NUM_WEIGHTS; ++weight) {
+				for (int i = 0; i < best.weightsOld[weight].length; ++i) {
+					for (int j = 0; j < best.weightsOld[weight][i].length; ++j) {
+						writer.print(best.weightsOld[weight][i][j] + " ");
+					}
+					writer.println();					
+				}
+			}
 		    writer.close();
+		    
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

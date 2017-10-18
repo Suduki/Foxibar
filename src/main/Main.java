@@ -16,10 +16,10 @@ import agents.Animal;
 import agents.NeuralNetwork;
 import agents.NeuralFactors;
 import constants.Constants;
-import constants.RenderState;
 import dataPlotting.XYPlotThingVersusTime;
 import dataPlotting.XYPlotThingVersusTime2;
 import display.DisplayHandler;
+import display.RenderState;
 import messages.LoadBrains;
 import messages.SaveBrains;
 import simulation.Simulation;
@@ -28,11 +28,17 @@ import utils.FPSLimiter;
 public class Main
 {
 	public final static int plottingNumber = 50;
+	public static boolean plotStuff = true;
+	public static boolean plotStuff2 = false;
 	public static void main(String[] args)
 	{
 		
-		XYPlotThingVersusTime.plotStuff();
-		XYPlotThingVersusTime2.plotStuff();
+		if (plotStuff) {
+			XYPlotThingVersusTime.plotStuff();
+		}
+		if (plotStuff2) {
+			XYPlotThingVersusTime2.plotStuff();
+		}
 		Simulation     simulation     = new Simulation();
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
@@ -54,7 +60,8 @@ public class Main
 				timeStep++;
 				simulation.step(timeStep);
 				fpsLimiter.waitForNextFrame();
-				XYPlotThingVersusTime2.myInstance.step();
+				
+				
 				
 				if (Animal.numAnimals > Constants.WORLD_SIZE/Constants.TILES_PER_ANIMAL/2) {
 					while (Animal.numBloodlings < 15) {
@@ -65,8 +72,13 @@ public class Main
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				
+				if (plotStuff2) {
+					XYPlotThingVersusTime2.myInstance.step();
+				}
 				if (timeStep % plottingNumber == 0) {
-					XYPlotThingVersusTime.myInstance.step();
+					if (plotStuff) {
+						XYPlotThingVersusTime.myInstance.step();
+					}
 					
 					try {
 						if (SaveBrains.goodTimeToSave(Constants.SpeciesId.BLOODLING)) {
@@ -80,6 +92,7 @@ public class Main
 					}
 					catch (Exception e ){
 						System.err.println("Somethnig wrong with loading/saving brain during runtime.");
+						e.printStackTrace();
 					}			
 				}
 			}

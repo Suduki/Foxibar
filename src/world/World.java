@@ -4,7 +4,7 @@ import java.awt.Container;
 
 import agents.Animal;
 import constants.Constants;
-import constants.RenderState;
+import display.RenderState;
 
 import static constants.Constants.Neighbours.*;
 
@@ -83,12 +83,12 @@ public class World {
 		}
 	}
 
-	final static int UPDATE_FREQUENCY = 50;
+	final static int UPDATE_FREQUENCY = 30;
 	public void update(int timeStep) {
-		if (timeStep % UPDATE_FREQUENCY == 0) {
-			grass.grow(UPDATE_FREQUENCY);
-			blood.decay(UPDATE_FREQUENCY);
-		}
+		
+		grass.grow(timeStep, UPDATE_FREQUENCY);
+		blood.decay(timeStep, UPDATE_FREQUENCY);
+
 	}
 
 	public static void regenerate() {

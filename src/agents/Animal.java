@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import vision.Vision;
 import world.World;
 import constants.Constants;
-import constants.RenderState;
+import display.RenderState;
 import messages.LoadBrains;
 import messages.SaveBrains;
 
@@ -104,7 +104,6 @@ public class Animal {
 					}
 					a.recover--;
 					a.move();
-					a.neuralNetwork.stepHormones();
 				}
 				if (!a.isFertile && a.sinceLastBaby > a.timeBetweenBabies) {
 					a.isFertile = true;
@@ -286,34 +285,42 @@ public class Animal {
 	}
 	
 	private double[] tileGoodness = new double[5];
+	private static boolean[] directionWalkable = new boolean[5];
 	private boolean findBestDir() {
 		animalIdToHunt = -1;
 		animalIdToMateWith = -1;
 		
 		for (int tile = 0; tile < 5; ++tile) {
 			
-			// Reset neural network.
-			neuralNetwork.reset();
+			if (containsAnimals[World.neighbour[tile][pos]] == -1 || containsAnimals[World.neighbour[tile][pos]] == id) {
+				directionWalkable[tile] = true;
+			}
+			else {
+				directionWalkable[tile] = false;
+			}
 			
-			neuralNetwork.z[0][NeuralFactors.HUNGER] = hunger / HUNGRY_HUNGER; //TODO: Rescale this?
-			neuralNetwork.z[0][NeuralFactors.AGE] = ((float)age)/AGE_DEATH;
+			neuralNetwork.z[tile][0][NeuralFactors.HUNGER] = hunger / HUNGRY_HUNGER;
+			if (neuralNetwork.z[tile][0][NeuralFactors.HUNGER] > 1) {
+				neuralNetwork.z[tile][0][NeuralFactors.HUNGER] = 1; 
+			}
 			
-			if(neuralNetwork.z[0][NeuralFactors.AGE] > 1) {
+			neuralNetwork.z[tile][0][NeuralFactors.AGE] = ((float)age)/AGE_DEATH;
+			
+			if(neuralNetwork.z[tile][0][NeuralFactors.AGE] > 1) {
 				System.out.println(age + "  " + AGE_DEATH + "   " + neuralNetwork.z[0][NeuralFactors.AGE]);
 			}
 			
-			neuralNetwork.z[0][NeuralFactors.TILE_GRASS] = World.grass.height[World.neighbour[tile][pos]];
-			neuralNetwork.z[0][NeuralFactors.TILE_BLOOD] = World.blood.height[World.neighbour[tile][pos]];
+			neuralNetwork.z[tile][0][NeuralFactors.TILE_GRASS] = World.grass.height[World.neighbour[tile][pos]];
+			neuralNetwork.z[tile][0][NeuralFactors.TILE_BLOOD] = World.blood.height[World.neighbour[tile][pos]];
 			
-			neuralNetwork.z[0][NeuralFactors.TILE_DANGER] = 0;
-			neuralNetwork.z[0][NeuralFactors.TILE_HUNT] = 0;
-			neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] = 0;
-			neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY] = 0;
+			neuralNetwork.z[tile][0][NeuralFactors.TILE_DANGER] = 0;
+			neuralNetwork.z[tile][0][NeuralFactors.TILE_HUNT] = 0;
+			neuralNetwork.z[tile][0][NeuralFactors.TILE_FRIENDS] = 0;
+			neuralNetwork.z[tile][0][NeuralFactors.TILE_FERTILITY] = 0;
 			
 			// Calculate tile in relation to old position.
-			neuralNetwork.z[0][NeuralFactors.TILE_OLD_POSITION] =  (float)Vision.calculateCircularDistance(World.neighbour[tile][pos], oldPos);
+			neuralNetwork.z[tile][0][NeuralFactors.TILE_OLD_POSITION] =  (float)Vision.calculateCircularDistance(World.neighbour[tile][pos], oldPos);
 			
-			int eldestNearbyAnimal = -1;
 			// Loop through the sighted animals to determine tile goodnesses
 			for (int nearbyAnimalId : nearbyAnimals) {
 				
@@ -333,40 +340,28 @@ public class Animal {
 				}
 				
 				if (looksDangerous(nearbyAnimalId)) {
-					neuralNetwork.z[0][NeuralFactors.TILE_DANGER] = Math.max(distanceFactor, neuralNetwork.z[0][NeuralFactors.TILE_DANGER]);
+					neuralNetwork.z[tile][0][NeuralFactors.TILE_DANGER] = Math.max(distanceFactor, neuralNetwork.z[tile][0][NeuralFactors.TILE_DANGER]);
 				}
 				if (looksWeak(nearbyAnimalId)) {
-					neuralNetwork.z[0][NeuralFactors.TILE_HUNT] = Math.max(distanceFactor, neuralNetwork.z[0][NeuralFactors.TILE_HUNT]);
+					neuralNetwork.z[tile][0][NeuralFactors.TILE_HUNT] = Math.max(distanceFactor, neuralNetwork.z[tile][0][NeuralFactors.TILE_HUNT]);
 					if (distanceFactor == 1) {
 						animalIdToHunt = nearbyAnimalId;
 					}
 				}
 				if (!looksDangerous(nearbyAnimalId)) {
-					neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] = Math.max(distanceFactor, neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS]);
+					neuralNetwork.z[tile][0][NeuralFactors.TILE_FRIENDS] = Math.max(distanceFactor, neuralNetwork.z[tile][0][NeuralFactors.TILE_FRIENDS]);
 //					neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] += distanceFactor / Constants.NUM_NEIGHBOURS;
 				}
 				if (isFertileWith(nearbyAnimalId)) {
-					neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY] = Math.max(distanceFactor, neuralNetwork.z[0][NeuralFactors.TILE_FERTILITY]);
+					neuralNetwork.z[tile][0][NeuralFactors.TILE_FERTILITY] = Math.max(distanceFactor, neuralNetwork.z[tile][0][NeuralFactors.TILE_FERTILITY]);
 					if (distanceFactor == 1) {
 						animalIdToMateWith = nearbyAnimalId;
 					}
 				}
 				
-				// Determine whom to learn from
-				if ((eldestNearbyAnimal == -1 || pool[nearbyAnimalId].score > pool[eldestNearbyAnimal].score) 
-						&& pool[nearbyAnimalId].score > this.score*10000
-						&& isFriendWith(nearbyAnimalId)) {
-					eldestNearbyAnimal = nearbyAnimalId;
-				}
 			}
-			if (containsAnimals[World.neighbour[tile][pos]] != -1 && containsAnimals[World.neighbour[tile][pos]] != id) {
-				tileGoodness[tile] = Double.NEGATIVE_INFINITY;
-				continue;
-			}
-			tileGoodness[tile] = neuralNetwork.neuralMagic(eldestNearbyAnimal);
-			
 		}
-		bestDir = (short) max(tileGoodness);
+		bestDir = (short) neuralNetwork.neuralMagic(directionWalkable);
 		return true;
 	}
 	

@@ -22,8 +22,8 @@ public class Blood {
 	}
 
 	private static final float DECAY_YOLO = (float) Math.pow(Constants.Blood.DECAY_FACTOR, World.UPDATE_FREQUENCY);
-	public void decay(int updateFrequency) {
-		for(int i = 0; i < Constants.WORLD_SIZE; ++i) {
+	public void decay(int timeStep, int updateFrequency) {
+		for(int i = timeStep%updateFrequency; i < Constants.WORLD_SIZE; i+=updateFrequency) {
 			height[i] *= DECAY_YOLO;
 		}
 	}
