@@ -22,7 +22,7 @@ public class Animal {
 	private Integer id;
 	public float size = 3f;
 	public float[] secondaryColor;
-	public float[] mainColor;
+	public float[] primaryColor;
 	public int pos;
 	public int oldPos;
 	public int oldX;
@@ -170,7 +170,6 @@ public class Animal {
 				pool[id].secondaryColor[1] = 0;
 				pool[id].secondaryColor[2] = 0;
 				
-				
 				pool[id].size = 2;
 				numBloodlings++;
 				break;
@@ -202,10 +201,10 @@ public class Animal {
 	private Animal() {
 		this.isAlive = false;
 		this.secondaryColor = new float[3];
-		this.mainColor = new float[3];
-		this.mainColor[0] = Constants.RANDOM.nextFloat();
-		this.mainColor[1] = Constants.RANDOM.nextFloat();
-		this.mainColor[2] = Constants.RANDOM.nextFloat();
+		this.primaryColor = new float[3];
+		this.primaryColor[0] = Constants.RANDOM.nextFloat();
+		this.primaryColor[1] = Constants.RANDOM.nextFloat();
+		this.primaryColor[2] = Constants.RANDOM.nextFloat();
 		
 		this.nearbyAnimals = new int[Constants.NUM_NEIGHBOURS];
 		this.nearbyAnimalsDistance = new int[Constants.NUM_NEIGHBOURS];

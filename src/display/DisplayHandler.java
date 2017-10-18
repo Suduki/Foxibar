@@ -500,16 +500,15 @@ public class DisplayHandler extends MessageHandler
 						float healthFactor = Animal.pool[id].health;
 						if (RenderState.DRAW_VISION_CIRCLE) {
 							if (RenderState.FOLLOW_BLOODLING && id == Constants.SpeciesId.BEST_BLOODLING_ID) {
-								renderCircle(Constants.Colors.LIGHT_BLUE, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
+								renderCircle(Animal.pool[id].primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
 							}
 							else if (RenderState.FOLLOW_GRASSLER && id == Constants.SpeciesId.BEST_GRASSLER_ID) {
-								renderCircle(Constants.Colors.LIGHT_BLUE, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
+								renderCircle(Animal.pool[id].primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
 							}
 						}
 						if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
 //							if (Constants.BEST_ID == id) {
-							float[] tmp = new float[3];
-							renderThreePartsOfAnimal(Animal.pool[id].secondaryColor, tmp, 
+							renderThreePartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].primaryColor, 
 									ageFactor, healthFactor, hungerFactor, 
 									Animal.pool[id].size*pixelsPerNodeX, 
 									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
@@ -524,24 +523,24 @@ public class DisplayHandler extends MessageHandler
 ////							}
 						}
 						else if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
-							renderTwoPartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].mainColor, 
+							renderTwoPartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].primaryColor, 
 									ageFactor, hungerFactor, 
 									Animal.pool[id].size*pixelsPerNodeX, 
 									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 						}
 						else if (RenderState.RENDER_AGE) {
-							renderPartOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].mainColor, ageFactor, 
+							renderPartOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].primaryColor, ageFactor, 
 									Animal.pool[id].size*pixelsPerNodeX, 
 									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 							
 						}
 						else if (RenderState.RENDER_HUNGER) {
-							renderPartOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].mainColor, hungerFactor, 
+							renderPartOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].primaryColor, hungerFactor, 
 									Animal.pool[id].size*pixelsPerNodeX, 
 									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 						}
 						else {
-							renderTriangle(Animal.pool[id].mainColor, Animal.pool[id].size*pixelsPerNodeX, 
+							renderTriangle(Animal.pool[id].primaryColor, Animal.pool[id].size*pixelsPerNodeX, 
 									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 						}
 
