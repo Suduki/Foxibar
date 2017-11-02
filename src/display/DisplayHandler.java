@@ -939,7 +939,7 @@ public class DisplayHandler extends MessageHandler
 		glEnable(GL_TEXTURE_2D);
 
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR);
 		glColor3f(1f, 1f, 1f);
 		//	font.drawString(new Float(x), new Float(y), text, new Color(1f, 1f, 1f));
 

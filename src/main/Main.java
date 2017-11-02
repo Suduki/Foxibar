@@ -63,12 +63,12 @@ public class Main
 				
 				
 				
-				if (Animal.numAnimals > Constants.WORLD_SIZE/Constants.TILES_PER_ANIMAL/2) {
-					while (Animal.numBloodlings < 15) {
-						spawnPseudoRandomAnimal(Constants.SpeciesId.BLOODLING);
-					}
-				}
-				while (Animal.numAnimals < 25) {
+//				if (Animal.numAnimals > Constants.WORLD_SIZE/Constants.TILES_PER_ANIMAL/2) {
+//					while (Animal.numBloodlings < 15) {
+//						spawnPseudoRandomAnimal(Constants.SpeciesId.BLOODLING);
+//					}
+//				}
+				while (Animal.numAnimals < 1) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				

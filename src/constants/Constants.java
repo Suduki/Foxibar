@@ -57,7 +57,7 @@ public class Constants {
 	public static class Blood {
 		public static final float SPLASH = 1f;
 		public static final float ADDITION_ON_DEATH = 1f;
-		public static final float DECAY_FACTOR = 1f;
+		public static final float DECAY_FACTOR = 0.999f;
 		public static final float DEATH_FROM_HUNGER_FACTOR = 1f;
 		public static final float DEATH_FROM_AGE_FACTOR = 1.0f;
 		public static final float DEATH_FROM_LOW_HEALTH = 1f;
@@ -66,7 +66,7 @@ public class Constants {
 		public static final float GRASSLER_SPEED = 0.8f;
 		
 		public static final float GRASS_EXPLOSIVITY = 0.3f;
-		public static final float GRASS_GAIN = 15f; // Lower this to stabilize (Increases grass growth and reduces grass gain)
+		public static final float GRASS_GAIN = 8f; // Lower this to stabilize (Increases grass growth and reduces grass gain)
 		
 		public static final float BLOOD_GAIN = 70f;
 		public static final float BLOOD_ENERGY = BLOOD_GAIN / (Blood.ADDITION_ON_DEATH + 4*Blood.SPLASH);
