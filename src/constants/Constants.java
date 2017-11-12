@@ -11,7 +11,7 @@ public class Constants {
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
-	public static final int WANTED_FPS = 100;
+	public static final int WANTED_FPS = 30;
 	public static final int PIXELS_Y = 800;
 	public static final int PIXELS_SIDEBOARD = 360;
 	public static final int WINDOW_WIDTH = 1080;
@@ -19,7 +19,7 @@ public class Constants {
 	public static final float PIXELS_PER_NODE_X = ((float)PIXELS_X)/WORLD_SIZE_X;
 	public static final float PIXELS_PER_NODE_Y = ((float)PIXELS_Y)/WORLD_SIZE_Y;
 	public static final Random RANDOM = new Random(1);
-	public static final float TILES_PER_ANIMAL = 25;
+	public static final float TILES_PER_ANIMAL = 20;
 	public static final float GROWTH = Species.GRASSLER_SPEED / Species.GRASS_GAIN / TILES_PER_ANIMAL;
 	public static final int MAX_NUM_ANIMALS = 30000;
 	public static final float ZOOM_SPEED = 1.05f;
@@ -34,7 +34,7 @@ public class Constants {
 		public static final float[] RED   = new float[]{1f, 0f, 0f};
 		public static final float[] GREEN = new float[]{0f, 1f, 0f};
 		public static final float[] BLUE  = new float[]{0f, 0f, 1f};
-		public static final float[] DIRT  = new float[]{0.2f, 0.0f, 0.04f};
+		public static final float[] DIRT  = new float[]{0.0f, 0.0f, 0.0f};
 		public static final float[] SAND  = new float[]{1f, 0.7f, 0.2f};
 		public static final float[] WHITE = new float[]{1f, 1f, 1f};
 		public static final float[] BLACK = new float[]{0f, 0f, 0f};
@@ -43,6 +43,7 @@ public class Constants {
 		public static final float[] DARK_RED = new float[]{0.3f, 0f, 0f};
 		public static final float[] DARK_BLUE = new float[]{0f, 0f, 0.3f};
 		public static final float[] LIGHT_BLUE = new float[]{0.6f, 0.6f, 0.9f};
+		public static final float[] GREY = new float[]{0.5f, 0.5f, 0.7f};
 	}
 
 	public static class Neighbours {
@@ -57,7 +58,9 @@ public class Constants {
 	public static class Blood {
 		public static final float SPLASH = 1f;
 		public static final float ADDITION_ON_DEATH = 1f;
-		public static final float DECAY_FACTOR = 0.999f;
+		public static final float DECAY_FACTOR = 0.9999f;
+		public static final float DECAY_FACTOR_WATER = 0.9f;
+		public static final float DECAY_FACTOR_STONE = 0.9f;
 		public static final float DEATH_FROM_HUNGER_FACTOR = 1f;
 		public static final float DEATH_FROM_AGE_FACTOR = 1.0f;
 		public static final float DEATH_FROM_LOW_HEALTH = 1f;

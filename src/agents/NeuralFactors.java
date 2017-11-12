@@ -10,7 +10,8 @@ public class NeuralFactors {
 	public static final int TILE_FERTILITY		= NUM_DESICION_FACTORS++;
 	public static final int TILE_FRIENDS		= NUM_DESICION_FACTORS++;
 	public static final int TILE_HUNT			= NUM_DESICION_FACTORS++;
-	public static final int TILE_OLD_POSITION	= NUM_DESICION_FACTORS++;
+	public static final int TILE_TERRAIN_HIGHT	= NUM_DESICION_FACTORS++;
+//	public static final int TILE_OLD_POSITION	= NUM_DESICION_FACTORS++;
 	
 	public static final String[] NAMES = {
 			"HUNGER   ",
@@ -21,7 +22,8 @@ public class NeuralFactors {
 			"FERTILITY",
 			"FRIENDS  ",
 			"HUNT     ",
-			"OLD_POS  "
+			"HEIGHT   ",
+//			"OLD_POS  "
 	};
 	
 }

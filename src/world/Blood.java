@@ -21,10 +21,21 @@ public class Blood {
 		}
 	}
 
-	private static final float DECAY_YOLO = (float) Math.pow(Constants.Blood.DECAY_FACTOR, World.UPDATE_FREQUENCY);
+	private static final float TRUE_DECAY = (float) Math.pow(Constants.Blood.DECAY_FACTOR, World.UPDATE_FREQUENCY);
+	private static final float TRUE_DECAY_WATER = (float) Math.pow(Constants.Blood.DECAY_FACTOR_WATER, World.UPDATE_FREQUENCY);
+	private static final float TRUE_DECAY_STONE = (float) Math.pow(Constants.Blood.DECAY_FACTOR_STONE, World.UPDATE_FREQUENCY);
+	
 	public void decay(int timeStep, int updateFrequency) {
 		for(int i = timeStep%updateFrequency; i < Constants.WORLD_SIZE; i+=updateFrequency) {
-			height[i] *= DECAY_YOLO;
+			if (World.terrain.water[i]) {
+				height[i] *= TRUE_DECAY_WATER;
+			}
+			else if (World.terrain.stone[i]) {
+				height[i] *= TRUE_DECAY_STONE;
+			}
+			else {
+				height[i] *= TRUE_DECAY;
+			}
 		}
 	}
 	

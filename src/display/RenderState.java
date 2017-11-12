@@ -16,10 +16,11 @@ public class RenderState {
 	public static boolean DRAW_VISION_CIRCLE;
 	
 	private static int renderState;
-	private static int NUM_RENDER_STATES = 3;
-	public  final static int RENDER_WORLD_STILL								= 0;
+	private static int NUM_RENDER_STATES = 4;
+	public final static int RENDER_WORLD_STILL								= 0;
 	public final static int RENDER_WORLD_FOLLOW_BLOODLING_LIMIT_VISION		= 1;
 	public final static int RENDER_WORLD_FOLLOW_GRASSLER_LIMIT_VISION		= 2;
+	public final static int RENDER_WORLD_DONT_RENDER_ANIMALS 				= 3;
 	
 	public static void stepState() {
 		if (++renderState >= NUM_RENDER_STATES) {
@@ -33,7 +34,7 @@ public class RenderState {
 		RENDER_ANIMALS = true;
 		RENDER_BLOOD = true;
 		RENDER_VISION = false;
-		RENDER_DIRT = false;
+		RENDER_DIRT = true;
 		RENDER_HUNGER = true;
 		RENDER_AGE = true;
 		RENDER_HEALTH = true;
@@ -45,6 +46,8 @@ public class RenderState {
 				FOLLOW_BLOODLING = false;
 				FOLLOW_GRASSLER = false;
 				DRAW_VISION_CIRCLE = false;
+				RENDER_ANIMALS = true;
+				RENDER_BLOOD = true;
 				break;
 			case RENDER_WORLD_FOLLOW_BLOODLING_LIMIT_VISION:
 				PAN_OLD_MAN = true;
@@ -52,6 +55,8 @@ public class RenderState {
 				FOLLOW_BLOODLING = true;
 				FOLLOW_GRASSLER = false;
 				DRAW_VISION_CIRCLE = true;
+				RENDER_ANIMALS = true;
+				RENDER_BLOOD = true;
 				break;
 			case RENDER_WORLD_FOLLOW_GRASSLER_LIMIT_VISION:
 				PAN_OLD_MAN = true;
@@ -59,7 +64,18 @@ public class RenderState {
 				FOLLOW_BLOODLING = false;
 				FOLLOW_GRASSLER = true;
 				DRAW_VISION_CIRCLE = true;
+				RENDER_ANIMALS = true;
+				RENDER_BLOOD = true;
 				break;
+			case RENDER_WORLD_DONT_RENDER_ANIMALS:
+				PAN_OLD_MAN = false;
+				LIMIT_VISION = false;
+				FOLLOW_BLOODLING = false;
+				FOLLOW_GRASSLER = false;
+				DRAW_VISION_CIRCLE = false;
+				RENDER_ANIMALS = false;
+				RENDER_BLOOD = false;
+				break;	
 		}
 	}
 	

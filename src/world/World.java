@@ -83,7 +83,7 @@ public class World {
 		}
 	}
 
-	final static int UPDATE_FREQUENCY = 30;
+	final static int UPDATE_FREQUENCY = 8;
 	public void update(int timeStep) {
 		
 		grass.grow(timeStep, UPDATE_FREQUENCY);
@@ -96,6 +96,7 @@ public class World {
 		grass.regenerate();
 	}
 
+	private static float[] tempColor = new float[3];
 	public static void updateColor(float[][] a, int pos) {
 		float grassness, dirtness;
 
@@ -111,18 +112,17 @@ public class World {
 		a[pos][1] += grassness*grass.color[1];
 		a[pos][2] += grassness*grass.color[2];
 
-		float[] temp = new float[3]; //TODO remove new somehow.
-		terrain.getColor(pos, temp);
+		terrain.getColor(pos, tempColor);
 		dirtness = 1 - grassness;
-		a[pos][0] += dirtness*temp[0];
-		a[pos][1] += dirtness*temp[1];
-		a[pos][2] += dirtness*temp[2];
+		a[pos][0] += dirtness*tempColor[0];
+		a[pos][1] += dirtness*tempColor[1];
+		a[pos][2] += dirtness*tempColor[2];
 
 		if (RenderState.RENDER_BLOOD) {
-			blood.getColor(pos, temp);
-			a[pos][0] += temp[0];
-			a[pos][1] += temp[1];
-			a[pos][2] += temp[2];
+			blood.getColor(pos, tempColor);
+			a[pos][0] += tempColor[0];
+			a[pos][1] += tempColor[1];
+			a[pos][2] += tempColor[2];
 		}
 	}
 }

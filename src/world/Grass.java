@@ -16,17 +16,15 @@ public class Grass {
 		color = Constants.Colors.GRASS;
 	}
 
-	public static final boolean USE_DESSERT = true;
+	private static final float WATER_LIMIT = 0.8f;
 	public void grow(int timeStep, int updateFrequency) {
 		for(int i = timeStep%updateFrequency; i < Constants.WORLD_SIZE; i+=updateFrequency) {
 			if (toBeUpdated[i]) {
 				if (GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT) {
-					if (!USE_DESSERT || World.terrain.height[i] > 0.3f) {
-						height[i] += Constants.GROWTH * World.terrain.height[i] * updateFrequency;
-						if (height[i] > World.terrain.height[i]) {
-							toBeUpdated[i] = false;
-							height[i] = World.terrain.height[i];
-						}
+					height[i] += Constants.GROWTH * World.terrain.growth[i] * updateFrequency;
+					if (height[i] > World.terrain.growth[i]) {
+						toBeUpdated[i] = false;
+						height[i] = World.terrain.growth[i];
 					}
 				}
 				else {
@@ -41,28 +39,38 @@ public class Grass {
 	}
 
 	public void regenerate() {
-		if (GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT) {
-			for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-				this.height[i] = World.terrain.height[i];
+		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
+			if (World.terrain.stone[i] || World.terrain.water[i]) {
+				this.height[i] = 0;
 				toBeUpdated[i] = false;
+				continue;
 			}
-		}
-		else {
-			for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
+			if (GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT) {
+				this.height[i] = World.terrain.growth[i];
+			}
+			else {
 				this.height[i] = 1;
-				toBeUpdated[i] = false;
 			}
+			toBeUpdated[i] = false;
 		}
 	}
 
 	public void killAllGrass() {
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			this.height[i] = 0f;
-			toBeUpdated[i] = true;
+			if (World.terrain.stone[i] || World.terrain.water[i]) {
+				toBeUpdated[i] = false;
+			}
+			else {
+				this.height[i] = 0f;
+				toBeUpdated[i] = true;
+			}
 		}
 	}
 
 	public float harvest(float grassHarvest, int pos) {
+		if (World.terrain.water[pos] || World.terrain.stone[pos]) {
+			return 0;
+		}
 		float old = height[pos];
 		height[pos] -= grassHarvest;
 		if (height[pos] < 0) {

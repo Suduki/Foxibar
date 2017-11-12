@@ -311,6 +311,8 @@ public class Animal {
 			
 			neuralNetwork.z[tile][0][NeuralFactors.TILE_GRASS] = World.grass.height[World.neighbour[tile][pos]];
 			neuralNetwork.z[tile][0][NeuralFactors.TILE_BLOOD] = World.blood.height[World.neighbour[tile][pos]];
+			neuralNetwork.z[tile][0][NeuralFactors.TILE_TERRAIN_HIGHT] = 
+					Math.abs(World.terrain.height[World.neighbour[tile][pos]]*2-1f);
 			
 			neuralNetwork.z[tile][0][NeuralFactors.TILE_DANGER] = 0;
 			neuralNetwork.z[tile][0][NeuralFactors.TILE_HUNT] = 0;
@@ -318,7 +320,7 @@ public class Animal {
 			neuralNetwork.z[tile][0][NeuralFactors.TILE_FERTILITY] = 0;
 			
 			// Calculate tile in relation to old position.
-			neuralNetwork.z[tile][0][NeuralFactors.TILE_OLD_POSITION] =  (float)Vision.calculateCircularDistance(World.neighbour[tile][pos], oldPos);
+//			neuralNetwork.z[tile][0][NeuralFactors.TILE_OLD_POSITION] =  (float)Vision.calculateCircularDistance(World.neighbour[tile][pos], oldPos);
 			
 			// Loop through the sighted animals to determine tile goodnesses
 			for (int nearbyAnimalId : nearbyAnimals) {
