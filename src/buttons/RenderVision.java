@@ -1,8 +1,8 @@
 package buttons;
 
-import org.lwjgl.util.vector.Vector2f;
 
-import constants.Constants;
+import display.RenderState;
+import math.Vector2f;
 
 public class RenderVision extends Button {
 
@@ -10,9 +10,9 @@ public class RenderVision extends Button {
 		super(position);
 	}
 
-	@Override
+	//@Override
 	public void onClick() {
-		Constants.RENDER_TERRAIN = !Constants.RENDER_TERRAIN;
+		RenderState.RENDER_TERRAIN = !RenderState.RENDER_TERRAIN;
 	}
 
 }
