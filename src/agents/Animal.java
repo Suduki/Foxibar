@@ -34,8 +34,6 @@ public class Animal {
 	public int[] nearbyAnimals;
 	public int[] nearbyAnimalsDistance;
 	
-	private float recover = 0f;
-	
 	public NeuralNetwork neuralNetwork;
 	
 	//************ GENETIC STATS ************
@@ -55,6 +53,7 @@ public class Animal {
 	public static boolean killAll = false;
 	public static boolean saveBrains = false;
 	public static boolean loadBrains = false;
+	
 	
 	public static void moveAll() {
 		if (killAll) {
@@ -97,12 +96,11 @@ public class Animal {
 		for (Animal a : pool) {
 			if (a.isAlive) {
 				a.sinceLastBaby++;
-				a.recover += a.species.speed;
-				if (a.recover > 1f) {
-					if (!a.age()) {
+				if (a.energy.canMove(a.speed[0], a.species.speed)) {
+					if (!a.age()) { 
+						// Died from hunger or age
 						continue;
 					}
-					a.recover--;
 					a.move();
 				}
 				if (!a.isFertile && a.sinceLastBaby > a.timeBetweenBabies) {
@@ -159,9 +157,9 @@ public class Animal {
 		pool[id].age = 0;
 		pool[id].score = 0;
 		pool[id].sinceLastBaby = 0;
-		pool[id].recover = 0f;
 		pool[id].hunger = hunger;
 		pool[id].health = 0.1f;
+		pool[id].energy.init();
 		
 		numAnimals++;
 		switch (pool[id].species.speciesId) {
@@ -210,10 +208,12 @@ public class Animal {
 		this.nearbyAnimalsDistance = new int[Constants.NUM_NEIGHBOURS];
 		this.neuralNetwork = new NeuralNetwork(false);
 		this.species = new Species();
+		this.energy = new Energy();
 	}
 	private short bestDir;
 	private int animalIdToHunt;
 	private int animalIdToMateWith;
+	public Energy energy;
 	private void move() {
 
 		// Remove animal from the world temporarily :F
@@ -283,8 +283,9 @@ public class Animal {
 		return true;
 	}
 	
-	private double[] tileGoodness = new double[5];
 	private static boolean[] directionWalkable = new boolean[5];
+	public float[] speed = new float[1];
+	
 	private boolean findBestDir() {
 		animalIdToHunt = -1;
 		animalIdToMateWith = -1;
@@ -362,7 +363,7 @@ public class Animal {
 				
 			}
 		}
-		bestDir = (short) neuralNetwork.neuralMagic(directionWalkable);
+		bestDir = (short) neuralNetwork.neuralMagic(directionWalkable, speed);
 		return true;
 	}
 	

@@ -9,6 +9,7 @@ public class RenderState {
 	public static boolean RENDER_HUNGER;
 	public static boolean RENDER_AGE;
 	public static boolean RENDER_HEALTH;
+	public static boolean RENDER_ENERGY;
 	public static boolean PAN_OLD_MAN;
 	public static boolean LIMIT_VISION;
 	public static boolean FOLLOW_BLOODLING;
@@ -36,8 +37,9 @@ public class RenderState {
 		RENDER_VISION = false;
 		RENDER_DIRT = true;
 		RENDER_HUNGER = true;
-		RENDER_AGE = true;
+		RENDER_AGE = false;
 		RENDER_HEALTH = true;
+		RENDER_ENERGY = true;
 		renderState = state;
 		switch (state) {
 			case RENDER_WORLD_STILL:

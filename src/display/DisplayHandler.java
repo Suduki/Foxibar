@@ -498,6 +498,7 @@ public class DisplayHandler extends MessageHandler
 						float ageFactor = 1f - ((float)Animal.pool[id].age)/(Animal.AGE_DEATH);
 						float hungerFactor = Animal.pool[id].hunger/(Animal.HUNGRY_HUNGER*2);
 						float healthFactor = Animal.pool[id].health;
+						
 						if (RenderState.DRAW_VISION_CIRCLE) {
 							if (RenderState.FOLLOW_BLOODLING && id == Constants.SpeciesId.BEST_BLOODLING_ID) {
 								renderCircle(Animal.pool[id].primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
@@ -521,6 +522,14 @@ public class DisplayHandler extends MessageHandler
 ////								renderTriangle(Animal.pool[id].secondaryColor, Animal.pool[id].size*pixelsPerNodeX, 
 ////										Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 ////							}
+						}
+						else if (RenderState.RENDER_ENERGY) {
+							float energyFactor = Animal.pool[id].energy.energy / Animal.pool[id].energy.ENERGY_MAX;
+							float speedFactor = Animal.pool[id].speed[0];
+							renderThreePartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].primaryColor, 
+									energyFactor, speedFactor, hungerFactor, 
+									Animal.pool[id].size*pixelsPerNodeX, 
+									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 						}
 						else if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
 							renderTwoPartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].primaryColor, 
