@@ -19,14 +19,13 @@ public class Species {
 	float babyHungerLimit;
 	
 	public Species(int speciesId, float grassHarvest, float grassDigestion,
-			float bloodHarvest, float bloodDigestion, float speed,
+			float bloodHarvest, float bloodDigestion, 
 			float fight, float healing) {
 		this.speciesId = speciesId;
 		this.grassHarvest = grassHarvest;
 		this.grassDigestion = grassDigestion;
 		this.bloodDigestion = bloodDigestion;
 		this.bloodHarvest = bloodHarvest;
-		this.speed = speed;
 		this.fight = fight;
 		this.healing = healing;
 		this.babyHungerLimit = babyHungerLimit;

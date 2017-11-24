@@ -11,9 +11,6 @@ import messages.SaveBrains;
 
 public class Animal {
 	
-	public static final int BIRTH_HUNGER = 60;
-	public static final int HUNGRY_HUNGER = 100;
-	public static final int BIRTH_HUNGER_COST = 80;
 	public static final int AGE_DEATH = 1000;
 	
 	public int age = 0;
@@ -29,14 +26,13 @@ public class Animal {
 	public int oldY;
 	
 	public boolean isAlive;
-	public float hunger;
 	public float health;
 	public int[] nearbyAnimals;
 	public int[] nearbyAnimalsDistance;
 	
-	private float recover = 0f;
-	
 	public NeuralNetwork neuralNetwork;
+	public Stomach stomach;
+	public Stamina stamina;
 	
 	//************ GENETIC STATS ************
 	public Species species;
@@ -97,13 +93,18 @@ public class Animal {
 		for (Animal a : pool) {
 			if (a.isAlive) {
 				a.sinceLastBaby++;
-				a.recover += a.species.speed;
-				if (a.recover > 1f) {
-					if (!a.age()) {
+				a.stomach.digest();
+				
+				if (!a.stamina.isSleeping((float) a.neuralNetwork.output[NeuralFactors.OUT_SPEED])) {
+					if (!a.age(true)) {
 						continue;
 					}
-					a.recover--;
 					a.move();
+				}
+				else {
+					if (!a.age(false)) {
+						continue;
+					}
 				}
 				if (!a.isFertile && a.sinceLastBaby > a.timeBetweenBabies) {
 					a.isFertile = true;
@@ -112,6 +113,9 @@ public class Animal {
 		}
 	}
 	
+	/**
+	 * Called once on startup.
+	 */
 	public static void init() {
 		containsAnimals = new int[Constants.WORLD_SIZE];
 		
@@ -124,7 +128,19 @@ public class Animal {
 			dead.add(id);
 		}
 	}
-	public static int resurrectAnimal(int pos, float hunger, Species speciesMom, NeuralNetwork neuralMom, Species speciesDad, NeuralNetwork neuralDad) {
+	
+	/**
+	 * Used to awake one animal from the pool of animals.
+	 * Will inherit some of the parameters from parents and add evolution.
+	 * 
+	 * @param pos
+	 * @param speciesMom
+	 * @param neuralMom
+	 * @param speciesDad
+	 * @param neuralDad
+	 * @return
+	 */
+	public static int resurrectAnimal(int pos, Species speciesMom, NeuralNetwork neuralMom, Species speciesDad, NeuralNetwork neuralDad) {
 		int id = findFirstAvailablePoolSpot();
 		
 		if (id == -1) {
@@ -159,9 +175,8 @@ public class Animal {
 		pool[id].age = 0;
 		pool[id].score = 0;
 		pool[id].sinceLastBaby = 0;
-		pool[id].recover = 0f;
-		pool[id].hunger = hunger;
 		pool[id].health = 0.1f;
+		
 		
 		numAnimals++;
 		switch (pool[id].species.speciesId) {
@@ -171,6 +186,8 @@ public class Animal {
 				pool[id].secondaryColor[2] = 0;
 				
 				pool[id].size = 2;
+				pool[id].stomach.init(1f, Constants.Species.BLOODLING.bloodDigestion, Constants.Species.BLOODLING.grassDigestion);
+				pool[id].stamina.init(Constants.Species.BLOODLING_STAMINA_REGAIN, Constants.Species.BLOODLING_STAMINA_MAX);
 				numBloodlings++;
 				break;
 			case Constants.SpeciesId.GRASSLER:
@@ -178,6 +195,8 @@ public class Animal {
 				pool[id].secondaryColor[1] = 1;
 				pool[id].secondaryColor[2] = 1;
 				pool[id].size = 1;
+				pool[id].stomach.init(1f, Constants.Species.GRASSLER.bloodDigestion, Constants.Species.GRASSLER.grassDigestion);
+				pool[id].stamina.init(Constants.Species.GRASSLER_STAMINA_REGAIN, Constants.Species.GRASSLER_STAMINA_MAX);
 				numGrasslers++;
 				break;
 			default:
@@ -197,7 +216,7 @@ public class Animal {
 		return poolSpot;
 	}
 	
-// ************ INSTANCE STUFF ************
+//************ INSTANCE STUFF ************\\
 	private Animal() {
 		this.isAlive = false;
 		this.secondaryColor = new float[3];
@@ -209,6 +228,8 @@ public class Animal {
 		this.nearbyAnimals = new int[Constants.NUM_NEIGHBOURS];
 		this.nearbyAnimalsDistance = new int[Constants.NUM_NEIGHBOURS];
 		this.neuralNetwork = new NeuralNetwork(false);
+		this.stomach = new Stomach();
+		this.stamina = new Stamina();
 		this.species = new Species();
 	}
 	private short bestDir;
@@ -230,8 +251,7 @@ public class Animal {
 			if (animalIdToMateWith != -1) {
 				mateWith(animalIdToMateWith);
 			}
-			harvestBlood();
-			harvestGrass();
+			harvest();
 		}
 		else {
 			System.err.println("Warning: found no best dir, should not happen?");
@@ -243,7 +263,7 @@ public class Animal {
 		containsAnimals[pos] = id;
 	}
 	
-	private boolean age() {
+	private boolean age(boolean didMove) {
 		age++;
 		score++;
 		
@@ -264,8 +284,7 @@ public class Animal {
 			die(Constants.Blood.DEATH_FROM_AGE_FACTOR);
 			return false;
 		}
-		hunger = hunger - 1f;
-		if (hunger < 0) {
+		if (!stomach.stepHunger(didMove)) {
 			die(Constants.Blood.DEATH_FROM_HUNGER_FACTOR);
 			return false;
 		}
@@ -283,7 +302,6 @@ public class Animal {
 		return true;
 	}
 	
-	private double[] tileGoodness = new double[5];
 	private static boolean[] directionWalkable = new boolean[5];
 	private boolean findBestDir() {
 		animalIdToHunt = -1;
@@ -298,26 +316,26 @@ public class Animal {
 				directionWalkable[tile] = false;
 			}
 			
-			neuralNetwork.z[tile][0][NeuralFactors.HUNGER] = hunger / HUNGRY_HUNGER;
-			if (neuralNetwork.z[tile][0][NeuralFactors.HUNGER] > 1) {
-				neuralNetwork.z[tile][0][NeuralFactors.HUNGER] = 1; 
+			neuralNetwork.z[tile][0][NeuralFactors.IN_STOMACH_FULLNESS] = stomach.getRelativeHunger();
+			if (neuralNetwork.z[tile][0][NeuralFactors.IN_STOMACH_FULLNESS] > 1) {
+				neuralNetwork.z[tile][0][NeuralFactors.IN_STOMACH_FULLNESS] = 1; 
 			}
 			
-			neuralNetwork.z[tile][0][NeuralFactors.AGE] = ((float)age)/AGE_DEATH;
+			neuralNetwork.z[tile][0][NeuralFactors.IN_AGE] = ((float)age)/AGE_DEATH;
 			
-			if(neuralNetwork.z[tile][0][NeuralFactors.AGE] > 1) {
-				System.out.println(age + "  " + AGE_DEATH + "   " + neuralNetwork.z[0][NeuralFactors.AGE]);
+			if(neuralNetwork.z[tile][0][NeuralFactors.IN_AGE] > 1) {
+				System.out.println(age + "  " + AGE_DEATH + "   " + neuralNetwork.z[0][NeuralFactors.IN_AGE]);
 			}
 			
-			neuralNetwork.z[tile][0][NeuralFactors.TILE_GRASS] = World.grass.height[World.neighbour[tile][pos]];
-			neuralNetwork.z[tile][0][NeuralFactors.TILE_BLOOD] = World.blood.height[World.neighbour[tile][pos]];
-			neuralNetwork.z[tile][0][NeuralFactors.TILE_TERRAIN_HIGHT] = 
+			neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_GRASS] = World.grass.height[World.neighbour[tile][pos]];
+			neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_BLOOD] = World.blood.height[World.neighbour[tile][pos]];
+			neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_TERRAIN_HIGHT] = 
 					Math.abs(World.terrain.height[World.neighbour[tile][pos]]*2-1f);
 			
-			neuralNetwork.z[tile][0][NeuralFactors.TILE_DANGER] = 0;
-			neuralNetwork.z[tile][0][NeuralFactors.TILE_HUNT] = 0;
-			neuralNetwork.z[tile][0][NeuralFactors.TILE_FRIENDS] = 0;
-			neuralNetwork.z[tile][0][NeuralFactors.TILE_FERTILITY] = 0;
+			neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_DANGER] = 0;
+			neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_HUNT] = 0;
+			neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_FRIENDS] = 0;
+			neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_FERTILITY] = 0;
 			
 			// Calculate tile in relation to old position.
 //			neuralNetwork.z[tile][0][NeuralFactors.TILE_OLD_POSITION] =  (float)Vision.calculateCircularDistance(World.neighbour[tile][pos], oldPos);
@@ -341,20 +359,20 @@ public class Animal {
 				}
 				
 				if (looksDangerous(nearbyAnimalId)) {
-					neuralNetwork.z[tile][0][NeuralFactors.TILE_DANGER] = Math.max(distanceFactor, neuralNetwork.z[tile][0][NeuralFactors.TILE_DANGER]);
+					neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_DANGER] = Math.max(distanceFactor, neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_DANGER]);
 				}
 				if (looksWeak(nearbyAnimalId)) {
-					neuralNetwork.z[tile][0][NeuralFactors.TILE_HUNT] = Math.max(distanceFactor, neuralNetwork.z[tile][0][NeuralFactors.TILE_HUNT]);
+					neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_HUNT] = Math.max(distanceFactor, neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_HUNT]);
 					if (distanceFactor == 1) {
 						animalIdToHunt = nearbyAnimalId;
 					}
 				}
 				if (!looksDangerous(nearbyAnimalId)) {
-					neuralNetwork.z[tile][0][NeuralFactors.TILE_FRIENDS] = Math.max(distanceFactor, neuralNetwork.z[tile][0][NeuralFactors.TILE_FRIENDS]);
+					neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_FRIENDS] = Math.max(distanceFactor, neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_FRIENDS]);
 //					neuralNetwork.z[0][NeuralFactors.TILE_FRIENDS] += distanceFactor / Constants.NUM_NEIGHBOURS;
 				}
 				if (isFertileWith(nearbyAnimalId)) {
-					neuralNetwork.z[tile][0][NeuralFactors.TILE_FERTILITY] = Math.max(distanceFactor, neuralNetwork.z[tile][0][NeuralFactors.TILE_FERTILITY]);
+					neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_FERTILITY] = Math.max(distanceFactor, neuralNetwork.z[tile][0][NeuralFactors.IN_TILE_FERTILITY]);
 					if (distanceFactor == 1) {
 						animalIdToMateWith = nearbyAnimalId;
 					}
@@ -383,33 +401,23 @@ public class Animal {
 	}
 	
 	private boolean isFertile() {
-		return isFertile && !isHungry();
+		return isFertile && !stomach.isHungry();
 	}
-
-	private int max(double[] nodeGoodness) {
-		int maxI = -1;
-		double maxVal = Double.MIN_VALUE;
-		for (short i = 0; i < nodeGoodness.length; ++i) {
-			if (nodeGoodness[i] > maxVal) {
-				maxVal = nodeGoodness[i];
-				maxI = i;
-			}
-		}
-		if (maxI == -1 || Double.isNaN(maxVal)) {
-			System.err.println("maxVal isNaN? " + maxVal);
-			maxI = Constants.RANDOM.nextInt(5);
-		}
-		return maxI;
+	
+	private void harvest() {
+		float howMuchBloodIWantToEat = (float) neuralNetwork.output[NeuralFactors.OUT_BLOOD_EAT];
+		float howMuchGrassIWantToEat = (float) neuralNetwork.output[NeuralFactors.OUT_GRASS_EAT];
+		
+		float blood = harvestBlood(howMuchBloodIWantToEat / (howMuchBloodIWantToEat + howMuchGrassIWantToEat));
+		float grass = harvestGrass(howMuchGrassIWantToEat / (howMuchBloodIWantToEat + howMuchGrassIWantToEat));
+		stomach.fill(grass, blood);
 	}
-
-	private boolean isHungry() {
-		return hunger < HUNGRY_HUNGER;
+	
+	private float harvestGrass(float f) {
+		return World.grass.harvest(species.grassHarvest*f, pos);
 	}
-	private void harvestGrass() {
-		this.hunger += World.grass.harvest(species.grassHarvest, pos) * species.grassDigestion;
-	}
-	private void harvestBlood() {
-		this.hunger += World.blood.harvest(species.bloodHarvest, pos) * species.bloodDigestion;
+	private float harvestBlood(float f) {
+		return World.blood.harvest(species.bloodHarvest*f, pos);
 	}
 	
 	private void moveTo(short to) {
@@ -423,13 +431,13 @@ public class Animal {
 	}
 	
 	private void mateWith(int id2) {
-		resurrectAnimal(pos, BIRTH_HUNGER, pool[id].species, pool[id].neuralNetwork, pool[id2].species, pool[id2].neuralNetwork);
+		resurrectAnimal(pos, pool[id].species, pool[id].neuralNetwork, pool[id2].species, pool[id2].neuralNetwork);
 		isFertile = false;
-		hunger -= BIRTH_HUNGER_COST;
+		stomach.giveBirth();
 		sinceLastBaby = 0;
 		
 		pool[id2].isFertile = false;
-		pool[id2].hunger -= BIRTH_HUNGER_COST;
+		pool[id2].stomach.giveBirth();
 		pool[id2].sinceLastBaby = 0;
 		
 		

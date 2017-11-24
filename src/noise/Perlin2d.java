@@ -34,7 +34,16 @@ public class Perlin2d {
         setPrimes(seed);
     }
 
-    public double[][] tile(double[][] noise) {
+    private float[] persistenceV;
+    public Perlin2d(float[] persistence, int seed) {
+    	persistenceV = persistence;
+    	this.seed = seed;
+    	this.octaves = persistence.length;
+    	interpolator = new CosineInterpolator();
+    	setPrimes(seed);
+	}
+
+	public double[][] tile(double[][] noise) {
         int w = noise.length / 2;
         int h = noise[0].length / 2;
         double[][] tiled = new double[w][h];
@@ -73,7 +82,7 @@ public class Perlin2d {
             for (int j = 0; j < height; j++) {
                 double nx = 1.0 * i / width * regionWidth;
                 double ny = 1.0 * j / height * regionWidth;
-                y[i][j] = perlinNoise2(smallSeed + nx, smallSeed + ny);
+                y[i][j] = myPerlinNoise2(smallSeed + nx, smallSeed + ny);
             }
         }
         return y;
@@ -120,6 +129,19 @@ public class Perlin2d {
             total += interpolatedNoise2(x * f, y * f) * a;
             f *= 2;
             a *= persistence;
+        }
+        return total;
+    }
+    
+    private double myPerlinNoise2(double x, double y) {
+        double total = 0;
+        int f = 1;
+        for (int i = 0; i < octaves; ++i) {
+            p1 = p1s[i];
+            p2 = p2s[i];
+            p3 = p3s[i];
+            total += interpolatedNoise2(x * f, y * f) * persistenceV[i];
+            f *= 2;
         }
         return total;
     }

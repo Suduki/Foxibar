@@ -68,7 +68,7 @@ public class Main
 //						spawnPseudoRandomAnimal(Constants.SpeciesId.BLOODLING);
 //					}
 //				}
-				while (Animal.numAnimals < 1) {
+				while (Animal.numAnimals < 0) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				
@@ -122,13 +122,13 @@ public class Main
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
 			Animal.resurrectAnimal(pos, 
-					Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
+					Constants.Species.BLOODLING,  
 					null, 
 					Constants.Species.BLOODLING, null);
 			break;
 		case Constants.SpeciesId.GRASSLER:
 			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-					Animal.BIRTH_HUNGER, Constants.Species.GRASSLER,  
+					Constants.Species.GRASSLER,  
 					null, Constants.Species.GRASSLER, null);
 			break;
 		}		
@@ -138,13 +138,13 @@ public class Main
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
 			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-					Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
+					Constants.Species.BLOODLING,  
 					null, 
 					Constants.Species.BLOODLING, null);
 			break;
 		case Constants.SpeciesId.GRASSLER:
 			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-					Animal.BIRTH_HUNGER, Constants.Species.GRASSLER,  
+					Constants.Species.GRASSLER,  
 					null, Constants.Species.GRASSLER, null);
 			break;
 		}

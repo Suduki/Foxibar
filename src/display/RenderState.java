@@ -14,6 +14,7 @@ public class RenderState {
 	public static boolean FOLLOW_BLOODLING;
 	public static boolean FOLLOW_GRASSLER;
 	public static boolean DRAW_VISION_CIRCLE;
+	public static boolean RENDER_STAMINA;
 	
 	private static int renderState;
 	private static int NUM_RENDER_STATES = 4;
@@ -38,6 +39,7 @@ public class RenderState {
 		RENDER_HUNGER = true;
 		RENDER_AGE = true;
 		RENDER_HEALTH = true;
+		RENDER_STAMINA = true;
 		renderState = state;
 		switch (state) {
 			case RENDER_WORLD_STILL:

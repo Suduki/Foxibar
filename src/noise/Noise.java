@@ -12,8 +12,8 @@ public class Noise {
 //		float[][][] noise = generatePerlinNoise(generateWhiteNoise(width, height), Math.min(constants.Constants.WORLD_MULTIPLIER-2 , 7));
 //		return noise;
 	//...
-		float whiteness = 0.5f; // Increase this for more whiteness.
-	    Perlin2d pn = new Perlin2d(whiteness, 10, seed);
+		float[] persistance = {0.5f, 0.5f, 0.5f, 0.5f, 0f, 0f, 0f}; // The first numbers corresponds to large areas of artifacts, the later numbers affect smaller artifacts.
+	    Perlin2d pn = new Perlin2d(persistance, seed);
 	    double[][] y = pn.createTiledArray(constants.Constants.WORLD_SIZE_X, constants.Constants.WORLD_SIZE_Y);
 	    return y;
 	}

@@ -11,7 +11,7 @@ import com.sun.javafx.geom.Vec2f;
 import constants.Constants;
 
 public class NeuralNetwork {
-	public static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 8, 4, 1};
+	public static final int[] LAYER_SIZES = {NeuralFactors.NUM_INPUT_FACTORS, 8, 4, NeuralFactors.NUM_OUTPUT_FACTORS};
 	public static final int NUM_LAYERS = LAYER_SIZES.length;
 	public static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
@@ -55,7 +55,7 @@ public class NeuralNetwork {
 			initWeightsRandom();
 		}
 		initBias();
-		
+		output=z[0][LAYER_SIZES.length-1];
 	}
 	
 	private void initBias() {
@@ -144,7 +144,11 @@ public class NeuralNetwork {
 			}
 		}
 	}
-	
+	/**
+	 * output is the NN output vector.
+	 * Contains all the output mentioned in @see agents.NeuralFactors
+	 */
+	public double[] output;
 	public int neuralMagic(boolean[] directionWalkable) {
 		evaluateNeuralNetwork();
 		double bestVal = Double.NEGATIVE_INFINITY;
@@ -153,8 +157,8 @@ public class NeuralNetwork {
 			if (!directionWalkable[direction]) {
 				continue;
 			}
-			if (z[direction][LAYER_SIZES.length-1][0] > bestVal) {
-				bestVal = z[direction][LAYER_SIZES.length-1][0];
+			if (z[direction][LAYER_SIZES.length-1][NeuralFactors.OUT_TILE_GOODNESS] > bestVal) {
+				bestVal = z[direction][LAYER_SIZES.length-1][NeuralFactors.OUT_TILE_GOODNESS];
 				bestDirection = direction;
 			}
 		}
@@ -162,6 +166,7 @@ public class NeuralNetwork {
 			System.err.println("Found no best direction. Is map crowded?");
 			bestDirection = 0;
 		}
+		output = z[bestDirection][LAYER_SIZES.length-1]; // Update the output
 		return bestDirection;
 	}
 	

@@ -14,6 +14,8 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.print.attribute.standard.PrinterMoreInfoManufacturer;
+
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -359,7 +361,7 @@ public class DisplayHandler extends MessageHandler
 
 					int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
 					if (Animal.containsAnimals[pos] == -1) {
-						Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER, 
+						Animal.resurrectAnimal(pos, Constants.Species.GRASSLER, 
 								null, Constants.Species.GRASSLER, null);
 					}
 				}
@@ -380,7 +382,7 @@ public class DisplayHandler extends MessageHandler
 
 					int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
 					if (Animal.containsAnimals[pos] == -1) {
-						Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
+						Animal.resurrectAnimal(pos, Constants.Species.BLOODLING,  
 								null, Constants.Species.BLOODLING, null);
 					}
 				}
@@ -496,7 +498,7 @@ public class DisplayHandler extends MessageHandler
 //							continue;
 //						}
 						float ageFactor = 1f - ((float)Animal.pool[id].age)/(Animal.AGE_DEATH);
-						float hungerFactor = Animal.pool[id].hunger/(Animal.HUNGRY_HUNGER*2);
+						float hungerFactor = Animal.pool[id].stomach.getRelativeHunger();
 						float healthFactor = Animal.pool[id].health;
 						if (RenderState.DRAW_VISION_CIRCLE) {
 							if (RenderState.FOLLOW_BLOODLING && id == Constants.SpeciesId.BEST_BLOODLING_ID) {
@@ -506,7 +508,14 @@ public class DisplayHandler extends MessageHandler
 								renderCircle(Animal.pool[id].primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
 							}
 						}
-						if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
+						if (RenderState.RENDER_STAMINA) {
+							renderPartOfAnimal(Animal.pool[id].secondaryColor,
+									Animal.pool[id].primaryColor,
+									Animal.pool[id].stamina.getRelativeStamina(),
+									Animal.pool[id].size*pixelsPerNodeX, 
+									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+						}
+						else if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
 //							if (Constants.BEST_ID == id) {
 							renderThreePartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].primaryColor, 
 									ageFactor, healthFactor, hungerFactor, 

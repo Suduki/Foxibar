@@ -6,7 +6,7 @@ import display.RenderState;
 
 public class Terrain {
 	private static final float WATER_LIMIT = 0.3f;
-	private static final float STONE_LIMIT = 0.9f;
+	private static final float STONE_LIMIT = 0.7f;
 	public float[] height;
 	public float[] growth;
 	
@@ -53,7 +53,7 @@ public class Terrain {
 		int i = 0;
 		for(int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
 			for(int y = 0; y < Constants.WORLD_SIZE_Y; ++y, ++i) {
-				height[i] = (float) noise[x][y];
+				height[i] = 1f - (float)noise[x][y];
 				water[i] = false;
 				stone[i] = false;
 
