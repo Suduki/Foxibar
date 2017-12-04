@@ -64,7 +64,7 @@ public class Constants {
 		public static final float DECAY_FACTOR_STONE = 0.9f;
 		public static final float DEATH_FROM_HUNGER_FACTOR = 1f;
 		public static final float DEATH_FROM_AGE_FACTOR = 1.0f;
-		public static final float DEATH_FROM_LOW_HEALTH = 1f;
+		public static final float DEATH_FROM_LOW_HEALTH_FACTOR = 1f;
 	}
 	public static class Species {
 		public static final float GRASSLER_SPEED = 1.2f;

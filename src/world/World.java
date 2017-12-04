@@ -2,7 +2,6 @@ package world;
 
 import java.awt.Container;
 
-import agents.Animal2;
 import constants.Constants;
 import display.RenderState;
 

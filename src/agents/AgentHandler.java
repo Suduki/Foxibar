@@ -2,6 +2,9 @@ package agents;
 
 import java.util.ArrayList;
 
+import messages.LoadBrains;
+import messages.SaveBrains;
+import simulation.Simulation;
 import utils.FibonacciHeap;
 import utils.FibonacciHeap.Entry;
 import vision.Vision;
@@ -22,7 +25,7 @@ public class AgentHandler {
 	 */
 	private Animal[] pool = new Animal[Constants.MAX_NUM_ANIMALS];
 
-	int[] containsAgents;
+	public Agent[] containsAgents;
 	private ArrayList<Animal> dead = new ArrayList<>();
 	/**
 	 * Contains all currently living agents.
@@ -36,35 +39,38 @@ public class AgentHandler {
 	 * @param goalWorldTime
 	 */
 	public void updateAll(float goalWorldTime) {
-		
 		handleInput();
 		
-		Entry<Agent> currentEntry = alive.dequeueMin();
+		if (alive.isEmpty()) {
+			return;
+		}
+		Entry<Agent> currentEntry = alive.min();
 		Agent currentAgent = currentEntry.getValue();
 		float currentTime = currentAgent.time;
 		
-		while (currentTime < goalWorldTime) {
+		while (currentTime < goalWorldTime && !alive.isEmpty()) {
+			// Get next agent to move...
+			currentEntry = alive.dequeueMin();
+			currentAgent = currentEntry.getValue();
+			currentTime = currentAgent.time;
 			
 			// Remove agent from world temporarily
-			containsAgents[currentAgent.pos] = -1;
+			containsAgents[currentAgent.pos] = null;
 			
 			// Allow the agent to make its move and stuff...
 			float stepTime = currentAgent.update(currentAgent.speed);
 			
 			// Check if it survived.
 			if (currentAgent.isAlive) {
+				System.out.println("update all: num grasslers = "+numGrasslers);
 				// Add agent to world again
-				containsAgents[currentAgent.pos] = currentAgent.id;
+				containsAgents[currentAgent.pos] = currentAgent;
 				
 				// Add it to the alive list again.
 				currentAgent.time = currentTime + stepTime;
 				alive.enqueue(currentAgent, currentAgent.time);
 			}
 			
-			// Get next agent to move...
-			currentEntry = alive.dequeueMin();
-			currentAgent = currentEntry.getValue();
-			currentTime = currentAgent.time;
 		}
 	}
 	
@@ -73,14 +79,17 @@ public class AgentHandler {
 			while (!alive.isEmpty()) {
 				alive.dequeueMin().getValue().die(0f);
 			}
+			for (int i = 0 ; i < containsAgents.length; ++i) {
+				containsAgents[i] = null;
+			}
 			killAll = false;
 		}
 		if (saveBrains) {
-			Animal2.saveBrains();
+			SaveBrains.saveBrains();
 			saveBrains = false;
 		}
 		if (loadBrains) {
-			Animal2.loadBrains();
+			LoadBrains.loadBrains();
 			loadBrains = false;
 		}
 	}
@@ -88,11 +97,7 @@ public class AgentHandler {
 	public void init() {
 		numGrasslers = 0;
 		numBloodlings = 0;
-		containsAgents = new int[Constants.WORLD_SIZE];
-
-		for (int pos = 0; pos < Constants.WORLD_SIZE; ++pos) {
-			containsAgents[pos] = -1;
-		}
+		containsAgents = new Agent[Constants.WORLD_SIZE];
 
 		for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
 			pool[id] = new Animal();
@@ -100,12 +105,14 @@ public class AgentHandler {
 		}
 	}
 	
-	public void spawnAnimal(Animal mom, Animal dad) {
+	
+	public void spawnAnimal(Animal mom, Animal dad, int position, float time, int speciesId) {
 		if (!dead.isEmpty()) {
 			Animal child = dead.get(0);
 			dead.remove(0);
-			child.init(mom, dad);
+			child.init(mom, dad, position, time, speciesId);
 			Vision.addAnimalToZone(child);
+			alive.enqueue(child, time);
 		}
 		else {
 			System.err.println("dead is empty; probably means pool is too small");
@@ -116,8 +123,11 @@ public class AgentHandler {
 		if (!dead.isEmpty()) {
 			Animal child = dead.get(0);
 			dead.remove(0);
-			child.init(Constants.SpeciesId.BEST_GRASSLER, Constants.SpeciesId.BEST_GRASSLER);
+			child.init(Constants.SpeciesId.BEST_GRASSLER, Constants.SpeciesId.BEST_GRASSLER, 
+					Constants.RANDOM.nextInt(Constants.WORLD_SIZE), Simulation.globalWorldTime,
+					Constants.SpeciesId.GRASSLER);
 			Vision.addAnimalToZone(child);
+			alive.enqueue(child, Simulation.globalWorldTime+1);
 		}
 		else {
 			System.err.println("dead is empty; probably means pool is too small");
@@ -128,8 +138,11 @@ public class AgentHandler {
 		if (!dead.isEmpty()) {
 			Animal child = dead.get(0);
 			dead.remove(0);
-			child.init(Constants.SpeciesId.BEST_BLOODLING, Constants.SpeciesId.BEST_BLOODLING);
+			child.init(Constants.SpeciesId.BEST_BLOODLING, Constants.SpeciesId.BEST_BLOODLING,
+					Constants.RANDOM.nextInt(Constants.WORLD_SIZE), Simulation.globalWorldTime,
+					Constants.SpeciesId.BLOODLING);
 			Vision.addAnimalToZone(child);
+			alive.enqueue(child, Simulation.globalWorldTime+1);
 		}
 		else {
 			System.err.println("dead is empty; probably means pool is too small");

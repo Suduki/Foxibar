@@ -1,13 +1,5 @@
 package agents;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import com.sun.javafx.geom.Vec2f;
-
 import constants.Constants;
 
 public class NeuralNetwork {
@@ -193,11 +185,17 @@ public class NeuralNetwork {
 	public void inherit(NeuralNetwork neuralMom, NeuralNetwork neuralDad) {
 		bestDirection = -1;
 		float evolution = 0.1f;
-		if (Constants.RANDOM.nextBoolean()) {
-			copy(neuralMom, evolution);
+		if (neuralMom == null || neuralDad == null) {
+			initWeightsRandom();
+			initBias();
 		}
 		else {
-			copy(neuralDad, evolution);
+			if (Constants.RANDOM.nextBoolean()) {
+				copy(neuralMom, evolution);
+			}
+			else {
+				copy(neuralDad, evolution);
+			}
 		}
 	}
 }

@@ -17,22 +17,21 @@ public class Animal extends Agent {
 	public Species species = new Species();
 	
 	
-	public boolean isAlive = false;
 	private int timeBetweenBabies = 10;
 
 
-	private int age;
+	public int age;
 	public int oldPos;
-	private NeuralNetwork neuralNetwork = new NeuralNetwork(false);
+	public NeuralNetwork neuralNetwork = new NeuralNetwork(false);
 
 
-	private int score;
+	public int score;
 	private int sinceLastBaby;
-	private float hunger;
-	private float health;
-	private float[] primaryColor = new float[3];
-	private float[] secondaryColor = new float[3];
-	private int size;
+	public float hunger;
+	public float health;
+	public float[] primaryColor = new float[3];
+	public float[] secondaryColor = new float[3];
+	public int size;
 	
 	// The animals that can be seen are stored here
 	public Animal[] nearbyAnimals = new Animal[Constants.NUM_NEIGHBOURS];
@@ -46,7 +45,6 @@ public class Animal extends Agent {
 		move();
 		interact();
 		stepTime(passedTime);
-		
 		return speed;
 	}
 	
@@ -56,12 +54,19 @@ public class Animal extends Agent {
 	private Animal animalToHunt;
 	private Animal animalToMateWith;
 	private boolean[] directionWalkable = new boolean[5];
-	private int oldX;
-	private int oldY;
+	public int oldX;
+	public int oldY;
 	@Override
 	public void die(float bloodFactor) {
 		isAlive = false;
 		World.blood.append(pos, bloodFactor);
+		
+		switch (species.speciesId) {
+		case Constants.SpeciesId.BLOODLING:
+			AgentHandler.numBloodlings--;
+		case Constants.SpeciesId.GRASSLER:
+			AgentHandler.numGrasslers--;
+		}
 	}
 	
 	/**
@@ -69,26 +74,30 @@ public class Animal extends Agent {
 	 * @param mom
 	 * @param dad
 	 */
-	public void init(Animal mom, Animal dad) {
+	public void init(Animal mom, Animal dad, int position, float time, int speciesId) {
 		isAlive = true;
-		pos = mom.pos;
+		pos = position;
+		oldPos = pos;
 		age = 0;
 		score = 0;
-		oldPos = pos;
 		sinceLastBaby = 0;
 		hunger = HUNGER_AT_BIRTH;
 		health = 0.1f;
-		speed = species.speed;
-		
-		species.inherit(mom.species, dad.species);
-		neuralNetwork.inherit(mom.neuralNetwork, dad.neuralNetwork);
 
 		primaryColor[0] = Constants.RANDOM.nextFloat();
 		primaryColor[1] = Constants.RANDOM.nextFloat();
 		primaryColor[2] = Constants.RANDOM.nextFloat();
 		
-		switch (mom.species.speciesId) {
+		switch (speciesId) {
 			case Constants.SpeciesId.BLOODLING:
+				if (mom == null || dad == null) {
+					species.inherit(Constants.Species.BLOODLING, Constants.Species.BLOODLING);
+					neuralNetwork.inherit(null, null);
+				}
+				else {
+					species.inherit(mom.species, dad.species);
+					neuralNetwork.inherit(mom.neuralNetwork, dad.neuralNetwork);
+				}
 				secondaryColor [0] = 1;
 				secondaryColor[1] = 0;
 				secondaryColor[2] = 0;
@@ -96,6 +105,14 @@ public class Animal extends Agent {
 				size = 2;
 				break;
 			case Constants.SpeciesId.GRASSLER:
+				if (mom == null || dad == null) {
+					species.inherit(Constants.Species.GRASSLER, Constants.Species.GRASSLER);
+					neuralNetwork.inherit(null, null);
+				}
+				else {
+					species.inherit(mom.species, dad.species);
+					neuralNetwork.inherit(mom.neuralNetwork, dad.neuralNetwork);
+				}
 				secondaryColor[0] = 1;
 				secondaryColor[1] = 1;
 				secondaryColor[2] = 1;
@@ -105,6 +122,7 @@ public class Animal extends Agent {
 			default:
 				System.err.println("aaaaa what is this?");
 		}
+		speed = species.speed;
 	}
 	
 	
@@ -138,6 +156,9 @@ public class Animal extends Agent {
 			die(Constants.Blood.DEATH_FROM_AGE_FACTOR);
 		}
 		health += passedTime * species.healing;
+		if (health < 0) {
+			die(Constants.Blood.DEATH_FROM_LOW_HEALTH_FACTOR);
+		}
 	}
 	private void move() {
 		moveTo(bestDir);
@@ -148,8 +169,8 @@ public class Animal extends Agent {
 		
 		for (int tile = 0; tile < 5; ++tile) {
 			
-			if (Simulation.agentHandler.containsAgents[World.neighbour[tile][pos]] == -1 || 
-					Simulation.agentHandler.containsAgents[World.neighbour[tile][pos]] == id) {
+			if (Simulation.agentHandler.containsAgents[World.neighbour[tile][pos]] == null || 
+					Simulation.agentHandler.containsAgents[World.neighbour[tile][pos]] == this) {
 				directionWalkable [tile] = true;
 			}
 			else {
@@ -240,7 +261,7 @@ public class Animal extends Agent {
 	}
 	
 	private void mate() {
-		Simulation.agentHandler.spawnAnimal(this, animalToMateWith);
+		Simulation.agentHandler.spawnAnimal(this, animalToMateWith, this.pos, this.time+1, this.species.speciesId);
 		hunger -= BIRTH_HUNGER_COST;
 		sinceLastBaby = 0;
 		

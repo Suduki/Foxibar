@@ -1,7 +1,6 @@
 package messages;
 
-import agents.Animal2;
-import world.World;
+import agents.AgentHandler;
 
 public class KillAllAnimals extends Message {
 
@@ -13,7 +12,7 @@ public class KillAllAnimals extends Message {
 	@Override
 	public void evaluate(simulation.Simulation pSimulation)
 	{
-		Animal2.killAll = true;
+		AgentHandler.killAll = true;
 		//World.grass.killAllGrass();
 	}
 }

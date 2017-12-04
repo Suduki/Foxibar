@@ -1,14 +1,13 @@
 package messages;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import agents.Animal2;
+import agents.AgentHandler;
+import agents.Animal;
 import agents.NeuralNetwork;
 import constants.Constants;
-import world.World;
+import display.RenderState;
 
 public class SaveBrains extends Message {
 
@@ -20,18 +19,32 @@ public class SaveBrains extends Message {
 	@Override
 	public void evaluate(simulation.Simulation pSimulation)
 	{
-		Animal2.saveBrains = true;
+		AgentHandler.saveBrains = true;
 	}
 	
-	
-	public static void saveBrains(final int speciesId) {
+	public static void saveBrains() {
+		int speciesId;
+		if (RenderState.FOLLOW_BLOODLING) {
+			speciesId = Constants.SpeciesId.BLOODLING;
+		}
+		else if (RenderState.FOLLOW_GRASSLER) {
+			speciesId = Constants.SpeciesId.GRASSLER;
+		}
+		else {
+			System.out.println("Follow the type of animal you want to save");
+			return;
+		}
+		saveBrains(speciesId);
+	}
+	public static void saveBrains(int speciesId) {
 		NeuralNetwork best;
+		
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
 			best = Constants.SpeciesId.BEST_BLOODLING.neuralNetwork;
 			break;
 		case Constants.SpeciesId.GRASSLER:
-			best = Animal2.pool[Constants.SpeciesId.BEST_GRASSLER_ID].neuralNetwork;
+			best = Constants.SpeciesId.BEST_GRASSLER.neuralNetwork;
 			break;
 		default:
 			System.err.println("aa what is this2?");
@@ -77,20 +90,20 @@ public class SaveBrains extends Message {
 	}
 
 	public static boolean goodTimeToSave(final int speciesId) {
-		int bestId;
+		Animal bestId;
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
-			bestId = Constants.SpeciesId.BEST_BLOODLING_ID;
+			bestId = Constants.SpeciesId.BEST_BLOODLING;
 			break;
 		case Constants.SpeciesId.GRASSLER:
-			bestId = Constants.SpeciesId.BEST_GRASSLER_ID;
+			bestId = Constants.SpeciesId.BEST_GRASSLER;
 			break;
 		default:
 			System.err.println("aa what is this3?");
 			return false;
 		}
 		
-		if (bestId == -1 || Animal2.pool[bestId].score < Animal2.AGE_DEATH) {
+		if (bestId == null || bestId.score < Animal.AGE_DEATH) {
 			return false;
 		}
 		return true;

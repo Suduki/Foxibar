@@ -13,7 +13,6 @@ import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 import agents.Animal;
-import agents.Animal2;
 import agents.NeuralNetwork;
 import agents.NeuralFactors;
 import constants.Constants;
@@ -56,11 +55,11 @@ public class Main
 
 		try
 		{
-			int timeStep = 0;
+			int time = 0;
 			while (simulation.handleMessages() && displayHandler.renderThreadThread.isAlive())
 			{
-				timeStep++;
-				simulation.step(timeStep);
+				time++;
+				simulation.step(time);
 				fpsLimiter.waitForNextFrame();
 				
 				
@@ -77,7 +76,7 @@ public class Main
 				if (plotStuff2) {
 					XYPlotThingVersusTime2.myInstance.step();
 				}
-				if (timeStep % plottingNumber == 0) {
+				if (time % plottingNumber == 0) {
 					if (plotStuff) {
 						XYPlotThingVersusTime.myInstance.step();
 					}
@@ -123,27 +122,27 @@ public class Main
 		
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
-			Animal2.resurrectAnimal(pos, 
-					Animal2.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-					null, 
-					Constants.Species.BLOODLING, null);
+			Simulation.agentHandler.spawnAnimal(null, null, pos, 
+					Simulation.globalWorldTime+1, Constants.SpeciesId.BLOODLING);
 			break;
 		case Constants.SpeciesId.GRASSLER:
-			Animal2.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-					Animal2.BIRTH_HUNGER, Constants.Species.GRASSLER,  
-					null, Constants.Species.GRASSLER, null);
+			Simulation.agentHandler.spawnAnimal(null, null, pos, 
+					Simulation.globalWorldTime+1, Constants.SpeciesId.GRASSLER);
 			break;
 		}		
 	}
 
 	private static void spawnRandomAnimal(int speciesId) {
+		int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
-			Animal.spawnBloodling(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), false);
+			Simulation.agentHandler.spawnAnimal(null, null, pos, 
+					Simulation.globalWorldTime+1, Constants.SpeciesId.BLOODLING);
 			break;
 		case Constants.SpeciesId.GRASSLER:
-			Animal.spawnGrassler(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), false);
+			Simulation.agentHandler.spawnAnimal(null, null, pos, 
+					Simulation.globalWorldTime+1, Constants.SpeciesId.GRASSLER);
 			break;
-		}
+		}	
 	}
 }

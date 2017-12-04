@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import agents.Animal2;
+import agents.AgentHandler;
 import agents.NeuralNetwork;
 import constants.Constants;
-import world.World;
+import display.RenderState;
 
 public class LoadBrains extends Message {
 
@@ -19,13 +19,27 @@ public class LoadBrains extends Message {
 	@Override
 	public void evaluate(simulation.Simulation pSimulation)
 	{
-		Animal2.loadBrains = true;
+		AgentHandler.loadBrains = true;
 	}
 	
 	public static NeuralNetwork bestBloodling;
 	public static NeuralNetwork bestGrassler;
 	
-	public static void loadBrains(final int speciesId) {
+	public static void loadBrains() {
+		int speciesId;
+		if (RenderState.FOLLOW_BLOODLING) {
+			speciesId = Constants.SpeciesId.BLOODLING;
+		}
+		else if (RenderState.FOLLOW_GRASSLER) {
+			speciesId = Constants.SpeciesId.GRASSLER;
+		}
+		else {
+			System.out.println("Follow the type of animal you want to save");
+			return;
+		}
+		loadBrains(speciesId);
+	}
+	public static void loadBrains(int speciesId) {
 		
 		NeuralNetwork best = new NeuralNetwork(true);
 		BufferedReader br = null;

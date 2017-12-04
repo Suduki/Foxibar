@@ -2,9 +2,7 @@ package vision;
 
 import java.util.ArrayList;
 
-import agents.Agent;
 import agents.Animal;
-import agents.Animal2;
 import constants.Constants;
 
 public class Vision {

@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import agents.AgentHandler;
 import agents.Animal;
-import agents.Animal2;
 import agents.NeuralNetwork;
 import messages.MessageHandler;
 import messages.Message;
@@ -17,9 +16,12 @@ public class Simulation extends MessageHandler {
 	private boolean mPaused = false;
 	public static AgentHandler agentHandler;
 	
+	public static float globalWorldTime;
+	
 	public Simulation()
 	{
 		mWorld = new World();
+		agentHandler = new AgentHandler();
 		agentHandler.init();
 		Vision.init();
 		this.message(new messages.DummyMessage());
@@ -30,12 +32,13 @@ public class Simulation extends MessageHandler {
 		pMessage.evaluate(this);
 	}
 	
-	public void step(int timeStep)
+	public void step(int time)
 	{
+		globalWorldTime = time;
 		if (!mPaused)
 		{
-			mWorld.update(timeStep);
-			Animal2.moveAll();
+			mWorld.update(time);
+			agentHandler.updateAll(time);
 		}
 	}
 	
