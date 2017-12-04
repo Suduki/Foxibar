@@ -13,6 +13,7 @@ import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 import agents.Animal;
+import agents.Animal2;
 import agents.NeuralNetwork;
 import agents.NeuralFactors;
 import constants.Constants;
@@ -30,6 +31,7 @@ public class Main
 	public final static int plottingNumber = 50;
 	public static boolean plotStuff = true;
 	public static boolean plotStuff2 = false;
+	
 	public static void main(String[] args)
 	{
 		
@@ -68,7 +70,7 @@ public class Main
 //						spawnPseudoRandomAnimal(Constants.SpeciesId.BLOODLING);
 //					}
 //				}
-				while (Animal.numAnimals < 1) {
+				while (simulation.agentHandler.numGrasslers < 10) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				
@@ -121,14 +123,14 @@ public class Main
 		
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
-			Animal.resurrectAnimal(pos, 
-					Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
+			Animal2.resurrectAnimal(pos, 
+					Animal2.BIRTH_HUNGER, Constants.Species.BLOODLING,  
 					null, 
 					Constants.Species.BLOODLING, null);
 			break;
 		case Constants.SpeciesId.GRASSLER:
-			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-					Animal.BIRTH_HUNGER, Constants.Species.GRASSLER,  
+			Animal2.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
+					Animal2.BIRTH_HUNGER, Constants.Species.GRASSLER,  
 					null, Constants.Species.GRASSLER, null);
 			break;
 		}		
@@ -137,15 +139,10 @@ public class Main
 	private static void spawnRandomAnimal(int speciesId) {
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
-			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-					Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-					null, 
-					Constants.Species.BLOODLING, null);
+			Animal.spawnBloodling(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), false);
 			break;
 		case Constants.SpeciesId.GRASSLER:
-			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-					Animal.BIRTH_HUNGER, Constants.Species.GRASSLER,  
-					null, Constants.Species.GRASSLER, null);
+			Animal.spawnGrassler(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), false);
 			break;
 		}
 	}

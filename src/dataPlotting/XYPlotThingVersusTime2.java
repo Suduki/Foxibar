@@ -9,7 +9,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
-import agents.Animal;
+import agents.Animal2;
 import agents.NeuralFactors;
 import agents.NeuralNetwork;
 import constants.Constants;
@@ -61,7 +61,7 @@ public class XYPlotThingVersusTime2 extends ApplicationFrame {
 	public void step() {
 		int bestId;
 		if ((bestId = Constants.SpeciesId.BEST_GRASSLER_ID) != -1) {
-			Animal bestAni = Animal.pool[bestId];
+			Animal2 bestAni = Animal2.pool[bestId];
 			if (bestAni.neuralNetwork.bestDirection != -1) {
 				index++;
 				for (int i = 0; i < h.length; ++i) {

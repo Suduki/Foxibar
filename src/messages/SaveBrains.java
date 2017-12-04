@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import agents.Animal;
+import agents.Animal2;
 import agents.NeuralNetwork;
 import constants.Constants;
 import world.World;
@@ -20,7 +20,7 @@ public class SaveBrains extends Message {
 	@Override
 	public void evaluate(simulation.Simulation pSimulation)
 	{
-		Animal.saveBrains = true;
+		Animal2.saveBrains = true;
 	}
 	
 	
@@ -28,10 +28,10 @@ public class SaveBrains extends Message {
 		NeuralNetwork best;
 		switch (speciesId) {
 		case Constants.SpeciesId.BLOODLING:
-			best = Animal.pool[Constants.SpeciesId.BEST_BLOODLING_ID].neuralNetwork;
+			best = Constants.SpeciesId.BEST_BLOODLING.neuralNetwork;
 			break;
 		case Constants.SpeciesId.GRASSLER:
-			best = Animal.pool[Constants.SpeciesId.BEST_GRASSLER_ID].neuralNetwork;
+			best = Animal2.pool[Constants.SpeciesId.BEST_GRASSLER_ID].neuralNetwork;
 			break;
 		default:
 			System.err.println("aa what is this2?");
@@ -90,7 +90,7 @@ public class SaveBrains extends Message {
 			return false;
 		}
 		
-		if (bestId == -1 || Animal.pool[bestId].score < Animal.AGE_DEATH) {
+		if (bestId == -1 || Animal2.pool[bestId].score < Animal2.AGE_DEATH) {
 			return false;
 		}
 		return true;

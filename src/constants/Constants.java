@@ -2,6 +2,7 @@ package constants;
 
 import java.util.Random;
 
+import agents.Animal;
 import vision.Vision;
 
 public class Constants {
@@ -66,7 +67,7 @@ public class Constants {
 		public static final float DEATH_FROM_LOW_HEALTH = 1f;
 	}
 	public static class Species {
-		public static final float GRASSLER_SPEED = 0.8f;
+		public static final float GRASSLER_SPEED = 1.2f;
 		
 		public static final float GRASS_EXPLOSIVITY = 0.3f;
 		public static final float GRASS_GAIN = 8f; // Lower this to stabilize (Increases grass growth and reduces grass gain)
@@ -84,6 +85,8 @@ public class Constants {
 	public static class SpeciesId {
 		public static final int BLOODLING = 1;
 		public static final int GRASSLER = 2;
+		public static Animal BEST_BLOODLING;
+		public static Animal BEST_GRASSLER;
 		public static int BEST_BLOODLING_SCORE = 0;
 		public static int BEST_BLOODLING_ID = -1;
 		public static int BEST_GRASSLER_SCORE = 0;

@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import agents.Animal;
+import agents.Animal2;
 import agents.NeuralNetwork;
 import constants.Constants;
 import world.World;
@@ -19,7 +19,7 @@ public class LoadBrains extends Message {
 	@Override
 	public void evaluate(simulation.Simulation pSimulation)
 	{
-		Animal.loadBrains = true;
+		Animal2.loadBrains = true;
 	}
 	
 	public static NeuralNetwork bestBloodling;

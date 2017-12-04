@@ -9,7 +9,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
-import agents.Animal;
+import agents.Animal2;
 import constants.Constants;
 import main.Main;
 import world.World;
@@ -54,8 +54,8 @@ public class XYPlotThingVersusTime extends ApplicationFrame {
 	private final int width = 100;
 	private int index = 0;
 	public void step() {
-		grasslerSeries.add(index*Main.plottingNumber, Animal.numGrasslers);
-		bloodlingSeries.add(index*Main.plottingNumber, Animal.numBloodlings);
+		grasslerSeries.add(index*Main.plottingNumber, Animal2.numGrasslers);
+		bloodlingSeries.add(index*Main.plottingNumber, Animal2.numBloodlings);
 		grassSeries.add(index*Main.plottingNumber, World.grass.getTotalHeight()/Constants.TILES_PER_ANIMAL);
 		index++;
 		if (index > width) {
