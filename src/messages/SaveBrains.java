@@ -37,6 +37,7 @@ public class SaveBrains extends Message {
 		saveBrains(speciesId);
 	}
 	public static void saveBrains(int speciesId) {
+		System.out.println("save brains");
 		NeuralNetwork best;
 		
 		switch (speciesId) {

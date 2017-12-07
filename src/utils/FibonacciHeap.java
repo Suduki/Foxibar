@@ -55,6 +55,9 @@ package utils;
 
 import java.util.*; // For ArrayList
 
+import agents.Agent;
+import agents.Animal;
+
 /**
  * A class representing a Fibonacci heap.
  *
@@ -121,6 +124,14 @@ public final class FibonacciHeap<T> {
             mElem = elem;
             mPriority = priority;
         }
+		public void reset(T elem, double priority) {
+            mNext = mPrev = this;
+            mElem = elem;
+            mParent = null;
+            mChild = null;
+            mDegree = 0;
+			mPriority = priority;
+		}
     }
 
     /* Pointer to the minimum element in the heap. */
@@ -154,6 +165,33 @@ public final class FibonacciHeap<T> {
 
         /* Return the reference to the new element. */
         return result;
+    }
+    
+    public Entry<Agent> enqueue2(Agent value, double priority) {
+    	checkPriority(priority);
+
+        /* Create the entry object, which is a circularly-linked list of length
+         * one.
+         */
+    	Entry<Agent> result;
+    	if (value.entry == null) {
+    		result = new Entry<Agent>( value, priority);
+    		value.entry = result;
+    	}
+    	else {
+    		result = value.entry;
+    		result.reset( value,priority);
+    	}
+
+        /* Merge this singleton list with the tree list. */
+        mMin = mergeLists( mMin, (Entry<T>) result);
+
+        /* Increase the size of the heap; we just added something. */
+        ++mSize;
+
+        /* Return the reference to the new element. */
+        return result;
+    	
     }
 
     /**
@@ -221,6 +259,21 @@ public final class FibonacciHeap<T> {
         /* Return the newly-merged heap. */
         return result;
     }
+    /* Next, we need to coalsce all of the roots so that there is only one
+     * tree of each degree.  To track trees of each size, we allocate an
+     * ArrayList where the entry at position i is either null or the 
+     * unique tree of degree i.
+     */
+    List<Entry<T>> treeTable = new ArrayList<Entry<T>>();
+    
+    /* We need to traverse the entire list, but since we're going to be
+     * messing around with it we have to be careful not to break our
+     * traversal order mid-stream.  One major challenge is how to detect
+     * whether we're visiting the same node twice.  To do this, we'll
+     * spent a bit of overhead adding all of the nodes to a list, and
+     * then will visit each element of this list in order.
+     */
+    List<Entry<T>> toVisit = new ArrayList<Entry<T>>();
 
     /**
      * Dequeues and returns the minimum element of the Fibonacci heap.  If the
@@ -283,21 +336,6 @@ public final class FibonacciHeap<T> {
         /* If there are no entries left, we're done. */
         if (mMin == null) return minElem;
 
-        /* Next, we need to coalsce all of the roots so that there is only one
-         * tree of each degree.  To track trees of each size, we allocate an
-         * ArrayList where the entry at position i is either null or the 
-         * unique tree of degree i.
-         */
-        List<Entry<T>> treeTable = new ArrayList<Entry<T>>();
-
-        /* We need to traverse the entire list, but since we're going to be
-         * messing around with it we have to be careful not to break our
-         * traversal order mid-stream.  One major challenge is how to detect
-         * whether we're visiting the same node twice.  To do this, we'll
-         * spent a bit of overhead adding all of the nodes to a list, and
-         * then will visit each element of this list in order.
-         */
-        List<Entry<T>> toVisit = new ArrayList<Entry<T>>();
 
         /* To add everything, we'll iterate across the elements until we
          * find the first element twice.  We check this by looping while the
@@ -366,6 +404,8 @@ public final class FibonacciHeap<T> {
              */
             if (curr.mPriority <= mMin.mPriority) mMin = curr;
         }
+        treeTable.clear();
+        toVisit.clear();
         return minElem;
     }
 

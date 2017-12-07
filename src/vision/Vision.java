@@ -33,7 +33,7 @@ public class Vision {
 		}
 		
 		for (int anI = 0; anI < animal.nearbyAnimals.length; ++anI) {
-			animal.nearbyAnimals[anI] = null;
+			animal.nearbyAnimals[anI] = null; // TODO: Could this cause thread crash for displayhandler? 
 		}
 		
 		for (int i = -1; i <= 1; ++i) {

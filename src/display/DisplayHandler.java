@@ -513,7 +513,7 @@ public class DisplayHandler extends MessageHandler
 			}
 			else {
 				if (RenderState.FOLLOW_BLOODLING) {
-					if (Constants.SpeciesId.BEST_BLOODLING_ID == -1) {
+					if (Constants.SpeciesId.BEST_BLOODLING == null) {
 						return true;
 					}
 					for (Animal nearby : Constants.SpeciesId.BEST_BLOODLING.nearbyAnimals) {
@@ -523,7 +523,7 @@ public class DisplayHandler extends MessageHandler
 					}
 				}
 				else if (RenderState.FOLLOW_GRASSLER) {
-					if (Constants.SpeciesId.BEST_GRASSLER_ID == -1) {
+					if (Constants.SpeciesId.BEST_GRASSLER == null) {
 						return true;
 					}
 					for (Animal nearby : Constants.SpeciesId.BEST_GRASSLER.nearbyAnimals) {
@@ -556,9 +556,9 @@ public class DisplayHandler extends MessageHandler
 		private void renderOuterTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
 			glColor3f(color[0], color[1], color[2]);
 
-			glVertex2f(screenPositionX, screenPositionY+1);
-			glVertex2f(screenPositionX+2 + sizeX, screenPositionY-1 - sizeY);
-			glVertex2f(screenPositionX-2 - sizeX, screenPositionY-1 - sizeY);
+			glVertex2f(screenPositionX, screenPositionY);
+			glVertex2f(screenPositionX + sizeX, screenPositionY - sizeY);
+			glVertex2f(screenPositionX - sizeX, screenPositionY - sizeY);
 			
 		}
 		
@@ -620,17 +620,20 @@ public class DisplayHandler extends MessageHandler
 			
 			float scale = 0.7f;
 			
-			renderLeftTriangle(colorAnimal, sizeX*factorLeft*scale, 
-					sizeY*factorLeft*scale, screenPositionX, screenPositionY);
-			renderRightTriangle(colorAnimal, sizeX*factorRight*scale, 
-					sizeY*factorRight*scale, screenPositionX, screenPositionY);
-			renderTopBar(colorAnimal, sizeX, sizeY, screenPositionX, screenPositionY, scale*sizeY, factorTop);
+			renderLeftTriangle2(colorAnimal, colorBackground, sizeX, 
+					sizeY, screenPositionX, screenPositionY, factorLeft, scale);
+			renderRightTriangle2(colorAnimal, colorBackground, sizeX, 
+					sizeY, screenPositionX, screenPositionY, factorRight, scale);
+			renderTopBar(colorAnimal, colorBackground, sizeX, sizeY, screenPositionX, screenPositionY, scale*sizeY, factorTop);
 		}
-		private void renderTopBar(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY, float height, float factor) {
-			glColor3f(color[0], color[1], color[2]);
 
-			glVertex2f(screenPositionX, screenPositionY - height);
-			glVertex2f(screenPositionX + sizeX * (2*factor - 1f), screenPositionY - sizeY);
+
+		private void renderTopBar(float[] color2, float[] color, float sizeX, 
+				float sizeY, float screenPositionX, float screenPositionY, float height, float factor) {
+			glColor3f(color[0], color[1], color[2]);
+			glVertex2f(screenPositionX, screenPositionY - height); // Middle
+			glColor3f(color2[0], color2[1], color2[2]);
+			glVertex2f(screenPositionX + sizeX * (2*factor - 1f), screenPositionY - sizeY); //
 			glVertex2f(screenPositionX - sizeX, screenPositionY - sizeY);
 		}
 
@@ -649,24 +652,52 @@ public class DisplayHandler extends MessageHandler
 				factorRight = 1f;
 			}
 			
-			renderLeftTriangle(colorAnimal, sizeX*factorLeft, 
-					sizeY*factorLeft, screenPositionX, screenPositionY);
-			renderRightTriangle(colorAnimal, sizeX*factorRight, 
-					sizeY*factorRight, screenPositionX, screenPositionY);
+			renderLeftTriangle(colorAnimal, sizeX, 
+					sizeY, screenPositionX, screenPositionY, factorLeft);
+			renderRightTriangle(colorAnimal, sizeX, 
+					sizeY, screenPositionX, screenPositionY, factorRight);
 		}
-		private void renderRightTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
+		private void renderRightTriangle(float[] color, float sizeX, float sizeY, 
+				float screenPositionX, float screenPositionY, float factor) {
+			glColor3f(color[0], color[1], color[2]);
+
+			glVertex2f(screenPositionX, screenPositionY); //Bottom
+			glColor3f(color[0], color[1], color[2]);
+			glVertex2f(screenPositionX + sizeX*factor, screenPositionY - sizeY*factor); // Right
+			glColor3f(color[0]*(1f-factor), color[1]*(1f-factor), color[2]*(1f-factor));
+			glVertex2f(screenPositionX, screenPositionY - sizeY*factor); // Middle
+		}
+		private void renderLeftTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY, float factor) {
 			glColor3f(color[0], color[1], color[2]);
 
 			glVertex2f(screenPositionX, screenPositionY);
-			glVertex2f(screenPositionX + sizeX, screenPositionY - sizeY);
-			glVertex2f(screenPositionX, screenPositionY - sizeY);
-		}
-		private void renderLeftTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
+			glColor3f(color[0]*(1f-factor), color[1]*(1f-factor), color[2]*(1f-factor));
+			glVertex2f(screenPositionX, screenPositionY - sizeY*factor);
 			glColor3f(color[0], color[1], color[2]);
+			glVertex2f(screenPositionX - sizeX*factor, screenPositionY - sizeY*factor);
+		}
+		private void renderLeftTriangle2(float[] color2, float[] color, float sizeX, float sizeY, 
+				float screenPositionX, float screenPositionY, float factor, float scale) {
 
-			glVertex2f(screenPositionX, screenPositionY);
-			glVertex2f(screenPositionX, screenPositionY - sizeY);
-			glVertex2f(screenPositionX - sizeX, screenPositionY - sizeY);
+			glColor3f(color2[0],color2[1],color2[2]);
+			glVertex2f(screenPositionX, screenPositionY); // Bottom
+			glColor3f(color[0] * factor + color2[0] * (1f-factor),
+					color[1] * factor + color2[1] * (1f-factor),
+					color[2] * factor + color2[2] * (1f-factor));
+			glVertex2f(screenPositionX, screenPositionY - sizeY*factor*scale); // Middle
+			glColor3f(color2[0], color2[1], color2[2]);
+			glVertex2f(screenPositionX - sizeX*factor, screenPositionY - sizeY*factor); // Left		
+		}
+		private void renderRightTriangle2(float[] color2, float[] color, float sizeX, float sizeY, 
+				float screenPositionX, float screenPositionY, float factor, float scale) {
+			glColor3f(color2[0], color2[1], color2[2]);
+			glVertex2f(screenPositionX, screenPositionY); //Bottom
+			glColor3f(color2[0], color2[1], color2[2]);
+			glVertex2f(screenPositionX + sizeX*factor, screenPositionY - sizeY*factor); // Right
+			glColor3f(color[0] * factor + color2[0] * (1f-factor),
+					color[1] * factor + color2[1] * (1f-factor),
+					color[2] * factor + color2[2] * (1f-factor));
+			glVertex2f(screenPositionX, screenPositionY - sizeY*factor*scale); // Middle
 		}
 		
 		private void renderTerrain() {
@@ -722,12 +753,12 @@ public class DisplayHandler extends MessageHandler
 		}
 		private int getYOffset() {
 			int yOffset = 0;
-			if (RenderState.FOLLOW_BLOODLING && Constants.SpeciesId.BEST_BLOODLING_ID != -1) {
+			if (RenderState.FOLLOW_BLOODLING && Constants.SpeciesId.BEST_BLOODLING != null) {
 				yOffset = (int) (Constants.SpeciesId.BEST_BLOODLING.oldY + (2f - zoomFactor)*Constants.WORLD_SIZE_Y/2);
 				yOffset =  yOffset % Constants.WORLD_SIZE_Y;
 
 			}
-			else if (RenderState.FOLLOW_GRASSLER && Constants.SpeciesId.BEST_GRASSLER_ID != -1) {
+			else if (RenderState.FOLLOW_GRASSLER && Constants.SpeciesId.BEST_GRASSLER != null) {
 				yOffset = (int) (Constants.SpeciesId.BEST_GRASSLER.oldY + (2f - zoomFactor)*Constants.WORLD_SIZE_Y/2);
 				yOffset =  yOffset % Constants.WORLD_SIZE_Y;
 			}

@@ -68,11 +68,12 @@ public class Constants {
 	}
 	public static class Species {
 		public static final float GRASSLER_SPEED = 1.2f;
+		public static final float BLOODLING_SPEED = 1.2f;
 		
 		public static final float GRASS_EXPLOSIVITY = 0.3f;
 		public static final float GRASS_GAIN = 8f; // Lower this to stabilize (Increases grass growth and reduces grass gain)
 		
-		public static final float BLOOD_GAIN = 70f;
+		public static final float BLOOD_GAIN = 170f;
 		public static final float BLOOD_ENERGY = BLOOD_GAIN / (Blood.ADDITION_ON_DEATH + 4*Blood.SPLASH);
 		
 		public static final agents.Species GRASSLER = new agents.Species(
@@ -80,7 +81,7 @@ public class Constants {
 //				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
 		public static final agents.Species BLOODLING = new agents.Species(
 //				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
-				SpeciesId.BLOODLING, 0f, 0f, 0.3f, BLOOD_ENERGY, 1f, 0.3f, 0.1f);
+				SpeciesId.BLOODLING, 0f, 0f, 0.3f, BLOOD_ENERGY, BLOODLING_SPEED, 0.3f, 0.1f);
 	}
 	public static class SpeciesId {
 		public static final int BLOODLING = 1;
@@ -88,8 +89,6 @@ public class Constants {
 		public static Animal BEST_BLOODLING;
 		public static Animal BEST_GRASSLER;
 		public static int BEST_BLOODLING_SCORE = 0;
-		public static int BEST_BLOODLING_ID = -1;
 		public static int BEST_GRASSLER_SCORE = 0;
-		public static int BEST_GRASSLER_ID = -1;
 	}
 }

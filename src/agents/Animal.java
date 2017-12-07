@@ -20,13 +20,13 @@ public class Animal extends Agent {
 	private int timeBetweenBabies = 10;
 
 
-	public int age;
+	public float age;
 	public int oldPos;
 	public NeuralNetwork neuralNetwork = new NeuralNetwork(false);
 
 
 	public int score;
-	private int sinceLastBaby;
+	private float sinceLastBaby;
 	public float hunger;
 	public float health;
 	public float[] primaryColor = new float[3];
@@ -61,6 +61,7 @@ public class Animal extends Agent {
 		isAlive = false;
 		World.blood.append(pos, bloodFactor);
 		
+		checkRemoveBestIndividual();
 		switch (species.speciesId) {
 		case Constants.SpeciesId.BLOODLING:
 			AgentHandler.numBloodlings--;
@@ -98,11 +99,11 @@ public class Animal extends Agent {
 					species.inherit(mom.species, dad.species);
 					neuralNetwork.inherit(mom.neuralNetwork, dad.neuralNetwork);
 				}
-				secondaryColor [0] = 1;
+				secondaryColor[0] = 1;
 				secondaryColor[1] = 0;
 				secondaryColor[2] = 0;
 				AgentHandler.numBloodlings++;
-				size = 2;
+				size = 3;
 				break;
 			case Constants.SpeciesId.GRASSLER:
 				if (mom == null || dad == null) {
@@ -117,7 +118,7 @@ public class Animal extends Agent {
 				secondaryColor[1] = 1;
 				secondaryColor[2] = 1;
 				AgentHandler.numGrasslers++;
-				size = 1;
+				size = 2;
 				break;
 			default:
 				System.err.println("aaaaa what is this?");
@@ -268,11 +269,40 @@ public class Animal extends Agent {
 		animalToMateWith.hunger -= BIRTH_HUNGER_COST;
 		animalToMateWith.sinceLastBaby = 0;
 		
+		stepScore(1f);
+		animalToMateWith.stepScore(1f);
 		
 		// This will cause the mating animals to continue living, which is what we want in the end.
 		// A bit unconventional and forced.
 		age = 0;
 		animalToMateWith.age = 0;
+	}
+	private void stepScore(float value) {
+		score+=value;
+		switch (species.speciesId) {
+		case Constants.SpeciesId.BLOODLING:
+			if (this != Constants.SpeciesId.BEST_BLOODLING && score > Constants.SpeciesId.BEST_BLOODLING_SCORE) {
+				Constants.SpeciesId.BEST_BLOODLING = this;
+				Constants.SpeciesId.BEST_BLOODLING_SCORE = score;
+			}
+			break;
+		case Constants.SpeciesId.GRASSLER:
+			if (this != Constants.SpeciesId.BEST_GRASSLER && score > Constants.SpeciesId.BEST_GRASSLER_SCORE) {
+				Constants.SpeciesId.BEST_GRASSLER = this;
+				Constants.SpeciesId.BEST_GRASSLER_SCORE = score;
+			}
+			break;
+		}
+	}
+	private void checkRemoveBestIndividual() {
+		if (this == Constants.SpeciesId.BEST_BLOODLING) {
+			Constants.SpeciesId.BEST_BLOODLING = null;
+			Constants.SpeciesId.BEST_BLOODLING_SCORE -= 5;
+		}
+		if (this == Constants.SpeciesId.BEST_GRASSLER) {
+			Constants.SpeciesId.BEST_GRASSLER = null;
+			Constants.SpeciesId.BEST_GRASSLER_SCORE -= 5;
+		}
 	}
 	private void fight() {
 		health -= animalToHunt.species.fight;
