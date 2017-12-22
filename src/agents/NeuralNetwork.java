@@ -6,8 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import com.sun.javafx.geom.Vec2f;
-
 import constants.Constants;
 
 public class NeuralNetwork {

@@ -3,8 +3,6 @@ package input;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 
-//import buttons.Button;
-
 public class InputHandler {
 
 	private long mGlfwWindowHandle;

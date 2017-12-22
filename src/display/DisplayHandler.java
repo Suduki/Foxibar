@@ -1,21 +1,14 @@
 package display;
 
-import org.lwjgl.glfw.GLFWMouseButtonCallback;
-import org.lwjgl.glfw.GLFWScrollCallback;
-import org.lwjgl.glfw.GLFWScrollCallbackI;
-import org.lwjgl.system.*;
-
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
 
-import java.nio.IntBuffer;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
+import org.joml.Vector3f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
@@ -25,12 +18,8 @@ import math.Vector2f;
 import messages.Message;
 import messages.MessageHandler;
 import agents.Animal;
-import agents.NeuralFactors;
-import agents.NeuralNetwork;
 import buttons.Button;
 import input.Mouse;
-import javafx.scene.input.MouseButton;
-import jdk.nashorn.internal.runtime.regexp.joni.MatcherFactory;
 
 public class DisplayHandler extends MessageHandler
 {
@@ -40,30 +29,16 @@ public class DisplayHandler extends MessageHandler
 	static int width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
 	static int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
 
-	private static boolean mSimulationPaused = false;
-
 	public static float[][] terrainColor;
-
+	public Thread renderThreadThread;
+	
+	private static boolean mSimulationPaused = false;
 	private static final int PIXELS_X = Constants.PIXELS_X;
 	private static final int PIXELS_Y = Constants.PIXELS_Y;
 	private static RenderThread renderThread;
-
-	public Thread renderThreadThread;
 	private static Mouse mouse = new input.Mouse();
-
 	private static simulation.Simulation mSimulation;
-
 	private static Texture defaultTexture;
-
-	public Vector2f worldCoordFromWindowCoord(float windowX, float windowY)
-	{
-		return new Vector2f(0f,0f);
-	}
-
-	public Vector2f windowCoordFromWorldCoord(float windowX, float windowY)
-	{
-		return new Vector2f(0f,0f);
-	}
 
 	public DisplayHandler(simulation.Simulation pSimulation) {
 		mSimulation = pSimulation;
@@ -81,7 +56,6 @@ public class DisplayHandler extends MessageHandler
 	}
 
 	public void exit() {
-		renderThread.stop();
 		try {
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
@@ -89,26 +63,37 @@ public class DisplayHandler extends MessageHandler
 		}
 	}
 
-	private static class RenderThread implements Runnable {
-		private boolean running;
+	private static class RenderThread implements Runnable, InputHandlerI {
+		
 		private DisplayHandler displayHandler;
-		private long window;
-
+		private Window mWindow;
+		private Window mWindow2;
+		
 		public RenderThread(DisplayHandler displayHandler) {
 			this.displayHandler = displayHandler;
 		}
-
+		
 		@Override
 		public void run() {
-			initWindow();
+			mWindow = new Window(PIXELS_X + Constants.PIXELS_SIDEBOARD, PIXELS_Y, "FOXIBAR - DEAD OR ALIVE", this);
+			
 			initOpenGL();
 			loadResources();
 
-
-
+			Camera camera = new Camera();
+			mWindow2 = new Window(1920, 1080, "FOXIBAR - New renderer", new OrbitCameraController(camera));
+			camera.setAspectRatio(mWindow2.getAspectRatio());
+			TerrainRenderer terrainRenderer = new TerrainRenderer();
+			
 			while(displayHandler.handleMessages() && handleEvents()) {
+				mWindow.makeCurrent();
 				render();
-				glfwSwapBuffers(window);			
+				mWindow.swapBuffers();
+				
+				mWindow2.makeCurrent();
+				camera.update();
+				terrainRenderer.render(camera, mWindow2);
+				mWindow2.swapBuffers();
 			}
 
 			displayHandler.exit();
@@ -122,15 +107,11 @@ public class DisplayHandler extends MessageHandler
 		}
 
 		private boolean handleEvents() {
-			//Button.updateAllButtons();
 
-			if (glfwWindowShouldClose(window)) {
-				return false;
-			}
-
-			glfwPollEvents();
-
-			return true;
+			boolean w1 = mWindow.handleEvents();
+			boolean w2 = mWindow.handleEvents();
+			
+			return w1 && w2;
 		}
 
 		private void togglePause() {
@@ -144,11 +125,11 @@ public class DisplayHandler extends MessageHandler
 			}
 		}
 
-		private void handleKeyboardEvents(int action, int key) {
+		public void handleKeyboardEvents(int action, int key) {
 			if (action == GLFW_RELEASE) {
 				switch (key) {
 				case GLFW_KEY_ESCAPE:
-					glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
+					mWindow.requestClose();
 					break;
 
 				case GLFW_KEY_SPACE:
@@ -208,7 +189,7 @@ public class DisplayHandler extends MessageHandler
 			}
 		}
 
-		private void handleMouseMotion(long window, double xpos, double ypos)
+		public void handleMouseMotion(long window, double xpos, double ypos)
 		{
 			mouse.setPosition((float)xpos,  (float)ypos);
 
@@ -225,7 +206,7 @@ public class DisplayHandler extends MessageHandler
 		static float x0 = 0;
 		static float y0 = 0;
 
-		private void handleScrollWheel(long window, double xoffset, double yoffset)
+		public void handleScrollWheel(long window, double xoffset, double yoffset)
 		{
 			System.out.println("Scroll: (" + xoffset + "," + yoffset + ")");
 
@@ -314,36 +295,28 @@ public class DisplayHandler extends MessageHandler
 			mClickButton = null;
 		}
 
-		private void handleMouseEvents(long window, int button, int action, int mods) {
+		public void handleMouseEvents(long window, int button, int action, int mods) {
 			mouse.setButtonPressed(button, action == GLFW_PRESS);
 
-//			switch(button) {
-//			case GLFW_MOUSE_BUTTON_1:
-//			{
-				if (insideViewport(mouse.getPos())) {
-					if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-						addGrassling();
-					}
-					if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-						addBloodling();
-					}
+			if (insideViewport(mouse.getPos())) {
+				if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+					addGrassling();
 				}
-				else if (insideGui(mouse.getPos()))
+				if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
+					addBloodling();
+				}
+			}
+			else if (insideGui(mouse.getPos()))
+			{
+				if (action == GLFW_PRESS)
 				{
-					if (action == GLFW_PRESS)
-					{
-						guiStartClick(mouse.getPos());
-					}
-					else
-					{
-						guiEndClick(mouse.getPos());
-					}
+					guiStartClick(mouse.getPos());
 				}
-//			} break;
-//
-//			default:
-//				break;
-//			}
+				else
+				{
+					guiEndClick(mouse.getPos());
+				}
+			}
 		}
 
 		// TODO: This should be made sane.
@@ -388,8 +361,9 @@ public class DisplayHandler extends MessageHandler
 				public String messageName() { return "AddAnimal"; }
 			});								
 		}
-
+		
 		private void render() {
+			
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			renderStrings();
@@ -415,6 +389,7 @@ public class DisplayHandler extends MessageHandler
 			float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
 			float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
 
+			glBegin(GL_LINES);
 			for (int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
 				if (Animal.pool[id].isAlive) {
 					int pos = Animal.pool[id].pos;
@@ -429,18 +404,16 @@ public class DisplayHandler extends MessageHandler
 							if (distance < Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE) {
 								if (Animal.pool[id].species.speciesId == Constants.SpeciesId.BLOODLING) {
 
-									glBegin(GL_LINES);
 									glColor3f(Animal.pool[id].secondaryColor[0], Animal.pool[id].secondaryColor[1], Animal.pool[id].secondaryColor[2]);
 									glVertex2f(y, x);
 									glVertex2f(y2, x2);
-									glEnd();
 								}
 							}
 						}
 					}
 				}
 			}
-
+			glEnd();
 		}
 
 		private void renderGui()
@@ -551,7 +524,6 @@ public class DisplayHandler extends MessageHandler
 			glEnd();
 		}
 		
-
 		private boolean shouldThisAnimalBePrinted(int id) {
 			if (!RenderState.LIMIT_VISION) {
 				return true;
@@ -715,8 +687,7 @@ public class DisplayHandler extends MessageHandler
 		}
 		
 		private void renderTerrain() {
-
-
+			
 			width = Math.round(zoomFactor*Constants.WORLD_SIZE_X);
 			height = Math.round(zoomFactor*Constants.WORLD_SIZE_Y);
 			
@@ -797,74 +768,9 @@ public class DisplayHandler extends MessageHandler
 			drawString(PIXELS_X + 20,60, "nAni: " + Animal.numAnimals);
 		}
 
-		private void initWindow() {
-			GLFWErrorCallback.createPrint(System.err).set();
-
-			// Initialize GLFW. Most GLFW functions will not work before doing this.
-			if ( !glfwInit() )
-				throw new IllegalStateException("Unable to initialize GLFW");
-
-			// Configure GLFW
-			glfwDefaultWindowHints(); // optional, the current window hints are already the default
-			glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE); // the window will stay hidden after creation
-			glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // the window will be resizable
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-
-			// Create the window
-			window = glfwCreateWindow(PIXELS_X + Constants.PIXELS_SIDEBOARD, PIXELS_Y, "FOXIBAR - DEAD OR ALIVE", NULL, NULL);
-			if ( window == NULL ) {
-				throw new RuntimeException("Failed to create the GLFW window");
-			}
-
-			// Setup a key callback. It will be called every time a key is pressed, repeated or released.
-			glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-				handleKeyboardEvents(action, key);
-			});
-
-
-			glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
-				handleMouseEvents(window,button,action, mods);
-			});
-
-			glfwSetCursorPosCallback(window, (window, xpos, ypos) -> {
-				handleMouseMotion(window, xpos, ypos);
-			});
-
-			glfwSetScrollCallback(window, (window, xoffset, yoffset) -> {
-				handleScrollWheel(window, xoffset, yoffset);
-			});
-
-			try ( MemoryStack stack = stackPush() ) {
-				IntBuffer pWidth = stack.mallocInt(1); // int*
-				IntBuffer pHeight = stack.mallocInt(1); // int*
-
-				// Get the window size passed to glfwCreateWindow
-				glfwGetWindowSize(window, pWidth, pHeight);
-
-				// Get the resolution of the primary monitor
-				GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-				// Center the window
-				glfwSetWindowPos(
-						window,
-						(vidmode.width() - pWidth.get(0)) / 2,
-						(vidmode.height() - pHeight.get(0)) / 2
-						);
-			} // the stack frame is popped automatically
-
-			// Make the OpenGL context current
-			glfwMakeContextCurrent(window);
-			// Enable v-sync
-			glfwSwapInterval(1);
-
-			// Make the window visible
-			glfwShowWindow(window);
-			
-		}
 
 		private void initOpenGL()
-		{
+		{			
 			GL.createCapabilities();
 
 			System.out.println("OpenGL version: " + GL11.glGetString(GL_VERSION));
@@ -879,10 +785,6 @@ public class DisplayHandler extends MessageHandler
 			glLoadIdentity();
 			glOrtho(0, PIXELS_X + Constants.PIXELS_SIDEBOARD, PIXELS_Y, 0, 1, -1);
 			glMatrixMode(GL_MODELVIEW);
-		}
-
-		public void stop() {
-			running = false;
 		}
 
 		List<Button> mButtons;

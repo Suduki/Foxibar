@@ -6,38 +6,39 @@ public class Mouse {
 	
 	public static final int NUM_BUTTONS = 3;
 	
-	boolean m_buttonPressed[];
-	float m_posX, m_posY;
+	boolean mButtonPressed[];
+	float mPosX, mPosY;
+	float mDeltaX, mDeltaY;
 	
 	public Mouse()
 	{
-		m_posX = m_posY = -1;
+		mPosX = mPosY = -1;
 		
-		m_buttonPressed = new boolean[NUM_BUTTONS];
+		mButtonPressed = new boolean[NUM_BUTTONS];
 		for (int i = 0; i < NUM_BUTTONS; ++i)
 		{
-			m_buttonPressed[i] = false;
+			mButtonPressed[i] = false;
 		}
 	}
 	
 	public void dump()
 	{
-		System.out.print("Mouse: x=" + m_posX + ", y=" + m_posY);
+		System.out.print("Mouse: x=" + mPosX + ", y=" + mPosY);
 		for (int i = 0; i < NUM_BUTTONS; ++i)
 		{
-			System.out.print(", b[" + i + "]=" + m_buttonPressed[i]);
+			System.out.print(", b[" + i + "]=" + mButtonPressed[i]);
 		}
 		System.out.println();
 	}
 	
 	public Mouse(Mouse other)
 	{
-		m_posX = other.m_posX;
-		m_posY = other.m_posY;
-		m_buttonPressed = new boolean[NUM_BUTTONS];
+		mPosX = other.mPosX;
+		mPosY = other.mPosY;
+		mButtonPressed = new boolean[NUM_BUTTONS];
 		for (int i = 0; i < NUM_BUTTONS; ++i)
 		{
-			m_buttonPressed[i] = other.m_buttonPressed[i];
+			mButtonPressed[i] = other.mButtonPressed[i];
 		}
 	}
 	
@@ -50,7 +51,7 @@ public class Mouse {
 	{
 		if (validButtonIndex(button))
 		{
-			m_buttonPressed[button] = pressed;
+			mButtonPressed[button] = pressed;
 		}
 	}
 	
@@ -58,7 +59,7 @@ public class Mouse {
 	{
 		if (button >= 0 && button < NUM_BUTTONS)
 		{
-			return m_buttonPressed[button];
+			return mButtonPressed[button];
 		}
 		
 		return false;
@@ -66,22 +67,33 @@ public class Mouse {
 	
 	public void setPosition(float x, float y)
 	{
-		m_posX = x;
-		m_posY = y;
+		mDeltaX = x - mPosX;
+		mDeltaY = y - mPosY;
+		mPosX = x;
+		mPosY = y;
 	}
+	
 	
 	public Vector2f getPos()
 	{
-		return new Vector2f(m_posX, m_posY);
+		return new Vector2f(mPosX, mPosY);
 	}
 	
 	public float getX()
 	{
-		return m_posX;
+		return mPosX;
 	}
 	
 	public float getY()
 	{
-		return m_posY;
+		return mPosY;
+	}
+	
+	public float getDeltaX() {
+		return mDeltaX;
+	}
+	
+	public float getDeltaY() {
+		return mDeltaY;
 	}
 }

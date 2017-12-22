@@ -40,7 +40,7 @@ public class Texture
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, mTextureId);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, pWidth, pHeight, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pPixels);
+			load(pWidth, pHeight, pPixels);
 		}
 	}
 	
@@ -62,6 +62,10 @@ public class Texture
 		}
 		
 		return texture;				
+	}
+	
+	public void load(int pWidth, int pHeight, ByteBuffer pPixels) {
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, pWidth, pHeight, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pPixels);
 	}
 
 	
