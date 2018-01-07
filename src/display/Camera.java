@@ -2,7 +2,6 @@ package display;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import input.Mouse;
 
 public class Camera implements CameraI {
 	

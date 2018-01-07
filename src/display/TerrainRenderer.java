@@ -18,15 +18,30 @@ public class TerrainRenderer {
 	private int[] mIndices = null;
 	private Vector2f[] mTexCoords = null;
 	
+	private GpuBuffer mPositionVbo = null;
+	private GpuBuffer mTexCoordVbo = null;
+	private GpuBuffer mIndexVbo = null;
+	
+	private GpuProgram mTerrainProgram = null;
+	
 	public TerrainRenderer() {
 		mGrassPixelBuffer = BufferUtils.createByteBuffer(Constants.WORLD_SIZE*4);
 
 		updateGrassTexture();
 		buildArrays();
 		
+		mTerrainProgram = new GpuProgram();
+		mTerrainProgram.attachVertexShader(new GpuShader(GpuE.VERTEX_SHADER, ShaderSource.simpleVertex));
+		mTerrainProgram.attachFragmentShader(new GpuShader(GpuE.FRAGMENT_SHADER, ShaderSource.simpleFragment));
 	}
 	
 	void buildArrays() {
+		
+		mPositionVbo = GpuBuffer.createVertexBuffer();
+		mTexCoordVbo = GpuBuffer.createVertexBuffer();
+		
+		mIndexVbo  = GpuBuffer.createIndexBuffer();
+		
 		mVertices  = new Vector3f[Constants.WORLD_SIZE];
 		mTexCoords = new Vector2f[Constants.WORLD_SIZE];
 		mIndices   = new int[Constants.WORLD_SIZE*6];
@@ -149,8 +164,8 @@ public class TerrainRenderer {
 		drawArrays();
 		glPopMatrix();
 		
-		glPushMatrix();	glScalef(s,1,s); glTranslatef( 1, 0, 0); drawArrays(); glPopMatrix();
-		glPushMatrix();	glScalef(s,1,s); glTranslatef(-1, 0, 0); drawArrays(); glPopMatrix();
+		//glPushMatrix();	glScalef(s,1,s); glTranslatef( 1, 0, 0); drawArrays(); glPopMatrix();
+		//glPushMatrix();	glScalef(s,1,s); glTranslatef(-1, 0, 0); drawArrays(); glPopMatrix();
 		//glPushMatrix();	glTranslatef( 0, 0, 1); glScalef(s,1,s); drawArrays(); glPopMatrix();
 		//glPushMatrix();	glTranslatef( 0, 0,-1); glScalef(s,1,s); drawArrays(); glPopMatrix();
 		
