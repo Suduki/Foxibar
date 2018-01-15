@@ -91,7 +91,7 @@ public class Camera implements CameraI {
 		mViewMatrix = new Matrix4f().lookAt(mEyePos, mTargetPos, mUp);
 		mProjectionMatrix = new Matrix4f().perspective(mFov, mAspectRatio, mNearZ, mFarZ);
 	}
-	
+		
 	public Matrix4f getViewMatrix() {
 		return mViewMatrix;
 	}

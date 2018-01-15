@@ -31,6 +31,7 @@ public class XYPlotThingVersusTime2 extends ApplicationFrame {
 	}
 
 	public static void plotStuff() {
+		/*
 		final XYSeriesCollection data = new XYSeriesCollection();
 		
 		for (int i = 0; i < NUM_STUFF; ++i) {
@@ -53,6 +54,7 @@ public class XYPlotThingVersusTime2 extends ApplicationFrame {
 		myInstance.pack();
 		RefineryUtilities.centerFrameOnScreen(myInstance);
 		myInstance.setVisible(true);
+		*/
 		
 	}
 	

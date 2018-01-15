@@ -1,4 +1,4 @@
-package display;
+package gpu;
 
 public enum GpuE {
 	INVALID,

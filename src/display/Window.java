@@ -8,6 +8,7 @@ import java.nio.IntBuffer;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowSizeCallbackI;
 import org.lwjgl.system.MemoryStack;
 
 import constants.Constants;
@@ -38,16 +39,10 @@ public class Window {
 		return true;
 	}
 	
-	/*
-	 * Makes this windows OpenGL context current.
-	 */
 	public void makeCurrent() {
 		glfwMakeContextCurrent(mWindowId);
 	}
 	
-	/*
-	 * Will cause all subsequent calls to handleEvents to return false.
-	 */
 	public void requestClose() {
 		
 		glfwSetWindowShouldClose(mWindowId, true);
@@ -65,10 +60,9 @@ public class Window {
 		return (float)mWidth/(float)mHeight;
 	}
 	
-	public Window(int pWidth, int pHeight, String pTitle, InputHandlerI pInputHandler) {
+	public Window(int pWidth, int pHeight, String pTitle) {
 		mWidth = pWidth;
 		mHeight = pHeight;
-		mInputHandler = pInputHandler;
 		
 		GLFWErrorCallback.createPrint(System.err).set();
 
@@ -107,6 +101,11 @@ public class Window {
 		glfwSetScrollCallback(mWindowId, (window, xoffset, yoffset) -> {
 			if (mInputHandler != null) mInputHandler.handleScrollWheel(window, xoffset, yoffset);
 		});
+		
+		glfwSetWindowSizeCallback(mWindowId, (window, width, height) -> {
+			mWidth = width;
+			mHeight = height;
+		});
 
 		try ( MemoryStack stack = stackPush() ) {
 			IntBuffer width = stack.mallocInt(1); // int*
@@ -128,9 +127,13 @@ public class Window {
 
 		makeCurrent();
 		// Enable v-sync
-		glfwSwapInterval(1);
+		glfwSwapInterval(0);
 
 		// Make the window visible
 		glfwShowWindow(mWindowId);
+	}
+
+	void setInputHandler(InputHandlerI pInputHandler) {
+		mInputHandler = pInputHandler;
 	}
 }

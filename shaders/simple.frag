@@ -7,5 +7,6 @@ in vec3 vsNormal;
 
 void main()
 {
-	gl_FragColor = texture(diffuseTexture, vsTexCoord);
+	float shade = dot(vsNormal, vec3(0,1,0));
+	gl_FragColor = texture(diffuseTexture, vsTexCoord) * shade;
 }

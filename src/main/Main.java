@@ -34,11 +34,12 @@ public class Main
 	{
 		
 		if (plotStuff) {
-			XYPlotThingVersusTime.plotStuff();
+//			XYPlotThingVersusTime.plotStuff();
 		}
 		if (plotStuff2) {
-			XYPlotThingVersusTime2.plotStuff();
+			//XYPlotThingVersusTime2.plotStuff();
 		}
+		
 		Simulation     simulation     = new Simulation();
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
@@ -60,14 +61,12 @@ public class Main
 				timeStep++;
 				simulation.step(timeStep);
 				fpsLimiter.waitForNextFrame();
-				
-				
-				
-//				if (Animal.numAnimals > Constants.WORLD_SIZE/Constants.TILES_PER_ANIMAL/2) {
-//					while (Animal.numBloodlings < 15) {
-//						spawnPseudoRandomAnimal(Constants.SpeciesId.BLOODLING);
-//					}
-//				}
+
+				if (Animal.numAnimals > Constants.WORLD_SIZE/Constants.TILES_PER_ANIMAL/2) {
+					while (Animal.numBloodlings < 15) {
+						spawnPseudoRandomAnimal(Constants.SpeciesId.BLOODLING);
+					}
+				}
 				while (Animal.numAnimals < 1) {
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}

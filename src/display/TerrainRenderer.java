@@ -1,92 +1,181 @@
 package display;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL21.*;
+
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import constants.Constants;
+import gpu.VAO;
+import gpu.GpuE;
+import gpu.Program;
+import gpu.RenderNode;
+import gpu.Renderer;
+import gpu.Shader;
+import gpu.GpuUtils;
+import gpu.VBO;
+import gpu.nodes.SetViewport;
+import gpu.nodes.UseProgram;
 import world.World;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class TerrainRenderer {
+	private Texture             mGrassTexture = null;
+	private ByteBuffer          mGrassPixelBuffer = null;		
+	private VBO                 mPositionVbo = null;
+	private VBO                 mTexCoordVbo = null;
+	private VBO                 mNormalVbo = null;
+	private VBO                 mIndexVbo = null;
+	private VAO                 mBufferSet = null;	
+	private Program             mTerrainProgram = null;	
+	private int                 mNumIndices = 0;
+	private Window              mWindow = null;
+	private Camera              mCamera = null;
+	private FlyCameraController mCameraController = null;
 	
-	private Texture mGrassTexture = null;
-	private ByteBuffer mGrassPixelBuffer = null;
-	private Vector3f[] mVertices = null;
-	private int[] mIndices = null;
-	private Vector2f[] mTexCoords = null;
-	
-	private GpuBuffer mPositionVbo = null;
-	private GpuBuffer mTexCoordVbo = null;
-	private GpuBuffer mIndexVbo = null;
-	
-	private GpuProgram mTerrainProgram = null;
-	
-	public TerrainRenderer() {
-		mGrassPixelBuffer = BufferUtils.createByteBuffer(Constants.WORLD_SIZE*4);
+	public TerrainRenderer(Window window) {
+		mWindow = window;
 
-		updateGrassTexture();
-		buildArrays();
+		mPositionVbo = VBO.createVertexBuffer(null);
+		mTexCoordVbo = VBO.createVertexBuffer(null);
+		mNormalVbo   = VBO.createVertexBuffer(null);
+		mIndexVbo    = VBO.createIndexBuffer(null);
+		mBufferSet   = new VAO();
+		mBufferSet.setVbo(0, mPositionVbo, 3);
+		mBufferSet.setVbo(1, mTexCoordVbo, 2);
+		mBufferSet.setVbo(2, mNormalVbo,   3);		
+		updateArrays();
+				
+		mTerrainProgram = new Program();
+		mTerrainProgram.attachVertexShader(new Shader(GpuE.VERTEX_SHADER, ShaderSource.simpleVertex));
+		mTerrainProgram.attachFragmentShader(new Shader(GpuE.FRAGMENT_SHADER, ShaderSource.simpleFragment));
+		mTerrainProgram.link();
 		
-		mTerrainProgram = new GpuProgram();
-		mTerrainProgram.attachVertexShader(new GpuShader(GpuE.VERTEX_SHADER, ShaderSource.simpleVertex));
-		mTerrainProgram.attachFragmentShader(new GpuShader(GpuE.FRAGMENT_SHADER, ShaderSource.simpleFragment));
+		mGrassPixelBuffer = BufferUtils.createByteBuffer(Constants.WORLD_SIZE*4);
+		updateGrassTexture();
+		
+		mCamera = new Camera();
+		mCamera.setAspectRatio(mWindow.getAspectRatio());
+		mCameraController = new FlyCameraController(mCamera);
+		
+		ProxyInputHandler inputProxy = new ProxyInputHandler();
+		inputProxy.add(mCameraController);
+		inputProxy.add(new BaseInputHandler() { public void handleKeyboardEvents(int action, int key) { if (key == GLFW_KEY_ESCAPE) { mWindow.requestClose(); } } });
+		
+		mWindow.setInputHandler(inputProxy);
 	}
 	
-	void buildArrays() {
+	void drawArrays() {
+		float[] matrixBuffer = new float[16];
+		mTerrainProgram.bind();
 		
-		mPositionVbo = GpuBuffer.createVertexBuffer();
-		mTexCoordVbo = GpuBuffer.createVertexBuffer();
+		glUniformMatrix4fv(0, false, mCamera.getProjectionMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
+		glUniformMatrix4fv(1, false, mCamera.getViewMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
 		
-		mIndexVbo  = GpuBuffer.createIndexBuffer();
+		mBufferSet.bind();
+		mIndexVbo.bind();
+		glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
+		Program.unbind();
+	}
+	
+	public void render() {
+		updateGrassTexture();
+
+		mCameraController.update();
+		mCamera.update();
 		
-		mVertices  = new Vector3f[Constants.WORLD_SIZE];
-		mTexCoords = new Vector2f[Constants.WORLD_SIZE];
-		mIndices   = new int[Constants.WORLD_SIZE*6];
+		glViewport(0, 0, mWindow.getWidth(), mWindow.getHeight()); GpuUtils.GpuErrorCheck();
+		glClearColor(0.25f,0.5f,1.0f,1); GpuUtils.GpuErrorCheck();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GpuUtils.GpuErrorCheck();
+		
+		glEnable(GL_DEPTH_TEST); GpuUtils.GpuErrorCheck();
+		glEnable(GL_CULL_FACE); GpuUtils.GpuErrorCheck();
+		mGrassTexture.bind();
+		
+		drawArrays();
+	}
+	
+	private void updateArrays() {		
+		float[] vertexData   = new float[Constants.WORLD_SIZE*3];
+		float[] texCoordData = new float[Constants.WORLD_SIZE*2];
+		int[]   indexData    = new int  [Constants.WORLD_SIZE*6];
 		
 		int index = 0;
 		float xScale = 1.0f/Constants.WORLD_SIZE_X;
 		float zScale = 1.0f/Constants.WORLD_SIZE_Y;
-		float yScale = 0.2f;
+		float yScale = (float)(0.25*Math.sqrt(Constants.WORLD_SIZE));//25.0f;
+		float xOffset = -Constants.WORLD_SIZE_X/2.0f;
+		float zOffset = -Constants.WORLD_SIZE_Y/2.0f;
 		
 		for (int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
 			for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
-				mVertices[index] = new Vector3f(x*xScale - 0.5f, World.terrain.height[index]*yScale, z*zScale - 0.5f);
-				mTexCoords[index] = new Vector2f(z*zScale, x*xScale);
+				vertexData[3*index+0] = x + xOffset;
+				vertexData[3*index+1] = World.terrain.water[index] ? 0 : (World.terrain.height[index]-world.Terrain.WATER_LIMIT)*yScale;
+				vertexData[3*index+2] = z + zOffset;
+				
+				texCoordData[2*index+0] = z*zScale;
+				texCoordData[2*index+1] = x*xScale;
+				
 				++index;
 			}
 		}
-		
-		int i = 0;
+				
+		mNumIndices = 0;
 		for (int x = 0; x < Constants.WORLD_SIZE_X-1; ++x) {
 			for (int z = 0; z < Constants.WORLD_SIZE_Y-1; ++z) {
-				mIndices[i+0] = Constants.WORLD_SIZE_X*z + x;
-				mIndices[i+1] = Constants.WORLD_SIZE_X*z + x+1;
-				mIndices[i+2] = Constants.WORLD_SIZE_X*(z+1) + x;				
-				mIndices[i+3] = Constants.WORLD_SIZE_X*z + x+1;
-				mIndices[i+4] = Constants.WORLD_SIZE_X*(z+1) + x+1;
-				mIndices[i+5] = Constants.WORLD_SIZE_X*(z+1) + x;
-				i+=6;
+				indexData[mNumIndices+0] = Constants.WORLD_SIZE_X*z     + x;
+				indexData[mNumIndices+1] = Constants.WORLD_SIZE_X*z     + x + 1;
+				indexData[mNumIndices+2] = Constants.WORLD_SIZE_X*(z+1) + x;
+				
+				indexData[mNumIndices+3] = Constants.WORLD_SIZE_X*z     + x + 1;
+				indexData[mNumIndices+4] = Constants.WORLD_SIZE_X*(z+1) + x + 1;
+				indexData[mNumIndices+5] = Constants.WORLD_SIZE_X*(z+1) + x;
+				
+				mNumIndices+=6;
 			}
 		}
-	}
-	
-	void drawArrays() {
-		FloatBuffer vertex   = BufferUtils.createFloatBuffer(3);
-		FloatBuffer texCoord = BufferUtils.createFloatBuffer(2);
+
+		Vector3f[] normals = new Vector3f[Constants.WORLD_SIZE];
+		for (int i = 0; i < normals.length; ++i) {
+			normals[i] = new Vector3f();
+		}		
 		
-		glColor3f(1,1,1);		
-		glBegin(GL_TRIANGLES);
-		for (int i = 0; i < mIndices.length; ++i) {
-			int j = mIndices[i];
-			mVertices[j].get(vertex);
-			mTexCoords[j].get(texCoord);
-			glTexCoord2fv(texCoord);
-			glVertex3fv(vertex);
+		for (int triIndex = 0; triIndex < indexData.length/3; ++triIndex) {
+			int i0 = 3*indexData[3*triIndex+0];
+			int i1 = 3*indexData[3*triIndex+1];
+			int i2 = 3*indexData[3*triIndex+2];
+			Vector3f p0 = new Vector3f(vertexData[i0+0], vertexData[i0+1], vertexData[i0+2]);
+			Vector3f p1 = new Vector3f(vertexData[i1+0], vertexData[i1+1], vertexData[i1+2]);
+			Vector3f p2 = new Vector3f(vertexData[i2+0], vertexData[i2+1], vertexData[i2+2]);
+			
+			p1.sub(p0);
+			p2.sub(p0);
+			p1.cross(p2, p0);					
+			
+			normals[i0/3].add(p0);
+			normals[i1/3].add(p0);
+			normals[i2/3].add(p0);
 		}
-		glEnd();
+		
+		float[] normalData = new float[vertexData.length];
+		for (int i = 0; i < normals.length; ++i) {
+			normals[i].normalize();
+			normalData[3*i + 0] = normals[i].x;
+			normalData[3*i + 1] = normals[i].y;
+			normalData[3*i + 2] = normals[i].z;
+		}
+		
+		mPositionVbo.load(vertexData);
+		mTexCoordVbo.load(texCoordData);
+		mNormalVbo.load(normalData);
+		mIndexVbo.load(indexData);
 	}
 	
 	private void updateGrassTexture() {
@@ -130,45 +219,5 @@ public class TerrainRenderer {
 		else {
 			mGrassTexture.load(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, mGrassPixelBuffer);
 		}
-	}
-	
-	public void render(Camera camera, Window window) {
-		
-		updateGrassTexture();
-		
-		FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
-		glViewport(0, 0, window.getWidth(), window.getHeight());
-		
-		glMatrixMode(GL_PROJECTION);
-		camera.getProjectionMatrix().get(matrixBuffer);
-		glLoadMatrixf(matrixBuffer);
-		
-		glMatrixMode(GL_MODELVIEW);
-		camera.getViewMatrix().get(matrixBuffer);
-		glLoadMatrixf(matrixBuffer);
-		
-		glClearColor(0.25f,0.5f,1.0f,1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		glPolygonMode(GL_FRONT, GL_FILL);
-		glPolygonMode(GL_BACK, GL_LINE);
-
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_TEXTURE_2D);
-		mGrassTexture.bind();
-
-		float s = (1.0f + Constants.WORLD_SIZE_X)/(float)Constants.WORLD_SIZE_X;
-		
-		glPushMatrix();
-		glScalef(s,1,s);
-		drawArrays();
-		glPopMatrix();
-		
-		//glPushMatrix();	glScalef(s,1,s); glTranslatef( 1, 0, 0); drawArrays(); glPopMatrix();
-		//glPushMatrix();	glScalef(s,1,s); glTranslatef(-1, 0, 0); drawArrays(); glPopMatrix();
-		//glPushMatrix();	glTranslatef( 0, 0, 1); glScalef(s,1,s); drawArrays(); glPopMatrix();
-		//glPushMatrix();	glTranslatef( 0, 0,-1); glScalef(s,1,s); drawArrays(); glPopMatrix();
-		
-		glDisable(GL_TEXTURE_2D);
 	}
 }

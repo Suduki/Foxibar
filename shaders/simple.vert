@@ -5,15 +5,14 @@ layout(location = 1) in vec2 texCoord;
 layout(location = 2) in vec3 normal;
 
 layout(location = 0) uniform mat4 projMatrix;
-layout(location = 1) uniform mat4 viewMatrix;
-layout(location = 3) uniform mat4 worldMatrix;
+layout(location = 1) uniform mat4 modelviewMatrix;
 
 out vec2 vsTexCoord;
 out vec3 vsNormal;
 
 void main()
 {
-	gl_Position = projMatrix * viewMatrix * worldMatrix * vec4(position, 1);
+	gl_Position = projMatrix * modelviewMatrix * vec4(position*2, 1);
 	vsTexCoord = texCoord;
-	vsNormal = normal;	
+	vsNormal = normal;
 }
