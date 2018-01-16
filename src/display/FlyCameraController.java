@@ -25,6 +25,7 @@ public class FlyCameraController implements InputHandlerI {
 	private boolean mPressedQ = false;
 	private boolean mPressedE = false;
 	private boolean mPressedLeftShift = false;
+	private boolean mPressedTab = false;
 	FlyCameraController(Camera pCamera) {
 		mCamera = pCamera;
 		mPosition = new Vector3f(0, 100.0f, 0);
@@ -42,6 +43,7 @@ public class FlyCameraController implements InputHandlerI {
 				case GLFW_KEY_Q: mPressedQ = (action==GLFW_PRESS); break;
 				case GLFW_KEY_E: mPressedE = (action==GLFW_PRESS); break;
 				case GLFW_KEY_LEFT_SHIFT: mPressedLeftShift = (action==GLFW_PRESS); break;
+				case GLFW_KEY_TAB: mPressedTab = (action==GLFW_PRESS); break;
 				default: break;
 			}
 		}
@@ -63,7 +65,7 @@ public class FlyCameraController implements InputHandlerI {
 
 	@Override
 	public void handleMouseMotion(long window, double xpos, double ypos) {
-		double p = 0.5f;
+		double p = 0.25f;
 		double dx = p*(xpos - mLastX);
 		double dy = p*(ypos - mLastY);
 		
@@ -81,6 +83,14 @@ public class FlyCameraController implements InputHandlerI {
 	}
 
 	public void update() {
+		
+		if (mPressedTab) {
+			float r = 0.2f;
+			mTargetAngleX = (float) (r*(-Math.PI/2.01) + (1.0f-r)*mTargetAngleX);
+			mTargetAngleY = (1.0f-r*r)*mTargetAngleY;
+			
+			mTargetPosition = new Vector3f(mTargetPosition).mul(r*r).add(new Vector3f(0, 200, 0).mul(1.0f-r*r));
+		}
 		
 		float dt = 1.0f/30.0f; // TODO: Get from somewhere more reliable.
 		float speed = mPressedLeftShift ? 200.0f : 100;
@@ -102,12 +112,13 @@ public class FlyCameraController implements InputHandlerI {
 			dir.normalize();
 		}
 		
-		float p = 0.75f;
+		float p = 0.9f;
+		float q = 0.5f;
 		mTargetPosition.add(dir.mul(speed*dt));
 		mPosition = new Vector3f(mPosition).mul(p).add(new Vector3f(mTargetPosition).mul(1.0f-p)); 
 		
-		mAngleX = p*mAngleX + (1.0f-p)*mTargetAngleX;
-		mAngleY = p*mAngleY + (1.0f-p)*mTargetAngleY;
+		mAngleX = q*mAngleX + (1.0f-q)*mTargetAngleX;
+		mAngleY = q*mAngleY + (1.0f-q)*mTargetAngleY;
 		
 		double x = 75.0f*Math.cos(mAngleY)*Math.cos(-mAngleX);
 		double z = 75.0f*Math.sin(mAngleY)*Math.cos(-mAngleX);

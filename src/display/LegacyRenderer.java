@@ -167,7 +167,7 @@ public class LegacyRenderer implements InputHandlerI {
 			display.Texture tex = button.getTexture(); 
 			if (tex != null)
 			{
-				tex.bind();
+				tex.bind(0);
 			}
 			glBegin(GL_QUADS);
 			glTexCoord2f(0,0); glVertex2f(pos.x,          pos.y);
@@ -176,7 +176,7 @@ public class LegacyRenderer implements InputHandlerI {
 			glTexCoord2f(0,1); glVertex2f(pos.x,          pos.y + size.y);
 			glEnd();
 		}
-		display.Texture.unbind();
+		display.Texture.unbind(0);
 		glDisable(GL_TEXTURE_2D);
 	}
 
@@ -770,7 +770,7 @@ public class LegacyRenderer implements InputHandlerI {
 	public static void renderTexture(Texture texture,
 			float[] cornersX,  float[] cornersY, int numEdges)
 	{
-		texture.bind();
+		texture.bind(0);
 		glColor3f(1,1,1);
 		glBegin(GL_QUADS); {
 			for (int i = 0; i < numEdges; i++) {

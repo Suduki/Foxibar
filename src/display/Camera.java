@@ -83,7 +83,7 @@ public class Camera implements CameraI {
 	}
 	
 	public Camera() {
-		this(70.0f, 1.0f, 0.1f, 1000.0f);
+		this(70.0f, 1.0f, 0.1f, 5000.0f);
 	}
 	
 	

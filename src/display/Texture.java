@@ -1,45 +1,47 @@
 package display;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Hashtable;
+import java.nio.FloatBuffer;
 
 import javax.imageio.ImageIO;
-import org.lwjgl.opengl.GL11;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL30.*;
+
 
 public class Texture
 {
+	private Texture(int pWidth, int pHeight) {
+		int[] texId = new int[1];	
+		glGenTextures(texId);
+		mTextureId = texId[0];
+
+		System.out.println("Creating texture: w = " + pWidth + ", h = " + pHeight + ", id = " + mTextureId);
+		
+		glBindTexture(GL_TEXTURE_2D, mTextureId);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+	
 	public Texture(int pWidth, int pHeight, ByteBuffer pPixels)
 	{
-		if (pPixels == null)
-		{
-			mTextureId = 0;
-			System.out.println("pixel data is null");
+		this(pWidth, pHeight);
+		
+		if (pPixels != null)
+		{			
+			load(pWidth, pHeight, pPixels);
 		}
-		else
-		{
-			int[] texId = new int[1];	
-			GL11.glGenTextures(texId);
-			mTextureId = texId[0];
-
-			System.out.println("Creating texture: w = " + pWidth + ", h = " + pHeight + ", id = " + mTextureId);
-			
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, mTextureId);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+	}
+	
+	public Texture(int pWidth, int pHeight, FloatBuffer pPixels)
+	{
+		this(pWidth, pHeight);
+		
+		if (pPixels != null)
+		{			
 			load(pWidth, pHeight, pPixels);
 		}
 	}
@@ -65,16 +67,24 @@ public class Texture
 	}
 	
 	public void load(int pWidth, int pHeight, ByteBuffer pPixels) {
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, pWidth, pHeight, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pPixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pWidth, pHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
+	}
+	
+	public void load(int pWidth, int pHeight, FloatBuffer pPixels) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, pWidth, pHeight, 0, GL_RGBA, GL_FLOAT, pPixels);
 	}
 
 	
-	public void bind() {
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, mTextureId);
+	public void bind(int unit) {
+		glActiveTexture(GL_TEXTURE0 + unit);
+		glBindTexture(GL_TEXTURE_2D, mTextureId);
+		glActiveTexture(GL_TEXTURE0);
 	}
 	
-	public static void unbind() {
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+	public static void unbind(int unit) {
+		glActiveTexture(GL_TEXTURE0 + unit);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glActiveTexture(GL_TEXTURE0);
 	}
 	
 	int mTextureId;

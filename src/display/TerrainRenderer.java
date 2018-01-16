@@ -27,8 +27,10 @@ import world.World;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class TerrainRenderer {
-	private Texture             mGrassTexture = null;
-	private ByteBuffer          mGrassPixelBuffer = null;		
+	private Texture             mStrataTexture = null;
+	private Texture             mDetailTexture = null;
+	private Texture             mHeightTexture = null;
+			
 	private VBO                 mPositionVbo = null;
 	private VBO                 mTexCoordVbo = null;
 	private VBO                 mNormalVbo = null;
@@ -39,6 +41,7 @@ public class TerrainRenderer {
 	private Window              mWindow = null;
 	private Camera              mCamera = null;
 	private FlyCameraController mCameraController = null;
+	private float               mWrinkleParam = 1.0f;
 	
 	public TerrainRenderer(Window window) {
 		mWindow = window;
@@ -58,16 +61,20 @@ public class TerrainRenderer {
 		mTerrainProgram.attachFragmentShader(new Shader(GpuE.FRAGMENT_SHADER, ShaderSource.simpleFragment));
 		mTerrainProgram.link();
 		
-		mGrassPixelBuffer = BufferUtils.createByteBuffer(Constants.WORLD_SIZE*4);
-		updateGrassTexture();
-		
+		mStrataTexture = Texture.fromFile("pics/strata.png");
+		mDetailTexture = Texture.fromFile("pics/detail.png");
+		buildHeightTexture();
+			
 		mCamera = new Camera();
 		mCamera.setAspectRatio(mWindow.getAspectRatio());
 		mCameraController = new FlyCameraController(mCamera);
 		
 		ProxyInputHandler inputProxy = new ProxyInputHandler();
 		inputProxy.add(mCameraController);
-		inputProxy.add(new BaseInputHandler() { public void handleKeyboardEvents(int action, int key) { if (key == GLFW_KEY_ESCAPE) { mWindow.requestClose(); } } });
+		inputProxy.add(new BaseInputHandler() {
+			public void handleKeyboardEvents(int action, int key) { if (key == GLFW_KEY_ESCAPE) { mWindow.requestClose(); } }
+			public void handleScrollWheel(long window, double xoffset, double yoffset) { mWrinkleParam += yoffset * 0.01f; if (mWrinkleParam < 0) {mWrinkleParam = 0;} if (mWrinkleParam > 1) { mWrinkleParam = 1; } }
+		});
 		
 		mWindow.setInputHandler(inputProxy);
 	}
@@ -78,6 +85,8 @@ public class TerrainRenderer {
 		
 		glUniformMatrix4fv(0, false, mCamera.getProjectionMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
 		glUniformMatrix4fv(1, false, mCamera.getViewMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
+		glUniform1f(2, mWrinkleParam);
+		glUniform1f(3, 1.0f/(float)(0.25*Math.sqrt(Constants.WORLD_SIZE)));
 		
 		mBufferSet.bind();
 		mIndexVbo.bind();
@@ -86,8 +95,6 @@ public class TerrainRenderer {
 	}
 	
 	public void render() {
-		updateGrassTexture();
-
 		mCameraController.update();
 		mCamera.update();
 		
@@ -97,7 +104,9 @@ public class TerrainRenderer {
 		
 		glEnable(GL_DEPTH_TEST); GpuUtils.GpuErrorCheck();
 		glEnable(GL_CULL_FACE); GpuUtils.GpuErrorCheck();
-		mGrassTexture.bind();
+		mHeightTexture.bind(0);
+		mStrataTexture.bind(1);
+		mDetailTexture.bind(2);
 		
 		drawArrays();
 	}
@@ -117,7 +126,7 @@ public class TerrainRenderer {
 		for (int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
 			for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
 				vertexData[3*index+0] = x + xOffset;
-				vertexData[3*index+1] = World.terrain.water[index] ? 0 : (World.terrain.height[index]-world.Terrain.WATER_LIMIT)*yScale;
+				vertexData[3*index+1] = 0;//World.terrain.height[index]*yScale;
 				vertexData[3*index+2] = z + zOffset;
 				
 				texCoordData[2*index+0] = z*zScale;
@@ -178,46 +187,16 @@ public class TerrainRenderer {
 		mIndexVbo.load(indexData);
 	}
 	
-	private void updateGrassTexture() {
-		float grassness, dirtness;
-		float[] tempColor = new float[3];
+	private void buildHeightTexture() {
+		FloatBuffer heightBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);;
+		float yScale = (float)(0.25*Math.sqrt(Constants.WORLD_SIZE));
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			float r = 0;
-			float g = 0;
-			float b = 0;
-
-			grassness = World.grass.height[i];
-			dirtness = 1 - grassness;
-			
-			r += grassness*World.grass.color[0];
-			g += grassness*World.grass.color[1];
-			b += grassness*World.grass.color[2];
-
-			World.terrain.getColor(i, tempColor);
-			r += dirtness*tempColor[0];
-			g += dirtness*tempColor[1];
-			b += dirtness*tempColor[2];
-
-			if (RenderState.RENDER_BLOOD) {
-				World.blood.getColor(i, tempColor);
-				r += tempColor[0];
-				g += tempColor[1];
-				b += tempColor[2];
-			}
-			
-			r*=255;
-			g*=255;
-			b*=255;
-			mGrassPixelBuffer.put(i*4+0, (byte)r);
-			mGrassPixelBuffer.put(i*4+1, (byte)g);
-			mGrassPixelBuffer.put(i*4+2, (byte)b);
+			float h = World.terrain.height[i]*yScale;
+			heightBuffer.put(i*4+0, h);
+			heightBuffer.put(i*4+1, 0.0f);
+			heightBuffer.put(i*4+2, 0.0f);
 		}
 		
-		if (mGrassTexture == null) {
-			mGrassTexture = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, mGrassPixelBuffer);
-		}
-		else {
-			mGrassTexture.load(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, mGrassPixelBuffer);
-		}
+		mHeightTexture = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
 	}
 }

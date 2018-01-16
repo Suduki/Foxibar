@@ -65,9 +65,11 @@ public class DisplayHandler extends MessageHandler {
 			long time0 = System.currentTimeMillis();
 			
 			while(mDisplayHandler.handleMessages() && handleEvents()) {
+				/*
 				mWindow.makeCurrent();
 				legacyRenderer.render();
 				mWindow.swapBuffers();
+				*/
 				
 				mWindow2.makeCurrent();
 				terrainRenderer.render();
