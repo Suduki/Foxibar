@@ -7,6 +7,9 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import javax.imageio.ImageIO;
+
+import gpu.GpuUtils;
+
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL30.*;
@@ -16,14 +19,18 @@ public class Texture
 {
 	private Texture(int pWidth, int pHeight) {
 		int[] texId = new int[1];	
-		glGenTextures(texId);
+		glGenTextures(texId); GpuUtils.GpuErrorCheck();
 		mTextureId = texId[0];
 
 		System.out.println("Creating texture: w = " + pWidth + ", h = " + pHeight + ", id = " + mTextureId);
 		
-		glBindTexture(GL_TEXTURE_2D, mTextureId);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glBindTexture(GL_TEXTURE_2D, mTextureId); GpuUtils.GpuErrorCheck();
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); GpuUtils.GpuErrorCheck();
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); GpuUtils.GpuErrorCheck();
+	}
+	
+	public int id() {
+		return mTextureId;
 	}
 	
 	public Texture(int pWidth, int pHeight, ByteBuffer pPixels)
@@ -67,24 +74,24 @@ public class Texture
 	}
 	
 	public void load(int pWidth, int pHeight, ByteBuffer pPixels) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pWidth, pHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pWidth, pHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPixels); GpuUtils.GpuErrorCheck();
 	}
 	
 	public void load(int pWidth, int pHeight, FloatBuffer pPixels) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, pWidth, pHeight, 0, GL_RGBA, GL_FLOAT, pPixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, pWidth, pHeight, 0, GL_RGBA, GL_FLOAT, pPixels); GpuUtils.GpuErrorCheck();
 	}
 
 	
 	public void bind(int unit) {
-		glActiveTexture(GL_TEXTURE0 + unit);
-		glBindTexture(GL_TEXTURE_2D, mTextureId);
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0 + unit); GpuUtils.GpuErrorCheck();
+		glBindTexture(GL_TEXTURE_2D, mTextureId); GpuUtils.GpuErrorCheck();
+		glActiveTexture(GL_TEXTURE0); GpuUtils.GpuErrorCheck();
 	}
 	
 	public static void unbind(int unit) {
-		glActiveTexture(GL_TEXTURE0 + unit);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0 + unit); GpuUtils.GpuErrorCheck();
+		glBindTexture(GL_TEXTURE_2D, 0); GpuUtils.GpuErrorCheck();
+		glActiveTexture(GL_TEXTURE0); GpuUtils.GpuErrorCheck();
 	}
 	
 	int mTextureId;

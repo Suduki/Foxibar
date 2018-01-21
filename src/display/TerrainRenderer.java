@@ -4,6 +4,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL21.*;
+import static org.lwjgl.opengl.GL30.*;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -14,6 +15,7 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import constants.Constants;
 import gpu.VAO;
+import gpu.FBO;
 import gpu.GpuE;
 import gpu.Program;
 import gpu.RenderNode;
@@ -27,44 +29,37 @@ import world.World;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class TerrainRenderer {
-	private Texture             mStrataTexture = null;
-	private Texture             mDetailTexture = null;
-	private Texture             mHeightTexture = null;
-			
-	private VBO                 mPositionVbo = null;
-	private VBO                 mTexCoordVbo = null;
-	private VBO                 mNormalVbo = null;
-	private VBO                 mIndexVbo = null;
-	private VAO                 mBufferSet = null;	
-	private Program             mTerrainProgram = null;	
-	private int                 mNumIndices = 0;
-	private Window              mWindow = null;
-	private Camera              mCamera = null;
+	// Visualisation.
+	private Window              mWindow           = null;
+	private Camera              mCamera           = null;
 	private FlyCameraController mCameraController = null;
-	private float               mWrinkleParam = 1.0f;
+	private Texture             mStrataTexture    = null;
+	private Texture             mDetailTexture    = null;
+	private Texture             mWaterTexture     = null;
+	private TextureCube         mSkyboxTexture    = null;
+	private VBO                 mPositionVbo      = null;
+	private VBO                 mTexCoordVbo      = null;
+	private VBO                 mIndexVbo         = null;
+	private VAO                 mBufferSet        = null;	
+	private int                 mNumIndices       = 0;
+	private Program             mTerrainProgram   = null;
+	private Program             mWaterProgram     = null;
+	
+	// Simulation.
+	private int                 mSrcIndex   = 0;
+	private int                 mDstIndex   = 1;
+	private float               mHeightScale = 1;     
+	private Texture[]           mHeightTexture      = new Texture[2];
+	private Texture[]           mFluxTexture        = new Texture[2];
+	private Texture[]           mVelocityTexture    = new Texture[2];
+	private FBO                 mSimulationFbo      = null;		
+	private Program             mFluxUpdateProgram  = null;
+	private Program             mWaterUpdateProgram = null;
 	
 	public TerrainRenderer(Window window) {
+		System.out.println("WORLD_SIZE_X = " + Constants.WORLD_SIZE_X + ", WORLD_SIZE_Y = " + Constants.WORLD_SIZE_Y);
 		mWindow = window;
-
-		mPositionVbo = VBO.createVertexBuffer(null);
-		mTexCoordVbo = VBO.createVertexBuffer(null);
-		mNormalVbo   = VBO.createVertexBuffer(null);
-		mIndexVbo    = VBO.createIndexBuffer(null);
-		mBufferSet   = new VAO();
-		mBufferSet.setVbo(0, mPositionVbo, 3);
-		mBufferSet.setVbo(1, mTexCoordVbo, 2);
-		mBufferSet.setVbo(2, mNormalVbo,   3);		
-		updateArrays();
-				
-		mTerrainProgram = new Program();
-		mTerrainProgram.attachVertexShader(new Shader(GpuE.VERTEX_SHADER, ShaderSource.simpleVertex));
-		mTerrainProgram.attachFragmentShader(new Shader(GpuE.FRAGMENT_SHADER, ShaderSource.simpleFragment));
-		mTerrainProgram.link();
 		
-		mStrataTexture = Texture.fromFile("pics/strata.png");
-		mDetailTexture = Texture.fromFile("pics/detail.png");
-		buildHeightTexture();
-			
 		mCamera = new Camera();
 		mCamera.setAspectRatio(mWindow.getAspectRatio());
 		mCameraController = new FlyCameraController(mCamera);
@@ -72,31 +67,66 @@ public class TerrainRenderer {
 		ProxyInputHandler inputProxy = new ProxyInputHandler();
 		inputProxy.add(mCameraController);
 		inputProxy.add(new BaseInputHandler() {
-			public void handleKeyboardEvents(int action, int key) { if (key == GLFW_KEY_ESCAPE) { mWindow.requestClose(); } }
-			public void handleScrollWheel(long window, double xoffset, double yoffset) { mWrinkleParam += yoffset * 0.01f; if (mWrinkleParam < 0) {mWrinkleParam = 0;} if (mWrinkleParam > 1) { mWrinkleParam = 1; } }
+			public void handleKeyboardEvents(int action, int key) {
+				if (key == GLFW_KEY_ESCAPE) {
+					mWindow.requestClose();
+					}
+				}
 		});
 		
 		mWindow.setInputHandler(inputProxy);
+		
+		initVertexArrays();
+		initVisualisationShaderPrograms();
+		initVisualisationTextures();
+		
+		mHeightScale = (float)(0.25*Math.sqrt(Constants.WORLD_SIZE));
+		initSimulationShaderPrograms();
+		initSimulationTextures();
 	}
+	
+	private void initVisualisationShaderPrograms() {
+		mTerrainProgram = new Program();
+		mTerrainProgram.attachVertexShader(new Shader(GpuE.VERTEX_SHADER, ShaderSource.solidGroundVertex));
+		mTerrainProgram.attachFragmentShader(new Shader(GpuE.FRAGMENT_SHADER, ShaderSource.solidGroundFragment));
+		mTerrainProgram.link();
+		
+		mWaterProgram = new Program();
+		mWaterProgram.attachVertexShader(new Shader(GpuE.VERTEX_SHADER, ShaderSource.waterVertex));
+		mWaterProgram.attachFragmentShader(new Shader(GpuE.FRAGMENT_SHADER, ShaderSource.waterFragment));
+		mWaterProgram.link();
+	}
+	
+	private void initSimulationShaderPrograms() {
+		mFluxUpdateProgram = new Program();
+		mFluxUpdateProgram.attachVertexShader(new Shader(GpuE.VERTEX_SHADER, ShaderSource.simVertex));
+		mFluxUpdateProgram.attachFragmentShader(new Shader(GpuE.FRAGMENT_SHADER, ShaderSource.simFluxUpdateFragment));
+		mFluxUpdateProgram.link();
+		
+		mWaterUpdateProgram = new Program();
+		mWaterUpdateProgram.attachVertexShader(new Shader(GpuE.VERTEX_SHADER, ShaderSource.simVertex));
+		mWaterUpdateProgram.attachFragmentShader(new Shader(GpuE.FRAGMENT_SHADER, ShaderSource.simWaterUpdateFragment));
+		mWaterUpdateProgram.link();
+	}
+	
+	private void initVisualisationTextures() {
+		mStrataTexture = Texture.fromFile("pics/strata.png");
+		mDetailTexture = Texture.fromFile("pics/detail.png");
+		mWaterTexture  = Texture.fromFile("pics/water.png");
+		mSkyboxTexture = new TextureCube();
+		mSkyboxTexture.loadFacesFromFile(
+				"pics/skybox/right.png",
+				"pics/skybox/left.png",
+				"pics/skybox/top.png",
+				"pics/skybox/bottom.png",
+				"pics/skybox/front.png",
+				"pics/skybox/back.png");
+	}
+	
+	
 	
 	void drawArrays() {
 		float[] matrixBuffer = new float[16];
-		mTerrainProgram.bind();
-		
-		glUniformMatrix4fv(0, false, mCamera.getProjectionMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
-		glUniformMatrix4fv(1, false, mCamera.getViewMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
-		glUniform1f(2, mWrinkleParam);
-		glUniform1f(3, 1.0f/(float)(0.25*Math.sqrt(Constants.WORLD_SIZE)));
-		
-		mBufferSet.bind();
-		mIndexVbo.bind();
-		glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
-		Program.unbind();
-	}
-	
-	public void render() {
-		mCameraController.update();
-		mCamera.update();
 		
 		glViewport(0, 0, mWindow.getWidth(), mWindow.getHeight()); GpuUtils.GpuErrorCheck();
 		glClearColor(0.25f,0.5f,1.0f,1); GpuUtils.GpuErrorCheck();
@@ -104,99 +134,185 @@ public class TerrainRenderer {
 		
 		glEnable(GL_DEPTH_TEST); GpuUtils.GpuErrorCheck();
 		glEnable(GL_CULL_FACE); GpuUtils.GpuErrorCheck();
-		mHeightTexture.bind(0);
+		mHeightTexture[mSrcIndex].bind(0);
 		mStrataTexture.bind(1);
 		mDetailTexture.bind(2);
+		mWaterTexture.bind(3);
+		mSkyboxTexture.bind(4);
+		mVelocityTexture[mSrcIndex].bind(5);
 		
-		drawArrays();
+		glDepthFunc(GL_LEQUAL);
+		mTerrainProgram.bind();
+		
+		glUniformMatrix4fv(0, false, mCamera.getProjectionMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
+		glUniformMatrix4fv(1, false, mCamera.getViewMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
+		glUniform1f(3, 1.0f/(float)(0.25*Math.sqrt(Constants.WORLD_SIZE)));
+		
+		mBufferSet.bind();
+		mIndexVbo.bind();
+		glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
+		Program.unbind();
+		
+		glDepthFunc(GL_LESS);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		mWaterProgram.bind();
+
+		Vector3f e = mCamera.getEyePosition();
+		glUniformMatrix4fv(0, false, mCamera.getProjectionMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
+		glUniformMatrix4fv(1, false, mCamera.getViewMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
+		glUniform4f(2, e.x, e.y, e.z, 1.0f);
+		glUniform1f(3, 1.0f/(float)(0.25*Math.sqrt(Constants.WORLD_SIZE)));
+		
+		mBufferSet.bind();
+		mIndexVbo.bind();
+		glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
+		Program.unbind();
+		glDisable(GL_BLEND);
 	}
 	
-	private void updateArrays() {		
-		float[] vertexData   = new float[Constants.WORLD_SIZE*3];
-		float[] texCoordData = new float[Constants.WORLD_SIZE*2];
-		int[]   indexData    = new int  [Constants.WORLD_SIZE*6];
+	void swapTextures(Texture[] texture) {
+		Texture tmp = texture[0];
+		texture[0] = texture[1];
+		texture[1] = tmp;
+	}
+	static final int[] mSimDrawBuffers = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
+	
+	public void render() {
+		mCameraController.update();
+		drawArrays();	
+		stepSimulation();
+	}
+	
+	private void stepSimulation() {
+		// Step simulation.
+		mSimulationFbo.bind();
+		glDrawBuffers(mSimDrawBuffers); GpuUtils.GpuErrorCheck();
+		
+		// Calculate new flux.
+		mFluxUpdateProgram.bind();
+		glUniform1f(0, 1.0f/Constants.WORLD_SIZE_X);
+		mHeightTexture[mSrcIndex].bind(0);
+		mFluxTexture[mSrcIndex].bind(1);
+		glViewport(0, 0, Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
+		glDrawArrays(GL_TRIANGLES, 0, 6); GpuUtils.GpuErrorCheck();
+		
+		FBO.unbind();
+		
+		swapTextures(mHeightTexture);
+		swapTextures(mFluxTexture);
+		mSimulationFbo.setColorAttachment(0, mHeightTexture[mDstIndex]);
+		mSimulationFbo.setColorAttachment(1, mFluxTexture[mDstIndex]);
+		mHeightTexture[mSrcIndex].bind(0);
+		mFluxTexture[mSrcIndex].bind(1);
+		mStrataTexture.bind(3);
+		
+		mSimulationFbo.bind();
+		glDrawBuffers(mSimDrawBuffers); GpuUtils.GpuErrorCheck();
+		
+		// Calculate new water and erode.
+		mWaterUpdateProgram.bind();
+		glUniform1f(0, 1.0f/Constants.WORLD_SIZE_X);
+		glUniform1f(3, 1.0f/(float)(0.25*Math.sqrt(Constants.WORLD_SIZE)));
+		glViewport(0, 0, Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
+		glDrawArrays(GL_TRIANGLES, 0, 6); GpuUtils.GpuErrorCheck();
+		FBO.unbind();
+		
+		swapTextures(mFluxTexture);
+		swapTextures(mHeightTexture);
+		swapTextures(mVelocityTexture);
+		mSimulationFbo.setColorAttachment(0, mHeightTexture[mDstIndex]);
+		mSimulationFbo.setColorAttachment(1, mFluxTexture[mDstIndex]);
+		mSimulationFbo.setColorAttachment(2, mVelocityTexture[mDstIndex]);
+	}
+	
+	private void initVertexArrays() {	
+		mPositionVbo = VBO.createVertexBuffer(null);
+		mTexCoordVbo = VBO.createVertexBuffer(null);
+		mIndexVbo    = VBO.createIndexBuffer(null);
+		mBufferSet   = new VAO();
+		mBufferSet.setVbo(0, mPositionVbo, 3);
+		mBufferSet.setVbo(1, mTexCoordVbo, 2);		
+		
+		final int W = 4*Constants.WORLD_SIZE_X;
+		final int H = 4*Constants.WORLD_SIZE_Y;
+		final float du = 0.5f/Constants.WORLD_SIZE_X;
+		final float dv = 0.5f/Constants.WORLD_SIZE_Y;
+		final int S = W*H;
+		float[] vertexData   = new float[S*3];
+		float[] texCoordData = new float[S*2];
+		int[]   indexData    = new int  [S*6];
+		
+		float xScale = 1.0f/W;
+		float zScale = 1.0f/H;
+		float yScale = (float)(0.25*Math.sqrt(S));
+		float xOffset = -W/2.0f;
+		float zOffset = -H/2.0f;
 		
 		int index = 0;
-		float xScale = 1.0f/Constants.WORLD_SIZE_X;
-		float zScale = 1.0f/Constants.WORLD_SIZE_Y;
-		float yScale = (float)(0.25*Math.sqrt(Constants.WORLD_SIZE));//25.0f;
-		float xOffset = -Constants.WORLD_SIZE_X/2.0f;
-		float zOffset = -Constants.WORLD_SIZE_Y/2.0f;
-		
-		for (int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
-			for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
-				vertexData[3*index+0] = x + xOffset;
-				vertexData[3*index+1] = 0;//World.terrain.height[index]*yScale;
-				vertexData[3*index+2] = z + zOffset;
+		for (int x = 0; x < W; ++x) {
+			for (int z = 0; z < H; ++z) {
+				vertexData[3*index+0] = (x + xOffset)*0.25f;
+				vertexData[3*index+1] = 0;
+				vertexData[3*index+2] = (z + zOffset)*0.25f;
 				
-				texCoordData[2*index+0] = z*zScale;
-				texCoordData[2*index+1] = x*xScale;
+				texCoordData[2*index+0] = (z*zScale + du);
+				texCoordData[2*index+1] = (x*xScale + dv);
 				
 				++index;
 			}
 		}
 				
 		mNumIndices = 0;
-		for (int x = 0; x < Constants.WORLD_SIZE_X-1; ++x) {
-			for (int z = 0; z < Constants.WORLD_SIZE_Y-1; ++z) {
-				indexData[mNumIndices+0] = Constants.WORLD_SIZE_X*z     + x;
-				indexData[mNumIndices+1] = Constants.WORLD_SIZE_X*z     + x + 1;
-				indexData[mNumIndices+2] = Constants.WORLD_SIZE_X*(z+1) + x;
+		for (int x = 0; x < W-1; ++x) {
+			for (int z = 0; z < H-1; ++z) {
+				indexData[mNumIndices+0] = W*z     + x;
+				indexData[mNumIndices+1] = W*z     + x + 1;
+				indexData[mNumIndices+2] = W*(z+1) + x;
 				
-				indexData[mNumIndices+3] = Constants.WORLD_SIZE_X*z     + x + 1;
-				indexData[mNumIndices+4] = Constants.WORLD_SIZE_X*(z+1) + x + 1;
-				indexData[mNumIndices+5] = Constants.WORLD_SIZE_X*(z+1) + x;
+				indexData[mNumIndices+3] = W*z     + x + 1;
+				indexData[mNumIndices+4] = W*(z+1) + x + 1;
+				indexData[mNumIndices+5] = W*(z+1) + x;
 				
 				mNumIndices+=6;
 			}
 		}
-
-		Vector3f[] normals = new Vector3f[Constants.WORLD_SIZE];
-		for (int i = 0; i < normals.length; ++i) {
-			normals[i] = new Vector3f();
-		}		
-		
-		for (int triIndex = 0; triIndex < indexData.length/3; ++triIndex) {
-			int i0 = 3*indexData[3*triIndex+0];
-			int i1 = 3*indexData[3*triIndex+1];
-			int i2 = 3*indexData[3*triIndex+2];
-			Vector3f p0 = new Vector3f(vertexData[i0+0], vertexData[i0+1], vertexData[i0+2]);
-			Vector3f p1 = new Vector3f(vertexData[i1+0], vertexData[i1+1], vertexData[i1+2]);
-			Vector3f p2 = new Vector3f(vertexData[i2+0], vertexData[i2+1], vertexData[i2+2]);
-			
-			p1.sub(p0);
-			p2.sub(p0);
-			p1.cross(p2, p0);					
-			
-			normals[i0/3].add(p0);
-			normals[i1/3].add(p0);
-			normals[i2/3].add(p0);
-		}
-		
-		float[] normalData = new float[vertexData.length];
-		for (int i = 0; i < normals.length; ++i) {
-			normals[i].normalize();
-			normalData[3*i + 0] = normals[i].x;
-			normalData[3*i + 1] = normals[i].y;
-			normalData[3*i + 2] = normals[i].z;
-		}
 		
 		mPositionVbo.load(vertexData);
 		mTexCoordVbo.load(texCoordData);
-		mNormalVbo.load(normalData);
 		mIndexVbo.load(indexData);
 	}
 	
-	private void buildHeightTexture() {
+	private void initSimulationTextures() {
 		FloatBuffer heightBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);;
-		float yScale = (float)(0.25*Math.sqrt(Constants.WORLD_SIZE));
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			float h = World.terrain.height[i]*yScale;
+			float h = World.terrain.height[i];
+			float w = h < 0.5f ? 0.5f-h : 0.0f;
+			h *= mHeightScale;
+			w *= mHeightScale;
 			heightBuffer.put(i*4+0, h);
-			heightBuffer.put(i*4+1, 0.0f);
-			heightBuffer.put(i*4+2, 0.0f);
+			heightBuffer.put(i*4+1, 0);
+			heightBuffer.put(i*4+2, 0);
 		}
 		
-		mHeightTexture = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
+		mHeightTexture[0] = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
+		mHeightTexture[1] = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
+		
+		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
+			heightBuffer.put(i*4+0, 0);
+			heightBuffer.put(i*4+1, 0);
+			heightBuffer.put(i*4+2, 0);
+			heightBuffer.put(i*4+3, 0);
+		}
+		
+		mFluxTexture[0]     = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
+		mFluxTexture[1]     = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
+		mVelocityTexture[0] = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
+		mVelocityTexture[1] = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
+		
+		mSimulationFbo = new FBO();
+		mSimulationFbo.setColorAttachment(0, mHeightTexture[mDstIndex]);
+		mSimulationFbo.setColorAttachment(1, mFluxTexture[mDstIndex]);
+		
 	}
 }

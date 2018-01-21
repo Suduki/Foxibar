@@ -93,7 +93,7 @@ public class FlyCameraController implements InputHandlerI {
 		}
 		
 		float dt = 1.0f/30.0f; // TODO: Get from somewhere more reliable.
-		float speed = mPressedLeftShift ? 200.0f : 100;
+		float speed = mPressedLeftShift ? 200.0f : 25;
 		
 		Matrix4f m = mCamera.getViewMatrix().invert();
 		
@@ -128,5 +128,6 @@ public class FlyCameraController implements InputHandlerI {
 		
 		mCamera.setEyePosition(mPosition);
 		mCamera.setTargetPosition(viewDir.add(mPosition));
+		mCamera.update();
 	}
 }

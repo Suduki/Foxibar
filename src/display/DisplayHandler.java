@@ -51,19 +51,20 @@ public class DisplayHandler extends MessageHandler {
 		public void run() {
 			System.out.println("Render thread started.");
 			
-			mWindow = new Window(LegacyRenderer.PIXELS_X + Constants.PIXELS_SIDEBOARD, LegacyRenderer.PIXELS_Y, "FOXIBAR - DEAD OR ALIVE");
-			initOpenGL();
+		//	mWindow = new Window(LegacyRenderer.PIXELS_X + Constants.PIXELS_SIDEBOARD, LegacyRenderer.PIXELS_Y, "FOXIBAR - DEAD OR ALIVE");
 			
-			LegacyRenderer legacyRenderer = new LegacyRenderer(mWindow, mDisplayHandler, mSimulation);
+			//LegacyRenderer legacyRenderer = new LegacyRenderer(mWindow, mDisplayHandler, mSimulation);
 			
 			
-			legacyRenderer.loadResources();
+			//legacyRenderer.loadResources();
 
 			mWindow2 = new Window(1920, 1080, "FOXIBAR - New renderer");
+			initOpenGL();
 			TerrainRenderer terrainRenderer = new TerrainRenderer(mWindow2);
 			
 			long time0 = System.currentTimeMillis();
 			
+			mWindow2.makeCurrent();
 			while(mDisplayHandler.handleMessages() && handleEvents()) {
 				/*
 				mWindow.makeCurrent();
@@ -71,7 +72,6 @@ public class DisplayHandler extends MessageHandler {
 				mWindow.swapBuffers();
 				*/
 				
-				mWindow2.makeCurrent();
 				terrainRenderer.render();
 				mWindow2.swapBuffers();
 				
@@ -91,9 +91,10 @@ public class DisplayHandler extends MessageHandler {
 		}
 
 		private boolean handleEvents() {
-			boolean w1 = mWindow.handleEvents();
+			//boolean w1 = mWindow.handleEvents();
 			boolean w2 = mWindow2.handleEvents();
-			return w1 && w2;
+			//return w1 && w2;
+			return w2;
 		}
 
 		private void initOpenGL()
