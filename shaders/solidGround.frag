@@ -36,7 +36,8 @@ void main()
 	
 	vec4 stoneColor = texture(strataTexture, vec2(0,h));	
 	vec4 detailColor = calculateDetailSample(detailTexture, vsTexCoord, 6);	
-	vec4 landColor = texture(detailTexture, vsTexCoord*8.0f) * vec4(210.0, 180.0, 140.0, 0.0) * 1.0/255.0;
+	vec4 landColor = detailColor * texture(detailTexture, vsTexCoord*16.0f) * vec4(210.0, 180.0, 140.0, 0.0) * 1.0/255.0;
+	//vec4 landColor = detailColor * texture(detailTexture, vsTexCoord*16.0f) * vec4(256.0, 0.0, 0.0, 0.0) * 1.0/255.0;
 	vec4 bottomColor = detailColor*stoneColor;
 	
 	float a = 0.0;
@@ -52,4 +53,7 @@ void main()
 	
 	float shade = dot(normalize(vsNormal), normalize(vec3(1,2,0)));
 	fragmentColor = mix(bottomColor, landColor, a) * shade;
+	
+	//float stoneFactor = dot(vec4(1,1,1,0), texture(strataTexture, vec2(0,normalizingFactor*stoneHeight)))/3.0;
+	//fragmentColor = vec4(stoneFactor);
 }

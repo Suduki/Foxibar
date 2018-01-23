@@ -48,13 +48,15 @@ public class TerrainRenderer {
 	// Simulation.
 	private int                 mSrcIndex   = 0;
 	private int                 mDstIndex   = 1;
-	private float               mHeightScale = 1;     
+	private float               mHeightScale = 1;
+	private float               mRain = 1.0f;
 	private Texture[]           mHeightTexture      = new Texture[2];
 	private Texture[]           mFluxTexture        = new Texture[2];
 	private Texture[]           mVelocityTexture    = new Texture[2];
 	private FBO                 mSimulationFbo      = null;		
 	private Program             mFluxUpdateProgram  = null;
 	private Program             mWaterUpdateProgram = null;
+	private Program             mSedimentUpdateProgram = null;
 	
 	public TerrainRenderer(Window window) {
 		System.out.println("WORLD_SIZE_X = " + Constants.WORLD_SIZE_X + ", WORLD_SIZE_Y = " + Constants.WORLD_SIZE_Y);
@@ -68,10 +70,16 @@ public class TerrainRenderer {
 		inputProxy.add(mCameraController);
 		inputProxy.add(new BaseInputHandler() {
 			public void handleKeyboardEvents(int action, int key) {
+				if (action != GLFW_PRESS) {
+					return;
+				}
 				if (key == GLFW_KEY_ESCAPE) {
 					mWindow.requestClose();
-					}
 				}
+				if (key == GLFW_KEY_SPACE) {
+					mRain = 1.0f - mRain;
+				}
+			}
 		});
 		
 		mWindow.setInputHandler(inputProxy);
@@ -107,6 +115,11 @@ public class TerrainRenderer {
 		mWaterUpdateProgram.attachVertexShader(new Shader(GpuE.VERTEX_SHADER, ShaderSource.simVertex));
 		mWaterUpdateProgram.attachFragmentShader(new Shader(GpuE.FRAGMENT_SHADER, ShaderSource.simWaterUpdateFragment));
 		mWaterUpdateProgram.link();
+		
+		mSedimentUpdateProgram = new Program();
+		mSedimentUpdateProgram.attachVertexShader(new Shader(GpuE.VERTEX_SHADER, ShaderSource.simVertex));
+		mSedimentUpdateProgram.attachFragmentShader(new Shader(GpuE.FRAGMENT_SHADER, ShaderSource.simSedimentUpdateFragment));
+		mSedimentUpdateProgram.link();		
 	}
 	
 	private void initVisualisationTextures() {
@@ -121,16 +134,10 @@ public class TerrainRenderer {
 				"pics/skybox/bottom.png",
 				"pics/skybox/front.png",
 				"pics/skybox/back.png");
-	}
+	}	
 	
-	
-	
-	void drawArrays() {
+	void drawTerrain(Matrix4f translationMatrix) {
 		float[] matrixBuffer = new float[16];
-		
-		glViewport(0, 0, mWindow.getWidth(), mWindow.getHeight()); GpuUtils.GpuErrorCheck();
-		glClearColor(0.25f,0.5f,1.0f,1); GpuUtils.GpuErrorCheck();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GpuUtils.GpuErrorCheck();
 		
 		glEnable(GL_DEPTH_TEST); GpuUtils.GpuErrorCheck();
 		glEnable(GL_CULL_FACE); GpuUtils.GpuErrorCheck();
@@ -145,30 +152,32 @@ public class TerrainRenderer {
 		mTerrainProgram.bind();
 		
 		glUniformMatrix4fv(0, false, mCamera.getProjectionMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
-		glUniformMatrix4fv(1, false, mCamera.getViewMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
-		glUniform1f(3, 1.0f/(float)(0.25*Math.sqrt(Constants.WORLD_SIZE)));
+		glUniformMatrix4fv(1, false, new Matrix4f(mCamera.getViewMatrix()).mul(translationMatrix).get(matrixBuffer)); GpuUtils.GpuErrorCheck();
+		glUniform1f(3, 1.0f/mHeightScale);
 		
 		mBufferSet.bind();
 		mIndexVbo.bind();
 		glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
 		Program.unbind();
-		
-		glDepthFunc(GL_LESS);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		mWaterProgram.bind();
 
-		Vector3f e = mCamera.getEyePosition();
-		glUniformMatrix4fv(0, false, mCamera.getProjectionMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
-		glUniformMatrix4fv(1, false, mCamera.getViewMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
-		glUniform4f(2, e.x, e.y, e.z, 1.0f);
-		glUniform1f(3, 1.0f/(float)(0.25*Math.sqrt(Constants.WORLD_SIZE)));
-		
-		mBufferSet.bind();
-		mIndexVbo.bind();
-		glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
-		Program.unbind();
-		glDisable(GL_BLEND);
+		if (mRain > 0) {
+			glDepthFunc(GL_LESS);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			mWaterProgram.bind();
+	
+			Vector3f e = mCamera.getEyePosition();
+			glUniformMatrix4fv(0, false, mCamera.getProjectionMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
+			glUniformMatrix4fv(1, false, new Matrix4f(mCamera.getViewMatrix()).mul(translationMatrix).get(matrixBuffer)); GpuUtils.GpuErrorCheck();
+			glUniform4f(2, e.x, e.y, e.z, 1.0f);
+			glUniform1f(3, 1.0f/mHeightScale);
+			
+			mBufferSet.bind();
+			mIndexVbo.bind();
+			glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
+			Program.unbind();
+			glDisable(GL_BLEND);
+		}
 	}
 	
 	void swapTextures(Texture[] texture) {
@@ -180,25 +189,39 @@ public class TerrainRenderer {
 	
 	public void render() {
 		mCameraController.update();
-		drawArrays();	
+		
+		glViewport(0, 0, mWindow.getWidth(), mWindow.getHeight()); GpuUtils.GpuErrorCheck();
+		glClearColor(0.25f,0.5f,1.0f,1); GpuUtils.GpuErrorCheck();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GpuUtils.GpuErrorCheck();
+		/*
+		for (int i = -1; i <= 1; ++i) {
+			for (int j = -1; j <= 1; ++j) {
+				drawTerrain(new Matrix4f().translate(i*256, 0, j*256));				
+			}
+		}
+		*/
+		
+		drawTerrain(new Matrix4f());
+		
 		stepSimulation();
 	}
 	
 	private void stepSimulation() {
-		// Step simulation.
+		// Calculate new flux.
+		mHeightTexture[mSrcIndex].bind(0);
+		mFluxTexture[mSrcIndex].bind(1);
 		mSimulationFbo.bind();
 		glDrawBuffers(mSimDrawBuffers); GpuUtils.GpuErrorCheck();
 		
-		// Calculate new flux.
 		mFluxUpdateProgram.bind();
 		glUniform1f(0, 1.0f/Constants.WORLD_SIZE_X);
-		mHeightTexture[mSrcIndex].bind(0);
-		mFluxTexture[mSrcIndex].bind(1);
+		glUniform1f(3, 0.0016f);
 		glViewport(0, 0, Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
 		glDrawArrays(GL_TRIANGLES, 0, 6); GpuUtils.GpuErrorCheck();
 		
 		FBO.unbind();
 		
+		// Calculate new water and erode.
 		swapTextures(mHeightTexture);
 		swapTextures(mFluxTexture);
 		mSimulationFbo.setColorAttachment(0, mHeightTexture[mDstIndex]);
@@ -206,14 +229,30 @@ public class TerrainRenderer {
 		mHeightTexture[mSrcIndex].bind(0);
 		mFluxTexture[mSrcIndex].bind(1);
 		mStrataTexture.bind(3);
-		
 		mSimulationFbo.bind();
 		glDrawBuffers(mSimDrawBuffers); GpuUtils.GpuErrorCheck();
 		
-		// Calculate new water and erode.
 		mWaterUpdateProgram.bind();
 		glUniform1f(0, 1.0f/Constants.WORLD_SIZE_X);
-		glUniform1f(3, 1.0f/(float)(0.25*Math.sqrt(Constants.WORLD_SIZE)));
+		glUniform1f(3, 1.0f/mHeightScale);
+		glViewport(0, 0, Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
+		glDrawArrays(GL_TRIANGLES, 0, 6); GpuUtils.GpuErrorCheck();
+		
+		FBO.unbind();
+		
+		// Calculate sediment transport.
+		swapTextures(mHeightTexture);
+		swapTextures(mVelocityTexture);
+		mHeightTexture[mSrcIndex].bind(0);
+		mVelocityTexture[mSrcIndex].bind(1);
+		mSimulationFbo.setColorAttachment(0, mHeightTexture[mDstIndex]);		
+		mSimulationFbo.setColorAttachment(1, mVelocityTexture[mDstIndex]);
+		mSimulationFbo.bind();
+		glDrawBuffers(mSimDrawBuffers); GpuUtils.GpuErrorCheck();
+		
+		mSedimentUpdateProgram.bind();
+		glUniform1f(0, 1.0f/Constants.WORLD_SIZE_X);
+		glUniform1f(3, 1.0f/mHeightScale);
 		glViewport(0, 0, Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
 		glDrawArrays(GL_TRIANGLES, 0, 6); GpuUtils.GpuErrorCheck();
 		FBO.unbind();
@@ -245,7 +284,6 @@ public class TerrainRenderer {
 		
 		float xScale = 1.0f/W;
 		float zScale = 1.0f/H;
-		float yScale = (float)(0.25*Math.sqrt(S));
 		float xOffset = -W/2.0f;
 		float zOffset = -H/2.0f;
 		
@@ -286,10 +324,8 @@ public class TerrainRenderer {
 	private void initSimulationTextures() {
 		FloatBuffer heightBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);;
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			float h = World.terrain.height[i];
-			float w = h < 0.5f ? 0.5f-h : 0.0f;
+			float h = (float)Math.pow(1.0 - World.terrain.height[i], 1.0);
 			h *= mHeightScale;
-			w *= mHeightScale;
 			heightBuffer.put(i*4+0, h);
 			heightBuffer.put(i*4+1, 0);
 			heightBuffer.put(i*4+2, 0);

@@ -17,7 +17,26 @@ layout(location = 2) out vec4 outVelocity;
 
 const float lu = 1.0; // Pipe length.
 const float lv = 1.0; // Pipe length.
-const float kE = 0.05; // Evaporation constant
+
+const float kC = 0.001; // Water sediment capacity constant.
+const float kS = 0.02; // Sediment solution constant.
+const float kD = 0.005; // Sediment deposition constant;
+
+vec3 calculateNormal(sampler2D sampler, vec2 texCoord)
+{
+	ivec2 ts = textureSize(sampler, 0);
+	vec2 du = vec2(1.0/ts.x, 0.0);
+	vec2 dv = vec2(0.0,      1.0/ts.y);
+	float L = texture(sampler, texCoord+du).x;
+	float R = texture(sampler, texCoord-du).x;
+	float U = texture(sampler, texCoord+dv).x;
+	float D = texture(sampler, texCoord-dv).x;
+	
+	vec3 dU = vec3(2, R-L, 0);
+	vec3 dV = vec3(0, U-D, 2);
+	
+	return normalize(cross(dV, dU));
+}
 
 void main()
 {
@@ -37,8 +56,8 @@ void main()
 	
 	float newWater = max(0, heights.z + dWaterVolume/(lu*lv)); 
 
-	float dWu = (fLeft.y - fCenter.x + fCenter.y - fRight.y);
-	float dWv = (fUp.w - fCenter.z + fCenter.w - fDown.z);
+	float dWu = 0.5*(fLeft.y - fCenter.x + fCenter.y - fRight.y);
+	float dWv = 0.5*(fUp.w - fCenter.z + fCenter.w - fDown.z);
 	
 // Calculate Velocity.
 	float meanWater = (heights.z+newWater)*0.5;
@@ -47,22 +66,40 @@ void main()
 
 	vec2 vel = vec2(u,v);
 	
-// Erode
-	float K = 0.0001;
-
-	if (newWater > 0)
+// Erode and deposit
+	vec3 normal = calculateNormal(heightTexture, texCoord);
+	float slope = 1;//(1.0 - dot(normal, vec3(0,1,0)));			
+	float speed = length(vel);
+	float transportCapacity = kC*speed*slope*(1.0+heights.z); 
+	if (transportCapacity > heights.w)
 	{
-		float stoneHeight = heights.x;
-		float h = stoneHeight*normalizingFactor;	
-		vec4 stoneColor = texture(strataTexture, vec2(0,h));
-		float stoneStrength = pow((stoneColor.r+stoneColor.g+stoneColor.b)/3.0, 2.0);
+		float dC = (transportCapacity - heights.w);
+		float diff = kS*dC;
 		
-		float waterSpeed = length(vel);
-		//heights.x -= stoneStrength*K*(1.0-(1.0/(1.0+waterSpeed)));
-		heights.x -= stoneStrength*K*waterSpeed*meanWater;
+		if (diff > heights.y)
+		{
+			heights.w += heights.y;
+			diff -= heights.y;
+			heights.y = 0;
+			
+			float stoneFactor = pow(dot(vec4(1,1,1,0), texture(strataTexture, vec2(0,normalizingFactor*heights.x)))/3.0, 0.5);
+			heights.x -= diff*stoneFactor;
+			heights.w += diff*stoneFactor;
+		}
+		else
+		{
+			heights.y -= diff;
+			heights.w += diff;
+		}
+	}
+	else
+	{
+		float dC = (heights.w - transportCapacity);
+		heights.y += kD*dC;
+		heights.w -= kD*dC;
 	}
 	
-	heights.z = newWater*(1.0-kE*dt);	
+	heights.z = newWater;	
 	outHeights = heights;
 	outFlux    = fCenter;
 	outVelocity = vec4(vel,0,0);

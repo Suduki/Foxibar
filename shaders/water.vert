@@ -26,7 +26,7 @@ void main()
 	vec4 s = texture(heightTexture, texCoord);
 	
 	vec4 pos = vec4(position, 1);
-	pos.y = s.x + s.y + s.z;// - 0.01;
+	pos.y = s.x + s.y + s.z;
 	
 	
 	gl_Position = projMatrix * modelviewMatrix * pos;

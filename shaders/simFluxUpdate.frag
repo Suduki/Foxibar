@@ -7,22 +7,24 @@ in vec2 texCoord;
 
 layout(location = 0) uniform float d;
 layout(location = 2) uniform float dt = 1.0/30.0;
+layout(location = 3) uniform float rain = 0.0008;
 
 layout(location = 0) out vec4 outHeights;
 layout(location = 1) out vec4 outFlux;
 
 
 const float A = 1.0; // Pipe cross-section.
-const float g = 1.0; // Gravity.
-const float pipeLength = 1.0; // Pipe length.
+const float g = 10.0; // Gravity.
+const float pipeLength = 1; // Pipe length.
 
 void main()
 {
 	vec4 sCenter = texture(substanceTexture, texCoord);
 	
-	//if (length(texCoord-vec2(0.5)) < 0.25)
+	sCenter += vec4(0,0,rain*0.1,0);
+	if (length(texCoord-vec2(0.5)) < 0.25)
 	{
-	 	sCenter += vec4(0,0,0.0008,0);
+	 	sCenter += vec4(0,0,rain,0);
 	}
 	
 	vec4 sLeft   = texture(substanceTexture, texCoord - vec2(d, 0));

@@ -11,4 +11,5 @@ public class ShaderSource {
 	public static String simVertex= FileSlurper.slurp("shaders/simFullScreenQuad.vert");
 	public static String simFluxUpdateFragment = FileSlurper.slurp("shaders/simFluxUpdate.frag");
 	public static String simWaterUpdateFragment = FileSlurper.slurp("shaders/simWaterUpdate.frag");
+	public static String simSedimentUpdateFragment = FileSlurper.slurp("shaders/simSedimentUpdate.frag");
 }
