@@ -1,7 +1,7 @@
-package messages;
+package main.java.messages;
 
-import agents.Animal;
-import world.World;
+import main.java.agents.Animal;
+import main.java.simulation.Simulation;
 
 public class KillAllAnimals extends Message {
 
@@ -11,7 +11,7 @@ public class KillAllAnimals extends Message {
 	}
 
 	@Override
-	public void evaluate(simulation.Simulation pSimulation)
+	public void evaluate(Simulation pSimulation)
 	{
 		Animal.killAll = true;
 		//World.grass.killAllGrass();

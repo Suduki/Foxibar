@@ -1,4 +1,4 @@
-package messages;
+package main.java.messages;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 

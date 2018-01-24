@@ -1,14 +1,11 @@
-package simulation;
+package main.java.simulation;
 
-import vision.Vision;
-import world.World;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import agents.Animal;
-import agents.NeuralNetwork;
-import messages.MessageHandler;
-import messages.Message;
+import main.java.agents.Animal;
+import main.java.messages.DummyMessage;
+import main.java.messages.Message;
+import main.java.messages.MessageHandler;
+import main.java.vision.Vision;
+import main.java.world.World;
 
 public class Simulation extends MessageHandler {
 	private World mWorld;
@@ -19,7 +16,7 @@ public class Simulation extends MessageHandler {
 		mWorld = new World();
 		Animal.init();
 		Vision.init();
-		this.message(new messages.DummyMessage());
+		this.message(new DummyMessage());
 	}
 	
 	protected void evaluateMessage(Message pMessage)

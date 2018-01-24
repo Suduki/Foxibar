@@ -1,6 +1,6 @@
-package messages;
+package main.java.messages;
 
-import simulation.Simulation;
+import main.java.simulation.Simulation;
 
 public class UnpauseSimulation extends Message
 {

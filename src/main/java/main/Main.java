@@ -1,29 +1,15 @@
-package main;
+package main.java.main;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
-
-import agents.Animal;
-import agents.NeuralNetwork;
-import agents.NeuralFactors;
-import constants.Constants;
-import dataPlotting.XYPlotThingVersusTime;
-import dataPlotting.XYPlotThingVersusTime2;
-import display.DisplayHandler;
-import display.RenderState;
-import messages.LoadBrains;
-import messages.SaveBrains;
-import simulation.Simulation;
-import utils.FPSLimiter;
+import main.java.agents.Animal;
+import main.java.constants.Constants;
+import main.java.dataPlotting.XYPlotThingVersusTime;
+import main.java.dataPlotting.XYPlotThingVersusTime2;
+import main.java.display.DisplayHandler;
+import main.java.display.RenderState;
+import main.java.messages.LoadBrains;
+import main.java.messages.SaveBrains;
+import main.java.simulation.Simulation;
+import main.java.utils.FPSLimiter;
 
 public class Main
 {

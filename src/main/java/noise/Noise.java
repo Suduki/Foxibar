@@ -1,6 +1,8 @@
-package noise;
+package main.java.noise;
 
 import java.util.Random;
+
+import main.java.constants.Constants;
 
 public class Noise {
 	public static int seed = 366;
@@ -14,7 +16,7 @@ public class Noise {
 	//...
 		float whiteness = 0.5f; // Increase this for more whiteness.
 	    Perlin2d pn = new Perlin2d(whiteness, 10, seed);
-	    double[][] y = pn.createTiledArray(constants.Constants.WORLD_SIZE_X, constants.Constants.WORLD_SIZE_Y);
+	    double[][] y = pn.createTiledArray(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y);
 	    return y;
 	}
 }

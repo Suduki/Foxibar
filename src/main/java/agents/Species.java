@@ -1,6 +1,6 @@
-package agents;
+package main.java.agents;
 
-import constants.Constants;
+import main.java.constants.Constants;
 
 public class Species {
 	public int speciesId;

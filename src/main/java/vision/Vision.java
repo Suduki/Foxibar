@@ -1,9 +1,9 @@
-package vision;
+package main.java.vision;
 
 import java.util.ArrayList;
 
-import agents.Animal;
-import constants.Constants;
+import main.java.agents.Animal;
+import main.java.constants.Constants;
 
 public class Vision {
 	public static Zone[][] zoneGrid;

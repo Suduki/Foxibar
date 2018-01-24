@@ -1,14 +1,6 @@
-package agents;
+package main.java.agents;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import com.sun.javafx.geom.Vec2f;
-
-import constants.Constants;
+import main.java.constants.Constants;
 
 public class NeuralNetwork {
 	public static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 8, 4, 1};

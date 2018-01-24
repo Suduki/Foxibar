@@ -1,8 +1,8 @@
-package world;
+package main.java.world;
 
-import noise.Noise;
-import constants.Constants;
-import display.RenderState;
+import main.java.constants.Constants;
+import main.java.display.RenderState;
+import main.java.noise.Noise;
 
 public class Terrain {
 	private static final float WATER_LIMIT = 0.3f;

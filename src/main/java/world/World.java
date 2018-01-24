@@ -1,12 +1,8 @@
-package world;
+package main.java.world;
 
-import java.awt.Container;
-
-import agents.Animal;
-import constants.Constants;
-import display.RenderState;
-
-import static constants.Constants.Neighbours.*;
+import main.java.constants.Constants;
+import main.java.display.RenderState;
+import  static main.java.constants.Constants.Neighbours.*;
 
 public class World {
 

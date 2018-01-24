@@ -1,7 +1,6 @@
-package messages;
+package main.java.messages;
 
-import messages.Message;
-import simulation.Simulation;
+import main.java.simulation.Simulation;
 
 public class PauseSimulation extends Message
 {

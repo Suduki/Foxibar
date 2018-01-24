@@ -1,4 +1,4 @@
-package display;
+package main.java.display;
 
 public class RenderState {
 	public static boolean RENDER_TERRAIN;

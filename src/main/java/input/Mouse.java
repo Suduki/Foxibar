@@ -1,6 +1,6 @@
-package input;
+package main.java.input;
 
-import math.Vector2f;
+import main.java.math.Vector2f;
 
 public class Mouse {
 	

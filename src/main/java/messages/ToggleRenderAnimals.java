@@ -1,8 +1,7 @@
-package messages;
+package main.java.messages;
 
-import constants.Constants;
-import display.DisplayHandler;
-import display.RenderState;
+import main.java.display.DisplayHandler;
+import main.java.display.RenderState;
 
 public class ToggleRenderAnimals extends Message {
 

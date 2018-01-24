@@ -1,10 +1,10 @@
-package noise;
+package main.java.noise;
 
 import java.math.BigInteger;
 import java.util.Random;
 
-import interpolator.Interpolator;
-import interpolator.CosineInterpolator;
+import main.java.interpolator.CosineInterpolator;
+import main.java.interpolator.Interpolator;
 
 /**
  * Perlin2d.java

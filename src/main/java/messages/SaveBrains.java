@@ -1,14 +1,12 @@
-package messages;
+package main.java.messages;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import agents.Animal;
-import agents.NeuralNetwork;
-import constants.Constants;
-import world.World;
+import main.java.agents.Animal;
+import main.java.agents.NeuralNetwork;
+import main.java.constants.Constants;
+import main.java.simulation.Simulation;
 
 public class SaveBrains extends Message {
 
@@ -18,7 +16,7 @@ public class SaveBrains extends Message {
 	}
 
 	@Override
-	public void evaluate(simulation.Simulation pSimulation)
+	public void evaluate(Simulation pSimulation)
 	{
 		Animal.saveBrains = true;
 	}

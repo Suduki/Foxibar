@@ -1,4 +1,4 @@
-package input;
+package main.java.input;
 
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;

@@ -1,36 +1,104 @@
-package display;
+package main.java.display;
 
-import org.lwjgl.glfw.GLFWMouseButtonCallback;
-import org.lwjgl.glfw.GLFWScrollCallback;
-import org.lwjgl.glfw.GLFWScrollCallbackI;
-import org.lwjgl.system.*;
-
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
+import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MINOR;
+import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_1;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_2;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_3;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_K;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_R;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
+import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
+import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
+import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
+import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
+import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
+import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
+import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
+import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
+import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSetCursorPosCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetMouseButtonCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetScrollCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
+import static org.lwjgl.glfw.GLFW.glfwShowWindow;
+import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
+import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
+import static org.lwjgl.glfw.GLFW.glfwWindowHint;
+import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_LINES;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_COLOR;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.GL_QUADS;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.GL_VERSION;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glColor3f;
+import static org.lwjgl.opengl.GL11.glColor4f;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glOrtho;
+import static org.lwjgl.opengl.GL11.glTexCoord2f;
+import static org.lwjgl.opengl.GL11.glVertex2f;
+import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.system.MemoryStack.stackPush;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.java.agents.Animal;
+import main.java.buttons.Button;
+import main.java.constants.Constants;
+import main.java.input.Mouse;
+import main.java.math.Vector2f;
+import main.java.messages.DummyMessage;
+import main.java.messages.KillAllAnimals;
+import main.java.messages.LoadBrains;
+import main.java.messages.Message;
+import main.java.messages.MessageHandler;
+import main.java.messages.PauseSimulation;
+import main.java.messages.RegenerateWorld;
+import main.java.messages.SaveBrains;
+import main.java.messages.ToggleRenderAnimals;
+import main.java.messages.UnpauseSimulation;
+import main.java.noise.Noise;
+import main.java.simulation.Simulation;
+import main.java.utils.FPSLimiter;
+import main.java.world.World;
+
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
-
-import world.World;
-import constants.Constants;
-import math.Vector2f;
-import messages.Message;
-import messages.MessageHandler;
-import agents.Animal;
-import agents.NeuralFactors;
-import agents.NeuralNetwork;
-import buttons.Button;
-import input.Mouse;
-import javafx.scene.input.MouseButton;
-import jdk.nashorn.internal.runtime.regexp.joni.MatcherFactory;
+import org.lwjgl.system.MemoryStack;
 
 public class DisplayHandler extends MessageHandler
 {
@@ -49,9 +117,9 @@ public class DisplayHandler extends MessageHandler
 	private static RenderThread renderThread;
 
 	public Thread renderThreadThread;
-	private static Mouse mouse = new input.Mouse();
+	private static Mouse mouse = new Mouse();
 
-	private static simulation.Simulation mSimulation;
+	private static Simulation mSimulation;
 
 	private static Texture defaultTexture;
 
@@ -65,14 +133,14 @@ public class DisplayHandler extends MessageHandler
 		return new Vector2f(0f,0f);
 	}
 
-	public DisplayHandler(simulation.Simulation pSimulation) {
+	public DisplayHandler(Simulation pSimulation) {
 		mSimulation = pSimulation;
 		renderThread = new RenderThread(this);
 		renderThreadThread = new Thread(renderThread);
 		renderThreadThread.start();
 		terrainColor = new float[Constants.WORLD_SIZE][3];
 
-		this.message(new messages.DummyMessage());
+		this.message(new DummyMessage());
 	}
 
 	protected void evaluateMessage(Message pMessage)
@@ -136,11 +204,11 @@ public class DisplayHandler extends MessageHandler
 		private void togglePause() {
 			if ((mSimulationPaused ^= true))
 			{
-				mSimulation.message(new messages.PauseSimulation());
+				mSimulation.message(new PauseSimulation());
 			}
 			else
 			{
-				mSimulation.message(new messages.UnpauseSimulation());
+				mSimulation.message(new UnpauseSimulation());
 			}
 		}
 
@@ -184,7 +252,7 @@ public class DisplayHandler extends MessageHandler
 					break;
 
 				case GLFW_KEY_K:
-					mSimulation.message(new messages.KillAllAnimals());
+					mSimulation.message(new KillAllAnimals());
 					break;
 
 				case GLFW_KEY_R:
@@ -194,15 +262,15 @@ public class DisplayHandler extends MessageHandler
 					break;
 
 				case GLFW_KEY_2:
-					utils.FPSLimiter.mWantedFps /= 2;
+					FPSLimiter.mWantedFps /= 2;
 					break;
 
 				case GLFW_KEY_1:
-					utils.FPSLimiter.mWantedFps *= 2;
+					FPSLimiter.mWantedFps *= 2;
 					break;
 
 				case GLFW_KEY_3:
-					utils.FPSLimiter.mWantedFps = Constants.WANTED_FPS;
+					FPSLimiter.mWantedFps = Constants.WANTED_FPS;
 					break;
 				}
 			}
@@ -348,10 +416,10 @@ public class DisplayHandler extends MessageHandler
 
 		// TODO: This should be made sane.
 		private void addGrassling() {
-			mSimulation.message( new messages.Message() {
+			mSimulation.message( new Message() {
 				Mouse eventmouse = new Mouse(DisplayHandler.mouse);
 				@Override
-				public void evaluate(simulation.Simulation simulation) {
+				public void evaluate(Simulation simulation) {
 					float viewX = eventmouse.getX()/Constants.PIXELS_X;
 					float viewY = eventmouse.getY()/Constants.PIXELS_Y;
 
@@ -369,10 +437,10 @@ public class DisplayHandler extends MessageHandler
 		}
 		// TODO: This should be made sane.
 		private void addBloodling() {
-			mSimulation.message( new messages.Message() {
+			mSimulation.message( new Message() {
 				Mouse eventmouse = new Mouse(DisplayHandler.mouse);
 				@Override
-				public void evaluate(simulation.Simulation simulation) {
+				public void evaluate(Simulation simulation) {
 					float viewX = eventmouse.getX()/Constants.PIXELS_X;
 					float viewY = eventmouse.getY()/Constants.PIXELS_Y;
 
@@ -452,7 +520,7 @@ public class DisplayHandler extends MessageHandler
 			for (Button button : mButtons) {
 				Vector2f pos = button.getPosition();
 				Vector2f size = button.getSize();
-				display.Texture tex = button.getTexture(); 
+				Texture tex = button.getTexture(); 
 				if (tex != null)
 				{
 					tex.bind();
@@ -464,7 +532,7 @@ public class DisplayHandler extends MessageHandler
 				glTexCoord2f(0,1); glVertex2f(pos.x,          pos.y + size.y);
 				glEnd();
 			}
-			display.Texture.unbind();
+			Texture.unbind();
 			glDisable(GL_TEXTURE_2D);
 		}
 
@@ -793,7 +861,7 @@ public class DisplayHandler extends MessageHandler
 		private void renderStrings() {
 			drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
 			//drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
-			drawString(PIXELS_X + 150,40, "seed: " + ((int)noise.Noise.seed-1));
+			drawString(PIXELS_X + 150,40, "seed: " + ((int)Noise.seed-1));
 			drawString(PIXELS_X + 20,60, "nAni: " + Animal.numAnimals);
 		}
 
@@ -897,34 +965,34 @@ public class DisplayHandler extends MessageHandler
 				y[i] = PIXELS_Y - 80f*(i+1);
 			}
 
-			defaultTexture = display.Texture.fromFile("pics/defaultButton.png");
+			defaultTexture = Texture.fromFile("pics/defaultButton.png");
 
 			Button button;
 			mButtons = new ArrayList<Button>();
 
 			button = new Button(x[0], y[0]);
-			button.setTexture(display.Texture.fromFile("pics/killAllButtonTexture.png"));
-			button.setClickMessage(mSimulation, new messages.KillAllAnimals());
+			button.setTexture(Texture.fromFile("pics/killAllButtonTexture.png"));
+			button.setClickMessage(mSimulation, new KillAllAnimals());
 			mButtons.add(button);
 
 			button = new Button(x[1], y[1]);
-			button.setTexture(display.Texture.fromFile("pics/renderAnimals.png"));
-			button.setClickMessage(displayHandler, new messages.ToggleRenderAnimals());
+			button.setTexture(Texture.fromFile("pics/renderAnimals.png"));
+			button.setClickMessage(displayHandler, new ToggleRenderAnimals());
 			mButtons.add(button);
 
 			button = new Button(x[1], y[2]);
-			button.setTexture(display.Texture.fromFile("pics/regenerateWorld.png"));
-			button.setClickMessage(mSimulation, new messages.RegenerateWorld());
+			button.setTexture(Texture.fromFile("pics/regenerateWorld.png"));
+			button.setClickMessage(mSimulation, new RegenerateWorld());
 			mButtons.add(button);
 
 			button = new Button(x[1], y[4]);
-			button.setTexture(display.Texture.fromFile("pics/savebrain.png"));
-			button.setClickMessage(mSimulation, new messages.SaveBrains());
+			button.setTexture(Texture.fromFile("pics/savebrain.png"));
+			button.setClickMessage(mSimulation, new SaveBrains());
 			mButtons.add(button);
 			
 			button = new Button(x[0], y[4]);
-			button.setTexture(display.Texture.fromFile("pics/loadbrain.png"));
-			button.setClickMessage(mSimulation, new messages.LoadBrains());
+			button.setTexture(Texture.fromFile("pics/loadbrain.png"));
+			button.setClickMessage(mSimulation, new LoadBrains());
 			mButtons.add(button);
 			
 			button = new Button(x[0], y[1]);

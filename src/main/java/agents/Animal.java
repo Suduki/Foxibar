@@ -1,13 +1,13 @@
-package agents;
+package main.java.agents;
 
 import java.util.ArrayList;
 
-import vision.Vision;
-import world.World;
-import constants.Constants;
-import display.RenderState;
-import messages.LoadBrains;
-import messages.SaveBrains;
+import main.java.constants.Constants;
+import main.java.display.RenderState;
+import main.java.messages.LoadBrains;
+import main.java.messages.SaveBrains;
+import main.java.vision.Vision;
+import main.java.world.World;
 
 public class Animal {
 	

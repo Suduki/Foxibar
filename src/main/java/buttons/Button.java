@@ -1,9 +1,9 @@
-package buttons;
+package main.java.buttons;
 
-import math.Vector2f;
-import messages.Message;
-import messages.MessageHandler;
-import display.Texture;
+import main.java.display.Texture;
+import main.java.math.Vector2f;
+import main.java.messages.Message;
+import main.java.messages.MessageHandler;
 
 public class Button {
 	private Vector2f mPosition;

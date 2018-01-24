@@ -1,4 +1,9 @@
-package dataPlotting;
+package main.java.dataPlotting;
+
+import main.java.agents.Animal;
+import main.java.constants.Constants;
+import main.java.main.Main;
+import main.java.world.World;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -8,11 +13,6 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
-
-import agents.Animal;
-import constants.Constants;
-import main.Main;
-import world.World;
 
 @SuppressWarnings("serial")
 public class XYPlotThingVersusTime extends ApplicationFrame {

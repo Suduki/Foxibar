@@ -1,8 +1,8 @@
-package constants;
+package main.java.constants;
 
 import java.util.Random;
 
-import vision.Vision;
+import main.java.vision.Vision;
 
 public class Constants {
 
@@ -74,10 +74,10 @@ public class Constants {
 		public static final float BLOOD_GAIN = 70f;
 		public static final float BLOOD_ENERGY = BLOOD_GAIN / (Blood.ADDITION_ON_DEATH + 4*Blood.SPLASH);
 		
-		public static final agents.Species GRASSLER = new agents.Species(
+		public static final main.java.agents.Species GRASSLER = new main.java.agents.Species(
 				SpeciesId.GRASSLER, GRASS_EXPLOSIVITY, GRASS_GAIN, 0f, 0f, GRASSLER_SPEED, 0.01f, 0.001f);
 //				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
-		public static final agents.Species BLOODLING = new agents.Species(
+		public static final main.java.agents.Species BLOODLING = new main.java.agents.Species(
 //				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
 				SpeciesId.BLOODLING, 0f, 0f, 0.3f, BLOOD_ENERGY, 1f, 0.3f, 0.1f);
 	}

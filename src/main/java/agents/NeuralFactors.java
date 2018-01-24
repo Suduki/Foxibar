@@ -1,4 +1,4 @@
-package agents;
+package main.java.agents;
 
 public class NeuralFactors {
 	public static int NUM_DESICION_FACTORS  	= 0;

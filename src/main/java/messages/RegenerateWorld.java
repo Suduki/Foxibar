@@ -1,7 +1,7 @@
-package messages;
+package main.java.messages;
 
-import simulation.Simulation;
-import world.World;
+import main.java.simulation.Simulation;
+import main.java.world.World;
 
 public class RegenerateWorld extends Message {
 

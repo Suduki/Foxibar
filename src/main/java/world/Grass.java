@@ -1,6 +1,6 @@
-package world;
+package main.java.world;
 
-import constants.Constants;
+import main.java.constants.Constants;
 
 public class Grass {
 

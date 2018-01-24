@@ -1,4 +1,4 @@
-package interpolator;
+package main.java.interpolator;
 
 /**
  * CosineInterpolator.java
