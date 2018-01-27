@@ -18,7 +18,8 @@ vec4 calculateSample(sampler2D sampler, vec2 texCoord)
 	ivec2 ts = textureSize(sampler, 0);
 	vec2 du = vec2(2.0/ts.x, 0.0);
 	vec2 dv = vec2(0.0,      2.0/ts.y);
-	return (texture(sampler, texCoord) + texture(sampler, texCoord+du) + texture(sampler, texCoord-du) + texture(sampler, texCoord+dv) + texture(sampler, texCoord-dv))* (1.0/5.0);
+	//return (texture(sampler, texCoord) + texture(sampler, texCoord+du) + texture(sampler, texCoord-du) + texture(sampler, texCoord+dv) + texture(sampler, texCoord-dv))* (1.0/5.0);
+	return (texture(sampler, texCoord+du) + texture(sampler, texCoord-du) + texture(sampler, texCoord+dv) + texture(sampler, texCoord-dv))* (1.0/4.0);
 }
 
 void main()
@@ -26,7 +27,16 @@ void main()
 	vec4 s = texture(heightTexture, texCoord);
 	
 	vec4 pos = vec4(position, 1);
-	pos.y = s.x + s.y + s.z;
+	
+	if (s.z < 1)
+	{
+		vec4 ss = calculateSample(heightTexture, texCoord);
+		pos.y = ss.x+ss.y+ss.z;
+	}
+	else
+	{
+		pos.y = s.x + s.y + s.z;
+	}
 	
 	
 	gl_Position = projMatrix * modelviewMatrix * pos;

@@ -18,10 +18,10 @@ vec3 calculateNormal(sampler2D sampler, vec2 texCoord)
 	ivec2 ts = textureSize(sampler, 0);
 	vec2 du = vec2(1.0/ts.x, 0.0);
 	vec2 dv = vec2(0.0,      1.0/ts.y);
-	float L = texture(sampler, texCoord+du).x;
-	float R = texture(sampler, texCoord-du).x;
-	float U = texture(sampler, texCoord+dv).x;
-	float D = texture(sampler, texCoord-dv).x;
+	float L = dot(texture(sampler, texCoord+du),vec4(1,1,0,0));
+	float R = dot(texture(sampler, texCoord-du),vec4(1,1,0,0));
+	float U = dot(texture(sampler, texCoord+dv),vec4(1,1,0,0));
+	float D = dot(texture(sampler, texCoord-dv),vec4(1,1,0,0));
 	
 	vec3 dU = vec3(2, R-L, 0);
 	vec3 dV = vec3(0, U-D, 2);

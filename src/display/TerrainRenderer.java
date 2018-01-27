@@ -46,16 +46,17 @@ public class TerrainRenderer {
 	private Program             mWaterProgram     = null;
 	
 	// Simulation.
-	private int                 mSrcIndex   = 0;
-	private int                 mDstIndex   = 1;
-	private float               mHeightScale = 1;
-	private float               mRain = 1.0f;
-	private Texture[]           mHeightTexture      = new Texture[2];
-	private Texture[]           mFluxTexture        = new Texture[2];
-	private Texture[]           mVelocityTexture    = new Texture[2];
-	private FBO                 mSimulationFbo      = null;		
-	private Program             mFluxUpdateProgram  = null;
-	private Program             mWaterUpdateProgram = null;
+	private int                 mIterationsPerFrame    = 1;
+	private int                 mSrcIndex              = 0;
+	private int                 mDstIndex              = 1;
+	private float               mHeightScale           = 1;
+	private float               mRain                  = 1.0f;
+	private Texture[]           mHeightTexture         = new Texture[2];
+	private Texture[]           mFluxTexture           = new Texture[2];
+	private Texture[]           mVelocityTexture       = new Texture[2];
+	private FBO                 mSimulationFbo         = null;		
+	private Program             mFluxUpdateProgram     = null;
+	private Program             mWaterUpdateProgram    = null;
 	private Program             mSedimentUpdateProgram = null;
 	
 	public TerrainRenderer(Window window) {
@@ -203,7 +204,9 @@ public class TerrainRenderer {
 		
 		drawTerrain(new Matrix4f());
 		
-		stepSimulation();
+		for (int i = 0; i < mIterationsPerFrame; ++i) {
+			stepSimulation();
+		}
 	}
 	
 	private void stepSimulation() {
@@ -215,7 +218,7 @@ public class TerrainRenderer {
 		
 		mFluxUpdateProgram.bind();
 		glUniform1f(0, 1.0f/Constants.WORLD_SIZE_X);
-		glUniform1f(3, 0.0016f);
+		glUniform1f(3, 0.0032f);
 		glViewport(0, 0, Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
 		glDrawArrays(GL_TRIANGLES, 0, 6); GpuUtils.GpuErrorCheck();
 		
@@ -245,6 +248,7 @@ public class TerrainRenderer {
 		swapTextures(mVelocityTexture);
 		mHeightTexture[mSrcIndex].bind(0);
 		mVelocityTexture[mSrcIndex].bind(1);
+		mFluxTexture[mSrcIndex].bind(2);
 		mSimulationFbo.setColorAttachment(0, mHeightTexture[mDstIndex]);		
 		mSimulationFbo.setColorAttachment(1, mVelocityTexture[mDstIndex]);
 		mSimulationFbo.bind();
@@ -324,7 +328,7 @@ public class TerrainRenderer {
 	private void initSimulationTextures() {
 		FloatBuffer heightBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);;
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			float h = (float)Math.pow(1.0 - World.terrain.height[i], 1.0);
+			float h = (float)Math.pow(World.terrain.height[i], 1.5);
 			h *= mHeightScale;
 			heightBuffer.put(i*4+0, h);
 			heightBuffer.put(i*4+1, 0);

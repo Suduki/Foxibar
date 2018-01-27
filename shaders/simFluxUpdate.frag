@@ -21,11 +21,13 @@ void main()
 {
 	vec4 sCenter = texture(substanceTexture, texCoord);
 	
-	sCenter += vec4(0,0,rain*0.1,0);
+	sCenter += vec4(0,0,rain,0);
+	/*
 	if (length(texCoord-vec2(0.5)) < 0.25)
 	{
 	 	sCenter += vec4(0,0,rain,0);
 	}
+	*/
 	
 	vec4 sLeft   = texture(substanceTexture, texCoord - vec2(d, 0));
 	vec4 sRight  = texture(substanceTexture, texCoord + vec2(d, 0));
