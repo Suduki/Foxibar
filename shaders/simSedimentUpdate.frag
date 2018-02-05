@@ -14,7 +14,7 @@ layout(location = 3) uniform float normalizingFactor;
 layout(location = 0) out vec4 outHeights;
 layout(location = 1) out vec4 outVelocity;
 
-const float kE = 0.04; // Water evaporation constant
+const float kE = 0.005; // Water evaporation constant
 
 void main()
 {

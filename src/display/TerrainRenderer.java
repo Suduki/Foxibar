@@ -46,7 +46,7 @@ public class TerrainRenderer {
 	private Program             mWaterProgram     = null;
 	
 	// Simulation.
-	private int                 mIterationsPerFrame    = 1;
+	private int                 mIterationsPerFrame    = 50;
 	private int                 mSrcIndex              = 0;
 	private int                 mDstIndex              = 1;
 	private float               mHeightScale           = 1;

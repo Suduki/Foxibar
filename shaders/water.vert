@@ -13,13 +13,29 @@ out vec2 vsTexCoord;
 out vec3 vsNormal;
 out vec3 worldEyeDir;
 
-vec4 calculateSample(sampler2D sampler, vec2 texCoord)
+float calculateSample(sampler2D sampler, vec2 texCoord, float minWater)
 {
 	ivec2 ts = textureSize(sampler, 0);
 	vec2 du = vec2(2.0/ts.x, 0.0);
 	vec2 dv = vec2(0.0,      2.0/ts.y);
-	//return (texture(sampler, texCoord) + texture(sampler, texCoord+du) + texture(sampler, texCoord-du) + texture(sampler, texCoord+dv) + texture(sampler, texCoord-dv))* (1.0/5.0);
-	return (texture(sampler, texCoord+du) + texture(sampler, texCoord-du) + texture(sampler, texCoord+dv) + texture(sampler, texCoord-dv))* (1.0/4.0);
+	
+	float h = 0;
+	int i = 0;
+	vec4 s0 = texture(sampler, texCoord+du);
+	vec4 s1 = texture(sampler, texCoord-du);
+	vec4 s2 = texture(sampler, texCoord+dv);
+	vec4 s3 = texture(sampler, texCoord-dv);
+	
+	if (s0.z > minWater) { h += dot(s0,vec4(1,1,1,0)); i += 1; }
+	if (s1.z > minWater) { h += dot(s1,vec4(1,1,1,0)); i += 1; }
+	if (s2.z > minWater) { h += dot(s2,vec4(1,1,1,0)); i += 1; }
+	if (s3.z > minWater) { h += dot(s3,vec4(1,1,1,0)); i += 1; }
+	
+	if (i > 0) {
+		h /= float(h);
+	}
+	
+	return h;
 }
 
 void main()
@@ -28,10 +44,9 @@ void main()
 	
 	vec4 pos = vec4(position, 1);
 	
-	if (s.z < 1)
+	if (s.z < 0.1)
 	{
-		vec4 ss = calculateSample(heightTexture, texCoord);
-		pos.y = ss.x+ss.y+ss.z;
+		pos.y = calculateSample(heightTexture, texCoord, 0.1);
 	}
 	else
 	{
