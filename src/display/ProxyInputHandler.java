@@ -43,4 +43,11 @@ public class ProxyInputHandler implements InputHandlerI {
 		}
 	}
 
+	@Override
+	public void handleFramebufferSize(long window, int width, int height) {
+		for (InputHandlerI handler : mInputHandlers) {
+			handler.handleFramebufferSize(window, width, height);
+		}
+	}
+
 }

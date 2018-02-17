@@ -44,7 +44,6 @@ public class Window {
 	}
 	
 	public void requestClose() {
-		
 		glfwSetWindowShouldClose(mWindowId, true);
 	}
 	
@@ -106,6 +105,10 @@ public class Window {
 			mWidth = width;
 			mHeight = height;
 		});
+		
+		glfwSetFramebufferSizeCallback(mWindowId, (window, width, height) -> {
+			if (mInputHandler != null) mInputHandler.handleFramebufferSize(window, width, height);
+		});
 
 		try ( MemoryStack stack = stackPush() ) {
 			IntBuffer width = stack.mallocInt(1); // int*
@@ -133,7 +136,7 @@ public class Window {
 		glfwShowWindow(mWindowId);
 	}
 
-	void setInputHandler(InputHandlerI pInputHandler) {
+	public void setInputHandler(InputHandlerI pInputHandler) {
 		mInputHandler = pInputHandler;
 	}
 }

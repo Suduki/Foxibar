@@ -83,5 +83,11 @@ class OrbitCameraController implements InputHandlerI {
 		mCamera.setEyePosition(new Vector3f((float)x, (float)y+100, (float)z).add(mPosition));
 		mCamera.setTargetPosition(mPosition);
 	}
+
+	@Override
+	public void handleFramebufferSize(long window, int width, int height) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

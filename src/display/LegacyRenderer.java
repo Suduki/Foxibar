@@ -2,6 +2,7 @@ package display;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL20.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,12 +10,15 @@ import java.util.List;
 import agents.Animal;
 import buttons.Button;
 import constants.Constants;
+import gui.KeyboardState;
+import gui.MouseEvent;
+import gui.MouseState;
 import input.Mouse;
 import math.Vector2f;
 import simulation.Simulation;
 import world.World;
 
-public class LegacyRenderer implements InputHandlerI {
+public class LegacyRenderer implements InputHandlerI, gui.SceneRegionRenderer {
 
 	static final int PIXELS_X = Constants.PIXELS_X;
 	static final int PIXELS_Y = Constants.PIXELS_Y;
@@ -102,8 +106,19 @@ public class LegacyRenderer implements InputHandlerI {
 		
 	}
 	
-	public void render() {	
-		glClear(GL_COLOR_BUFFER_BIT);
+	@Override // SceneRegionRenderer
+	public void render(int pViewportWidth, int pViewportHeight) {
+		glDisable(GL_CULL_FACE);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_TEXTURE_2D);
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		glOrtho(0, PIXELS_X + Constants.PIXELS_SIDEBOARD, PIXELS_Y, 0, 1, -1);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
 
 		renderStrings();
 
@@ -120,6 +135,12 @@ public class LegacyRenderer implements InputHandlerI {
 		if (RenderState.RENDER_VISION) {
 			renderVision();
 		}
+		glDisable(GL_TEXTURE_2D);
+		glColor3f(1,1,1);
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
 	}
 	
 	private void renderVision() {
@@ -459,6 +480,7 @@ public class LegacyRenderer implements InputHandlerI {
 		}
 
 		glEnd();
+		glColor3f(1,1,1);
 	}
 	
 	private int getXOffset() {
@@ -789,6 +811,24 @@ public class LegacyRenderer implements InputHandlerI {
 		glVertex2f(corner2X, corner2Y);
 		glVertex2f(corner3X, corner3Y);
 		glVertex2f(corner4X, corner4Y);
+	}
+
+	@Override
+	public void handleFramebufferSize(long window, int width, int height) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean handleMouseEvent(MouseEvent pEvent, MouseState pState) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean handleKeyboardEvent(KeyboardState pEvent) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

@@ -30,6 +30,8 @@ public class FlyCameraController implements InputHandlerI {
 		mCamera = pCamera;
 		mPosition = new Vector3f(0, 100.0f, 0);
 		mTargetPosition = new Vector3f(0, 100.0f, 0);
+		mTargetAngleX = -0.5f;
+		mTargetAngleY = -1;
 	}
 	
 	@Override
@@ -129,5 +131,11 @@ public class FlyCameraController implements InputHandlerI {
 		mCamera.setEyePosition(mPosition);
 		mCamera.setTargetPosition(viewDir.add(mPosition));
 		mCamera.update();
+	}
+
+	@Override
+	public void handleFramebufferSize(long window, int width, int height) {
+		// TODO Auto-generated method stub
+		
 	}
 }

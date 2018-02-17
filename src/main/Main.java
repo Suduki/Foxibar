@@ -100,10 +100,7 @@ public class Main
 		{
 			e.printStackTrace();
 		}
-		finally
-		{
-			displayHandler.exit();
-		}
+		
 		System.out.println("Simulation (main) thread finished.");
 	}
 

@@ -9,4 +9,6 @@ public interface InputHandlerI {
 	void handleMouseMotion(long window, double xpos, double ypos);
 	
 	void handleScrollWheel(long window, double xoffset, double yoffset);
+	
+	void handleFramebufferSize(long window, int width, int height);
 }

@@ -25,10 +25,13 @@ import gpu.GpuUtils;
 import gpu.VBO;
 import gpu.nodes.SetViewport;
 import gpu.nodes.UseProgram;
+import gui.KeyboardState;
+import gui.MouseEvent;
+import gui.MouseState;
 import world.World;
 import static org.lwjgl.glfw.GLFW.*;
 
-public class TerrainRenderer {
+public class TerrainRenderer implements gui.SceneRegionRenderer {
 	// Visualisation.
 	private Window              mWindow           = null;
 	private Camera              mCamera           = null;
@@ -94,6 +97,29 @@ public class TerrainRenderer {
 		initSimulationTextures();
 	}
 	
+	@Override
+	public boolean handleMouseEvent(MouseEvent pEvent, MouseState pMouse) {
+		if (pEvent == MouseEvent.BUTTON) {
+			int button = pMouse.getButtonIndex();
+			int action = pMouse.getButtonState(button) ? GLFW_PRESS : GLFW_RELEASE;
+			mCameraController.handleMouseEvents(0, button, action, 0);
+			
+		}
+		else if (pEvent == MouseEvent.MOTION) {
+			mCameraController.handleMouseMotion(0, pMouse.getPos().x, pMouse.getPos().y);
+		}
+		
+		return true;
+	}
+
+	@Override
+	public boolean handleKeyboardEvent(KeyboardState pKeyboard) {
+		System.out.println("Key[" + pKeyboard.getKeyIndex() + "]: " + pKeyboard.getKeyState());
+		mCameraController.handleKeyboardEvents(pKeyboard.getKeyState() ? GLFW_PRESS : GLFW_RELEASE, pKeyboard.getKeyIndex());
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 	private void initVisualisationShaderPrograms() {
 		mTerrainProgram = new Program();
 		mTerrainProgram.attachVertexShader(new Shader(GpuE.VERTEX_SHADER, ShaderSource.solidGroundVertex));
@@ -140,6 +166,9 @@ public class TerrainRenderer {
 	void drawTerrain(Matrix4f translationMatrix) {
 		float[] matrixBuffer = new float[16];
 		
+		glClearColor(0.25f,0.5f,1.0f,1); GpuUtils.GpuErrorCheck();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GpuUtils.GpuErrorCheck();
+		
 		glEnable(GL_DEPTH_TEST); GpuUtils.GpuErrorCheck();
 		glEnable(GL_CULL_FACE); GpuUtils.GpuErrorCheck();
 		mHeightTexture[mSrcIndex].bind(0);
@@ -177,7 +206,6 @@ public class TerrainRenderer {
 			mIndexVbo.bind();
 			glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
 			Program.unbind();
-			glDisable(GL_BLEND);
 		}
 	}
 	
@@ -188,25 +216,18 @@ public class TerrainRenderer {
 	}
 	static final int[] mSimDrawBuffers = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
 	
-	public void render() {
+	@Override // SceneRegionRenderer
+	public void render(int pViewportWidth, int pViewportHeight) {
+		mCamera.setAspectRatio(pViewportWidth/(float)pViewportHeight);
 		mCameraController.update();
-		
-		glViewport(0, 0, mWindow.getWidth(), mWindow.getHeight()); GpuUtils.GpuErrorCheck();
-		glClearColor(0.25f,0.5f,1.0f,1); GpuUtils.GpuErrorCheck();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GpuUtils.GpuErrorCheck();
-		/*
-		for (int i = -1; i <= 1; ++i) {
-			for (int j = -1; j <= 1; ++j) {
-				drawTerrain(new Matrix4f().translate(i*256, 0, j*256));				
-			}
-		}
-		*/
 		
 		drawTerrain(new Matrix4f());
 		
 		for (int i = 0; i < mIterationsPerFrame; ++i) {
 			stepSimulation();
 		}
+		
+		glUseProgram(0);
 	}
 	
 	private void stepSimulation() {
