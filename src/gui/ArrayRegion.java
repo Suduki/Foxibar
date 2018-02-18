@@ -54,21 +54,12 @@ public class ArrayRegion extends AbstractRegion {
 		int width  = availablePixelsX/mNumHorizontalRegions;
 		int height = availablePixelsY/mNumVerticalRegions;
 		
-		System.out.println("Updating geometry for ArrayRegion: " + pPosX + ", " + pPosY + ", " + pWidth + ", " + pHeight);
-		System.out.println("  availablePixelsX = " + availablePixelsX);
-		System.out.println("  availablePixelsY = " + availablePixelsY);
-		System.out.println("  width = " + width);
-		System.out.println("  height = " + height);
-		System.out.println("  mNumHorizontalRegions = " + mNumHorizontalRegions);
-		System.out.println("  mNumVerticalRegions = " + mNumVerticalRegions);
-		
 		for (int x = 0; x < mNumHorizontalRegions; ++x) {
 			for (int y = 0; y < mNumVerticalRegions; ++y) {
 				Region region = mRegions[x][y];
 				if (region != null) {
 					int posX = mPos.x + mOuterOffset + x*(mInnerOffset+width);
 					int posY = mPos.y + mOuterOffset + y*(mInnerOffset+height);
-					System.out.println("region[" + x + "][" + y + "]: " + posX + ", " + posY + ", " + width + ", " + height);
 					region.updateGeometry(posX, posY, width, height);
 				}
 			}

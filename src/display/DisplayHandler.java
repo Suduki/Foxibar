@@ -7,9 +7,11 @@ import org.lwjgl.opengl.GL11;
 import constants.Constants;
 import gpu.GpuUtils;
 import gui.SplitRegion;
+import gui.TextureRegion;
 import gui.ArrayRegion;
 import gui.Button;
 import gui.DummyRegion;
+import gui.Font;
 import gui.GuiRoot;
 import gui.HorizontalSplitRegion;
 import gui.VerticalSplitRegion;
@@ -67,28 +69,40 @@ public class DisplayHandler extends MessageHandler {
 									new DummyRegion(),
 									new DummyRegion())));
 									*/
-			ArrayRegion ar = new ArrayRegion(4,  4);
+			ArrayRegion ar = new ArrayRegion(16,16);
 			
 			SplitRegion mainView = new VerticalSplitRegion(
 					ar, //new SceneRegion(legacyRenderer), 
 					new SceneRegion(terrainRenderer));//rightMenu);
 			
-			SplitRegion rootRegion = new HorizontalSplitRegion(
-					new ArrayRegion(4, 1), //new DummyRegion(), // Main menu
-					mainView);
-			
+			ArrayRegion mainMenu = new ArrayRegion(4,1);
+			SplitRegion rootRegion = new HorizontalSplitRegion(mainMenu,mainView);
+			Texture tex = Texture.fromFile("pics/GuiDefault.png");
+			mainMenu.setRegion(0, 0, new TextureRegion(tex, 0, 1, 1, 0));
 			Button testButton = new Button("Test", () -> {System.out.println("I am printed when the button is clicked!"); });
+			mainMenu.setRegion(1, 0, testButton);
 			
-			ar.setRegion(1, 1, new ArrayRegion(2,3));
-			ar.setRegion(1, 2, new ArrayRegion(1,2));
-			ar.setRegion(2, 1, new ArrayRegion(2,1));
-			ar.setRegion(2, 2, null);
-			ar.setRegion(3, 1, testButton);
+			Font font = Font.defaultFont();
+			
+			int k = 0;
+			for (int y = 0; y < 16; ++y) {
+				for (int x = 0; x < 16; ++x) {
+					Font.CharacterDefinition charDef = font.getCharacterDefinition(k);
+					if (charDef != null) {
+						ar.setRegion(x, y,
+								new TextureRegion(font.getTexture(), charDef.u0, charDef.u1, charDef.v1, charDef.v0));
+								//new TextureRegion(tex, 0,1,1,0));
+					}
+					else {
+						ar.setRegion(x, y,
+								new TextureRegion(font.getTexture(), 0,1,1,0));
+					}
+					++k;
+				}
+			}
 			
 			guiRoot.setRootRegion(rootRegion);			
-			rootRegion.setDividerPosition(0.25);
-			//mainView.setDividerPosition(0.8f);
-			
+			rootRegion.setDividerPosition(0.25);			
 			
 			long time0 = System.currentTimeMillis();
 			
