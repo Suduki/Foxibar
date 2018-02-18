@@ -17,7 +17,8 @@ public interface Region {
 	public boolean didMouseLeave(MouseState pState);
 	
 	public boolean hasKeyboardFocus();
-	public boolean setKeyboardFocus(boolean pStatus);
+	public boolean keyboardFocusGranted();
+	public void    keyboardFocusRevoked();
 	
 	public void setParent(Region pParent);
 	public Region getParent();

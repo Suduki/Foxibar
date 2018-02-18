@@ -62,11 +62,19 @@ public class GuiRoot implements InputHandlerI, Region {
 		
 		mRootRegion.handleMouseEvent(MouseEvent.BUTTON, mMouseState);
 		
-		if (mMouseState.getKeyboardFocusCandidate() != null) {
-			// TODO: Tell current focus region that focus was lost.
-			mKeyboardFocusRegion = mMouseState.getKeyboardFocusCandidate();
-			mMouseState.resetKeyboardFocusCandidate();
-			System.out.println("Region got keyboard focus.");
+		Region candidate = mMouseState.getKeyboardFocusCandidate(); 
+		mMouseState.resetKeyboardFocusCandidate();		
+		if (mKeyboardFocusRegion != candidate) {			
+			if (mKeyboardFocusRegion != null) {
+				mKeyboardFocusRegion.keyboardFocusRevoked();
+			}
+			
+			if (candidate != null && candidate.keyboardFocusGranted()) {
+				mKeyboardFocusRegion = candidate;
+			}
+			else {
+				mKeyboardFocusRegion = null;
+			}
 		}		
 	}
 	
@@ -129,12 +137,13 @@ public class GuiRoot implements InputHandlerI, Region {
 	@Override public boolean render(GuiRenderer pGuiRenderer) {return false;} // TODO Auto-generated method stub
 	@Override public boolean handleMouseEvent(MouseEvent pEvent, MouseState pState) {return false;} // TODO Auto-generated method stub
 	@Override public boolean handleKeyboardEvent(KeyboardState pState) {return false;} // TODO Auto-generated method stub
-	@Override public void updateGeometry(int pPosX, int pPosY, int pWidth, int pHeight) {} // TODO Auto-generated method stub
+	@Override public void    updateGeometry(int pPosX, int pPosY, int pWidth, int pHeight) {} // TODO Auto-generated method stub
 	@Override public boolean isPointInside(Point pPoint) {return false;} // TODO Auto-generated method stub
 	@Override public boolean didMouseEnter(MouseState pState) {return false;} // TODO Auto-generated method stub
 	@Override public boolean didMouseLeave(MouseState pState) {return false;} // TODO Auto-generated method stub
 	@Override public boolean hasKeyboardFocus() {return false;} // TODO Auto-generated method stub
-	@Override public boolean setKeyboardFocus(boolean pStatus) {return false;} // TODO Auto-generated method stub
-	@Override public void setParent(Region pParent) {} // TODO Auto-generated method stub
+	@Override public boolean keyboardFocusGranted() {return false;} // TODO Auto-generated method stub
+	@Override public void    keyboardFocusRevoked() {} // TODO Auto-generated method stub
+	@Override public void    setParent(Region pParent) {} // TODO Auto-generated method stub
 
 }

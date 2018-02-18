@@ -124,16 +124,4 @@ public abstract class SplitRegion extends AbstractRegion {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-	@Override
-	public boolean hasKeyboardFocus() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean setKeyboardFocus(boolean pStatus) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 }

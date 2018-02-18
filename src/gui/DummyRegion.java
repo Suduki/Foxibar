@@ -55,7 +55,7 @@ public class DummyRegion extends AbstractRegion {
 			mMouseInside = false;
 			break;
 		case BUTTON:
-			System.out.println("DummyRegion[" + mId + "]: Button " + pState.getButtonIndex() + (pState.getButtonState(pState.getButtonIndex()) ? " pressed." : " released."));
+			//System.out.println("DummyRegion[" + mId + "]: Button " + pState.getButtonIndex() + (pState.getButtonState(pState.getButtonIndex()) ? " pressed." : " released."));
 			break;
 		default:
 			break;
@@ -65,18 +65,6 @@ public class DummyRegion extends AbstractRegion {
 
 	@Override
 	public boolean handleKeyboardEvent(KeyboardState pEvent) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean hasKeyboardFocus() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean setKeyboardFocus(boolean pStatus) {
 		// TODO Auto-generated method stub
 		return false;
 	}

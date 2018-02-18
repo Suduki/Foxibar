@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL11;
 import constants.Constants;
 import gpu.GpuUtils;
 import gui.SplitRegion;
+import gui.ArrayRegion;
 import gui.DummyRegion;
 import gui.GuiRoot;
 import gui.HorizontalSplitRegion;
@@ -65,16 +66,23 @@ public class DisplayHandler extends MessageHandler {
 									new DummyRegion(),
 									new DummyRegion())));
 									*/
+			ArrayRegion ar = new ArrayRegion(4,  4);
+			
 			SplitRegion mainView = new VerticalSplitRegion(
-					new SceneRegion(legacyRenderer), 
+					ar, //new SceneRegion(legacyRenderer), 
 					new SceneRegion(terrainRenderer));//rightMenu);
 			
 			SplitRegion rootRegion = new HorizontalSplitRegion(
-					new DummyRegion(), // Main menu
+					new ArrayRegion(4, 1), //new DummyRegion(), // Main menu
 					mainView);
 			
+			ar.setRegion(1, 1, new ArrayRegion(2,3));
+			ar.setRegion(1, 2, new ArrayRegion(1,2));
+			ar.setRegion(2, 1, new ArrayRegion(2,1));
+			ar.setRegion(2, 2, null);
+			
 			guiRoot.setRootRegion(rootRegion);			
-			rootRegion.setDividerPosition(0.05);
+			rootRegion.setDividerPosition(0.25);
 			//mainView.setDividerPosition(0.8f);
 			
 			

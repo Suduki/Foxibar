@@ -46,17 +46,4 @@ public class SceneRegion extends AbstractRegion {
 		}
 		return true;
 	}
-
-	@Override
-	public boolean hasKeyboardFocus() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean setKeyboardFocus(boolean pStatus) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 }

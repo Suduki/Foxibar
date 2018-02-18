@@ -6,6 +6,7 @@ public abstract class AbstractRegion implements Region {
 	protected Point  mPos  = new Point();
 	protected Point  mSize = new Point();
 	protected Region mParentRegion = null;
+	protected boolean mHasKeyboardFocus = false;
 	
 	@Override
 	public void updateGeometry(int pPosX, int pPosY, int pWidth, int pHeight) {
@@ -57,6 +58,22 @@ public abstract class AbstractRegion implements Region {
 		if (pRegion.isPointInside(pState.getPos())) {
 			pRegion.handleMouseEvent(pEvent, pState);
 		}
+	}
+	
+	@Override
+	public boolean keyboardFocusGranted() {
+		mHasKeyboardFocus = true;
+		return true;
+	}
+	
+	@Override
+	public void keyboardFocusRevoked() {
+		mHasKeyboardFocus = false;
+	}
+	
+	@Override
+	public boolean hasKeyboardFocus() {
+		return mHasKeyboardFocus;
 	}
 	
 	@Override
