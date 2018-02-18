@@ -87,6 +87,20 @@ public class ArrayRegion extends AbstractRegion {
 		}
 		return true;
 	}
+	
+	Point getRegionIndex(Region pRegion) {
+		if (pRegion != null) {
+			for (int x = 0; x < mNumHorizontalRegions; ++x) {
+				for (int y = 0; y < mNumVerticalRegions; ++y) {
+					if (mRegions[x][y] == pRegion) {
+						return new Point(x,y);
+					}
+				}
+			}
+		}
+		
+		return null;
+	}
 
 	public void handleMouseEventForRegion(Region pRegion, MouseEvent pEvent, MouseState pMouse) {
 		if (pRegion.didMouseEnter(pMouse)) {

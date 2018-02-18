@@ -8,6 +8,7 @@ import constants.Constants;
 import gpu.GpuUtils;
 import gui.SplitRegion;
 import gui.ArrayRegion;
+import gui.Button;
 import gui.DummyRegion;
 import gui.GuiRoot;
 import gui.HorizontalSplitRegion;
@@ -76,10 +77,13 @@ public class DisplayHandler extends MessageHandler {
 					new ArrayRegion(4, 1), //new DummyRegion(), // Main menu
 					mainView);
 			
+			Button testButton = new Button("Test", () -> {System.out.println("I am printed when the button is clicked!"); });
+			
 			ar.setRegion(1, 1, new ArrayRegion(2,3));
 			ar.setRegion(1, 2, new ArrayRegion(1,2));
 			ar.setRegion(2, 1, new ArrayRegion(2,1));
 			ar.setRegion(2, 2, null);
+			ar.setRegion(3, 1, testButton);
 			
 			guiRoot.setRootRegion(rootRegion);			
 			rootRegion.setDividerPosition(0.25);
