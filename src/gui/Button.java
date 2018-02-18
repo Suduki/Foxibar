@@ -7,14 +7,16 @@ public class Button extends AbstractRegion {
 		void onClick();
 	}
 	
-	private String mText = "";
+	private String mString = "";
+	private Text mText;
 	private boolean mMouseInside = false;
 	private boolean mClickStarted = false;
 	private ClickCallback mCallback = null;
 	
 	
 	public Button(String pText) {
-		mText = pText;
+		mString = pText;
+		mText = new Text(pText);
 	}
 	
 	public Button(String pText, ClickCallback pCallback) {
@@ -40,9 +42,15 @@ public class Button extends AbstractRegion {
 		glVertex2i(mPos.x + mSize.x, mPos.y);
 		glVertex2i(mPos.x + mSize.x, mPos.y + mSize.y);
 		glVertex2i(mPos.x,           mPos.y + mSize.y);
-		glEnd();
+		glEnd();		
 		glLineWidth(1.0f);
+
+		int fontSize = 56;
+		int dx = (mSize.x - mText.getWidth(fontSize))/2;
+		int dy = (mSize.y - mText.getHeight(fontSize))/2;
+		mText.draw(mPos.x+dx, mPos.y+dy, 56);
 		glColor3f(1,1,1);
+		
 		return true;
 	}
 

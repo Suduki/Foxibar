@@ -32,6 +32,10 @@ public class KeyboardStateImpl implements KeyboardState {
 
 	@Override
 	public boolean getKeyState() {
-		return mKeyStates[mLastKeyIndex];
+		if (mLastKeyIndex >= 0 && mLastKeyIndex < mKeyStates.length) {
+			return mKeyStates[mLastKeyIndex];
+		}
+		
+		return false;
 	}
 }

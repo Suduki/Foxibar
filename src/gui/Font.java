@@ -13,7 +13,11 @@ import display.Texture;
 
 public class Font {
 	public class CharacterDefinition {
-		public float u0=0, v0=0, u1=0, v1=0;		
+		public float u0=0, v0=0, u1=0, v1=0;
+		public float w=0, h=0;
+		public float xOffset = 0;
+		public float yOffset = 0;
+		public float xAdvance = 0;
 	}
 	
 	private CharacterDefinition[] mCharDefs = null;
@@ -21,11 +25,14 @@ public class Font {
 	private Pattern mDelimiterPattern = null;
 	private float mScaleU = 0;
 	private float mScaleV = 0;
+	private float mFontBaseSize = 0;
+	private float mSizeScale = 0;
 
 	private static Map<String,Font> mFonts = new TreeMap<>();
 	
 	public static Font defaultFont() {
-		return getFont("Consolas");
+		return getFont("Calibri");
+		//return getFont("Consolas");
 	}
 	
 	public static Font getFont(String pFontName) {
@@ -45,6 +52,7 @@ public class Font {
 		String metaFilename    = "pics/" + pFontName + ".fnt";
 		mCharDefs = new CharacterDefinition[256];
 		mTexture = Texture.fromFile(textureFilename);
+		mTexture.generateMipMaps();
 		mDelimiterPattern = Pattern.compile("[=\\s]+");
 		
 		try {
@@ -56,8 +64,13 @@ public class Font {
 				String what = scanner.next();
 				
 				switch (what) {
+				case "info":
+					readInfoData(scanner);
+					break;
+					
 				case "common":
 					readCommonData(scanner);
+					break;
 					
 				case "char":
 					readCharDefinition(scanner);
@@ -74,13 +87,25 @@ public class Font {
 			System.err.println("Failed to read from \"" + metaFilename + "\": " + e.getMessage());
 		}
 	}
-	
+		
 	public CharacterDefinition getCharacterDefinition(int pIndex) {
 		if (pIndex >= 0 && pIndex < mCharDefs.length) {
 			return mCharDefs[pIndex];
 		}
 		
 		return null;
+	}
+	
+	private void readInfoData(Scanner scanner) {
+		scanner.useDelimiter(mDelimiterPattern);
+		while (scanner.hasNext()) {
+			String token = scanner.next();
+			if (token.equals("size")) {
+				mFontBaseSize = scanner.nextFloat();
+				System.out.println("Found font size = " + mFontBaseSize);
+				break;
+			}
+		}
 	}
 	
 	private void readCommonData(Scanner scanner) {
@@ -93,7 +118,7 @@ public class Font {
 				lineHeight = scanner.nextInt();
 				break;
 			case "base":
-				base = scanner.nextInt();
+				mFontBaseSize = scanner.nextFloat();//base = scanner.nextInt();
 				break;
 			case "scaleW":
 				scaleW = scanner.nextInt();
@@ -116,6 +141,8 @@ public class Font {
 		
 		mScaleU = 1.0f/scaleW;
 		mScaleV = 1.0f/scaleH;
+		mSizeScale = scaleW/mFontBaseSize;
+		System.out.println("mSizeScale =" + mSizeScale);
 	}
 	
 	private void readCharDefinition(Scanner scanner) {
@@ -156,7 +183,6 @@ public class Font {
 				break;
 			default:
 				break;
-				
 			}
 		}
 		
@@ -165,6 +191,11 @@ public class Font {
 		def.v0 = y*mScaleV;
 		def.u1 = (x+width)*mScaleU;
 		def.v1 = (y+height)*mScaleV;
+		def.w = width*mScaleU * mSizeScale;
+		def.h = height*mScaleV * mSizeScale;
+		def.xOffset = xoffset*mScaleU * mSizeScale;
+		def.yOffset = yoffset*mScaleV * mSizeScale;
+		def.xAdvance = xadvance*mScaleU * mSizeScale;
 		mCharDefs[id] = def;
 	}
 }

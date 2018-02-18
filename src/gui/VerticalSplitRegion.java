@@ -15,13 +15,23 @@ public class VerticalSplitRegion extends SplitRegion implements Region {
 		super(pLeftRegion, pRightRegion, Vertical);
 	}
 	
+	public Region getLeftSubRegion() {
+		return mSubRegions[LeftIndex];
+	}
+	
+	public Region getRightSubRegion() {
+		return mSubRegions[RightIndex];
+	}
+	
 	public void setLeftSubRegion(Region subRegion) {
 		mSubRegions[LeftIndex] = subRegion;
+		subRegion.setParent(this);
 		updateGeometry();
 	}
 	
 	public void setRightSubRegion(Region subRegion) {
 		mSubRegions[RightIndex] = subRegion;
+		subRegion.setParent(this);
 		updateGeometry();
 	} 
 	

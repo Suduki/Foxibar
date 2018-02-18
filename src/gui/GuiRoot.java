@@ -60,6 +60,10 @@ public class GuiRoot implements InputHandlerI, Region {
 			mMouseState.setButtonState(button, false);
 		}
 		
+		if (mRootRegion == null) {
+			return;
+		}
+		
 		mRootRegion.handleMouseEvent(MouseEvent.BUTTON, mMouseState);
 		
 		Region candidate = mMouseState.getKeyboardFocusCandidate(); 
@@ -81,6 +85,10 @@ public class GuiRoot implements InputHandlerI, Region {
 	@Override
 	public void handleMouseMotion(long window, double xpos, double ypos) {
 		mMouseState.setPos(new Point((int)xpos, (int)ypos));
+		
+		if (mRootRegion == null) {
+			return;
+		}
 		
 		boolean wasInsideRoot = mRootRegion.isPointInside(mMouseState.getOldPos());
 		Point delta = wasInsideRoot ? mMouseState.getPos().minus(mMouseState.getOldPos()) : new Point(0,0);

@@ -46,6 +46,7 @@ public class LegacyRenderer implements InputHandlerI, gui.SceneRegionRenderer {
 		mSimulation = pSimulation;
 		terrainColor = new float[Constants.WORLD_SIZE][3];
 		pWindow.setInputHandler(this);
+		loadResources();
 	}
 	
 	public void loadResources() {

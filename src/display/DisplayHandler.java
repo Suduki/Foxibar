@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL11;
 import constants.Constants;
 import gpu.GpuUtils;
 import gui.SplitRegion;
+import gui.Text;
 import gui.TextureRegion;
 import gui.ArrayRegion;
 import gui.Button;
@@ -55,61 +56,42 @@ public class DisplayHandler extends MessageHandler {
 			mWindow = new Window(1920, 1080, "Foxibar");
 			initOpenGL();
 			
-			TerrainRenderer terrainRenderer = new TerrainRenderer(mWindow);
-			LegacyRenderer legacyRenderer = new LegacyRenderer(mWindow, mDisplayHandler, mSimulation);			
-			legacyRenderer.loadResources();
+			SceneRegion terrainRenderer = new SceneRegion(new TerrainRenderer(mWindow));
+			SceneRegion legacyRenderer = new SceneRegion(new LegacyRenderer(mWindow, mDisplayHandler, mSimulation));
+			
+			Texture tex = Texture.fromFile("pics/GuiDefault.png");
 			
 			GuiRoot guiRoot = new GuiRoot(mWindow);
-			/*
-			AbstractSplitRegion rightMenu = new HorizontalSplitRegion(
-					new DummyRegion(),
-					new HorizontalSplitRegion(
-							new DummyRegion(),
-							new VerticalSplitRegion(
-									new DummyRegion(),
-									new DummyRegion())));
-									*/
-			ArrayRegion ar = new ArrayRegion(16,16);
+			ArrayRegion ar = new ArrayRegion(1,8);
 			
-			SplitRegion mainView = new VerticalSplitRegion(
-					ar, //new SceneRegion(legacyRenderer), 
-					new SceneRegion(terrainRenderer));//rightMenu);
-			
-			ArrayRegion mainMenu = new ArrayRegion(4,1);
+			VerticalSplitRegion mainView = new VerticalSplitRegion(ar, terrainRenderer);			
+			ArrayRegion mainMenu = new ArrayRegion(6,1);
 			SplitRegion rootRegion = new HorizontalSplitRegion(mainMenu,mainView);
-			Texture tex = Texture.fromFile("pics/GuiDefault.png");
 			mainMenu.setRegion(0, 0, new TextureRegion(tex, 0, 1, 1, 0));
-			Button testButton = new Button("Test", () -> {System.out.println("I am printed when the button is clicked!"); });
-			mainMenu.setRegion(1, 0, testButton);
-			
-			Font font = Font.defaultFont();
-			
-			int k = 0;
-			for (int y = 0; y < 16; ++y) {
-				for (int x = 0; x < 16; ++x) {
-					Font.CharacterDefinition charDef = font.getCharacterDefinition(k);
-					if (charDef != null) {
-						ar.setRegion(x, y,
-								new TextureRegion(font.getTexture(), charDef.u0, charDef.u1, charDef.v1, charDef.v0));
-								//new TextureRegion(tex, 0,1,1,0));
-					}
-					else {
-						ar.setRegion(x, y,
-								new TextureRegion(font.getTexture(), 0,1,1,0));
-					}
-					++k;
-				}
-			}
+			Button toggleButton = new Button("Toggle");
+			mainMenu.setRegion(1, 0, toggleButton);
 			
 			guiRoot.setRootRegion(rootRegion);			
-			rootRegion.setDividerPosition(0.25);			
+			rootRegion.setDividerPosition(0.1);
+			mainView.setDividerPosition(0.2f);
+			
+			
+			toggleButton.setCallback(() -> {
+				if (mainView.getRightSubRegion() != terrainRenderer) {
+					mainView.setRightSubRegion(terrainRenderer);
+				}
+				else {
+					mainView.setRightSubRegion(legacyRenderer);
+				}
+				System.out.println("I am printed when the button is clicked!"); 
+			});
 			
 			long time0 = System.currentTimeMillis();
 			
 			mWindow.makeCurrent();
 			while(handleEvents()) {
-				//legacyRenderer.render(mWindow.getWidth(), mWindow.getHeight());
 				guiRoot.render();
+				
 				mWindow.swapBuffers();
 				
 				++numFrames;
