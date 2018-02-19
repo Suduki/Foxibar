@@ -35,14 +35,20 @@ public class VerticalSplitRegion extends SplitRegion implements Region {
 		updateGeometry();
 	} 
 	
+	public void updateGeometry() {
+		updateGeometry(mPos.x, mPos.y, mSize.x, mSize.y);
+	}
+	
 	@Override
 	public void updateGeometry(int pPosX, int pPosY, int pWidth, int pHeight) {
 		super.updateGeometry(pPosX, pPosY, pWidth, pHeight);
 		
 		if (mSubRegions[LeftIndex] != null) {
+			System.out.println("Left: mSize.x = " + mSize.x + ", mDividerPosition = " + mDividerPosition);
 			mSubRegions[LeftIndex].updateGeometry(mPos.x, mPos.y, (int)(mSize.x*mDividerPosition), mSize.y);
 		}
 		if (mSubRegions[RightIndex] != null) {
+			System.out.println("Right: mSize.x = " + mSize.x + ", mDividerPosition = " + mDividerPosition);
 			mSubRegions[RightIndex].updateGeometry(mPos.x + (int)(mSize.x*mDividerPosition), mPos.y, (int)(mSize.x*(1.0-mDividerPosition)), mSize.y);
 		}
 	}

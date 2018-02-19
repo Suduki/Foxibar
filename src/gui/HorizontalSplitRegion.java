@@ -14,17 +14,30 @@ public class HorizontalSplitRegion extends SplitRegion implements Region{
 		super(pTopRegion, pBottomRegion, Horizontal);
 	}
 	
+	public Region getTopSubRegion() {
+		return mSubRegions[TopIndex];
+	}
+	
+	public Region getBottomSubRegion() {
+		return mSubRegions[BottomIndex];
+	}
+	
 	public void setTopSubRegion(Region subRegion) {
 		mSubRegions[TopIndex] = subRegion;
+		subRegion.setParent(this);
 		updateGeometry();
 	}
 	
 	public void setBottomSubRegion(Region subRegion) {
 		mSubRegions[BottomIndex] = subRegion;
+		subRegion.setParent(this);
 		updateGeometry();
 	} 
-	
 
+	public void updateGeometry() {
+		updateGeometry(mPos.x, mPos.y, mSize.x, mSize.y);
+	}
+	
 	@Override
 	public void updateGeometry(int pPosX, int pPosY, int pWidth, int pHeight) {
 		super.updateGeometry(pPosX, pPosY, pWidth, pHeight);

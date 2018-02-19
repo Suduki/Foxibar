@@ -145,7 +145,7 @@ public class GuiRoot implements InputHandlerI, Region {
 	@Override public boolean render(GuiRenderer pGuiRenderer) {return false;} // TODO Auto-generated method stub
 	@Override public boolean handleMouseEvent(MouseEvent pEvent, MouseState pState) {return false;} // TODO Auto-generated method stub
 	@Override public boolean handleKeyboardEvent(KeyboardState pState) {return false;} // TODO Auto-generated method stub
-	@Override public void    updateGeometry(int pPosX, int pPosY, int pWidth, int pHeight) {} // TODO Auto-generated method stub
+	@Override public void    updateGeometry(int pPosX, int pPosY, int pWidth, int pHeight) { } // TODO Auto-generated method stub
 	@Override public boolean isPointInside(Point pPoint) {return false;} // TODO Auto-generated method stub
 	@Override public boolean didMouseEnter(MouseState pState) {return false;} // TODO Auto-generated method stub
 	@Override public boolean didMouseLeave(MouseState pState) {return false;} // TODO Auto-generated method stub

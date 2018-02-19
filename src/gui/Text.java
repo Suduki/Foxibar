@@ -9,6 +9,7 @@ public class Text {
 	private float mHeight = 0;
 	
 	// <DIAGNOSTICS>
+	private boolean mDrawDiagnostics = false;
 	private float[] mCursors = null;
 	private int mIndex = 0;
 	// </DIAGNOSTICS>
@@ -23,7 +24,7 @@ public class Text {
 		float cursor = 0;
 		int i = 0;
 		for (char ch : pText.toCharArray()) {
-			System.out.println("Char: " + ch + " = " + (int)ch);
+			//System.out.println("Char: " + ch + " = " + (int)ch);
 
 			
 			Font.CharacterDefinition def = font.getCharacterDefinition((int)ch);
@@ -38,11 +39,11 @@ public class Text {
 		mHeight = 1; // TODO: Support multi-line.
 	}
 	
-	int getWidth(int pFontSize) {
+	int getWidth(float pFontSize) {
 		return (int)(pFontSize*mWidth);
 	}
 	
-	public int getHeight(int pFontSize) {
+	public int getHeight(float pFontSize) {
 		return (int)(pFontSize*mHeight);
 	}
 	
@@ -61,32 +62,40 @@ public class Text {
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_BLEND);
 		
-		// DIAGNOSTICS:
-		if (false) {
-			glPushAttrib(GL_CURRENT_BIT);
-			glColor3f(1,1,0);
-			glBegin(GL_LINES);
-			glVertex2f(x,y);
-			glVertex2f(x+10000, y);
-			glVertex2f(x,y);
-			glVertex2f(x, y+150);
-			for (int i = 0; i < mCursors.length; ++i) {
-				glVertex2f(x + mCursors[i]*size, y);
-				glVertex2f(x + mCursors[i]*size, y+150);
+		if (mDrawDiagnostics) {
+			drawDiagnostics(x,y,size);
+		}
+	}
+	
+	private void drawDiagnostics(float x, float y, float size) {
+		float width = getWidth(size);
+		float height = getHeight(size);
+		glPushAttrib(GL_CURRENT_BIT);
+		glBegin(GL_LINES);
+		glColor3f(1,0,0);
+		glVertex2f(x,y+height);
+		glVertex2f(x+width, y+height);
+		glColor3f(1,1,0);
+		glVertex2f(x,y);
+		glVertex2f(x+width, y);
+		glVertex2f(x,y);
+		glVertex2f(x, y+height);
+		for (int i = 0; i < mCursors.length; ++i) {
+			glVertex2f(x + mCursors[i]*size, y);
+			glVertex2f(x + mCursors[i]*size, y+height);
+		}
+		glEnd();
+		
+		glColor3f(0,1,1);
+		for (int j = 0; j < mData.length; j+=16) {
+			glBegin(GL_LINE_LOOP);
+			for (int i = j; i < j+16; i+=4) {
+				glTexCoord2f(mData[i+2], mData[i+3]);
+				glVertex2f(x+size*mData[i+0], y+size*mData[i+1]);
 			}
 			glEnd();
-			
-			glColor3f(0,1,1);
-			for (int j = 0; j < mData.length; j+=16) {
-				glBegin(GL_LINE_LOOP);
-				for (int i = j; i < j+16; i+=4) {
-					glTexCoord2f(mData[i+2], mData[i+3]);
-					glVertex2f(x+size*mData[i+0], y+size*mData[i+1]);
-				}
-				glEnd();
-			}
-			glPopAttrib();
 		}
+		glPopAttrib();
 	}
 	
 	private void pushChar(Font.CharacterDefinition def, float cursor) {

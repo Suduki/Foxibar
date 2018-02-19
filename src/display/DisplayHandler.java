@@ -15,6 +15,7 @@ import gui.DummyRegion;
 import gui.Font;
 import gui.GuiRoot;
 import gui.HorizontalSplitRegion;
+import gui.Region;
 import gui.VerticalSplitRegion;
 import gui.SceneRegion;
 import messages.Message;
@@ -56,35 +57,44 @@ public class DisplayHandler extends MessageHandler {
 			mWindow = new Window(1920, 1080, "Foxibar");
 			initOpenGL();
 			
-			SceneRegion terrainRenderer = new SceneRegion(new TerrainRenderer(mWindow));
-			SceneRegion legacyRenderer = new SceneRegion(new LegacyRenderer(mWindow, mDisplayHandler, mSimulation));
+			Font.defaultFont();
 			
-			Texture tex = Texture.fromFile("pics/GuiDefault.png");
+			Region terrainRenderer = new SceneRegion(new TerrainRenderer(mWindow));
+			Region legacyRenderer = new SceneRegion(new LegacyRenderer(mWindow, mDisplayHandler, mSimulation));
+			
 			
 			GuiRoot guiRoot = new GuiRoot(mWindow);
-			ArrayRegion ar = new ArrayRegion(1,8);
 			
-			VerticalSplitRegion mainView = new VerticalSplitRegion(ar, terrainRenderer);			
 			ArrayRegion mainMenu = new ArrayRegion(6,1);
-			SplitRegion rootRegion = new HorizontalSplitRegion(mainMenu,mainView);
-			mainMenu.setRegion(0, 0, new TextureRegion(tex, 0, 1, 1, 0));
 			Button toggleButton = new Button("Toggle");
 			mainMenu.setRegion(1, 0, toggleButton);
 			
-			guiRoot.setRootRegion(rootRegion);			
-			rootRegion.setDividerPosition(0.1);
-			mainView.setDividerPosition(0.2f);
+			ArrayRegion legacyMenu = new ArrayRegion(1,5);
+			VerticalSplitRegion legacyView = new VerticalSplitRegion(legacyMenu, legacyRenderer);
+			legacyMenu.setRegion(0, 0, new Button("Import Brain"));
+			legacyMenu.setRegion(0, 1, new Button("Export Brain"));
+			legacyMenu.setRegion(0, 2, new Button("Regenerate World"));
+			legacyMenu.setRegion(0, 3, new Button("Render Animals"));
+			legacyMenu.setRegion(0, 4, new Button("Kill All"));
 			
+			HorizontalSplitRegion rootRegion = new HorizontalSplitRegion(mainMenu,legacyView);
 			
 			toggleButton.setCallback(() -> {
-				if (mainView.getRightSubRegion() != terrainRenderer) {
-					mainView.setRightSubRegion(terrainRenderer);
+				if (rootRegion.getBottomSubRegion() != terrainRenderer) {
+					rootRegion.setBottomSubRegion(terrainRenderer);
 				}
 				else {
-					mainView.setRightSubRegion(legacyRenderer);
+					rootRegion.setBottomSubRegion(legacyView);
 				}
-				System.out.println("I am printed when the button is clicked!"); 
+				
+				rootRegion.updateGeometry();
 			});
+			
+			guiRoot.setRootRegion(rootRegion);			
+			rootRegion.setDividerPosition(0.1);
+			legacyView.setDividerPosition(0.3f);
+			
+			
 			
 			long time0 = System.currentTimeMillis();
 			

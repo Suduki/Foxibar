@@ -39,10 +39,8 @@ public abstract class SplitRegion extends AbstractRegion {
 	}
 
 	public void setDividerPosition(double pNormalizedPosition) {
-		float size = (mDirection == Vertical) ? mSize.x : mSize.y;
-		float minPos = 1.0f/size;
-		float maxPos = (size-1.0f)/size;
-		mDividerPosition = Math.max(minPos, Math.min(maxPos, pNormalizedPosition));
+		System.out.println("SplitRegion.setDividerPosition(" + pNormalizedPosition + ");");
+		mDividerPosition = Math.max(0.0, Math.min(1.0, pNormalizedPosition));
 		updateGeometry();
 	}
 
