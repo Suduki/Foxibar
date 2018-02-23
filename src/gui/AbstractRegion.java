@@ -48,15 +48,17 @@ public abstract class AbstractRegion implements Region {
 	 * @param pEvent  The event to be forwarded.
 	 */
 	public void handleMouseEventForRegion(Region pRegion, MouseEvent pEvent, MouseState pState) {
-		if (pRegion.didMouseEnter(pState)) {
-			pRegion.handleMouseEvent(MouseEvent.ENTER, pState);			
-		}
-		else if (pRegion.didMouseLeave(pState)) {
-			pRegion.handleMouseEvent(MouseEvent.LEAVE, pState);
-		}
-		
-		if (pRegion.isPointInside(pState.getPos())) {
-			pRegion.handleMouseEvent(pEvent, pState);
+		if (pRegion != null) {
+			if (pRegion.didMouseEnter(pState)) {
+				pRegion.handleMouseEvent(MouseEvent.ENTER, pState);			
+			}
+			else if (pRegion.didMouseLeave(pState)) {
+				pRegion.handleMouseEvent(MouseEvent.LEAVE, pState);
+			}
+			
+			if (pRegion.isPointInside(pState.getPos())) {
+				pRegion.handleMouseEvent(pEvent, pState);
+			}
 		}
 	}
 	

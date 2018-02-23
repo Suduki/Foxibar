@@ -9,7 +9,7 @@ import gpu.GpuUtils;
 import gui.SplitRegion;
 import gui.Text;
 import gui.TextureRegion;
-import gui.ArrayRegion;
+import gui.GridRegion;
 import gui.Button;
 import gui.DummyRegion;
 import gui.Font;
@@ -51,6 +51,34 @@ public class DisplayHandler extends MessageHandler {
 			this.mDisplayHandler = pDisplayHandler;
 		}
 		
+		Region createLegacyGui(LegacyRenderer legacyRenderer)
+		{
+
+			Region scene = new SceneRegion(legacyRenderer);
+
+			GridRegion menu = new GridRegion(1,5);
+			menu.setRegion(0, 0, new Button("Import Brains", ()->legacyRenderer.actionLoadBrains()));
+			menu.setRegion(0, 1, new Button("Export Brains", ()->legacyRenderer.actionSaveBrains()));
+			menu.setRegion(0, 2, new Button("Regenerate", ()->legacyRenderer.actionRegenerateWorld()));
+			menu.setRegion(0, 3, new Button("Cycle Modes", ()->legacyRenderer.actionToggleRenderAnimals()));
+			menu.setRegion(0, 4, new Button("Kill Animals", ()->legacyRenderer.actionKillAllAnimals()));
+			
+			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
+			view.setDividerPosition(1.0f/6.0f);
+			return view;
+		}
+		
+		Region createModernGui(TerrainRenderer terrainRenderer) {
+			Region scene = new SceneRegion(terrainRenderer);
+		
+			GridRegion menu = new GridRegion(1,5);
+			menu.setRegion(0, 0, new Button("Step sim", ()->terrainRenderer.simulate()));
+			
+			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
+			view.setDividerPosition(1.0f/6.0f);
+			return view;
+		}
+		
 		public void run() {
 			System.out.println("Render thread started.");
 			
@@ -58,33 +86,20 @@ public class DisplayHandler extends MessageHandler {
 			initOpenGL();
 			
 			Font.defaultFont();
+						
 			
-			TerrainRenderer terrainRenderer = new TerrainRenderer(mWindow);
-			Region terrainView = new SceneRegion(terrainRenderer);
-			Region legacyRenderer = new SceneRegion(new LegacyRenderer(mWindow, mDisplayHandler, mSimulation));
+			GridRegion mainMenu = new GridRegion(1,1);
+			Button toggleButton  = new Button("Toggle View ( 2D <-> 3D )");
+			mainMenu.setRegion(0, 0, toggleButton);
 			
-			
-			GuiRoot guiRoot = new GuiRoot(mWindow);
-			
-			ArrayRegion mainMenu = new ArrayRegion(6,1);
-			Button toggleButton  = new Button("Toggle");
-			Button stepSimButton = new Button("Step sim", ()->terrainRenderer.simulate());
-			mainMenu.setRegion(1, 0, toggleButton);
-			mainMenu.setRegion(2, 0, stepSimButton);
-			
-			ArrayRegion legacyMenu = new ArrayRegion(1,5);
-			VerticalSplitRegion legacyView = new VerticalSplitRegion(legacyMenu, legacyRenderer);
-			legacyMenu.setRegion(0, 0, new Button("Import Brain"));
-			legacyMenu.setRegion(0, 1, new Button("Export Brain"));
-			legacyMenu.setRegion(0, 2, new Button("Regenerate World"));
-			legacyMenu.setRegion(0, 3, new Button("Render Animals"));
-			legacyMenu.setRegion(0, 4, new Button("Kill All"));
+			Region modernView = createModernGui(new TerrainRenderer(mWindow));
+			Region legacyView = createLegacyGui(new LegacyRenderer(mDisplayHandler, mSimulation));
 			
 			HorizontalSplitRegion rootRegion = new HorizontalSplitRegion(mainMenu,legacyView);
 			
 			toggleButton.setCallback(() -> {
-				if (rootRegion.getBottomSubRegion() != terrainView) {
-					rootRegion.setBottomSubRegion(terrainView);
+				if (rootRegion.getBottomSubRegion() != modernView) {
+					rootRegion.setBottomSubRegion(modernView);
 				}
 				else {
 					rootRegion.setBottomSubRegion(legacyView);
@@ -93,9 +108,9 @@ public class DisplayHandler extends MessageHandler {
 				rootRegion.updateGeometry();
 			});
 			
+			GuiRoot guiRoot = new GuiRoot(mWindow);
 			guiRoot.setRootRegion(rootRegion);			
-			rootRegion.setDividerPosition(0.1);
-			legacyView.setDividerPosition(0.3f);
+			rootRegion.setDividerPosition(0.08);
 			
 			
 			

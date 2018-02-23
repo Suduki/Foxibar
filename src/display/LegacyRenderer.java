@@ -13,16 +13,16 @@ import constants.Constants;
 import gui.KeyboardState;
 import gui.MouseEvent;
 import gui.MouseState;
+import gui.Region;
 import input.Mouse;
 import math.Vector2f;
 import simulation.Simulation;
 import world.World;
 
-public class LegacyRenderer implements InputHandlerI, gui.SceneRegionRenderer {
+public class LegacyRenderer implements gui.SceneRegionRenderer {
 
 	static final int PIXELS_X = Constants.PIXELS_X;
 	static final int PIXELS_Y = Constants.PIXELS_Y;
-	private static Texture defaultTexture;
 	static int startY = 0;
 	static int startX = 0;
 	static float zoomFactor = Constants.INIT_ZOOM;
@@ -33,19 +33,18 @@ public class LegacyRenderer implements InputHandlerI, gui.SceneRegionRenderer {
 	private Simulation mSimulation;
 	private DisplayHandler mDisplayHandler;
 	private boolean mSimulationPaused = false;
+	Region mRegion;
 	
 	private float[] circleVerticesX;
 	private float[] circleVerticesY;
 	List<Button> mButtons;
 	static float x0 = 0;
 	static float y0 = 0;
-	Button mClickButton = null;
 
-	public LegacyRenderer(Window pWindow, DisplayHandler pDisplayHandler, Simulation pSimulation) {
+	public LegacyRenderer(DisplayHandler pDisplayHandler, Simulation pSimulation) {
 		mDisplayHandler = pDisplayHandler;
 		mSimulation = pSimulation;
 		terrainColor = new float[Constants.WORLD_SIZE][3];
-		pWindow.setInputHandler(this);
 		loadResources();
 	}
 	
@@ -62,50 +61,26 @@ public class LegacyRenderer implements InputHandlerI, gui.SceneRegionRenderer {
 		glLoadIdentity();
 		glOrtho(0, PIXELS_X + Constants.PIXELS_SIDEBOARD, PIXELS_Y, 0, 1, -1);
 		glMatrixMode(GL_MODELVIEW);
-		
-		float[] x = new float[5];
-		float[] y = new float[5];
-		
-		for (int i = 0; i < 5; ++i) {
-			x[i] = PIXELS_X + 120f*(i+1);
-			y[i] = PIXELS_Y - 80f*(i+1);
-		}
-		
-		defaultTexture = display.Texture.fromFile("pics/defaultButton.png");
-		
-		Button button;
-		mButtons = new ArrayList<Button>();
-		
-		button = new Button(x[0], y[0]);
-		button.setTexture(display.Texture.fromFile("pics/killAllButtonTexture.png"));
-		button.setClickMessage(mSimulation, new messages.KillAllAnimals());
-		mButtons.add(button);
-		
-		button = new Button(x[1], y[1]);
-		button.setTexture(display.Texture.fromFile("pics/renderAnimals.png"));
-		button.setClickMessage(mDisplayHandler, new messages.ToggleRenderAnimals());
-		mButtons.add(button);
-		
-		button = new Button(x[1], y[2]);
-		button.setTexture(display.Texture.fromFile("pics/regenerateWorld.png"));
-		button.setClickMessage(mSimulation, new messages.RegenerateWorld());
-		mButtons.add(button);
-		
-		button = new Button(x[1], y[4]);
-		button.setTexture(display.Texture.fromFile("pics/savebrain.png"));
-		button.setClickMessage(mSimulation, new messages.SaveBrains());
-		mButtons.add(button);
-		
-		button = new Button(x[0], y[4]);
-		button.setTexture(display.Texture.fromFile("pics/loadbrain.png"));
-		button.setClickMessage(mSimulation, new messages.LoadBrains());
-		mButtons.add(button);
-		
-		button = new Button(x[0], y[1]);
-		button.setTexture(defaultTexture);
-		mButtons.add(button);
-		
 	}
+
+public void actionKillAllAnimals() {
+	mSimulation.message(new messages.KillAllAnimals());
+}
+
+public void actionToggleRenderAnimals() {
+	mDisplayHandler.message(new messages.ToggleRenderAnimals());
+}
+public void actionRegenerateWorld() {
+	mSimulation.message(new messages.RegenerateWorld());
+}
+
+public void actionSaveBrains() {
+	mSimulation.message(new messages.SaveBrains());
+}
+	
+public void actionLoadBrains() {
+	mSimulation.message(new messages.LoadBrains());
+}
 	
 	@Override // SceneRegionRenderer
 	public void render(int pViewportWidth, int pViewportHeight) {
@@ -121,9 +96,8 @@ public class LegacyRenderer implements InputHandlerI, gui.SceneRegionRenderer {
 		glPushMatrix();
 		glLoadIdentity();
 
-		renderStrings();
-
-		renderGui();
+		Texture.unbind(0);
+		//renderStrings();
 
 		if (RenderState.RENDER_TERRAIN) {
 			renderTerrain();
@@ -177,30 +151,6 @@ public class LegacyRenderer implements InputHandlerI, gui.SceneRegionRenderer {
 		glEnd();
 	}
 
-	private void renderGui()
-	{
-		//Vector2f m = mouse.getPos();
-
-		glEnable(GL_TEXTURE_2D);
-		glColor3f(1,1,1);
-		for (Button button : mButtons) {
-			Vector2f pos = button.getPosition();
-			Vector2f size = button.getSize();
-			display.Texture tex = button.getTexture(); 
-			if (tex != null)
-			{
-				tex.bind(0);
-			}
-			glBegin(GL_QUADS);
-			glTexCoord2f(0,0); glVertex2f(pos.x,          pos.y);
-			glTexCoord2f(1,0); glVertex2f(pos.x + size.x, pos.y);
-			glTexCoord2f(1,1); glVertex2f(pos.x + size.x, pos.y + size.y);
-			glTexCoord2f(0,1); glVertex2f(pos.x,          pos.y + size.y);
-			glEnd();
-		}
-		display.Texture.unbind(0);
-		glDisable(GL_TEXTURE_2D);
-	}
 
 	private void renderAllAnimals() {
 		
@@ -612,6 +562,9 @@ public class LegacyRenderer implements InputHandlerI, gui.SceneRegionRenderer {
 
 	public void handleMouseMotion(long window, double xpos, double ypos)
 	{
+		xpos = (PIXELS_X+Constants.PIXELS_SIDEBOARD) * xpos/mRegion.getSize().x;
+		ypos = PIXELS_Y * ypos/mRegion.getSize().y;
+		
 		mouse.setPosition((float)xpos,  (float)ypos);
 
 		if (insideViewport(mouse.getPos())) {
@@ -668,49 +621,6 @@ public class LegacyRenderer implements InputHandlerI, gui.SceneRegionRenderer {
 		return pos.x >= 0 && pos.x < Constants.PIXELS_X && pos.y >= 0 && pos.y < Constants.PIXELS_Y;
 	}
 
-	private boolean insideGui(Vector2f pos)
-	{
-		return pos.x >= Constants.PIXELS_X && pos.x < Constants.WINDOW_WIDTH && pos.y >= 0 && pos.y < Constants.PIXELS_Y;
-	}
-
-	private void guiStartClick(Vector2f pos)
-	{
-		for (Button button : mButtons)
-		{
-			if (button.insideBounds(pos.x, pos.y))
-			{
-				mClickButton = button;
-				break;
-			}
-		}
-	}
-
-	private void guiEndClick(Vector2f pos)
-	{
-		if (mClickButton == null)
-		{
-			return;
-		}
-
-		Button endButton = null;
-		for (Button button : mButtons)
-		{
-			if (button.insideBounds(pos.x, pos.y))
-			{
-				endButton = button;
-				break;
-			}
-		}
-
-		if (mClickButton == endButton)
-		{
-			mClickButton.click();
-			System.err.println("Woho! A button was clicked!");
-		}
-
-		mClickButton = null;
-	}
-
 	public void handleMouseEvents(long window, int button, int action, int mods) {
 		mouse.setButtonPressed(button, action == GLFW_PRESS);
 
@@ -720,17 +630,6 @@ public class LegacyRenderer implements InputHandlerI, gui.SceneRegionRenderer {
 			}
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
 				addBloodling();
-			}
-		}
-		else if (insideGui(mouse.getPos()))
-		{
-			if (action == GLFW_PRESS)
-			{
-				guiStartClick(mouse.getPos());
-			}
-			else
-			{
-				guiEndClick(mouse.getPos());
 			}
 		}
 	}
@@ -815,21 +714,30 @@ public class LegacyRenderer implements InputHandlerI, gui.SceneRegionRenderer {
 	}
 
 	@Override
-	public void handleFramebufferSize(long window, int width, int height) {
-		// TODO Auto-generated method stub
+	public boolean handleMouseEvent(MouseEvent pEvent, MouseState pMouse) {
+		if (pEvent == MouseEvent.BUTTON) {
+			int button = pMouse.getButtonIndex();
+			int action = pMouse.getButtonState(button) ? GLFW_PRESS : GLFW_RELEASE;
+			handleMouseEvents(0, button, action, 0);
+			
+		}
+		else if (pEvent == MouseEvent.MOTION) {
+			handleMouseMotion(0, pMouse.getPos().x - mRegion.getPos().x, pMouse.getPos().y - mRegion.getPos().y);
+		}
 		
+		return true;
 	}
 
 	@Override
-	public boolean handleMouseEvent(MouseEvent pEvent, MouseState pState) {
+	public boolean handleKeyboardEvent(KeyboardState pKeyboard) {
+		System.out.println("Key[" + pKeyboard.getKeyIndex() + "]: " + pKeyboard.getKeyState());
+		handleKeyboardEvents(pKeyboard.getKeyState() ? GLFW_PRESS : GLFW_RELEASE, pKeyboard.getKeyIndex());
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean handleKeyboardEvent(KeyboardState pEvent) {
-		// TODO Auto-generated method stub
-		return false;
+	public void setRegion(Region region) {
+		mRegion = region;
 	}
-
 }

@@ -1,6 +1,6 @@
 package gui;
 
-public class ArrayRegion extends AbstractRegion {
+public class GridRegion extends AbstractRegion {
 
 	private int mNumHorizontalRegions = 1;
 	private int mNumVerticalRegions = 1;
@@ -8,7 +8,7 @@ public class ArrayRegion extends AbstractRegion {
 	private int mInnerOffset = 10;
 	private Region[][] mRegions = null;
 	
-	public ArrayRegion(int pNumHorizontalRegions, int pNumVerticalRegions) {
+	public GridRegion(int pNumHorizontalRegions, int pNumVerticalRegions) {
 		mNumHorizontalRegions = Math.max(1, pNumHorizontalRegions);
 		mNumVerticalRegions   = Math.max(1,  pNumVerticalRegions);
 		mRegions = new Region[mNumHorizontalRegions][mNumVerticalRegions];

@@ -53,6 +53,7 @@ public class GuiRoot implements InputHandlerI, Region {
 	
 	@Override
 	public void handleMouseEvents(long window, int button, int action, int mods) {
+		System.out.println("GuiRoot.handleMouseEvents(" + window + ", " + button + ", " + action + ", " + mods +")");
 		if (action == GLFW_PRESS) {
 			mMouseState.setButtonState(button, true);
 		}
@@ -84,6 +85,7 @@ public class GuiRoot implements InputHandlerI, Region {
 	
 	@Override
 	public void handleMouseMotion(long window, double xpos, double ypos) {
+		System.out.println("GuiRoot.handleMouseMotions(" + window + ", " + xpos + ", " + ypos + ")");
 		mMouseState.setPos(new Point((int)xpos, (int)ypos));
 		
 		if (mRootRegion == null) {

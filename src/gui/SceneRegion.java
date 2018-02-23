@@ -8,6 +8,7 @@ public class SceneRegion extends AbstractRegion {
 	
 	public SceneRegion(SceneRegionRenderer pRenderer) {
 		mRenderer = pRenderer;
+		mRenderer.setRegion(this);
 	}
 	
 	@Override

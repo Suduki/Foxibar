@@ -45,10 +45,10 @@ public class Button extends AbstractRegion {
 		glEnd();		
 		glLineWidth(1.0f);
 
-		int fontSize = 56;
+		int fontSize = 32;
 		int dx = (mSize.x - mText.getWidth(fontSize))/2;
 		int dy = (mSize.y - mText.getHeight(fontSize))/2;
-		mText.draw(mPos.x+dx, mPos.y+dy, 56);
+		mText.draw(mPos.x+dx, mPos.y+dy, fontSize);
 		glColor3f(1,1,1);
 		
 		return true;

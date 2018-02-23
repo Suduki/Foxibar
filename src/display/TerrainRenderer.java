@@ -1,16 +1,12 @@
 package display;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL21.*;
 import static org.lwjgl.opengl.GL30.*;
 
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import constants.Constants;
@@ -18,22 +14,19 @@ import gpu.VAO;
 import gpu.FBO;
 import gpu.GpuE;
 import gpu.Program;
-import gpu.RenderNode;
-import gpu.Renderer;
 import gpu.Shader;
 import gpu.GpuUtils;
 import gpu.VBO;
-import gpu.nodes.SetViewport;
-import gpu.nodes.UseProgram;
 import gui.KeyboardState;
 import gui.MouseEvent;
 import gui.MouseState;
+import gui.Region;
 import world.World;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class TerrainRenderer implements gui.SceneRegionRenderer {
 	// Visualisation.
-	private Window              mWindow           = null;
+	private Region              mRegion           = null;
 	private Camera              mCamera           = null;
 	private FlyCameraController mCameraController = null;
 	private Texture             mStrataTexture    = null;
@@ -64,29 +57,9 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	
 	public TerrainRenderer(Window window) {
 		System.out.println("WORLD_SIZE_X = " + Constants.WORLD_SIZE_X + ", WORLD_SIZE_Y = " + Constants.WORLD_SIZE_Y);
-		mWindow = window;
 		
 		mCamera = new Camera();
-		mCamera.setAspectRatio(mWindow.getAspectRatio());
 		mCameraController = new FlyCameraController(mCamera);
-		
-		ProxyInputHandler inputProxy = new ProxyInputHandler();
-		inputProxy.add(mCameraController);
-		inputProxy.add(new BaseInputHandler() {
-			public void handleKeyboardEvents(int action, int key) {
-				if (action != GLFW_PRESS) {
-					return;
-				}
-				if (key == GLFW_KEY_ESCAPE) {
-					mWindow.requestClose();
-				}
-				if (key == GLFW_KEY_SPACE) {
-					mRain = 1.0f - mRain;
-				}
-			}
-		});
-		
-		mWindow.setInputHandler(inputProxy);
 		
 		initVertexArrays();
 		initVisualisationShaderPrograms();
@@ -378,5 +351,10 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		mSimulationFbo.setColorAttachment(0, mHeightTexture[mDstIndex]);
 		mSimulationFbo.setColorAttachment(1, mFluxTexture[mDstIndex]);
 		
+	}
+
+	@Override
+	public void setRegion(Region region) {
+		mRegion = region;
 	}
 }

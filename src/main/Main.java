@@ -16,7 +16,6 @@ import agents.Animal;
 import agents.NeuralNetwork;
 import agents.NeuralFactors;
 import constants.Constants;
-import dataPlotting.XYPlotThingVersusTime;
 import dataPlotting.XYPlotThingVersusTime2;
 import display.DisplayHandler;
 import display.RenderState;
@@ -76,7 +75,7 @@ public class Main
 				}
 				if (timeStep % plottingNumber == 0) {
 					if (plotStuff) {
-						XYPlotThingVersusTime.myInstance.step();
+					//	XYPlotThingVersusTime.myInstance.step();
 					}
 					
 					try {
