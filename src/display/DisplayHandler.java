@@ -59,15 +59,18 @@ public class DisplayHandler extends MessageHandler {
 			
 			Font.defaultFont();
 			
-			Region terrainRenderer = new SceneRegion(new TerrainRenderer(mWindow));
+			TerrainRenderer terrainRenderer = new TerrainRenderer(mWindow);
+			Region terrainView = new SceneRegion(terrainRenderer);
 			Region legacyRenderer = new SceneRegion(new LegacyRenderer(mWindow, mDisplayHandler, mSimulation));
 			
 			
 			GuiRoot guiRoot = new GuiRoot(mWindow);
 			
 			ArrayRegion mainMenu = new ArrayRegion(6,1);
-			Button toggleButton = new Button("Toggle");
+			Button toggleButton  = new Button("Toggle");
+			Button stepSimButton = new Button("Step sim", ()->terrainRenderer.simulate());
 			mainMenu.setRegion(1, 0, toggleButton);
+			mainMenu.setRegion(2, 0, stepSimButton);
 			
 			ArrayRegion legacyMenu = new ArrayRegion(1,5);
 			VerticalSplitRegion legacyView = new VerticalSplitRegion(legacyMenu, legacyRenderer);
@@ -80,8 +83,8 @@ public class DisplayHandler extends MessageHandler {
 			HorizontalSplitRegion rootRegion = new HorizontalSplitRegion(mainMenu,legacyView);
 			
 			toggleButton.setCallback(() -> {
-				if (rootRegion.getBottomSubRegion() != terrainRenderer) {
-					rootRegion.setBottomSubRegion(terrainRenderer);
+				if (rootRegion.getBottomSubRegion() != terrainView) {
+					rootRegion.setBottomSubRegion(terrainView);
 				}
 				else {
 					rootRegion.setBottomSubRegion(legacyView);

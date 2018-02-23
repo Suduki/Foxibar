@@ -49,7 +49,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private Program             mWaterProgram     = null;
 	
 	// Simulation.
-	private int                 mIterationsPerFrame    = 50;
+	private int                 mIterationsPerFrame    = 1;
 	private int                 mSrcIndex              = 0;
 	private int                 mDstIndex              = 1;
 	private float               mHeightScale           = 1;
@@ -222,11 +222,14 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		mCameraController.update();
 		
 		drawTerrain(new Matrix4f());
-		
+		glUseProgram(0);
+	}
+
+	public void simulate() {
 		for (int i = 0; i < mIterationsPerFrame; ++i) {
 			stepSimulation();
 		}
-		
+
 		glUseProgram(0);
 	}
 	
