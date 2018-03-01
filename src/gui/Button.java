@@ -64,7 +64,6 @@ public class Button extends AbstractRegion {
 	}
 
 	private void performClick(MouseState pMouse) {
-		System.out.println("Button \"" + mText + "\" clicked!");
 		if (mCallback != null) {
 			mCallback.onClick();
 		}

@@ -1,4 +1,4 @@
-
+package dataPlotting;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;

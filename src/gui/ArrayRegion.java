@@ -1,10 +1,6 @@
 package gui;
 
-import static org.lwjgl.opengl.GL11.*;
-
 import java.util.ArrayList;
-
-import com.sun.javafx.geom.transform.GeneralTransform3D;
 
 public class ArrayRegion extends AbstractRegion {
 
@@ -12,7 +8,7 @@ public class ArrayRegion extends AbstractRegion {
 	public static final int Vertical = 1;
 	
 	private ArrayList<Region> mSubRegions;
-	private int mSpacing = 8;
+	private Point mSpacing = new Point(8,8);
 	private int mDirection;
 	
 	public ArrayRegion(int pDirection) {
@@ -26,12 +22,17 @@ public class ArrayRegion extends AbstractRegion {
 		updateGeometry();
 	}
 	
-	public int getSpacing() {
-		return mSpacing;
+	public Point getSpacing() {
+		return new Point(mSpacing);
 	}
 	
 	public void setSpacing(int pSpacing) {
-		mSpacing = Math.max(0,  pSpacing);
+		mSpacing.x = mSpacing.y = Math.max(0,  pSpacing);
+	}
+	
+	public void setSpacing(int pSpacingX, int pSpacingY) {
+		mSpacing.x = Math.max(0, pSpacingX);
+		mSpacing.y = Math.max(0, pSpacingY);
 	}
 	
 	private void updateGeometry() {
@@ -40,25 +41,24 @@ public class ArrayRegion extends AbstractRegion {
 	
 	@Override
 	public void updateGeometry(int pPosX, int pPosY, int pWidth, int pHeight) {
-		// TODO Auto-generated method stub
 		super.updateGeometry(pPosX, pPosY, pWidth, pHeight);
 		
 		if (mSubRegions.size() > 0) {
 			
 			if (mDirection == Horizontal) {
-				int x = mPos.x + mSpacing;
+				int x = mPos.x + mSpacing.x;
 				for (Region r : mSubRegions) {
 					int w = r.minSize().x;
-					r.updateGeometry(x, mSpacing/2, w, mSize.y - mSpacing);
-					x += (w + mSpacing);
+					r.updateGeometry(x, mPos.y + mSpacing.y, w, mSize.y - mSpacing.y*2);
+					x += (w + mSpacing.x);
 				}
 			}
 			else {
-				int y = mPos.y + mSpacing;
+				int y = mPos.y + mSpacing.y;
 				for (Region r : mSubRegions) {
 					int h = r.minSize().y;
-					r.updateGeometry(mSpacing/2, y, mSize.x-mSpacing, h);
-					y += (h + mSpacing);
+					r.updateGeometry(mPos.x + mSpacing.x, y, mSize.x - mSpacing.x*2, h);
+					y += (h + mSpacing.y);
 				}
 			}
 		}
@@ -67,13 +67,27 @@ public class ArrayRegion extends AbstractRegion {
 	@Override
 	public Point minSize() {
 		Point min = new Point(0,0);
-		for (Region r : mSubRegions) {
-			Point size = r.minSize();
-			min.x = Math.max(min.x, size.x);
-			min.y = Math.max(min.y, size.y);
+		if (mDirection == Horizontal) {
+			for (Region region : mSubRegions) {
+				Point size = region.minSize();
+				min.x += size.x + mSpacing.x;
+				min.y = Math.max(min.y, size.y);
+			}
+			
+			min.x += mSpacing.x;
+			min.y += mSpacing.y * 2;
 		}
-		min.x += mSpacing;
-		min.y += mSpacing;
+		else {
+			for (Region region : mSubRegions) {
+				Point size = region.minSize();
+				min.x = Math.max(min.x, size.x);
+				min.y = size.y + mSpacing.y;
+			}
+			
+			min.x += mSpacing.x * 2;
+			min.y += mSpacing.y;
+		}
+		
 		return min;
 	}
 	

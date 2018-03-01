@@ -64,14 +64,6 @@ public class DisplayHandler extends MessageHandler {
 			menu.insertRegion( 3, new Button("Cycle Modes",   ()->legacyRenderer.actionToggleRenderAnimals()));
 			menu.insertRegion( 4, new Button("Kill Animals",  ()->legacyRenderer.actionKillAllAnimals()));
 			
-			/*
-			GridRegion menu = new GridRegion(1,5);
-			menu.setRegion(0, 0, new Button("Import Brains", ()->legacyRenderer.actionLoadBrains()));
-			menu.setRegion(0, 1, new Button("Export Brains", ()->legacyRenderer.actionSaveBrains()));
-			menu.setRegion(0, 2, new Button("Regenerate",    ()->legacyRenderer.actionRegenerateWorld()));
-			menu.setRegion(0, 3, new Button("Cycle Modes",   ()->legacyRenderer.actionToggleRenderAnimals()));
-			menu.setRegion(0, 4, new Button("Kill Animals",  ()->legacyRenderer.actionKillAllAnimals()));
-			*/
 			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
 			view.setDividerPosition(1.0f/6.0f);
 			return view;

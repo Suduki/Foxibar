@@ -8,6 +8,11 @@ public class Point {
 		this(0,0);
 	}
 	
+	Point(Point other) {
+		x = other.x;
+		y = other.y;
+	}
+	
 	Point (int pX, int pY) {
 		x = pX;
 		y = pY;
