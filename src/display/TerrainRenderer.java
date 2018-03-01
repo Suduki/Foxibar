@@ -71,6 +71,10 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		initSimulationTextures();
 	}
 	
+	public void setIterationsPerFrame(int pIterations) {
+		mIterationsPerFrame = pIterations;
+	}
+	
 	@Override
 	public boolean handleMouseEvent(MouseEvent pEvent, MouseState pMouse) {
 		if (pEvent == MouseEvent.BUTTON) {

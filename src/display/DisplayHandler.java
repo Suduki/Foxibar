@@ -47,6 +47,7 @@ public class DisplayHandler extends MessageHandler {
 		private DisplayHandler mDisplayHandler;
 		private Window mWindow;
 		private int numFrames = 0;
+		private boolean mSimulate = false;
 				
 		public RenderThread(DisplayHandler pDisplayHandler) {
 			this.mDisplayHandler = pDisplayHandler;
@@ -54,7 +55,6 @@ public class DisplayHandler extends MessageHandler {
 		
 		Region createLegacyGui(LegacyRenderer legacyRenderer)
 		{
-
 			Region scene = new SceneRegion(legacyRenderer);
 
 			ArrayRegion menu = new ArrayRegion(ArrayRegion.Vertical);
@@ -73,7 +73,18 @@ public class DisplayHandler extends MessageHandler {
 			Region scene = new SceneRegion(terrainRenderer);
 		
 			ArrayRegion menu = new ArrayRegion(ArrayRegion.Vertical);
-			menu.insertRegion(0, new Button("Toggle sim", ()->terrainRenderer.toggleSimulateOnRender()));
+			menu.insertRegion( 0, new Button("Simulation On/Off", ()->mSimulate = !mSimulate));
+			menu.insertRegion( 1, new Button(" 1 iter/frame", ()->terrainRenderer.setIterationsPerFrame(1)));
+			menu.insertRegion( 2, new Button(" 5 iter/frame", ()->terrainRenderer.setIterationsPerFrame(5)));
+			menu.insertRegion( 3, new Button("10 iter/frame", ()->terrainRenderer.setIterationsPerFrame(10)));
+			menu.insertRegion( 4, new Button("15 iter/frame", ()->terrainRenderer.setIterationsPerFrame(15)));
+			menu.insertRegion( 5, new Button("20 iter/frame", ()->terrainRenderer.setIterationsPerFrame(20)));
+			menu.insertRegion( 6, new Button("25 iter/frame", ()->terrainRenderer.setIterationsPerFrame(25)));
+			menu.insertRegion( 7, new Button("30 iter/frame", ()->terrainRenderer.setIterationsPerFrame(30)));
+			menu.insertRegion( 8, new Button("35 iter/frame", ()->terrainRenderer.setIterationsPerFrame(35)));
+			menu.insertRegion( 9, new Button("40 iter/frame", ()->terrainRenderer.setIterationsPerFrame(40)));
+			menu.insertRegion(10, new Button("45 iter/frame", ()->terrainRenderer.setIterationsPerFrame(45)));
+			menu.insertRegion(11, new Button("50 iter/frame", ()->terrainRenderer.setIterationsPerFrame(50)));
 			
 			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
 			view.setDividerPosition(1.0f/6.0f);
@@ -120,7 +131,10 @@ public class DisplayHandler extends MessageHandler {
 			
 			mWindow.makeCurrent();
 			while(handleEvents()) {
-				terrainRenderer.simulate();
+				if (mSimulate) {
+					terrainRenderer.simulate();
+				}
+				
 				guiRoot.render();
 				
 				mWindow.swapBuffers();
