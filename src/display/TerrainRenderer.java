@@ -42,6 +42,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private Program             mWaterProgram     = null;
 	
 	// Simulation.
+	private boolean             mSimulateOnRender      = false;
 	private int                 mIterationsPerFrame    = 1;
 	private int                 mSrcIndex              = 0;
 	private int                 mDstIndex              = 1;
@@ -161,9 +162,8 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		mBufferSet.bind();
 		mIndexVbo.bind();
 		glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
-		Program.unbind();
 
-		if (mRain > 0) {
+		if (mRain > 0) { // TODO: This means "draw water"...
 			glDepthFunc(GL_LESS);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -172,14 +172,14 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 			Vector3f e = mCamera.getEyePosition();
 			glUniformMatrix4fv(0, false, mCamera.getProjectionMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
 			glUniformMatrix4fv(1, false, new Matrix4f(mCamera.getViewMatrix()).mul(translationMatrix).get(matrixBuffer)); GpuUtils.GpuErrorCheck();
-			glUniform4f(2, e.x, e.y, e.z, 1.0f);
-			glUniform1f(3, 1.0f/mHeightScale);
+			glUniform4f(2, e.x, e.y, e.z, 1.0f); GpuUtils.GpuErrorCheck();
 			
-			mBufferSet.bind();
 			mIndexVbo.bind();
 			glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
 			Program.unbind();
 		}
+		
+		Program.unbind();
 	}
 	
 	void swapTextures(Texture[] texture) {
@@ -191,19 +191,29 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	
 	@Override // SceneRegionRenderer
 	public void render(int pViewportWidth, int pViewportHeight) {
+		System.out.println("TerrainRenderer.render");
+		if (mSimulateOnRender) {
+			simulate();
+		}
 		mCamera.setAspectRatio(pViewportWidth/(float)pViewportHeight);
 		mCameraController.update();
+		
 		
 		drawTerrain(new Matrix4f());
 		glUseProgram(0);
 	}
 
 	public void simulate() {
+		glPushAttrib(GL_VIEWPORT_BIT);
 		for (int i = 0; i < mIterationsPerFrame; ++i) {
 			stepSimulation();
 		}
-
+		glPopAttrib();
 		glUseProgram(0);
+	}
+	
+	public void toggleSimulateOnRender() {
+		mSimulateOnRender = !mSimulateOnRender;
 	}
 	
 	private void stepSimulation() {
@@ -252,8 +262,8 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		glDrawBuffers(mSimDrawBuffers); GpuUtils.GpuErrorCheck();
 		
 		mSedimentUpdateProgram.bind();
-		glUniform1f(0, 1.0f/Constants.WORLD_SIZE_X);
-		glUniform1f(3, 1.0f/mHeightScale);
+		//glUniform1f(0, 1.0f/Constants.WORLD_SIZE_X); GpuUtils.GpuErrorCheck();
+		//glUniform1f(3, 1.0f/mHeightScale); GpuUtils.GpuErrorCheck();
 		glViewport(0, 0, Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
 		glDrawArrays(GL_TRIANGLES, 0, 6); GpuUtils.GpuErrorCheck();
 		FBO.unbind();

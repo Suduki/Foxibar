@@ -44,11 +44,15 @@ public class VerticalSplitRegion extends SplitRegion implements Region {
 		super.updateGeometry(pPosX, pPosY, pWidth, pHeight);
 		
 		if (mSubRegions[LeftIndex] != null) {
-			System.out.println("Left: mSize.x = " + mSize.x + ", mDividerPosition = " + mDividerPosition);
+			int w = mSubRegions[LeftIndex].minSize().x;
+			setDividerPositionNoUpdate(w/(float)pWidth);
+		}
+		
+		
+		if (mSubRegions[LeftIndex] != null) {
 			mSubRegions[LeftIndex].updateGeometry(mPos.x, mPos.y, (int)(mSize.x*mDividerPosition), mSize.y);
 		}
 		if (mSubRegions[RightIndex] != null) {
-			System.out.println("Right: mSize.x = " + mSize.x + ", mDividerPosition = " + mDividerPosition);
 			mSubRegions[RightIndex].updateGeometry(mPos.x + (int)(mSize.x*mDividerPosition), mPos.y, (int)(mSize.x*(1.0-mDividerPosition)), mSize.y);
 		}
 	}
@@ -58,9 +62,7 @@ public class VerticalSplitRegion extends SplitRegion implements Region {
 		if (mMouseOverDivider) {
 			glLineWidth(1 + 2*mDividerNeighbourhood);
 		}
-		else {
-			glLineWidth(3.0f);
-		}
+		
 		glBegin(GL_LINES);
 		glVertex2i((int)(mPos.x + mSize.x*mDividerPosition), mPos.y);
 		glVertex2i((int)(mPos.x + mSize.x*mDividerPosition), mPos.y + mSize.y);

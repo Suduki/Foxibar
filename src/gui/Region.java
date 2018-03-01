@@ -20,6 +20,8 @@ public interface Region {
 	public boolean keyboardFocusGranted();
 	public void    keyboardFocusRevoked();
 	
+	public Point minSize();
+	
 	public void setParent(Region pParent);
 	public Region getParent();
 	public Window getWindow();

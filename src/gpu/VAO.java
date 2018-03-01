@@ -8,9 +8,11 @@ public class VAO {
 	
 	public VAO() {
 		mArrayId = glGenVertexArrays(); GpuUtils.GpuErrorCheck();
+		System.out.println("VAO.VAO: mArrayId = " + mArrayId);
 	}
 	
 	public void bind() {
+		System.out.println("VAO.bind: mArrayId = " + mArrayId);
 		glBindVertexArray(mArrayId); GpuUtils.GpuErrorCheck();
 	}
 	

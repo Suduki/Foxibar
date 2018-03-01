@@ -63,6 +63,11 @@ public abstract class AbstractRegion implements Region {
 	}
 	
 	@Override
+	public Point minSize() {
+		return mSize;
+	}
+	
+	@Override
 	public boolean keyboardFocusGranted() {
 		mHasKeyboardFocus = true;
 		return true;

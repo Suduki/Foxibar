@@ -10,8 +10,6 @@ layout(binding = 5) uniform sampler2D velocityTexture;
 in vec2 vsTexCoord;
 in vec3 worldEyeDir;
 
-layout(location = 3) uniform float normalizingFactor;
-
 void main()
 {
 	vec4  samp = texture(heightTexture, vsTexCoord); 

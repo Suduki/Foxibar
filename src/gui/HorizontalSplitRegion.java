@@ -42,6 +42,14 @@ public class HorizontalSplitRegion extends SplitRegion implements Region{
 	public void updateGeometry(int pPosX, int pPosY, int pWidth, int pHeight) {
 		super.updateGeometry(pPosX, pPosY, pWidth, pHeight);
 		
+		
+
+		if (mSubRegions[TopIndex] != null) {
+			int h = mSubRegions[TopIndex].minSize().y;
+			setDividerPositionNoUpdate(h/(float)pHeight);
+		}
+		
+		
 		if (mSubRegions[TopIndex] != null) {
 			mSubRegions[TopIndex].updateGeometry(mPos.x, mPos.y, mSize.x, (int)(mSize.y*mDividerPosition));
 		}
@@ -54,9 +62,7 @@ public class HorizontalSplitRegion extends SplitRegion implements Region{
 		if (mMouseOverDivider) {
 			glLineWidth(1 + 2*mDividerNeighbourhood);
 		}
-		else {
-			glLineWidth(3.0f);
-		}
+		
 		glBegin(GL_LINES);
 		glVertex2i(mPos.x,           (int)(mPos.y + mSize.y*mDividerPosition));
 		glVertex2i(mPos.x + mSize.x, (int)(mPos.y + mSize.y*mDividerPosition));

@@ -156,4 +156,9 @@ public class GuiRoot implements InputHandlerI, Region {
 	@Override public void    keyboardFocusRevoked() {} // TODO Auto-generated method stub
 	@Override public void    setParent(Region pParent) {} // TODO Auto-generated method stub
 
+	@Override
+	public Point minSize() {
+		return new Point();
+	}
+
 }

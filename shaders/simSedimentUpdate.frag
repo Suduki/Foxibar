@@ -7,9 +7,7 @@ layout(binding = 2) uniform sampler2D fluxTexture;
 
 in vec2 texCoord;
 
-layout(location = 0) uniform float d;
 layout(location = 2) uniform float dt = 1.0/30.0;
-layout(location = 3) uniform float normalizingFactor;
 
 layout(location = 0) out vec4 outHeights;
 layout(location = 1) out vec4 outVelocity;

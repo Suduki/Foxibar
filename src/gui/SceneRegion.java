@@ -2,6 +2,8 @@ package gui;
 
 import static org.lwjgl.opengl.GL11.*;
 
+import gpu.GpuUtils;
+
 public class SceneRegion extends AbstractRegion {
 
 	private SceneRegionRenderer mRenderer;
@@ -14,7 +16,7 @@ public class SceneRegion extends AbstractRegion {
 	@Override
 	public boolean render(GuiRenderer pGuiRenderer) {
 		if (mRenderer != null) {
-			glPushAttrib(GL_VIEWPORT_BIT);
+			glPushAttrib(GL_ALL_ATTRIB_BITS);//(GL_VIEWPORT_BIT);
 			int y = getWindow().getHeight();
 			glViewport(mPos.x, y - mPos.y - mSize.y, mSize.x, mSize.y);
 			glEnable(GL_SCISSOR_TEST);

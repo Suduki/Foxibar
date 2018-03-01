@@ -1,5 +1,7 @@
 package gui;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public abstract class SplitRegion extends AbstractRegion {
 	public static final int mDividerNeighbourhood = 4;
 	public static final int Vertical   = 0;
@@ -43,6 +45,11 @@ public abstract class SplitRegion extends AbstractRegion {
 		mDividerPosition = Math.max(0.0, Math.min(1.0, pNormalizedPosition));
 		updateGeometry();
 	}
+	
+	protected void setDividerPositionNoUpdate(double pNormalizedPosition) {
+		System.out.println("SplitRegion.setDividerPosition(" + pNormalizedPosition + ");");
+		mDividerPosition = Math.max(0.0, Math.min(1.0, pNormalizedPosition));
+	}
 
 	@Override
 	public boolean render(GuiRenderer pGuiRenderer) {
@@ -53,6 +60,7 @@ public abstract class SplitRegion extends AbstractRegion {
 			mSubRegions[1].render(pGuiRenderer);
 		}
 		
+		glColor3f(1,1,1);
 		renderDivider(pGuiRenderer);
 		
 		return true;

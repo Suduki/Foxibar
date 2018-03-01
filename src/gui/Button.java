@@ -7,15 +7,14 @@ public class Button extends AbstractRegion {
 		void onClick();
 	}
 	
-	private String mString = "";
 	private Text mText;
 	private boolean mMouseInside = false;
 	private boolean mClickStarted = false;
 	private ClickCallback mCallback = null;
+	private int mFontSize = 32;
 	
 	
 	public Button(String pText) {
-		mString = pText;
 		mText = new Text(pText);
 	}
 	
@@ -31,25 +30,35 @@ public class Button extends AbstractRegion {
 	@Override
 	public boolean render(GuiRenderer pGuiRenderer) {
 		
-		if (mMouseInside) {
-			glLineWidth(3.0f);
-		}
+		float s0 = 0.55f;
+		float s1 = 0.70f;
+		float s2 = 0.85f;
 		if (mClickStarted) {
-			glColor3f(0,1,0);
+			glColor3f(s2,s2,s2);
 		}
-		glBegin(GL_LINE_LOOP);
+		else if (mMouseInside) {
+			glColor3f(s1,s1,s1);
+		}
+		else {
+			glColor3f(s0,s0,s0);
+		}
+		
+		glBegin(GL_QUADS);
 		glVertex2i(mPos.x,           mPos.y);
 		glVertex2i(mPos.x + mSize.x, mPos.y);
 		glVertex2i(mPos.x + mSize.x, mPos.y + mSize.y);
 		glVertex2i(mPos.x,           mPos.y + mSize.y);
-		glEnd();		
-		glLineWidth(1.0f);
-
-		int fontSize = 32;
-		int dx = (mSize.x - mText.getWidth(fontSize))/2;
-		int dy = (mSize.y - mText.getHeight(fontSize))/2;
-		mText.draw(mPos.x+dx, mPos.y+dy, fontSize);
-		glColor3f(1,1,1);
+		glEnd();
+		
+		if (mClickStarted) {
+			glColor3f(0,0,0);
+		}
+		else {
+			glColor3f(1,1,1);
+		}
+		int dx = (mSize.x - mText.getWidth(mFontSize))/2;
+		int dy = (mSize.y - mText.getHeight(mFontSize))/2;
+		mText.draw(mPos.x+dx, mPos.y+dy, mFontSize);
 		
 		return true;
 	}
@@ -65,6 +74,12 @@ public class Button extends AbstractRegion {
 	private void cancelClick(MouseState pMouse) {
 		System.out.println("Button \"" + mText + "\" click cancelled.");
 		mClickStarted = false;
+	}
+	
+	@Override
+	public Point minSize() {
+		int pad = mFontSize/4;
+		return new Point(mText.getWidth(mFontSize) + pad, mText.getHeight(mFontSize) + pad);
 	}
 	
 	@Override
