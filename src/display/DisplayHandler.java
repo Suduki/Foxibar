@@ -4,21 +4,7 @@ import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
-import constants.Constants;
-import gpu.GpuUtils;
-import gui.SplitRegion;
-import gui.Text;
-import gui.TextureRegion;
-import gui.GridRegion;
-import gui.ArrayRegion;
-import gui.Button;
-import gui.DummyRegion;
-import gui.Font;
-import gui.GuiRoot;
-import gui.HorizontalSplitRegion;
-import gui.Region;
-import gui.VerticalSplitRegion;
-import gui.SceneRegion;
+import gui.*;
 import messages.Message;
 import messages.MessageHandler;
 
@@ -46,7 +32,6 @@ public class DisplayHandler extends MessageHandler {
 		
 		private DisplayHandler mDisplayHandler;
 		private Window mWindow;
-		private int numFrames = 0;
 		private boolean mSimulate = false;
 				
 		public RenderThread(DisplayHandler pDisplayHandler) {
@@ -65,7 +50,6 @@ public class DisplayHandler extends MessageHandler {
 			menu.insertRegion( 4, new Button("Kill Animals",  ()->legacyRenderer.actionKillAllAnimals()));
 			
 			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
-			view.setDividerPosition(1.0f/6.0f);
 			return view;
 		}
 		
@@ -87,20 +71,18 @@ public class DisplayHandler extends MessageHandler {
 			menu.insertRegion(11, new Button("50 iter/frame", ()->terrainRenderer.setIterationsPerFrame(50)));
 			
 			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
-			view.setDividerPosition(1.0f/6.0f);
 			return view;
 		}
 		
 		public void run() {
 			System.out.println("Render thread started.");
 			
-			mWindow = new Window(1280, 720, "Foxibar");
+			mWindow = new Window(1920, 1080, "Foxibar");
 			initOpenGL();
 			
 			Font.defaultFont();
-						
-			
-			ArrayRegion mainMenu = new ArrayRegion(ArrayRegion.Horizontal);//new GridRegion(1,1);
+
+			ArrayRegion mainMenu = new ArrayRegion(ArrayRegion.Horizontal);
 			Button toggleButton  = new Button("Toggle View ( 2D <-> 3D )");
 			mainMenu.insertRegion(0, toggleButton);
 			
@@ -108,7 +90,7 @@ public class DisplayHandler extends MessageHandler {
 			Region modernView = createModernGui(terrainRenderer);
 			Region legacyView = createLegacyGui(new LegacyRenderer(mDisplayHandler, mSimulation));
 			
-			HorizontalSplitRegion rootRegion = new HorizontalSplitRegion(mainMenu,legacyView);
+			HorizontalSplitRegion rootRegion = new HorizontalSplitRegion(mainMenu,modernView);
 			
 			toggleButton.setCallback(() -> {
 				if (rootRegion.getBottomSubRegion() != modernView) {
@@ -122,31 +104,15 @@ public class DisplayHandler extends MessageHandler {
 			});
 			
 			GuiRoot guiRoot = new GuiRoot(mWindow);
-			guiRoot.setRootRegion(rootRegion);			
-			rootRegion.setDividerPosition(0.08);
-			
-			
-			
-			long time0 = System.currentTimeMillis();
-			
+			guiRoot.setRootRegion(rootRegion);
+
 			mWindow.makeCurrent();
 			while(handleEvents()) {
 				if (mSimulate) {
 					terrainRenderer.simulate();
 				}
-				
 				guiRoot.render();
-				
 				mWindow.swapBuffers();
-				
-				++numFrames;
-				
-				if (System.currentTimeMillis() - time0 > 1000)
-				{
-				//	System.out.println("FPS: " + numFrames);
-					numFrames = 0;
-					time0 = System.currentTimeMillis();
-				}
 			}
 
 			System.out.println("Render thread finished.");

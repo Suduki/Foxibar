@@ -24,7 +24,7 @@ public class Program {
 		glAttachShader(mProgramId,  shader.id()); GpuUtils.GpuErrorCheck();
 	}
 	
-	public boolean link() {
+	public boolean link(String pName) {
 		glLinkProgram(mProgramId); GpuUtils.GpuErrorCheck();
 		
 		if (glGetProgrami(mProgramId,  GL_LINK_STATUS) != GL_TRUE) {
@@ -33,6 +33,9 @@ public class Program {
 		}
 		else
 		{
+			if (pName != null) {
+				System.out.println("Program " + pName + " linked successfuly.");
+			}
 			mLinkStatus = true;
 		}
 		
