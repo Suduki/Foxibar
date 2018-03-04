@@ -25,6 +25,6 @@ void main()
 	pos.y *= height;
 	gl_Position = projMatrix * modelviewMatrix * pos;
 	vsNormal = inNormal;
-	vsTexCoord = inTexCoord + inInstance.zw;
+	vsTexCoord = inTexCoord*0.99 + inInstance.zw;
 	vsHeight = pos.y;
 }

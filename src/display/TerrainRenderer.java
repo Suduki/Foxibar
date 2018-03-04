@@ -56,7 +56,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private VBO     mHexIndexVbo       = null;
 	private int     mHexVertexCount    = 0;
 	private int     mHexInstanceCount  = 0;
-	private float   mHexFlatness       = 0.0f;
+	private float   mHexFlatness       = 0.5f;
 	
 	
 	// Simulation.
@@ -251,24 +251,32 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	
 	void drawAnimals() {
 		int i = 0;
-		glLineWidth(3);
+		float x0 = -Constants.WORLD_SIZE_X/2.0f;
+		float z0 = -Constants.WORLD_SIZE_Y/2.0f;
+		
+		float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
+		float zNudge = 3.0f/9.0f;
+		
+		glLineWidth(5);
 		glBegin(GL_LINES);
 		glColor3f(0,0,0);
 		for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
-			for (int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
+			for (int x = 0; x < Constants.WORLD_SIZE_X; x+=1) {
 				// RENDER ANIMAL
 				int id  = Animal.containsAnimals[i];
 				if (id != -1) {
-					float x0 = -Constants.WORLD_SIZE_X/2.0f;
-					float z0 = -Constants.WORLD_SIZE_Y/2.0f;
 					float xScale = (float)(Math.sqrt(3)*0.5);
-					float zScale = 0.75f;
-					float xPosOffset = (Math.abs(z)%2 == 1) ? xScale : 0.0f;
-					float xpos = x0 + x*xScale + xPosOffset;
-					float zpos = z0 + z*zScale;
+					float zScale = 1.5f;
+										
+					int hexX = x/2;
+					int hexZ = z/2; 
+					
+					float xPosOffset = (hexZ%2 == 1) ? xScale : 0.0f;
+					
+					float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
+					float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
 					
 					renderAnimalAt(id, xpos, zpos);
-
 				}
 				
 				++i;
@@ -301,8 +309,8 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		
 		glDepthFunc(GL_LEQUAL);
 		mHexTerrainProgram.bind();
-		glUniform1f(3, 1.0f/mHeightScale);
-		glUniform1f(4, mHexFlatness);
+		//glUniform1f(3, 1.0f/mHeightScale); GpuUtils.GpuErrorCheck();
+		glUniform1f(4, mHexFlatness); GpuUtils.GpuErrorCheck();
 		
 		mHeightTexture[mSrcIndex].bind(0);
 		mStrataTexture.bind(1);
@@ -351,7 +359,6 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		glPushMatrix();
 		m = new Matrix4f();
 		glLoadMatrixf(new Matrix4f(mCamera.getViewMatrix()).mul(m.translate(17, 0, 33)).get(matrixBuffer)); GpuUtils.GpuErrorCheck();
-		//glLoadMatrixf(mCamera.getViewMatrix().get(matrixBuffer));
 		glBegin(GL_LINES);
 		
 		glColor3f(1,0,0);
@@ -585,8 +592,8 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 				{0,0},{ 1, 1},{ 1,-1}
 		};
 		
-		float us = 1.0f/(Constants.WORLD_SIZE_X*1.0f);
-		float vs = 1.0f/(Constants.WORLD_SIZE_Y*1.0f);
+		float us = 1.0f/(Constants.WORLD_SIZE_X);
+		float vs = 1.0f/(Constants.WORLD_SIZE_Y);
 		
 		float da = (float)(Math.PI*2.0/6.0);
 		for (int i = 0; i < 6; ++i) {
@@ -621,15 +628,16 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		float z0 = -Constants.WORLD_SIZE_Y/2.0f;
 		
 		float xScale = (float)(Math.sqrt(3)*0.5);
+		float zScale = 1.5f;
 		for (int x = 0; x < Constants.WORLD_SIZE_X/2; ++x) {
 			for (int z = 0; z < Constants.WORLD_SIZE_Y/2; ++z) {
 				float xPosOffset = (Math.abs(z)%2 == 1) ? xScale : 0.0f;
 				float xTexOffset = (Math.abs(z)%2 == 1) ? du*0.5f : 0.0f;
 				builder.addInstance(
 						x0 + x*2*xScale + xPosOffset,
-						z0 + z*1.5f,
-						0.5f*du+du*x + xTexOffset,
-						0.5f*dv+dv*z);
+						z0 + z*zScale,
+						0.5f*du + du*x + xTexOffset,
+						0.5f*dv + dv*z);
 			}
 		}
 		
