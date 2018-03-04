@@ -27,6 +27,8 @@ public class Texture
 		glBindTexture(GL_TEXTURE_2D, mTextureId); GpuUtils.GpuErrorCheck();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); GpuUtils.GpuErrorCheck();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); GpuUtils.GpuErrorCheck();
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); GpuUtils.GpuErrorCheck();
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); GpuUtils.GpuErrorCheck();
 	}
 	
 	public void generateMipMaps() {
@@ -34,6 +36,12 @@ public class Texture
 		glGenerateMipmap(GL_TEXTURE_2D); GpuUtils.GpuErrorCheck();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST); GpuUtils.GpuErrorCheck();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); GpuUtils.GpuErrorCheck();
+	}
+	
+	public void filterNearest() {
+		glBindTexture(GL_TEXTURE_2D, mTextureId); GpuUtils.GpuErrorCheck();
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); GpuUtils.GpuErrorCheck();
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); GpuUtils.GpuErrorCheck();
 	}
 	
 	public int id() {
@@ -85,6 +93,7 @@ public class Texture
 	}
 	
 	public void load(int pWidth, int pHeight, FloatBuffer pPixels) {
+		bind(0);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, pWidth, pHeight, 0, GL_RGBA, GL_FLOAT, pPixels); GpuUtils.GpuErrorCheck();
 	}
 

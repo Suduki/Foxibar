@@ -29,7 +29,7 @@ public class LegacyRenderer implements gui.SceneRegionRenderer {
 	static int width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
 	static int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
 	private static Mouse mouse = new input.Mouse();
-	public static float[][] terrainColor;
+	public static float[][] terrainColor = new float[Constants.WORLD_SIZE][3];
 	private Simulation mSimulation;
 	private DisplayHandler mDisplayHandler;
 	private boolean mSimulationPaused = false;
@@ -44,7 +44,7 @@ public class LegacyRenderer implements gui.SceneRegionRenderer {
 	public LegacyRenderer(DisplayHandler pDisplayHandler, Simulation pSimulation) {
 		mDisplayHandler = pDisplayHandler;
 		mSimulation = pSimulation;
-		terrainColor = new float[Constants.WORLD_SIZE][3];
+		//terrainColor = new float[Constants.WORLD_SIZE][3];
 		loadResources();
 	}
 	

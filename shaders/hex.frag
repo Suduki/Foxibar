@@ -36,10 +36,11 @@ void main()
 	float h = stoneHeight*normalizingFactor;
 	
 	vec4 stoneColor = texture(strataTexture, vec2(0,h));	
-	vec4 detailColor = vec4(1,1,1,1);//calculateDetailSample(detailTexture, vsTexCoord, 6);	
+	//vec4 detailColor = calculateDetailSample(detailTexture, vsTexCoord, 6);
+	vec4 detailColor = texture(detailTexture, vsTexCoord);	
 	
 	vec3 ldir = normalize(vec3(2,3,-1));
-	float shade = 0.2 + dot(ldir, vsNormal); 	
-	//float shade = dot(normalize(vsNormal), normalize(vec3(1,2,0)));
-	fragmentColor = stoneColor * detailColor * shade;
+	float shade = 0.5 + max(0.0, dot(ldir, vsNormal));
+	fragmentColor = detailColor*shade;//stoneColor * detailColor * shade;
+	//fragmentColor = texture(detailTexture, vsTexCoord);
 }

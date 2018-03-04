@@ -10,6 +10,8 @@ import java.nio.FloatBuffer;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
+
+import agents.Animal;
 import constants.Constants;
 import gpu.VAO;
 import gpu.FBO;
@@ -33,6 +35,8 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private Texture             mStrataTexture    = null;
 	private Texture             mDetailTexture    = null;
 	private Texture             mWaterTexture     = null;
+	private Texture             mTestTexture      = null;
+	private Texture             mColorTexture     = null;
 	private TextureCube         mSkyboxTexture    = null;
 	private VBO                 mPositionVbo      = null;
 	private VBO                 mTexCoordVbo      = null;
@@ -47,10 +51,12 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private VAO     mHexBufferSet      = null;
 	private VBO     mHexVertexVbo      = null;
 	private VBO     mHexNormalVbo      = null;
+	private VBO     mHexTexCoordVbo    = null;
 	private VBO     mHexInstanceVbo    = null;
 	private VBO     mHexIndexVbo       = null;
 	private int     mHexVertexCount    = 0;
 	private int     mHexInstanceCount  = 0;
+	private float   mHexFlatness       = 0.0f;
 	
 	
 	// Simulation.
@@ -78,13 +84,17 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		initVisualisationShaderPrograms();
 		initVisualisationTextures();
 		
-		mHeightScale = (float)(0.25*Math.sqrt(Constants.WORLD_SIZE));
+		mHeightScale = 0.25f*(float)(0.25*Math.sqrt(Constants.WORLD_SIZE));
 		initSimulationShaderPrograms();
 		initSimulationTextures();
 	}
 	
 	public void setIterationsPerFrame(int pIterations) {
 		mIterationsPerFrame = pIterations;
+	}
+	
+	public void setFlatness(float pFlatness) {
+		mHexFlatness = Math.max(0.001f, Math.min(1.0f, 1.0f-pFlatness));
 	}
 	
 	@Override
@@ -148,7 +158,11 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private void initVisualisationTextures() {
 		mStrataTexture = Texture.fromFile("pics/strata.png");
 		mDetailTexture = Texture.fromFile("pics/detail.png");
+		//mDetailTexture.filterNearest();
 		mWaterTexture  = Texture.fromFile("pics/water.png");
+		//mTestTexture   = Texture.fromFile("pics/checkers256.png");
+		mTestTexture   = Texture.fromFile("pics/GuiDefault.png");
+		mTestTexture.filterNearest();
 		mSkyboxTexture = new TextureCube();
 		mSkyboxTexture.loadFacesFromFile(
 				"pics/skybox/right.png",
@@ -157,6 +171,37 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 				"pics/skybox/bottom.png",
 				"pics/skybox/front.png",
 				"pics/skybox/back.png");
+	}
+	
+	void updateColorTexture() {
+		FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);
+		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
+			World.updateColor(LegacyRenderer.terrainColor, i);
+			
+			if (i == 0) {
+				colorBuffer.put(i*4+0, 0);
+				colorBuffer.put(i*4+1, 0);
+				colorBuffer.put(i*4+2, 0);
+			}
+			else if (i == 1) {
+				colorBuffer.put(i*4+0, 1);
+				colorBuffer.put(i*4+1, 0);
+				colorBuffer.put(i*4+2, 0);
+			}
+			else {
+				colorBuffer.put(i*4+0, LegacyRenderer.terrainColor[i][0]);
+				colorBuffer.put(i*4+1, LegacyRenderer.terrainColor[i][1]);
+				colorBuffer.put(i*4+2, LegacyRenderer.terrainColor[i][2]);
+			}
+		}
+		
+		if (mColorTexture == null) {
+			mColorTexture = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, colorBuffer);
+			mColorTexture.filterNearest();
+		}
+		else {
+			mColorTexture.load(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, colorBuffer);
+		}
 	}	
 	
 	void drawTerrain(Matrix4f translationMatrix) {
@@ -203,8 +248,50 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		Program.unbind();
 	}
 	
+	
+	void drawAnimals() {
+		int i = 0;
+		glLineWidth(3);
+		glBegin(GL_LINES);
+		glColor3f(0,0,0);
+		for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
+			for (int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
+				// RENDER ANIMAL
+				int id  = Animal.containsAnimals[i];
+				if (id != -1) {
+					float x0 = -Constants.WORLD_SIZE_X/2.0f;
+					float z0 = -Constants.WORLD_SIZE_Y/2.0f;
+					float xScale = (float)(Math.sqrt(3)*0.5);
+					float zScale = 0.75f;
+					float xPosOffset = (Math.abs(z)%2 == 1) ? xScale : 0.0f;
+					float xpos = x0 + x*xScale + xPosOffset;
+					float zpos = z0 + z*zScale;
+					
+					renderAnimalAt(id, xpos, zpos);
+
+				}
+				
+				++i;
+			}
+		}
+		glEnd();
+		glLineWidth(1);
+	}
+	
+	void renderAnimalAt(int id, float x, float z) {
+		Animal animal = Animal.pool[id];
+		float[] c = animal.secondaryColor;
+		float h = (float)Math.pow(World.terrain.height[animal.pos], 1.5);
+		h *= mHeightScale;
+		glColor3f(c[0],c[1],c[2]);
+		glVertex3f(x,h,z);
+		glVertex3f(x,h+1,z);
+	}
+	
 	void drawHexTerrain(Matrix4f translationMatrix) {
 		float[] matrixBuffer = new float[16];
+		
+		updateColorTexture();
 		
 		glClearColor(0.0f,0.5f,1.0f,1); GpuUtils.GpuErrorCheck();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GpuUtils.GpuErrorCheck();
@@ -215,10 +302,13 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		glDepthFunc(GL_LEQUAL);
 		mHexTerrainProgram.bind();
 		glUniform1f(3, 1.0f/mHeightScale);
+		glUniform1f(4, mHexFlatness);
 		
 		mHeightTexture[mSrcIndex].bind(0);
 		mStrataTexture.bind(1);
-		mDetailTexture.bind(2);
+		//mDetailTexture.bind(2);
+		//mTestTexture.bind(2);
+		mColorTexture.bind(2);
 		
 		glUniformMatrix4fv(0, false, mCamera.getProjectionMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
 		glUniformMatrix4fv(1, false, new Matrix4f(mCamera.getViewMatrix()).mul(translationMatrix).get(matrixBuffer)); GpuUtils.GpuErrorCheck();		
@@ -242,19 +332,48 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		}
 		mCamera.setAspectRatio(pViewportWidth/(float)pViewportHeight);
 		mCameraController.update();
-		
-		
+
 		Matrix4f m;
-		
-		
 		m = new Matrix4f();
 		drawHexTerrain(m.translate(17, 0, 33));
-		
+
 		m = new Matrix4f();
 		float q = 0.75f;
 		float p = (float)(Math.sqrt(3)/2.0);
 		drawTerrain(m.scale(p, 1, q));
 		glUseProgram(0);
+
+		float[] matrixBuffer = new float[16];
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadMatrixf(mCamera.getProjectionMatrix().get(matrixBuffer));
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		m = new Matrix4f();
+		glLoadMatrixf(new Matrix4f(mCamera.getViewMatrix()).mul(m.translate(17, 0, 33)).get(matrixBuffer)); GpuUtils.GpuErrorCheck();
+		//glLoadMatrixf(mCamera.getViewMatrix().get(matrixBuffer));
+		glBegin(GL_LINES);
+		
+		glColor3f(1,0,0);
+		glVertex3f(0,1,0);
+		glVertex3f(10,1,0);
+		
+		glColor3f(0,1,0);
+		glVertex3f(0,1,0);
+		glVertex3f(0,11,0);
+		
+		glColor3f(0,0,1);
+		glVertex3f(0,1,0);
+		glVertex3f(0,1,10);
+		
+		glEnd();
+		
+		drawAnimals();
+		
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
 	}
 
 	public void simulate() {
@@ -389,32 +508,37 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	}
 	
 	// Bonus hex terrain :)
-	private void buildHexBuffers() {
+	public void buildHexBuffers() {
+		
 		class VertexBuilder {
 			public float[] mPositionData;
 			public float[] mNormalData;
+			public float[] mTexCoordData;
 			public float[] mInstanceData;
 			public int mIndex;
 			public int mInstanceIndex;
 			
 			VertexBuilder(int pNumVertices, int pNumInstances) {
 				mPositionData = new float[pNumVertices*3];
-				mNormalData = new float[pNumVertices*3];
+				mNormalData   = new float[pNumVertices*3];
+				mTexCoordData = new float[pNumVertices*2];
 				mInstanceData = new float[pNumInstances*4];
 				mIndex = 0;
 				mInstanceIndex = 0;
 			}
 			
-			public void addVertex(float px, float py, float pz, float nx, float ny, float nz) {
-				mPositionData[mIndex+0] = px;
-				mPositionData[mIndex+1] = py;
-				mPositionData[mIndex+2] = pz;
+			public void addVertex(float px, float py, float pz, float nx, float ny, float nz, float u, float v) {
+				mPositionData[3*mIndex+0] = px;
+				mPositionData[3*mIndex+1] = py;
+				mPositionData[3*mIndex+2] = pz;
 				
-				mNormalData[mIndex+0] = nx;
-				mNormalData[mIndex+1] = ny;
-				mNormalData[mIndex+2] = nz;
+				mNormalData[3*mIndex+0] = nx;
+				mNormalData[3*mIndex+1] = ny;
+				mNormalData[3*mIndex+2] = nz;
 				
-				mIndex += 3;
+				mTexCoordData[2*mIndex+0] = u;
+				mTexCoordData[2*mIndex+1] = v;
+				++mIndex;
 			}
 			
 			public void addInstance(float pPosX, float pPosZ, float pTexU, float pTexV) {
@@ -426,11 +550,11 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 			}
 			
 			public int getNumVertices() {
-				return mIndex/3;
+				return mIndex;
 			}
 			
 			public int getNumInstances() {
-				return mInstanceIndex/3;
+				return mInstanceIndex/4;
 			}
 			
 			VBO buildPositionVBO() {
@@ -444,9 +568,25 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 			VBO buildInstanceVBO() {
 				return VBO.createVertexBuffer(mInstanceData);
 			}
+			
+			VBO buildTexCoordVBO() {
+				return VBO.createVertexBuffer(mTexCoordData);
+			}
 		}
 		
 		VertexBuilder builder = new VertexBuilder(3*3*6, (Constants.WORLD_SIZE_X/2)*(Constants.WORLD_SIZE_Y/2));
+		
+		float tc[][] = {
+				{0,0},{ 0, 1},{ 1, 1}, 
+				{0,0},{-1, 1},{ 0, 1},
+				{0,0},{-1,-1},{-1, 1},
+				{0,0},{ 0,-1},{-1,-1},
+				{0,0},{ 1,-1},{ 0,-1},
+				{0,0},{ 1, 1},{ 1,-1}
+		};
+		
+		float us = 1.0f/(Constants.WORLD_SIZE_X*1.0f);
+		float vs = 1.0f/(Constants.WORLD_SIZE_Y*1.0f);
 		
 		float da = (float)(Math.PI*2.0/6.0);
 		for (int i = 0; i < 6; ++i) {
@@ -461,17 +601,17 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 			float xn = (float)Math.cos(an);
 			float zn = (float)Math.sin(an);
 		
-			builder.addVertex( 0, 1,  0, 0, 1, 0);
-			builder.addVertex(x1, 1, z1, 0, 1, 0);
-			builder.addVertex(x0, 1, z0, 0, 1, 0);
+			builder.addVertex( 0, 1,  0, 0, 1, 0, us*tc[i*3+0][0], vs*tc[i*3+0][1]);
+			builder.addVertex(x1, 1, z1, 0, 1, 0, us*tc[i*3+1][0], vs*tc[i*3+1][1]);
+			builder.addVertex(x0, 1, z0, 0, 1, 0, us*tc[i*3+2][0], vs*tc[i*3+2][1]);
 			
-			builder.addVertex(x1, 1, z1, xn, 0, zn);
-			builder.addVertex(x0, 0, z0, xn, 0, zn);
-			builder.addVertex(x0, 1, z0, xn, 0, zn);
+			builder.addVertex(x1, 1, z1, xn, 0, zn, us*tc[i*3+1][0], vs*tc[i*3+1][1]);
+			builder.addVertex(x0, 0, z0, xn, 0, zn, us*tc[i*3+2][0], vs*tc[i*3+2][1]);
+			builder.addVertex(x0, 1, z0, xn, 0, zn, us*tc[i*3+2][0], vs*tc[i*3+2][1]);
 			
-			builder.addVertex(x0, 0, z0, xn, 0, zn);
-			builder.addVertex(x1, 1, z1, xn, 0, zn);
-			builder.addVertex(x1, 0, z1, xn, 0, zn);
+			builder.addVertex(x0, 0, z0, xn, 0, zn, us*tc[i*3+2][0], vs*tc[i*3+2][1]);
+			builder.addVertex(x1, 1, z1, xn, 0, zn, us*tc[i*3+1][0], vs*tc[i*3+1][1]);
+			builder.addVertex(x1, 0, z1, xn, 0, zn, us*tc[i*3+1][0], vs*tc[i*3+1][1]);
 		}
 		
 		float du = 2.0f/Constants.WORLD_SIZE_X;
@@ -480,26 +620,31 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		float x0 = -Constants.WORLD_SIZE_X/2.0f;
 		float z0 = -Constants.WORLD_SIZE_Y/2.0f;
 		
-		
 		float xScale = (float)(Math.sqrt(3)*0.5);
 		for (int x = 0; x < Constants.WORLD_SIZE_X/2; ++x) {
 			for (int z = 0; z < Constants.WORLD_SIZE_Y/2; ++z) {
-				float xOffset = (Math.abs(z)%2 == 1) ? xScale : 0;
-				builder.addInstance(x0 + x*2*xScale + xOffset, z0 + z*1.5f, du*z, dv*x);
+				float xPosOffset = (Math.abs(z)%2 == 1) ? xScale : 0.0f;
+				float xTexOffset = (Math.abs(z)%2 == 1) ? du*0.5f : 0.0f;
+				builder.addInstance(
+						x0 + x*2*xScale + xPosOffset,
+						z0 + z*1.5f,
+						0.5f*du+du*x + xTexOffset,
+						0.5f*dv+dv*z);
 			}
 		}
 		
 		mHexVertexVbo = builder.buildPositionVBO();
 		mHexNormalVbo = builder.buildNormalVBO();
+		mHexTexCoordVbo = builder.buildTexCoordVBO();
 		mHexInstanceVbo = builder.buildInstanceVBO();
 		mHexBufferSet = new VAO();
-		mHexBufferSet.setVbo(0, mHexVertexVbo, 3, 0); // TODO: 3 components, get from builder.
-		mHexBufferSet.setVbo(1, mHexNormalVbo, 3, 0); // TODO: 3 components, get from builder.
-		mHexBufferSet.setVbo(2, mHexInstanceVbo, 4, 1); // TODO: 4 components, get from builder.
+		mHexBufferSet.setVbo(0, mHexVertexVbo,   3, 0); // TODO: 3 components, get from builder.
+		mHexBufferSet.setVbo(1, mHexNormalVbo,   3, 0); // TODO: 3 components, get from builder.
+		mHexBufferSet.setVbo(2, mHexTexCoordVbo, 2, 0); // TODO: 2 components, get from builder.
+		mHexBufferSet.setVbo(3, mHexInstanceVbo, 4, 1); // TODO: 4 components, get from builder.
 		
 		mHexVertexCount   = builder.getNumVertices();
-		mHexInstanceCount = builder.getNumInstances(); 
-		
+		mHexInstanceCount = builder.getNumInstances();		
 	}
 	
 	private void initSimulationTextures() {
@@ -511,7 +656,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 			heightBuffer.put(i*4+1, 0);
 			heightBuffer.put(i*4+2, 0);
 		}
-		
+
 		mHeightTexture[0] = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
 		mHeightTexture[1] = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
 		
