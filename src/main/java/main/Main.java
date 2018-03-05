@@ -3,20 +3,10 @@ package main;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
-
 import agents.Animal;
 import agents.NeuralNetwork;
 import agents.NeuralFactors;
 import constants.Constants;
-import dataPlotting.XYPlotThingVersusTime2;
 import display.DisplayHandler;
 import display.RenderState;
 import messages.LoadBrains;
@@ -27,17 +17,8 @@ import utils.FPSLimiter;
 public class Main
 {
 	public final static int plottingNumber = 50;
-	public static boolean plotStuff = true;
-	public static boolean plotStuff2 = false;
 	public static void main(String[] args)
 	{
-		
-		if (plotStuff) {
-//			XYPlotThingVersusTime.plotStuff();
-		}
-		if (plotStuff2) {
-			//XYPlotThingVersusTime2.plotStuff();
-		}
 		
 		Simulation     simulation     = new Simulation();
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
@@ -70,13 +51,7 @@ public class Main
 					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
 				}
 				
-				if (plotStuff2) {
-					XYPlotThingVersusTime2.myInstance.step();
-				}
 				if (timeStep % plottingNumber == 0) {
-					if (plotStuff) {
-					//	XYPlotThingVersusTime.myInstance.step();
-					}
 					
 					try {
 						if (SaveBrains.goodTimeToSave(Constants.SpeciesId.BLOODLING)) {
