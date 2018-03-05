@@ -29,6 +29,7 @@
 		<!-- Dependencies -->
 		<lwjgl.version>3.1.5</lwjgl.version>
 		<joml.version>1.9.8</joml.version>
+		<junit.version>4.12</junit.version>
 	</properties>
 
 	<dependencies>
@@ -77,12 +78,19 @@
 			<version>${lwjgl.version}</version>
 			<classifier>${lwjgl.natives}</classifier>
 		</dependency>
-           <!-- joml -->
-        <dependency>
-            <groupId>org.joml</groupId>
-            <artifactId>joml</artifactId>
-            <version>${joml.version}</version>
-        </dependency>
+		<!-- joml -->
+		<dependency>
+			<groupId>org.joml</groupId>
+			<artifactId>joml</artifactId>
+			<version>${joml.version}</version>
+		</dependency>
+		<!-- junit -->
+		<dependency>
+			<groupId>junit</groupId>
+    		<artifactId>junit</artifactId>
+    		<version>${junit.version}</version>
+    		<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<profiles>
