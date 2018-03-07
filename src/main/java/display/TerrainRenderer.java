@@ -295,7 +295,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		float xWind = 1f-2*World.terrain.getWindX(pos);
 		float zWind = 1f-2*World.terrain.getWindZ(pos);
 		
-		int numSplits = 2;
+		int numSplits = 4;
 		float X = 0;
 		float Y = 0;
 		float Z = 0;
