@@ -10,6 +10,9 @@ public class Terrain {
 	public float[] height;
 	public float[] growth;
 	
+	public float[] windX;
+	public float[] windZ;
+	
 	public boolean grass[];
 	public boolean water[];
 	public boolean stone[];
@@ -17,6 +20,9 @@ public class Terrain {
 	public Terrain() {
 		height = new float[Constants.WORLD_SIZE];
 		growth = new float[Constants.WORLD_SIZE];
+		
+		windX = new float[Constants.WORLD_SIZE];
+		windZ = new float[Constants.WORLD_SIZE];
 		
 		grass = new boolean[Constants.WORLD_SIZE];
 		water = new boolean[Constants.WORLD_SIZE];
@@ -72,6 +78,24 @@ public class Terrain {
 		for(int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
 			for(int y = 0; y < Constants.WORLD_SIZE_Y; ++y, ++i) {
 				growth[i] = (float) noise[x][y];
+			}
+		}
+		
+		noise = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y);
+		analyzeNoise(noise);
+		i = 0;
+		for(int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
+			for(int y = 0; y < Constants.WORLD_SIZE_Y; ++y, ++i) {
+				windX[i] = (float) noise[x][y];
+			}
+		}
+		
+		noise = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y);
+		analyzeNoise(noise);
+		i = 0;
+		for(int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
+			for(int y = 0; y < Constants.WORLD_SIZE_Y; ++y, ++i) {
+				windZ[i] = (float) noise[x][y];
 			}
 		}
 	}

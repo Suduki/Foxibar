@@ -198,7 +198,7 @@ public class Animal {
 	}
 	
 // ************ INSTANCE STUFF ************
-	private Animal() {
+	public Animal() {
 		this.isAlive = false;
 		this.secondaryColor = new float[3];
 		this.primaryColor = new float[3];
@@ -243,7 +243,7 @@ public class Animal {
 		containsAnimals[pos] = id;
 	}
 	
-	private boolean age() {
+	protected boolean age() {
 		age++;
 		score++;
 		
