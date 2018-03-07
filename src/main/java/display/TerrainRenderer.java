@@ -249,26 +249,6 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		Program.unbind();
 	}
 
-	private Vector3f windXOffset = new Vector3f(0,0,0);
-	private Vector3f windZOffset = new Vector3f(0,0,0);
-	private Vector3f windXAcceleration = new Vector3f(0,0,0);
-	private Vector3f windYAcceleration = new Vector3f(0,0,0);
-	private void stepWind() {
-		float damping = 0.4f;
-		float windSpeed = 0.05f;
-		windXAcceleration.x += rand()*windSpeed - windXAcceleration.x*damping;
-		windXAcceleration.y += rand()*windSpeed - windXAcceleration.y*damping;
-		
-		windYAcceleration.x += rand()*windSpeed - windYAcceleration.x*damping;
-		windYAcceleration.y += rand()*windSpeed - windYAcceleration.y*damping;
-		
-		windXOffset.add(windXAcceleration);
-		windZOffset.add(windYAcceleration);
-		
-	}
-	private float rand() {
-		return 2 * Constants.RANDOM.nextFloat() - 1f;
-	}
 	void drawGrass() {
 		int i = 0;
 		float x0 = -Constants.WORLD_SIZE_X/2.0f;
@@ -311,17 +291,35 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		float[] c = Constants.Colors.GRASS_STRAW;
 		float y = (float)Math.pow(World.terrain.height[pos], 1.5);
 		y *= mHeightScale;
-		glColor4f(c[0],c[1],c[2], 0.7f);
-		glVertex3f(x,y,z);
-		float xWind = World.terrain.windX[wrap(pos + windXOffset.y * Constants.WORLD_SIZE_X + windXOffset.x,Constants.WORLD_SIZE)];
-		float zWind = World.terrain.windZ[wrap(pos + windZOffset.y * Constants.WORLD_SIZE_X + windZOffset.x,Constants.WORLD_SIZE)];
-		glVertex3f(x + 1f-2f*xWind,y + height,z + 1f-2f*zWind);
+		glColor4f(c[0],c[1],c[2], 0.9f);
+		float xWind = 1f-2*World.terrain.getWindX(pos);
+		float zWind = 1f-2*World.terrain.getWindZ(pos);
+		
+		int numSplits = 2;
+		float X = 0;
+		float Y = 0;
+		float Z = 0;
+		for (int i = 0; i < numSplits; ++i) {
+			glVertex3f(x + X,y + Y,z + Z);
+			float dX = World.terrain.getWindDeltaAtY(xWind, Y);
+			float dZ = World.terrain.getWindDeltaAtY(zWind, Y);
+			if (dX * dX + dZ * dZ > height/numSplits*height/numSplits) {
+				// Completely horizontal line
+				Y += 0;
+				float factor = (float) Math.sqrt(dX*dX + dZ*dZ) * numSplits / height;
+				X += dX/factor;
+				Z += dZ/factor;
+			}
+			else {
+				X += dX;
+				Z += dZ;
+				Y += (float) Math.sqrt((height/numSplits)*(height/numSplits) - dX*dX - dZ*dZ);
+			}
+			glVertex3f(x + X,y + Y,z + Z);
+		}
+		
 	}
 	
-	private int wrap(float val, int max) {
-		
-		return  ((((int)val % max) + max) % max);
-	}
 
 	void drawAnimals() {
 		int i = 0;
@@ -435,7 +433,6 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		glLoadMatrixf(new Matrix4f(mCamera.getViewMatrix()).mul(m.translate(17, 0, 33)).get(matrixBuffer)); GpuUtils.GpuErrorCheck();
 		
 		drawAnimals();
-		stepWind();
 		drawGrass();
 		
 		glMatrixMode(GL_PROJECTION);

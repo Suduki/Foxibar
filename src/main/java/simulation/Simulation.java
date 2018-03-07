@@ -33,6 +33,7 @@ public class Simulation extends MessageHandler {
 		{
 			mWorld.update(timeStep);
 			Animal.moveAll();
+			mWorld.terrain.stepWind();
 		}
 	}
 	

@@ -1,5 +1,7 @@
 package world;
 
+import org.joml.Vector3f;
+
 import noise.Noise;
 import constants.Constants;
 import display.RenderState;
@@ -10,8 +12,8 @@ public class Terrain {
 	public float[] height;
 	public float[] growth;
 	
-	public float[] windX;
-	public float[] windZ;
+	public float[] windX; //TODO: Only used by rendering. Move!
+	public float[] windZ; //TODO: Only used by rendering. Move!
 	
 	public boolean grass[];
 	public boolean water[];
@@ -100,6 +102,7 @@ public class Terrain {
 		}
 	}
 	
+	
 	private void analyzeNoise(double[][] noise) {
 		double lowest, highest, avg = 0;
 		lowest = noise[0][0];
@@ -118,6 +121,42 @@ public class Terrain {
 		avg /= noise.length*noise[0].length;
 		
 		System.out.println("low = " + lowest + ", highest = " + highest + ", avg = " + avg);
+	}
+	
+	private Vector3f windXOffset = new Vector3f(0,0,0);
+	private Vector3f windZOffset = new Vector3f(0,0,0);
+	private Vector3f windXSpeed = new Vector3f(0,0,0);
+	private Vector3f windZSpeed = new Vector3f(0,0,0);
+	public void stepWind() {
+		float damping = 0.01f;
+		float windAcceleration = 0.01f;
+		windXSpeed.x += rand()*windAcceleration - windXSpeed.x*damping;
+		windXSpeed.y += rand()*windAcceleration - windXSpeed.y*damping;
+		
+		windZSpeed.x += rand()*windAcceleration - windZSpeed.x*damping;
+		windZSpeed.y += rand()*windAcceleration - windZSpeed.y*damping;
+		
+		windXOffset.add(windXSpeed);
+		windZOffset.add(windZSpeed);
+	}
+	private float rand() {
+		return 2 * Constants.RANDOM.nextFloat() - 1f;
+	}
+
+	public float getWindX(int pos) {
+		return windX[wrap(pos + windXOffset.y * Constants.WORLD_SIZE_X + windXOffset.x,Constants.WORLD_SIZE)];
+	}
+	public float getWindZ(int pos) {
+		return windZ[wrap(pos + windZOffset.y * Constants.WORLD_SIZE_X + windZOffset.x,Constants.WORLD_SIZE)];
+	}
+	
+	public float getWindDeltaAtY(float windAtPos, float y) {
+		return windAtPos * (y+0.4f) * 0.3f;
+	}
+	
+	private int wrap(float val, int max) {
+		
+		return  ((((int)val % max) + max) % max);
 	}
 	
 }
