@@ -247,8 +247,54 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		
 		Program.unbind();
 	}
+
+	void drawGrass() {
+		int i = 0;
+		float x0 = -Constants.WORLD_SIZE_X/2.0f;
+		float z0 = -Constants.WORLD_SIZE_Y/2.0f;
+		
+		float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
+		float zNudge = 3.0f/9.0f;
+		
+		glLineWidth(10);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_LINES);
+		glColor3f(0,0,0);
+		for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
+			for (int x = 0; x < Constants.WORLD_SIZE_X; x+=1) {
+				float height  = World.grass.height[i];
+				if (height > 0.3f) {
+					float xScale = (float)(Math.sqrt(3)*0.5);
+					float zScale = 1.5f;
+										
+					int hexX = x/2;
+					int hexZ = z/2; 
+					
+					float xPosOffset = (hexZ%2 == 1) ? xScale : 0.0f;
+					
+					float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
+					float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
+					
+					renderGrassAt(height*2, xpos, zpos, i);
+				}
+				++i;
+			}
+		}
+		glEnd();
+		glLineWidth(1);
+	}
 	
 	
+	private void renderGrassAt(float height, float x, float z, int pos) {
+		float[] c = Constants.Colors.GRASS_STRAW;
+		float y = (float)Math.pow(World.terrain.height[pos], 1.5);
+		y *= mHeightScale;
+		glColor4f(c[0],c[1],c[2], 0.5f);
+		glVertex3f(x,y,z);
+		glVertex3f(x,y + height,z);
+	}
+
 	void drawAnimals() {
 		int i = 0;
 		float x0 = -Constants.WORLD_SIZE_X/2.0f;
@@ -359,23 +405,9 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		glPushMatrix();
 		m = new Matrix4f();
 		glLoadMatrixf(new Matrix4f(mCamera.getViewMatrix()).mul(m.translate(17, 0, 33)).get(matrixBuffer)); GpuUtils.GpuErrorCheck();
-		glBegin(GL_LINES);
-		
-		glColor3f(1,0,0);
-		glVertex3f(0,1,0);
-		glVertex3f(10,1,0);
-		
-		glColor3f(0,1,0);
-		glVertex3f(0,1,0);
-		glVertex3f(0,11,0);
-		
-		glColor3f(0,0,1);
-		glVertex3f(0,1,0);
-		glVertex3f(0,1,10);
-		
-		glEnd();
 		
 		drawAnimals();
+		drawGrass();
 		
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
