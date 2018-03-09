@@ -129,7 +129,7 @@ public class Terrain {
 	private Vector3f windZSpeed = new Vector3f(0,0,0);
 	public void stepWind() {
 		float damping = 0.01f;
-		float windAcceleration = 0.001f;
+		float windAcceleration = 0.002f;
 		windXSpeed.x += rand()*windAcceleration - windXSpeed.x*damping;
 		windXSpeed.y += rand()*windAcceleration - windXSpeed.y*damping;
 		

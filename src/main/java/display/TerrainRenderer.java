@@ -257,7 +257,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
 		float zNudge = 3.0f/9.0f;
 		
-		glLineWidth(6);
+		glLineWidth(4);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_LINES);
@@ -293,17 +293,17 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		float xWind = 1f-2*World.terrain.getWindX(pos);
 		float zWind = 1f-2*World.terrain.getWindZ(pos);
 		
-		int numSplits = 4;
-		numSplits = (int) Math.ceil(height*numSplits);
+		int numSplits = 10;
+		numSplits = (int) Math.ceil(numSplits/height);
 		Vector3f drawPos = new Vector3f();
 		Vector3f force = new Vector3f();
 		for (int i = 0; i < numSplits; ++i) {
-			float colorGrad = 1f - 0.3f*((float)i)/numSplits;
-			glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, colorGrad);
+			float colorGrad = 0.5f + 0.5f*((float)i)/numSplits;
+			glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - 0.2f*colorGrad);
 			glVertex3f(x + drawPos.x,y + drawPos.y,z + drawPos.z);
 			force.x = World.terrain.getWindForceAtY(xWind, drawPos.y);
 			force.z = World.terrain.getWindForceAtY(zWind, drawPos.y);
-			force.y = 2; // Stiffness, force towards middle TODO: Make a force normal from ground
+			force.y = 1.5f; // Stiffness, force towards middle TODO: Make a force normal from ground
 			float factor = height / force.length() / numSplits;
 			force.mul(factor);
 			drawPos.add(force);
