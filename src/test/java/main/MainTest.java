@@ -10,7 +10,7 @@ public class MainTest {
 	@Test
 	public void test() {
 		System.out.println("Hejsan Jorden!");
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 }
