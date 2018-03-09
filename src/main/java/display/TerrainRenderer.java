@@ -257,11 +257,10 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
 		float zNudge = 3.0f/9.0f;
 		
-		glLineWidth(10);
+		glLineWidth(6);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_LINES);
-		glColor3f(0,0,0);
 		for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
 			for (int x = 0; x < Constants.WORLD_SIZE_X; x+=1) {
 				float height  = World.grass.height[i];
@@ -277,7 +276,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 					float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
 					float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
 					
-					renderGrassAt(height*2, xpos, zpos, i);
+					renderGrassAt(height*5, xpos, zpos, i);
 				}
 				++i;
 			}
@@ -291,31 +290,24 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		float[] c = Constants.Colors.GRASS_STRAW;
 		float y = (float)Math.pow(World.terrain.height[pos], 1.5);
 		y *= mHeightScale;
-		glColor4f(c[0],c[1],c[2], 0.9f);
 		float xWind = 1f-2*World.terrain.getWindX(pos);
 		float zWind = 1f-2*World.terrain.getWindZ(pos);
 		
 		int numSplits = 4;
-		float X = 0;
-		float Y = 0;
-		float Z = 0;
+		numSplits = (int) Math.ceil(height*numSplits);
+		Vector3f drawPos = new Vector3f();
+		Vector3f force = new Vector3f();
 		for (int i = 0; i < numSplits; ++i) {
-			glVertex3f(x + X,y + Y,z + Z);
-			float dX = World.terrain.getWindDeltaAtY(xWind, Y);
-			float dZ = World.terrain.getWindDeltaAtY(zWind, Y);
-			if (dX * dX + dZ * dZ > height/numSplits*height/numSplits) {
-				// Completely horizontal line
-				Y += 0;
-				float factor = (float) Math.sqrt(dX*dX + dZ*dZ) * numSplits / height;
-				X += dX/factor;
-				Z += dZ/factor;
-			}
-			else {
-				X += dX;
-				Z += dZ;
-				Y += (float) Math.sqrt((height/numSplits)*(height/numSplits) - dX*dX - dZ*dZ);
-			}
-			glVertex3f(x + X,y + Y,z + Z);
+			float colorGrad = 1f - 0.3f*((float)i)/numSplits;
+			glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, colorGrad);
+			glVertex3f(x + drawPos.x,y + drawPos.y,z + drawPos.z);
+			force.x = World.terrain.getWindForceAtY(xWind, drawPos.y);
+			force.z = World.terrain.getWindForceAtY(zWind, drawPos.y);
+			force.y = 2; // Stiffness, force towards middle TODO: Make a force normal from ground
+			float factor = height / force.length() / numSplits;
+			force.mul(factor);
+			drawPos.add(force);
+			glVertex3f(x + drawPos.x,y + drawPos.y,z + drawPos.z);
 		}
 		
 	}

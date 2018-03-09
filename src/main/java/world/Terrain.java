@@ -129,7 +129,7 @@ public class Terrain {
 	private Vector3f windZSpeed = new Vector3f(0,0,0);
 	public void stepWind() {
 		float damping = 0.01f;
-		float windAcceleration = 0.01f;
+		float windAcceleration = 0.001f;
 		windXSpeed.x += rand()*windAcceleration - windXSpeed.x*damping;
 		windXSpeed.y += rand()*windAcceleration - windXSpeed.y*damping;
 		
@@ -150,8 +150,8 @@ public class Terrain {
 		return windZ[wrap(pos + windZOffset.y * Constants.WORLD_SIZE_X + windZOffset.x,Constants.WORLD_SIZE)];
 	}
 	
-	public float getWindDeltaAtY(float windAtPos, float y) {
-		return windAtPos * (y+0.4f) * 0.3f;
+	public float getWindForceAtY(float windAtPos, float y) {
+		return windAtPos*windAtPos * (y+0.4f);
 	}
 	
 	private int wrap(float val, int max) {
