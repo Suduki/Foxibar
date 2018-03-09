@@ -9,7 +9,7 @@ import static constants.Constants.*;
 
 public class AnimalTest extends agents.Animal {
 
-	@Test
+	//@Test
 	public void ageTest() {
 		AnimalTest a = new AnimalTest();
 		a.species = Constants.Species.BLOODLING;
