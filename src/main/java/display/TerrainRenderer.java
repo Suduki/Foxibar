@@ -46,6 +46,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private int                 mNumIndices       = 0;
 	private Program             mTerrainProgram   = null;
 	private Program             mWaterProgram     = null;
+	private GrassRenderer		mGrassRenderer    = null;
 	
 	// Bonus hex terrain :)
 	private Program mHexTerrainProgram = null;
@@ -58,7 +59,6 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private int     mHexVertexCount    = 0;
 	private int     mHexInstanceCount  = 0;
 	private float   mHexFlatness       = 0.5f;
-	
 	
 	// Simulation.
 	private boolean             mSimulateOnRender      = false;
@@ -74,8 +74,6 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private Program             mFluxUpdateProgram     = null;
 	private Program             mWaterUpdateProgram    = null;
 	private Program             mSedimentUpdateProgram = null;
-	private boolean drawGrass = true;
-	private int grassQuality = 5;
 	
 	public TerrainRenderer(Window window) {
 		System.out.println("WORLD_SIZE_X = " + Constants.WORLD_SIZE_X + ", WORLD_SIZE_Y = " + Constants.WORLD_SIZE_Y);
@@ -87,9 +85,11 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		initVisualisationShaderPrograms();
 		initVisualisationTextures();
 		
-		mHeightScale = 0.25f*(float)(0.25*Math.sqrt(Constants.WORLD_SIZE));
+		mHeightScale = 0.5f*(float)(0.25*Math.sqrt(Constants.WORLD_SIZE));
 		initSimulationShaderPrograms();
 		initSimulationTextures();
+		
+		mGrassRenderer = new GrassRenderer();
 	}
 	
 	public void setIterationsPerFrame(int pIterations) {
@@ -251,71 +251,6 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		Program.unbind();
 	}
 
-	void drawGrass() {
-		int i = 0;
-		float x0 = -Constants.WORLD_SIZE_X/2.0f;
-		float z0 = -Constants.WORLD_SIZE_Y/2.0f;
-		
-		float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
-		float zNudge = 3.0f/9.0f;
-		
-		glLineWidth(5);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL_LINES);
-		for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
-			for (int x = 0; x < Constants.WORLD_SIZE_X; x+=1) {
-				float height  = World.grass.height[i];
-				if (height > 0.3f) {
-					float xScale = (float)(Math.sqrt(3)*0.5);
-					float zScale = 1.5f;
-
-					int hexX = x/2;
-					int hexZ = z/2; 
-					
-					float xPosOffset = (hexZ%2 == 1) ? xScale : 0.0f;
-					
-					float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
-					float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
-					
-					renderGrassAt(height*3, xpos, zpos, i);
-				}
-				++i;
-			}
-		}
-		glEnd();
-		glLineWidth(1);
-	}
-	
-	
-	private void renderGrassAt(float height, float x, float z, int pos) {
-		float[] c = Constants.Colors.GRASS_STRAW;
-		float y = (float)Math.pow(World.terrain.height[pos], 1.5);
-		y *= mHeightScale;
-		float xWind = 1f-2*World.terrain.getWindX(pos);
-		float zWind = 1f-2*World.terrain.getWindZ(pos);
-		
-		int numSplits = grassQuality;
-		numSplits = (int) Math.ceil(numSplits/height);
-		Vector3f drawPos = new Vector3f();
-		Vector3f force = new Vector3f();
-		for (int i = 0; i < numSplits; ++i) {
-			float colorGrad = 0.9f + 0.1f*((float)i)/numSplits;
-			float alphaGrad = 0.4f*((float)i)/numSplits;
-			glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
-			glVertex3f(x + drawPos.x,y + drawPos.y,z + drawPos.z);
-			force.x = World.terrain.getWindForceAtY(xWind, drawPos.y);
-			force.z = World.terrain.getWindForceAtY(zWind, drawPos.y);
-			force.y = 4f; // Stiffness, force towards middle TODO: Make a force normal from ground
-			float factor = height / force.length() / numSplits;
-			force.mul(factor);
-			drawPos.add(force);
-			glVertex3f(x + drawPos.x,y + drawPos.y,z + drawPos.z);
-		}
-		
-	}
-	
-
 	void drawAnimals() {
 		int i = 0;
 		float x0 = -Constants.WORLD_SIZE_X/2.0f;
@@ -428,7 +363,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		glLoadMatrixf(new Matrix4f(mCamera.getViewMatrix()).mul(m.translate(17, 0, 33)).get(matrixBuffer)); GpuUtils.GpuErrorCheck();
 		
 		drawAnimals();
-		if (drawGrass) drawGrass();
+		mGrassRenderer.drawGrass(mHeightScale);
 		
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
@@ -746,13 +681,9 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	}
 
 	public void setDrawGrass() {
-		drawGrass = !drawGrass;
+		mGrassRenderer.setDrawGrass();
 	}
-
 	public void stepGrassQuality() {
-		grassQuality++;
-		if (grassQuality > 8) {
-			grassQuality = 1;
-		}
+		mGrassRenderer.stepGrassQuality();
 	}
 }

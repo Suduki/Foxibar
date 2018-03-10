@@ -34,15 +34,15 @@ public class Perlin2d {
         setPrimes(seed);
     }
 
-    public double[][] tile(double[][] noise) {
+    public float[][] tile(float[][] noise) {
         int w = noise.length / 2;
         int h = noise[0].length / 2;
-        double[][] tiled = new double[w][h];
+        float[][] tiled = new float[w][h];
         for (int i = 0; i < w; i++) {
             for (int j = 0; j < h; j++) {
                 int x = i + w;
                 int y = j + h;
-                double sum = noise[x][y] * (w - i) * (h - j);
+                float sum = noise[x][y] * (w - i) * (h - j);
                 sum += noise[x - w][y] * i * (h - j);
                 sum += noise[x - w][y - h] * i * j;
                 sum += noise[x][y - h] * (w - i) * j;
@@ -52,21 +52,21 @@ public class Perlin2d {
         return tiled;
     }
 
-    public double[][] createTiledArray(int width, int height) {
-        double[][] tiledNoise = tile(createRawArray(width * 2, height * 2));
+    public float[][] createTiledArray(int width, int height) {
+    	float[][] tiledNoise = tile(createRawArray(width * 2, height * 2));
         clamp(tiledNoise);
         return tiledNoise;
     }
 
-    public double[][] createArray(int width, int height) {
-        double[][] noise = createRawArray(width, height);
+    public float[][] createArray(int width, int height) {
+    	float[][] noise = createRawArray(width, height);
         clamp(noise);
         return noise;
     }
 
     //not clamped
-    private double[][] createRawArray(int width, int height) {
-        double[][] y = new double[width][height];
+    private float[][] createRawArray(int width, int height) {
+    	float[][] y = new float[width][height];
         final int regionWidth = 3;
         int smallSeed = Math.abs(seed / 1000);
         for (int i = 0; i < width; i++) {
@@ -79,17 +79,17 @@ public class Perlin2d {
         return y;
     }
 
-    private void clamp(double[][] noise) {
+    private void clamp(float[][] noise) {
         int w = noise.length;
         int h = noise[0].length;
-        double max = -1, min = 1;
+        float max = -1, min = 1;
         for (int i = 0; i < w; i++) {
             for (int j = 0; j < h; j++) {
                 max = Math.max(max, noise[i][j]);
                 min = Math.min(min, noise[i][j]);
             }
         }
-        double range = max - min;
+        float range = max - min;
         for (int i = 0; i < w; i++) {
             for (int j = 0; j < h; j++) {
                 noise[i][j] = (noise[i][j] - min) / range;
@@ -109,10 +109,10 @@ public class Perlin2d {
         }
     }
 
-    private double perlinNoise2(double x, double y) {
-        double total = 0;
+    private float perlinNoise2(double x, double y) {
+    	float total = 0;
         int f = 1;
-        double a = 1;
+        float a = 1;
         for (int i = 0; i < octaves; ++i) {
             p1 = p1s[i];
             p2 = p2s[i];

@@ -13,6 +13,7 @@ public class World {
 	public static Terrain terrain;
 	public static Grass grass;
 	public static Blood blood;
+	public static Wind wind;
 
 	public static int[] east;
 	public static int[] north;
@@ -26,6 +27,7 @@ public class World {
 		terrain = new Terrain();
 		grass = new Grass();
 		blood = new Blood();
+		wind = new Wind();
 
 		calculateNeighbours();
 		regenerate();
@@ -94,6 +96,7 @@ public class World {
 	public static void regenerate() {
 		terrain.regenerate();
 		grass.regenerate();
+		wind.regenerate();
 	}
 
 	private static float[] tempColor = new float[3];
