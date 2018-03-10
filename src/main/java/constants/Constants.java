@@ -13,9 +13,8 @@ public class Constants {
 	public static final int WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
 	public static final int WANTED_FPS = 30;
 	public static final int PIXELS_Y = 800;
-	public static final int PIXELS_SIDEBOARD = 360;
 	public static final int WINDOW_WIDTH = 1080;
-	public static final int PIXELS_X = WINDOW_WIDTH - PIXELS_SIDEBOARD;
+	public static final int PIXELS_X = WINDOW_WIDTH;
 	public static final float PIXELS_PER_NODE_X = ((float)PIXELS_X)/WORLD_SIZE_X;
 	public static final float PIXELS_PER_NODE_Y = ((float)PIXELS_Y)/WORLD_SIZE_Y;
 	public static final Random RANDOM = new Random(1);

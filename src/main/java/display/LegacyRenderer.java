@@ -55,11 +55,11 @@ public class LegacyRenderer implements gui.SceneRegionRenderer {
 
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-		glViewport(0,0,PIXELS_X + Constants.PIXELS_SIDEBOARD,PIXELS_Y);
+		glViewport(0,0,PIXELS_X,PIXELS_Y);
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0, PIXELS_X + Constants.PIXELS_SIDEBOARD, PIXELS_Y, 0, 1, -1);
+		glOrtho(0, PIXELS_X, PIXELS_Y, 0, 1, -1);
 		glMatrixMode(GL_MODELVIEW);
 	}
 
@@ -91,7 +91,7 @@ public void actionLoadBrains() {
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
-		glOrtho(0, PIXELS_X + Constants.PIXELS_SIDEBOARD, PIXELS_Y, 0, 1, -1);
+		glOrtho(0, PIXELS_X, PIXELS_Y, 0, 1, -1);
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
@@ -562,7 +562,7 @@ public void actionLoadBrains() {
 
 	public void handleMouseMotion(long window, double xpos, double ypos)
 	{
-		xpos = (PIXELS_X+Constants.PIXELS_SIDEBOARD) * xpos/mRegion.getSize().x;
+		xpos = (PIXELS_X) * xpos/mRegion.getSize().x;
 		ypos = PIXELS_Y * ypos/mRegion.getSize().y;
 		
 		mouse.setPosition((float)xpos,  (float)ypos);

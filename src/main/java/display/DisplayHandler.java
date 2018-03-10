@@ -76,6 +76,9 @@ public class DisplayHandler extends MessageHandler {
 			menu.insertRegion(15, new Button("Flatness: 0.75", ()->terrainRenderer.setFlatness(0.75f)));
 			menu.insertRegion(16, new Button("Flatness: 1.00", ()->terrainRenderer.setFlatness(1.0f)));
 			
+			menu.insertRegion(17, new Button("Render Grass", ()->terrainRenderer.setDrawGrass()));
+			menu.insertRegion(18, new Button("Step Grass Quality", ()->terrainRenderer.stepGrassQuality()));
+			
 			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
 			return view;
 		}
