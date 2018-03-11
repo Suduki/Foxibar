@@ -7,7 +7,7 @@ import constants.Constants;
 import display.RenderState;
 
 public class Terrain {
-	public static final float WATER_LIMIT = 0.4f;
+	public static final float WATER_LIMIT = 0.2f;
 	public static final float STONE_LIMIT = 0.8f;
 	public float[] height;
 	public float[] growth;
@@ -50,7 +50,7 @@ public class Terrain {
 	}
 
 	public void regenerate() {
-		float[][] noise = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.5f);
+		float[][] noise = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.7f);
 		analyzeNoise(noise);
 		int i = 0;
 		for(int x = 0; x < Constants.WORLD_SIZE_X; ++x) {

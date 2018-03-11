@@ -294,6 +294,10 @@ public class Animal {
 			if (containsAnimals[World.neighbour[tile][pos]] == -1 || containsAnimals[World.neighbour[tile][pos]] == id) {
 				directionWalkable[tile] = true;
 			}
+			else if (World.grass.tree.isAlive[World.neighbour[tile][pos]]) {
+				directionWalkable[tile] = false;
+				continue;
+			}
 			else {
 				directionWalkable[tile] = false;
 			}

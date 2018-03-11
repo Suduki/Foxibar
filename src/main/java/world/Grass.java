@@ -7,6 +7,7 @@ public class Grass {
 	public float[] height;
 	public boolean[] toBeUpdated;
 	public float[] color;
+	public Tree tree;
 	
 	public static final boolean GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT = true;
 	
@@ -14,9 +15,9 @@ public class Grass {
 		height = new float[Constants.WORLD_SIZE];
 		toBeUpdated = new boolean[Constants.WORLD_SIZE];
 		color = Constants.Colors.GRASS;
+		tree = new Tree();
 	}
 
-	private static final float WATER_LIMIT = 0.8f;
 	public void grow(int timeStep, int updateFrequency) {
 		for(int i = timeStep%updateFrequency; i < Constants.WORLD_SIZE; i+=updateFrequency) {
 			if (toBeUpdated[i]) {
@@ -36,6 +37,7 @@ public class Grass {
 				}
 			}
 		}
+		tree.update();
 	}
 
 	public void regenerate() {
@@ -53,6 +55,7 @@ public class Grass {
 			}
 			toBeUpdated[i] = false;
 		}
+		tree.killAll();
 	}
 
 	public void killAllGrass() {
@@ -65,9 +68,14 @@ public class Grass {
 				toBeUpdated[i] = true;
 			}
 		}
+		tree.killAll();
 	}
 
 	public float harvest(float grassHarvest, int pos) {
+		if (tree.isAlive[pos]) {
+			System.err.println("Trying to harvest a tree?");
+			return 0;
+		}
 		if (World.terrain.water[pos] || World.terrain.stone[pos]) {
 			return 0;
 		}
