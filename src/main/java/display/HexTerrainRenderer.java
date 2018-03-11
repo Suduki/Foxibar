@@ -36,6 +36,7 @@ public class HexTerrainRenderer {
 	private VBO     mHexNormalVbo      = null;
 	private VBO     mHexTexCoordVbo    = null;
 	private VBO     mHexInstanceVbo    = null;
+	private VBO     mHexTexVbo         = null;
 	private VBO     mHexIndexVbo       = null;
 	private int     mHexVertexCount    = 0;
 	private int     mHexInstanceCount  = 0;
@@ -92,16 +93,20 @@ public class HexTerrainRenderer {
 			public float[] mNormalData;
 			public float[] mTexCoordData;
 			public float[] mInstanceData;
+			public float[] mTexData;
 			public int mIndex;
 			public int mInstanceIndex;
+			public int mTexIndex;
 			
 			VertexBuilder(int pNumVertices, int pNumInstances) {
 				mPositionData = new float[pNumVertices*3];
 				mNormalData   = new float[pNumVertices*3];
 				mTexCoordData = new float[pNumVertices*2];
-				mInstanceData = new float[pNumInstances*4];
+				mInstanceData = new float[pNumInstances*3];
+				mTexData      = new float[pNumInstances*2];
 				mIndex = 0;
 				mInstanceIndex = 0;
+				mTexIndex = 0;
 			}
 			
 			public void addVertex(float px, float py, float pz, float nx, float ny, float nz, float u, float v) {
@@ -118,12 +123,14 @@ public class HexTerrainRenderer {
 				++mIndex;
 			}
 			
-			public void addInstance(float pPosX, float pPosZ, float pTexU, float pTexV) {
+			public void addInstance(float pPosX, float pPosY, float pPosZ, float pTexU, float pTexV) {
 				mInstanceData[mInstanceIndex+0] = pPosX;
-				mInstanceData[mInstanceIndex+1] = pPosZ;
-				mInstanceData[mInstanceIndex+2] = pTexU;
-				mInstanceData[mInstanceIndex+3] = pTexV;
-				mInstanceIndex += 4;
+				mInstanceData[mInstanceIndex+1] = pPosY;
+				mInstanceData[mInstanceIndex+2] = pPosZ;
+				mInstanceIndex += 3;
+				mTexData[mTexIndex+0] = pTexU;
+				mTexData[mTexIndex+1] = pTexV;
+				mTexIndex += 2;
 			}
 			
 			public int getNumVertices() {
@@ -131,7 +138,7 @@ public class HexTerrainRenderer {
 			}
 			
 			public int getNumInstances() {
-				return mInstanceIndex/4;
+				return mInstanceIndex/3;
 			}
 			
 			VBO buildPositionVBO() {
@@ -146,12 +153,16 @@ public class HexTerrainRenderer {
 				return VBO.createVertexBuffer(mInstanceData);
 			}
 			
+			VBO buildTexVBO() {
+				return VBO.createVertexBuffer(mTexData);
+			}
+			
 			VBO buildTexCoordVBO() {
 				return VBO.createVertexBuffer(mTexCoordData);
 			}
 		}
 		
-		VertexBuilder builder = new VertexBuilder(3*3*6, (Constants.WORLD_SIZE_X/2)*(Constants.WORLD_SIZE_Y/2));
+		VertexBuilder builder = new VertexBuilder(3*3*6, (Constants.WORLD_SIZE_X/2)*(Constants.WORLD_SIZE_Y/2)+1);//TODO +1
 		
 		float tc[][] = {
 				{0,0},{ 0, 1},{ 1, 1}, 
@@ -203,23 +214,33 @@ public class HexTerrainRenderer {
 			for (int z = 0; z < Constants.WORLD_SIZE_Y/2; ++z) {
 				float xPosOffset = (Math.abs(z)%2 == 1) ? xScale : 0.0f;
 				float xTexOffset = (Math.abs(z)%2 == 1) ? du*0.5f : 0.0f;
+//				builder.addInstance(
+//						x0 + x*2*xScale + xPosOffset,
+//						0,
+//						z0 + z*zScale,
+//						0.5f*du + du*x + xTexOffset,
+//						0.5f*dv + dv*z);
 				builder.addInstance(
 						x0 + x*2*xScale + xPosOffset,
+						0,
 						z0 + z*zScale,
 						0.5f*du + du*x + xTexOffset,
 						0.5f*dv + dv*z);
 			}
 		}
+		builder.addInstance(-20, 40, -20, 0,0);
 		
 		mHexVertexVbo = builder.buildPositionVBO();
 		mHexNormalVbo = builder.buildNormalVBO();
 		mHexTexCoordVbo = builder.buildTexCoordVBO();
 		mHexInstanceVbo = builder.buildInstanceVBO();
+		mHexTexVbo = builder.buildTexVBO();
 		mHexBufferSet = new VAO();
 		mHexBufferSet.setVbo(0, mHexVertexVbo,   3, 0); // TODO: 3 components, get from builder.
 		mHexBufferSet.setVbo(1, mHexNormalVbo,   3, 0); // TODO: 3 components, get from builder.
 		mHexBufferSet.setVbo(2, mHexTexCoordVbo, 2, 0); // TODO: 2 components, get from builder.
-		mHexBufferSet.setVbo(3, mHexInstanceVbo, 4, 1); // TODO: 4 components, get from builder.
+		mHexBufferSet.setVbo(3, mHexInstanceVbo, 3, 1); // TODO: 3 components, get from builder.
+		mHexBufferSet.setVbo(4, mHexTexVbo,      2, 1); // TODO: 2 components, get from builder.
 		
 		mHexVertexCount   = builder.getNumVertices();
 		mHexInstanceCount = builder.getNumInstances();		
