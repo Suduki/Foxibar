@@ -14,6 +14,7 @@ import static org.lwjgl.opengl.GL11.glVertex3f;
 
 import org.joml.Vector3f;
 
+import world.Terrain;
 import world.World;
 import constants.Constants;
 
@@ -49,7 +50,12 @@ public class GrassRenderer {
 					float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
 					float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
 					
-					renderGrassAt(height*2, xpos, zpos, i, heightScale);
+					if (World.grass.tree.isAlive[i]) {
+						renderTreeAt(World.grass.tree.height[i], xpos, zpos, i, heightScale);
+					}
+					else {
+						renderGrassAt(height*2, xpos, zpos, i, heightScale);
+					}
 				}
 				++i;
 			}
@@ -59,6 +65,33 @@ public class GrassRenderer {
 	}
 	
 	
+	private void renderTreeAt(float height, float x, float z, int pos, float heightScale) {
+		float[] c = Constants.Colors.TREE;
+		float y = (float)Math.pow(World.terrain.height[pos], 1.5);
+		y *= heightScale;
+		float xWind = 1f-2*World.wind.getWindX(x, z);
+		float zWind = 1f-2*World.wind.getWindZ(x, z);
+		
+		int numSplits = 20;
+		numSplits = (int) Math.ceil(numSplits*height);
+		Vector3f drawPos = new Vector3f();
+		Vector3f force = new Vector3f();
+		for (int i = 0; i < numSplits; ++i) {
+			float colorGrad = 0.5f+(0.5f*((float)i+1f)/numSplits);
+			float alphaGrad = 0.1f*((float)i)/numSplits;
+			glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
+			glVertex3f(x + drawPos.x,y + drawPos.y,z + drawPos.z);
+			force.x = World.wind.getWindForceAtY(xWind, drawPos.y);
+			force.z = World.wind.getWindForceAtY(zWind, drawPos.y);
+			force.y = 50f; // Stiffness, force towards middle TODO: Make a force normal from ground
+			float factor = height / force.length() / numSplits;
+			force.mul(factor);
+			drawPos.add(force);
+			glVertex3f(x + drawPos.x,y + drawPos.y,z + drawPos.z);
+		}
+	}
+
+
 	private void renderGrassAt(float height, float x, float z, int pos, float heightScale) {
 		float[] c = Constants.Colors.GRASS_STRAW;
 		float y = (float)Math.pow(World.terrain.height[pos], 1.5);
@@ -67,7 +100,7 @@ public class GrassRenderer {
 		float zWind = 1f-2*World.wind.getWindZ(x, z);
 		
 		int numSplits = grassQuality;
-		numSplits = (int) Math.ceil(numSplits/height);
+		numSplits = (int) Math.ceil(numSplits*height);
 		Vector3f drawPos = new Vector3f();
 		Vector3f force = new Vector3f();
 		for (int i = 0; i < numSplits; ++i) {
@@ -77,7 +110,7 @@ public class GrassRenderer {
 			glVertex3f(x + drawPos.x,y + drawPos.y,z + drawPos.z);
 			force.x = World.wind.getWindForceAtY(xWind, drawPos.y);
 			force.z = World.wind.getWindForceAtY(zWind, drawPos.y);
-			force.y = 1f; // Stiffness, force towards middle TODO: Make a force normal from ground
+			force.y = 4f; // Stiffness, force towards middle TODO: Make a force normal from ground
 			float factor = height / force.length() / numSplits;
 			force.mul(factor);
 			drawPos.add(force);

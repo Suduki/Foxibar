@@ -70,11 +70,11 @@ public class DisplayHandler extends MessageHandler {
 			menu.insertRegion(10, new Button("45 iter/frame", ()->terrainRenderer.setIterationsPerFrame(45)));
 			menu.insertRegion(11, new Button("50 iter/frame", ()->terrainRenderer.setIterationsPerFrame(50)));
 			
-			menu.insertRegion(12, new Button("Flatness: 0.00", ()->terrainRenderer.setFlatness(0.0f)));
-			menu.insertRegion(13, new Button("Flatness: 0.25", ()->terrainRenderer.setFlatness(0.25f)));
-			menu.insertRegion(14, new Button("Flatness: 0.50", ()->terrainRenderer.setFlatness(0.5f)));
-			menu.insertRegion(15, new Button("Flatness: 0.75", ()->terrainRenderer.setFlatness(0.75f)));
-			menu.insertRegion(16, new Button("Flatness: 1.00", ()->terrainRenderer.setFlatness(1.0f)));
+			menu.insertRegion(12, new Button("Flatness: 0.00", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.0f)));
+			menu.insertRegion(13, new Button("Flatness: 0.25", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.25f)));
+			menu.insertRegion(14, new Button("Flatness: 0.50", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.5f)));
+			menu.insertRegion(15, new Button("Flatness: 0.75", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.75f)));
+			menu.insertRegion(16, new Button("Flatness: 1.00", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(1.0f)));
 			
 			menu.insertRegion(17, new Button("Render Grass", ()->terrainRenderer.setDrawGrass()));
 			menu.insertRegion(18, new Button("Step Grass Quality", ()->terrainRenderer.stepGrassQuality()));
