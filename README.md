@@ -6,18 +6,26 @@ Simulation of an ecosystem.
 ### Prerequisites
 
 Java
+
 Eclipse
+
 Maven
 
 ### Installing
 
 Clone the project to a local repository.
+
 I use ~/repo/Foxibar
 
+
+
 Start eclipse and import:
- File -> Import...
- Maven -> Existing Maven Project
- Browse to your local clone -> Finish
+
+File -> Import...
+
+Maven -> Existing Maven Project
+
+Browse to your local clone -> Finish
 
 ## Running the tests
 
@@ -41,5 +49,6 @@ Maven
 ## Authors
 
 Suduki, chixulub
+
 See also the list of [contributors](https://github.com/Suduki/Foxibar/contributors) who participated in this project.
 
