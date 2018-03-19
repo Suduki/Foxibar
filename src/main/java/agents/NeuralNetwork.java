@@ -1,15 +1,9 @@
 package agents;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import constants.Constants;
 
 public class NeuralNetwork {
-	public static final int[] LAYER_SIZES = {NeuralFactors.NUM_DESICION_FACTORS, 8, 4, 1};
+	public static final int[] LAYER_SIZES = {NeuralFactors.NUM_INPUT_FACTORS, 8, 4, NeuralFactors.NUM_OUTPUT_FACTORS};
 	public static final int NUM_LAYERS = LAYER_SIZES.length;
 	public static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
@@ -143,14 +137,11 @@ public class NeuralNetwork {
 		}
 	}
 	
-	public int neuralMagic(boolean[] directionWalkable) {
+	public int neuralMagic() {
 		evaluateNeuralNetwork();
 		double bestVal = Double.NEGATIVE_INFINITY;
 		bestDirection = -1;
 		for(int direction = 0; direction < NUM_OPTIONS; ++direction) {
-			if (!directionWalkable[direction]) {
-				continue;
-			}
 			if (z[direction][LAYER_SIZES.length-1][0] > bestVal) {
 				bestVal = z[direction][LAYER_SIZES.length-1][0];
 				bestDirection = direction;
@@ -166,11 +157,6 @@ public class NeuralNetwork {
 	private double sigmoid(double f) {
 		double result = 1d/(1d+Math.exp(-f));
 		return result;
-	}
-	
-	private double sigmoidPrime(double f) {
-		double expo = Math.exp(-f);
-		return expo/((1d+expo)*(1d+expo));
 	}
 	
 	public void copy(NeuralNetwork d, float mutation) {

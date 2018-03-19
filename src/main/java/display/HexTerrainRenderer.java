@@ -228,7 +228,6 @@ public class HexTerrainRenderer {
 						0.5f*dv + dv*z);
 			}
 		}
-		builder.addInstance(-20, 40, -20, 0,0);
 		
 		mHexVertexVbo = builder.buildPositionVBO();
 		mHexNormalVbo = builder.buildNormalVBO();

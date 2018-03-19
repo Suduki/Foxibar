@@ -6,6 +6,7 @@ import java.text.NumberFormat;
 import agents.Animal;
 import agents.NeuralNetwork;
 import agents.NeuralFactors;
+import agents.Species;
 import constants.Constants;
 import display.DisplayHandler;
 import display.RenderState;
@@ -13,6 +14,7 @@ import messages.LoadBrains;
 import messages.SaveBrains;
 import simulation.Simulation;
 import utils.FPSLimiter;
+import world.World;
 
 public class Main
 {
@@ -25,9 +27,11 @@ public class Main
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
 		RenderState.activateState(RenderState.RENDER_WORLD_STILL);
 		
+		spawnRandomAnimal(Constants.Species.BLOODLING, 100);
+		
 		try {
-			LoadBrains.loadBrains(Constants.SpeciesId.BLOODLING);
-			LoadBrains.loadBrains(Constants.SpeciesId.GRASSLER);
+//			LoadBrains.loadBrains(Constants.Species.BLOODLING); //TODO: Make Animal Serializable
+//			LoadBrains.loadBrains(Constants.Species.GRASSLER);
 		}
 		catch (Exception e ){
 			System.err.println("Somethnig wrong with loading files.");
@@ -42,25 +46,16 @@ public class Main
 				simulation.step(timeStep);
 				fpsLimiter.waitForNextFrame();
 
-				if (Animal.numAnimals > Constants.WORLD_SIZE/Constants.TILES_PER_ANIMAL/2) {
-					while (Animal.numBloodlings < 15) {
-						spawnPseudoRandomAnimal(Constants.SpeciesId.BLOODLING);
-					}
-				}
-				while (Animal.numAnimals < 1) {
-					spawnRandomAnimal(Constants.SpeciesId.GRASSLER);
-				}
-				
 				if (timeStep % plottingNumber == 0) {
 					
 					try {
-						if (SaveBrains.goodTimeToSave(Constants.SpeciesId.BLOODLING)) {
-							SaveBrains.saveBrains(Constants.SpeciesId.BLOODLING);
-							LoadBrains.loadBrains(Constants.SpeciesId.BLOODLING);
+						if (SaveBrains.goodTimeToSave(Constants.Species.BLOODLING)) {
+							SaveBrains.saveBrains(Constants.Species.BLOODLING);
+							LoadBrains.loadBrains(Constants.Species.BLOODLING);
 						}
-						if (SaveBrains.goodTimeToSave(Constants.SpeciesId.GRASSLER)) {
-							SaveBrains.saveBrains(Constants.SpeciesId.GRASSLER);
-							LoadBrains.loadBrains(Constants.SpeciesId.GRASSLER);
+						if (SaveBrains.goodTimeToSave(Constants.Species.GRASSLER)) {
+							SaveBrains.saveBrains(Constants.Species.GRASSLER);
+							LoadBrains.loadBrains(Constants.Species.GRASSLER);
 						}
 					}
 					catch (Exception e ){
@@ -79,7 +74,7 @@ public class Main
 	}
 
 	
-	private static void spawnPseudoRandomAnimal(int speciesId) {
+	private void spawnPseudoRandomAnimal(Species species) {
 		int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
 		int posX = pos / Constants.WORLD_SIZE_X;
 		int posY = pos % Constants.WORLD_SIZE_X;
@@ -88,35 +83,13 @@ public class Main
 		posY /= Constants.WORLD_MULTIPLIER;
 		
 		pos = (posX+Constants.WORLD_SIZE_X/2) + Constants.WORLD_SIZE_X * (posY+Constants.WORLD_SIZE_X/2);
-		
-		switch (speciesId) {
-		case Constants.SpeciesId.BLOODLING:
-			Animal.resurrectAnimal(pos, 
-					Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-					null, 
-					Constants.Species.BLOODLING, null);
-			break;
-		case Constants.SpeciesId.GRASSLER:
-			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-					Animal.BIRTH_HUNGER, Constants.Species.GRASSLER,  
-					null, Constants.Species.GRASSLER, null);
-			break;
-		}		
+		World.animalManager.spawn(pos, species);
 	}
 
-	private static void spawnRandomAnimal(int speciesId) {
-		switch (speciesId) {
-		case Constants.SpeciesId.BLOODLING:
-			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-					Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-					null, 
-					Constants.Species.BLOODLING, null);
-			break;
-		case Constants.SpeciesId.GRASSLER:
-			Animal.resurrectAnimal(Constants.RANDOM.nextInt(Constants.WORLD_SIZE), 
-					Animal.BIRTH_HUNGER, Constants.Species.GRASSLER,  
-					null, Constants.Species.GRASSLER, null);
-			break;
+	public static void spawnRandomAnimal(Species species, int num) {
+		for (int i = 0; i < num; ++i) {
+			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
+			World.animalManager.spawn(pos, species);
 		}
 	}
 }

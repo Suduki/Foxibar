@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import agents.Animal;
+import agents.Species;
 import buttons.Button;
 import constants.Constants;
 import gui.KeyboardState;
@@ -107,9 +108,6 @@ public void actionLoadBrains() {
 			renderAllAnimals();
 		}
 
-		if (RenderState.RENDER_VISION) {
-			renderVision();
-		}
 		glDisable(GL_TEXTURE_2D);
 		glColor3f(1,1,1);
 		glMatrixMode(GL_PROJECTION);
@@ -118,40 +116,6 @@ public void actionLoadBrains() {
 		glPopMatrix();
 	}
 	
-	private void renderVision() {
-		width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
-		height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
-		float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
-		float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
-
-		glBegin(GL_LINES);
-		for (int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-			if (Animal.pool[id].isAlive) {
-				int pos = Animal.pool[id].pos;
-				float x = (pos % Constants.WORLD_SIZE_X)*pixelsPerNodeY + pixelsPerNodeY/2;
-				float y = (pos / Constants.WORLD_SIZE_X)*pixelsPerNodeX + pixelsPerNodeX/2;
-				for (int id2 : Animal.pool[id].nearbyAnimals) {
-					if (id2 != -1) {
-						int pos2 = Animal.pool[id2].pos;
-						float x2 = (pos2 % Constants.WORLD_SIZE_X)*pixelsPerNodeY + pixelsPerNodeY/2;
-						float y2 = (pos2 / Constants.WORLD_SIZE_X)*pixelsPerNodeX + pixelsPerNodeX/2;
-						float distance = Math.abs(x-x2) + Math.abs(y-y2);
-						if (distance < Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE) {
-							if (Animal.pool[id].species.speciesId == Constants.SpeciesId.BLOODLING) {
-
-								glColor3f(Animal.pool[id].secondaryColor[0], Animal.pool[id].secondaryColor[1], Animal.pool[id].secondaryColor[2]);
-								glVertex2f(y, x);
-								glVertex2f(y2, x2);
-							}
-						}
-					}
-				}
-			}
-		}
-		glEnd();
-	}
-
-
 	private void renderAllAnimals() {
 		
 		width = Math.round(zoomFactor*Constants.WORLD_SIZE_X);
@@ -172,60 +136,60 @@ public void actionLoadBrains() {
 				float screenPositionY = y * pixelsPerNodeY + pixelsPerNodeY/2;
 
 				// RENDER ANIMAL
-				int id;
-				if ((id = Animal.containsAnimals[i]) != -1 && shouldThisAnimalBePrinted(id)) {
-//					if (Animal.pool[id].species.speciesId == Constants.SpeciesId.GRASSLER) {
-//						renderTriangle(Animal.pool[id].color, Animal.pool[id].size*pixelsPerNodeX, 
-//								Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+				Animal id;
+				if ((id = World.animalManager.containsAnimals[i]) != null && shouldThisAnimalBePrinted(id)) {
+//					if (World.animalManager.pool[id].species.speciesId == Constants.SpeciesId.GRASSLER) {
+//						renderTriangle(World.animalManager.pool[id].color, World.animalManager.pool[id].size*pixelsPerNodeX, 
+//								World.animalManager.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 //						continue;
 //					}
-					float ageFactor = 1f - ((float)Animal.pool[id].age)/(Animal.AGE_DEATH);
-					float hungerFactor = Animal.pool[id].hunger/(Animal.HUNGRY_HUNGER*2);
-					float healthFactor = Animal.pool[id].health;
-					if (RenderState.DRAW_VISION_CIRCLE) {
-						if (RenderState.FOLLOW_BLOODLING && id == Constants.SpeciesId.BEST_BLOODLING_ID) {
-							renderCircle(Animal.pool[id].primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
-						}
-						else if (RenderState.FOLLOW_GRASSLER && id == Constants.SpeciesId.BEST_GRASSLER_ID) {
-							renderCircle(Animal.pool[id].primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
-						}
-					}
+					float ageFactor = 1f - ((float)id.age)/(Species.AGE_DEATH);
+					float hungerFactor = id.hunger/(Species.HUNGRY_HUNGER*2);
+					float healthFactor = id.health;
+//					if (RenderState.DRAW_VISION_CIRCLE) {
+//						if (RenderState.FOLLOW_BLOODLING && id == Constants.SpeciesId.BEST_BLOODLING_ID) {
+//							renderCircle(id.primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
+//						}
+//						else if (RenderState.FOLLOW_GRASSLER && id == Constants.SpeciesId.BEST_GRASSLER_ID) {
+//							renderCircle(World.animalManager.pool[id].primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
+//						}
+//					}
 					if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
 //						if (Constants.BEST_ID == id) {
-						renderThreePartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].primaryColor, 
+						renderThreePartsOfAnimal(id.species.secondaryColor, id.species.color, 
 								ageFactor, healthFactor, hungerFactor, 
-								Animal.pool[id].size*pixelsPerNodeX, 
-								Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
-//							renderThreePartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].mainColor, 
+								id.size*pixelsPerNodeX, 
+								id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
+//							renderThreePartsOfAnimal(id.secondaryColor, id.mainColor, 
 //									ageFactor, healthFactor, hungerFactor, 
-//									Animal.pool[id].size*pixelsPerNodeX, 
-//									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+//									id.size*pixelsPerNodeX, 
+//									id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
 ////						}
 ////						else {
-////							renderTriangle(Animal.pool[id].secondaryColor, Animal.pool[id].size*pixelsPerNodeX, 
-////									Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+////							renderTriangle(id.secondaryColor, id.size*pixelsPerNodeX, 
+////									id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
 ////						}
 					}
 					else if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
-						renderTwoPartsOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].primaryColor, 
+						renderTwoPartsOfAnimal(id.species.secondaryColor, id.species.color, 
 								ageFactor, hungerFactor, 
-								Animal.pool[id].size*pixelsPerNodeX, 
-								Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+								id.size*pixelsPerNodeX, 
+								id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
 					}
 					else if (RenderState.RENDER_AGE) {
-						renderPartOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].primaryColor, ageFactor, 
-								Animal.pool[id].size*pixelsPerNodeX, 
-								Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+						renderPartOfAnimal(id.species.secondaryColor, id.species.color, ageFactor, 
+								id.size*pixelsPerNodeX, 
+								id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
 						
 					}
 					else if (RenderState.RENDER_HUNGER) {
-						renderPartOfAnimal(Animal.pool[id].secondaryColor, Animal.pool[id].primaryColor, hungerFactor, 
-								Animal.pool[id].size*pixelsPerNodeX, 
-								Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+						renderPartOfAnimal(id.species.secondaryColor, id.species.color, hungerFactor, 
+								id.size*pixelsPerNodeX, 
+								id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
 					}
 					else {
-						renderTriangle(Animal.pool[id].primaryColor, Animal.pool[id].size*pixelsPerNodeX, 
-								Animal.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
+						renderTriangle(id.species.color, id.size*pixelsPerNodeX, 
+								id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
 					}
 
 				}
@@ -235,31 +199,31 @@ public void actionLoadBrains() {
 		glEnd();
 	}
 	
-	private boolean shouldThisAnimalBePrinted(int id) {
+	private boolean shouldThisAnimalBePrinted(Animal id) {
 		if (!RenderState.LIMIT_VISION) {
 			return true;
 		}
 		else {
-			if (RenderState.FOLLOW_BLOODLING) {
-				if (Constants.SpeciesId.BEST_BLOODLING_ID == -1) {
-					return true;
-				}
-				for (int nearby : Animal.pool[Constants.SpeciesId.BEST_BLOODLING_ID].nearbyAnimals) {
-					if (nearby == id || id == Constants.SpeciesId.BEST_BLOODLING_ID) {
-						return true;
-					}
-				}
-			}
-			else if (RenderState.FOLLOW_GRASSLER) {
-				if (Constants.SpeciesId.BEST_GRASSLER_ID == -1) {
-					return true;
-				}
-				for (int nearby : Animal.pool[Constants.SpeciesId.BEST_GRASSLER_ID].nearbyAnimals) {
-					if (nearby == id || id == Constants.SpeciesId.BEST_GRASSLER_ID) {
-						return true;
-					}
-				}
-			}
+//			if (RenderState.FOLLOW_BLOODLING) {
+//				if (Constants.SpeciesId.BEST_BLOODLING_ID == -1) {
+//					return true;
+//				}
+//				for (int nearby : Animal.pool[Constants.SpeciesId.BEST_BLOODLING_ID].nearbyAnimals) {
+//					if (nearby == id || id == Constants.SpeciesId.BEST_BLOODLING_ID) {
+//						return true;
+//					}
+//				}
+//			}
+//			else if (RenderState.FOLLOW_GRASSLER) {
+//				if (Constants.SpeciesId.BEST_GRASSLER_ID == -1) {
+//					return true;
+//				}
+//				for (int nearby : Animal.pool[Constants.SpeciesId.BEST_GRASSLER_ID].nearbyAnimals) {
+//					if (nearby == id || id == Constants.SpeciesId.BEST_GRASSLER_ID) {
+//						return true;
+//					}
+//				}
+//			}
 		}
 		return false;
 	}
@@ -436,44 +400,44 @@ public void actionLoadBrains() {
 	
 	private int getXOffset() {
 		int xOffset = 0;
-		int bestId = -1;
-		if (RenderState.FOLLOW_BLOODLING && Constants.SpeciesId.BEST_BLOODLING_ID != -1) {
-			bestId = Constants.SpeciesId.BEST_BLOODLING_ID;
-			xOffset = (int) (Animal.pool[bestId].oldX + (2f - zoomFactor)*Constants.WORLD_SIZE_X/2);
-			xOffset =  xOffset % Constants.WORLD_SIZE_X;
-		}
-		else if (RenderState.FOLLOW_GRASSLER && Constants.SpeciesId.BEST_GRASSLER_ID != -1) {
-			bestId = Constants.SpeciesId.BEST_GRASSLER_ID;
-			xOffset = (int) (Animal.pool[bestId].oldX + (2f - zoomFactor)*Constants.WORLD_SIZE_X/2);
-			xOffset =  xOffset % Constants.WORLD_SIZE_X;
-		}
-		else {
+//		int bestId = -1;
+//		if (RenderState.FOLLOW_BLOODLING && Constants.SpeciesId.BEST_BLOODLING_ID != -1) {
+//			bestId = Constants.SpeciesId.BEST_BLOODLING_ID;
+//			xOffset = (int) (Animal.pool[bestId].oldX + (2f - zoomFactor)*Constants.WORLD_SIZE_X/2);
+//			xOffset =  xOffset % Constants.WORLD_SIZE_X;
+//		}
+//		else if (RenderState.FOLLOW_GRASSLER && Constants.SpeciesId.BEST_GRASSLER_ID != -1) {
+//			bestId = Constants.SpeciesId.BEST_GRASSLER_ID;
+//			xOffset = (int) (Animal.pool[bestId].oldX + (2f - zoomFactor)*Constants.WORLD_SIZE_X/2);
+//			xOffset =  xOffset % Constants.WORLD_SIZE_X;
+//		}
+//		else {
 			xOffset = (int) (x0 * Constants.WORLD_SIZE_X);
 			for (;xOffset < 0; xOffset+=Constants.WORLD_SIZE_X);
 			for (;xOffset >= Constants.WORLD_SIZE_X; xOffset-=Constants.WORLD_SIZE_X);
-		}
+//		}
 		return xOffset;
 	}
 	
 	private int getYOffset() {
 		int yOffset = 0;
 		int bestId = -1;
-		if (RenderState.FOLLOW_BLOODLING && Constants.SpeciesId.BEST_BLOODLING_ID != -1) {
-			bestId = Constants.SpeciesId.BEST_BLOODLING_ID;
-			yOffset = (int) (Animal.pool[bestId].oldY + (2f - zoomFactor)*Constants.WORLD_SIZE_Y/2);
-			yOffset =  yOffset % Constants.WORLD_SIZE_Y;
-
-		}
-		else if (RenderState.FOLLOW_GRASSLER && Constants.SpeciesId.BEST_GRASSLER_ID != -1) {
-			bestId = Constants.SpeciesId.BEST_GRASSLER_ID;
-			yOffset = (int) (Animal.pool[bestId].oldY + (2f - zoomFactor)*Constants.WORLD_SIZE_Y/2);
-			yOffset =  yOffset % Constants.WORLD_SIZE_Y;
-		}
-		else {
+//		if (RenderState.FOLLOW_BLOODLING && Constants.SpeciesId.BEST_BLOODLING_ID != -1) {
+//			bestId = Constants.SpeciesId.BEST_BLOODLING_ID;
+//			yOffset = (int) (Animal.pool[bestId].oldY + (2f - zoomFactor)*Constants.WORLD_SIZE_Y/2);
+//			yOffset =  yOffset % Constants.WORLD_SIZE_Y;
+//
+//		}
+//		else if (RenderState.FOLLOW_GRASSLER && Constants.SpeciesId.BEST_GRASSLER_ID != -1) {
+//			bestId = Constants.SpeciesId.BEST_GRASSLER_ID;
+//			yOffset = (int) (Animal.pool[bestId].oldY + (2f - zoomFactor)*Constants.WORLD_SIZE_Y/2);
+//			yOffset =  yOffset % Constants.WORLD_SIZE_Y;
+//		}
+//		else {
 			yOffset = (int) (y0 * Constants.WORLD_SIZE_Y);
 			for (;yOffset < 0; yOffset+=Constants.WORLD_SIZE_Y);
 			for (;yOffset >= Constants.WORLD_SIZE_Y; yOffset-=Constants.WORLD_SIZE_Y);
-		}
+//		}
 		return yOffset;
 	}
 
@@ -481,7 +445,7 @@ public void actionLoadBrains() {
 		drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
 		//drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
 		drawString(PIXELS_X + 150,40, "seed: " + ((int)noise.Noise.seed-1));
-		drawString(PIXELS_X + 20,60, "nAni: " + Animal.numAnimals);
+		drawString(PIXELS_X + 20,60, "nAni: " + World.animalManager.getNumAnimals());
 	}
 
 	private void togglePause() {
@@ -569,10 +533,10 @@ public void actionLoadBrains() {
 
 		if (insideViewport(mouse.getPos())) {
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				addGrassling();
+				addBloodling(Constants.Species.BLOODLING);
 			}
-			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-				addBloodling();
+			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {//TODO: correct pos
+				addBloodling(Constants.Species.GRASSLER);
 			}
 		}
 	}
@@ -626,36 +590,34 @@ public void actionLoadBrains() {
 
 		if (insideViewport(mouse.getPos())) {
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				addGrassling();
+				addBloodling(Constants.Species.GRASSLER);
 			}
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-				addBloodling();
+				addBloodling(Constants.Species.BLOODLING);
 			}
 		}
 	}
 
-	private void addGrassling() {
-		mSimulation.message( new messages.Message() {
-			Mouse eventmouse = new Mouse(mouse);
-			@Override
-			public void evaluate(simulation.Simulation simulation) {
-				float viewX = eventmouse.getX()/Constants.PIXELS_X;
-				float viewY = eventmouse.getY()/Constants.PIXELS_Y;
-
-				Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
-
-				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
-				if (Animal.containsAnimals[pos] == -1) {
-					Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.GRASSLER, 
-							null, Constants.Species.GRASSLER, null);
-				}
-			}
-
-			public String messageName() { return "AddAnimal"; }
-		});								
-	}
+//	private void addGrassling(Species species) {
+//		mSimulation.message( new messages.Message() {
+//			Mouse eventmouse = new Mouse(mouse);
+//			@Override
+//			public void evaluate(simulation.Simulation simulation) {
+//				float viewX = eventmouse.getX()/Constants.PIXELS_X;
+//				float viewY = eventmouse.getY()/Constants.PIXELS_Y;
+//
+//				Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
+//
+//				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
+//				if (World.animalManager.containsAnimals[pos] == null) {
+//				}
+//			}
+//
+//			public String messageName() { return "AddAnimal"; }
+//		});								
+//	}
 	
-	private void addBloodling() {
+	private void addBloodling(Species species) {
 		mSimulation.message( new messages.Message() {
 			Mouse eventmouse = new Mouse(mouse);
 			@Override
@@ -666,9 +628,8 @@ public void actionLoadBrains() {
 				Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
 
 				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
-				if (Animal.containsAnimals[pos] == -1) {
-					Animal.resurrectAnimal(pos, Animal.BIRTH_HUNGER, Constants.Species.BLOODLING,  
-							null, Constants.Species.BLOODLING, null);
+				if (World.animalManager.containsAnimals[pos] == null) {
+					World.animalManager.spawn(pos, species);
 				}
 			}
 

@@ -1,56 +1,50 @@
 package agents;
 
-import constants.Constants;
-
 public class Species {
+	
+	public static final int BIRTH_HUNGER = 60;
+	public static final int HUNGRY_HUNGER = 100;
+	public static final int BIRTH_HUNGER_COST = 80;
+	public static final int AGE_DEATH = 1000;
+	
 	public int speciesId;
+	public static int numSpecies = 0;
+	public int numAlive;
 	
-	float grassHarvest;
-	float grassDigestion;
+	public float[] color, secondaryColor;
 	
-	float bloodDigestion;
-	float bloodHarvest;
-
-	float speed;
-	float fight;
-
-	float healing;
+	public Brain bestBrain;
+	public float bestScore;
+	public boolean timeToSave;
 	
-	float babyHungerLimit;
-	
-	public Species(int speciesId, float grassHarvest, float grassDigestion,
-			float bloodHarvest, float bloodDigestion, float speed,
-			float fight, float healing) {
-		this.speciesId = speciesId;
-		this.grassHarvest = grassHarvest;
-		this.grassDigestion = grassDigestion;
-		this.bloodDigestion = bloodDigestion;
-		this.bloodHarvest = bloodHarvest;
-		this.speed = speed;
-		this.fight = fight;
-		this.healing = healing;
-		this.babyHungerLimit = babyHungerLimit;
-
+	public Species(float[] color, float[] secondaryColor) {
+		this.color = color;
+		this.secondaryColor = secondaryColor;
+		speciesId = numSpecies++;
+		bestBrain = new Brain(true);
+	}
+	public float getUglySpeciesFactor() {
+		if (numAlive > 500) {
+			return 1f;
+		}
+		else if (numAlive > 1000) {
+			return 2f;
+		}
+		return 0.5f;
 	}
 	
-	public Species() {
+	
+	public void someoneWasBorn(Species mom) {
+		numAlive++;
 	}
-
-	public void inherit(Species mom, Species dad) {
-		this.speciesId = mom.speciesId; 
-		
-		float evolution = 0.0f; // Needs balance otherwise. Evolving this is advanced stuff.
-		this.grassHarvest = (mom.grassHarvest + dad.grassHarvest)/2 + evolution*(Constants.RANDOM.nextFloat()-0.5f);
-		this.grassDigestion = (mom.grassDigestion + dad.grassDigestion)/2 + evolution*(Constants.RANDOM.nextFloat()-0.5f);
-		
-		this.bloodHarvest = (mom.bloodHarvest + dad.bloodHarvest)/2 + evolution*(Constants.RANDOM.nextFloat()-0.5f);
-		this.bloodDigestion = (mom.bloodDigestion + dad.bloodDigestion)/2 + evolution*(Constants.RANDOM.nextFloat()-0.5f);
-		
-		this.speed = (mom.speed + dad.speed)/2 + evolution*(Constants.RANDOM.nextFloat()-0.5f);
-		this.fight = (mom.fight + dad.fight)/2;
-		
-		this.healing = (mom.healing + dad.healing)/2;
-		
-		this.babyHungerLimit = (mom.babyHungerLimit + dad.babyHungerLimit)/2;
+	
+	public void someoneDied(Animal a) {
+		if (a.score > bestScore) {
+			bestScore = a.score;
+			bestBrain.inherit(a.brain, a.brain);
+			timeToSave = true;
+		}
+		numAlive--;
 	}
+	
 }

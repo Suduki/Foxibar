@@ -19,7 +19,7 @@ public class Constants {
 	public static final float PIXELS_PER_NODE_Y = ((float)PIXELS_Y)/WORLD_SIZE_Y;
 	public static final Random RANDOM = new Random(1);
 	public static final float TILES_PER_ANIMAL = 20;
-	public static final float GROWTH = Species.GRASSLER_SPEED / Species.GRASS_GAIN / TILES_PER_ANIMAL;
+	public static final float GROWTH = 0.02f;
 	public static final int MAX_NUM_ANIMALS = 30000;
 	public static final float ZOOM_SPEED = 1.05f;
 	public static final int NUM_NEIGHBOURS = 3;
@@ -45,6 +45,7 @@ public class Constants {
 		public static final float[] GREY = new float[]{0.5f, 0.5f, 0.7f};
 		public static final float[] GRASS_STRAW = new float[]{0.4f, 0.8f, 0f};
 		public static final float[] TREE = new float[]{0.5f, 0.2f, 0.1f};
+		public static final float[] FIBER = new float[]{0.5f, 0.2f, 0.1f};
 	}
 
 	public static class Neighbours {
@@ -67,27 +68,7 @@ public class Constants {
 		public static final float DEATH_FROM_LOW_HEALTH = 1f;
 	}
 	public static class Species {
-		public static final float GRASSLER_SPEED = 0.8f;
-		
-		public static final float GRASS_EXPLOSIVITY = 0.3f;
-		public static final float GRASS_GAIN = 8f; // Lower this to stabilize (Increases grass growth and reduces grass gain)
-		
-		public static final float BLOOD_GAIN = 70f;
-		public static final float BLOOD_ENERGY = BLOOD_GAIN / (Blood.ADDITION_ON_DEATH + 4*Blood.SPLASH);
-		
-		public static final agents.Species GRASSLER = new agents.Species(
-				SpeciesId.GRASSLER, GRASS_EXPLOSIVITY, GRASS_GAIN, 0f, 0f, GRASSLER_SPEED, 0.01f, 0.001f);
-//				SpeciesId.GRASSLER, 1f, 20f, 0f, 0f, 0.8f, 0f);
-		public static final agents.Species BLOODLING = new agents.Species(
-//				SpeciesId.BLOODLING, 0f, 0f, 1f, 30f, 1f, 1f);
-				SpeciesId.BLOODLING, 0f, 0f, 0.3f, BLOOD_ENERGY, 1f, 0.3f, 0.1f);
-	}
-	public static class SpeciesId {
-		public static final int BLOODLING = 1;
-		public static final int GRASSLER = 2;
-		public static int BEST_BLOODLING_SCORE = 0;
-		public static int BEST_BLOODLING_ID = -1;
-		public static int BEST_GRASSLER_SCORE = 0;
-		public static int BEST_GRASSLER_ID = -1;
+		public static agents.Species BLOODLING = new agents.Species(Colors.BLACK, Colors.RED);
+		public static agents.Species GRASSLER = new agents.Species(Colors.GREY, Colors.WHITE);
 	}
 }

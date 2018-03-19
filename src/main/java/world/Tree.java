@@ -40,24 +40,24 @@ public class Tree {
 	}
 	
 	private void die(int pos) {
+		if (isAlive[pos]) {
+			height[pos] = 0;
+			health[pos] = 0;
+			numTrees --;
+		}
 		isAlive[pos] = false;
-		height[pos] = 0;
-		health[pos] = 0;
-		numTrees --;
 	}
 
 	public void resurrect(int pos) {
 		isAlive[pos] = true;
 		height[pos] = 1;
-		health[pos] = 500000;
+		health[pos] = 10000;
 		numTrees  ++;
 	}
 
 	public void killAll() {
 		for (int pos = 0; pos < Constants.WORLD_SIZE; ++pos) {
-			if (!isAlive[pos]) {
-				die(pos);
-			}
+			die(pos);
 		}
 	}
 

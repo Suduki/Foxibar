@@ -13,7 +13,7 @@ public class KillAllAnimals extends Message {
 	@Override
 	public void evaluate(simulation.Simulation pSimulation)
 	{
-		Animal.killAll = true;
+		World.animalManager.killAll = true;
 		//World.grass.killAllGrass();
 	}
 }

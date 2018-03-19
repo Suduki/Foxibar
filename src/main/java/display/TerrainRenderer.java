@@ -246,8 +246,8 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
 			for (int x = 0; x < Constants.WORLD_SIZE_X; x+=1) {
 				// RENDER ANIMAL
-				int id  = Animal.containsAnimals[i];
-				if (id != -1) {
+				Animal id  = World.animalManager.containsAnimals[i];
+				if (id != null) {
 					float xScale = (float)(Math.sqrt(3)*0.5);
 					float zScale = 1.5f;
 										
@@ -269,9 +269,8 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		glLineWidth(1);
 	}
 	
-	void renderAnimalAt(int id, float x, float z) {
-		Animal animal = Animal.pool[id];
-		float[] c = animal.secondaryColor;
+	void renderAnimalAt(Animal animal, float x, float z) {
+		float[] c = animal.species.secondaryColor;
 		float h = (float)Math.pow(World.terrain.height[animal.pos], 1.5);
 		h *= mHeightScale;
 		glColor3f(c[0],c[1],c[2]);
