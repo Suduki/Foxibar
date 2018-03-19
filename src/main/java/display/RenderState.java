@@ -4,7 +4,6 @@ public class RenderState {
 	public static boolean RENDER_TERRAIN;
 	public static boolean RENDER_ANIMALS;
 	public static boolean RENDER_BLOOD;
-	public static boolean RENDER_VISION;
 	public static boolean RENDER_DIRT;
 	public static boolean RENDER_HUNGER;
 	public static boolean RENDER_AGE;
@@ -33,7 +32,6 @@ public class RenderState {
 		RENDER_TERRAIN = true;
 		RENDER_ANIMALS = true;
 		RENDER_BLOOD = true;
-		RENDER_VISION = false;
 		RENDER_DIRT = true;
 		RENDER_HUNGER = true;
 		RENDER_AGE = true;

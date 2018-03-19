@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 
 import agents.Animal;
 import agents.NeuralNetwork;
+import agents.Species;
 import constants.Constants;
 import world.World;
 
@@ -20,25 +21,14 @@ public class SaveBrains extends Message {
 	@Override
 	public void evaluate(simulation.Simulation pSimulation)
 	{
-		Animal.saveBrains = true;
+//		Animal.saveBrains = true;
 	}
 	
 	
-	public static void saveBrains(final int speciesId) {
-		NeuralNetwork best;
-		switch (speciesId) {
-		case Constants.SpeciesId.BLOODLING:
-			best = Animal.pool[Constants.SpeciesId.BEST_BLOODLING_ID].neuralNetwork;
-			break;
-		case Constants.SpeciesId.GRASSLER:
-			best = Animal.pool[Constants.SpeciesId.BEST_GRASSLER_ID].neuralNetwork;
-			break;
-		default:
-			System.err.println("aa what is this2?");
-			return;
-		}
+	public static void saveBrains(final Species species) {
+		NeuralNetwork best = species.bestBrain.neural;
 		try{
-			String filename = "brain" + speciesId;
+			String filename = "brain" + species;
 			for (int i : NeuralNetwork.LAYER_SIZES) {
 				filename = filename + "_" + i;
 			}
@@ -76,24 +66,13 @@ public class SaveBrains extends Message {
 		}
 	}
 
-	public static boolean goodTimeToSave(final int speciesId) {
-		int bestId;
-		switch (speciesId) {
-		case Constants.SpeciesId.BLOODLING:
-			bestId = Constants.SpeciesId.BEST_BLOODLING_ID;
-			break;
-		case Constants.SpeciesId.GRASSLER:
-			bestId = Constants.SpeciesId.BEST_GRASSLER_ID;
-			break;
-		default:
-			System.err.println("aa what is this3?");
-			return false;
+	
+	public static boolean goodTimeToSave(final Species bloodling) {
+		if (bloodling.timeToSave) {
+			bloodling.timeToSave = false;
+			return true;
 		}
-		
-		if (bestId == -1 || Animal.pool[bestId].score < Animal.AGE_DEATH) {
-			return false;
-		}
-		return true;
+		return false;
 
 	}
 }
