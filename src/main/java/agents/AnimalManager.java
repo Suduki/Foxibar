@@ -18,7 +18,7 @@ public class AnimalManager {
 	public ArrayList<Animal> toDie = new ArrayList<>();
 	public ArrayList<Animal> toLive = new ArrayList<>();
 	public int numAnimals = 0;
-	public Animal[] containsAnimals;
+	public Agent[] containsAnimals;
 	public boolean killAll = false;
 	public boolean saveBrains = false;
 	public boolean loadBrains = false;
@@ -84,7 +84,7 @@ public class AnimalManager {
 
 		child.pos = pos;
 		child.oldPos = pos;
-		
+		child.stomach.init(Constants.RANDOM.nextFloat());
 //			if (LoadBrains.bestBloodling != null && id.species.speciesId == Constants.SpeciesId.BLOODLING) {
 //				id.neuralNetwork.inherit(LoadBrains.bestBloodling, LoadBrains.bestBloodling);
 //			}
@@ -99,6 +99,7 @@ public class AnimalManager {
 		child.species = a1.species;
 		child.pos = a1.pos;
 		child.oldPos = a2.pos;
+		child.stomach.inherit(a1.stomach);
 		
 		return a2;
 	}
@@ -116,7 +117,6 @@ public class AnimalManager {
 		id.score = 0;
 		id.sinceLastBaby = 0;
 		id.recover = 0f;
-		id.hunger = Species.BIRTH_HUNGER;
 		id.health = 0.1f;
 		
 		numAnimals++;
@@ -142,7 +142,7 @@ public class AnimalManager {
 		toDie.add(animal);
 	}
 
-	public Animal getAnimalAt(int position) {
+	public Agent getAgentAt(int position) {
 		return containsAnimals[position];
 	}
 

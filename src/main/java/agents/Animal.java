@@ -29,7 +29,6 @@ public class Animal extends Agent {
 	public Stomach stomach;
 	public Brain brain;
 	
-	//************ GENETIC STATS ************
 	public Species species;
 	private int timeBetweenBabies = 10;
 
@@ -63,22 +62,29 @@ public class Animal extends Agent {
 			System.out.println("Trying to step a dead agent.");
 			return false;
 		}
-		if(!age()) {
-			return false;
-		}
-		if (stomach.stepStomach(species)) {
-			starving = true;
-		}
-		else {
-			starving = false;
-		}
 		
+		actionUpdate();
+		internalOrgansUpdate();
+		
+		return isAlive;
+	}
+	private void actionUpdate() {
 		look();
 		int direction = think(); // direction points to a tile position where to move.
 		interact(direction);
 		move(direction);
 		harvest();
-		
+	}
+	private void internalOrgansUpdate() {
+		if (stomach.stepStomach(species)) {
+			starving = false;
+		}
+		else {
+			starving = true;
+		}
+		if(!age()) {
+			return;
+		}
 		stepFertility();
 		
 		if (!starving) {
@@ -86,12 +92,10 @@ public class Animal extends Agent {
 			heal();
 		}
 		else {
-			System.out.println("starve");
 			starve();
 		}
 		checkHealth();
 		
-		return isAlive;
 	}
 	
 	private void checkHealth() {
@@ -114,7 +118,7 @@ public class Animal extends Agent {
 	
 	private void childCost() {
 		isFertile = false;
-		hunger -= Species.BIRTH_HUNGER_COST;
+		stomach.energyCost += Species.BIRTH_HUNGER_COST;
 		sinceLastBaby = 0;
 		
 		// This will cause the mating animals to continue living, which is what we want in the end.
@@ -148,7 +152,10 @@ public class Animal extends Agent {
 
 	private void move(int direction) {
 		oldPos = pos;
-		pos = World.neighbour[direction][pos];
+		if (World.animalManager.containsAnimals[World.neighbour[direction][pos]] == null) {
+			pos = World.neighbour[direction][pos];
+			Vision.updateAnimalZone(this);
+		}
 	}
 
 	/**
@@ -156,16 +163,15 @@ public class Animal extends Agent {
 	 * @param positionToInteractWith
 	 */
 	private void interact(int positionToInteractWith) {
-		Animal animal = getAnimalAt(positionToInteractWith);
-		if (animal != null && animal.id != this.id) {
-			mateWith(animal);
+		Agent agent = getAgentAt(positionToInteractWith);
+		if (agent != null && agent.getClass() == Animal.class) {
+			mateWith((Animal) agent);
 		}
-		System.err.println("interact TODO");
 	}
 
 	
-	private Animal getAnimalAt(int position) {
-		return World.animalManager.getAnimalAt(position);
+	private Agent getAgentAt(int position) {
+		return World.animalManager.getAgentAt(position);
 	}
 
 	private double[] tileGoodness = new double[5];
@@ -177,12 +183,14 @@ public class Animal extends Agent {
 	private int think() {
 		for (int tile = 0; tile < 4; ++tile) {
 			int tilePos = World.neighbour[tile][pos];
-			Animal animalOnTile = getAnimalAt(tilePos); 
+			Agent animalOnTile = getAgentAt(tilePos); 
 			
-			brain.neural.z[tile][0][NeuralFactors.HUNGER] = hunger / Species.HUNGRY_HUNGER;
+			brain.neural.z[tile][0][NeuralFactors.HUNGER] = stomach.getRelativeFullness();
 			if (brain.neural.z[tile][0][NeuralFactors.HUNGER] > 1) {
 				brain.neural.z[tile][0][NeuralFactors.HUNGER] = 1; 
+				System.out.println("brain.neural.z[tile][0][NeuralFactors.HUNGER] > 1:  " + brain.neural.z[tile][0][NeuralFactors.HUNGER]);
 			}
+			
 			
 			brain.neural.z[tile][0][NeuralFactors.AGE] = ((float)age)/Species.AGE_DEATH;
 			
@@ -222,11 +230,9 @@ public class Animal extends Agent {
 				}
 				else {
 					brain.neural.z[tile][0][NeuralFactors.TILE_HUNT] = Math.max(distanceFactor, brain.neural.z[tile][0][NeuralFactors.TILE_HUNT]);
-				}
-				
-				if (!looksDangerous(nearbyAnimalId)) {
 					brain.neural.z[tile][0][NeuralFactors.TILE_FRIENDS] = Math.max(distanceFactor, brain.neural.z[tile][0][NeuralFactors.TILE_FRIENDS]);
 				}
+				
 				if (isFertileWith(nearbyAnimalId)) {
 					brain.neural.z[tile][0][NeuralFactors.TILE_FERTILITY] = Math.max(distanceFactor, brain.neural.z[tile][0][NeuralFactors.TILE_FERTILITY]);
 				}
@@ -239,7 +245,7 @@ public class Animal extends Agent {
 	@Override
 	protected void harvest() {
 		float neuralOutput = 1f;//TODO
-		float harvestSkill = 0.1f;//TODO: Kan en p användas här? Nä?
+		float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
 		float amount = World.fat.harvest(harvestSkill, pos);
 		stomach.addFat(amount);
 		if (neuralOutput > 0) {
@@ -321,10 +327,6 @@ public class Animal extends Agent {
 	}
 	
 	private boolean isFertile() {
-		return isFertile && !isHungry();
-	}
-
-	private boolean isHungry() {
-		return hunger < Species.HUNGRY_HUNGER;
+		return isFertile;
 	}
 }

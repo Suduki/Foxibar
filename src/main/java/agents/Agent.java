@@ -20,7 +20,7 @@ public abstract class Agent {
 		age = 0;
 		this.health = health;
 		
-		maxAge = 1000; //TODO: move these
+		maxAge = 200; //TODO: move these
 		healPower = 0.01f;
 		maxHealth = 100;
 		

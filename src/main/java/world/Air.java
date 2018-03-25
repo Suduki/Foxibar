@@ -1,9 +1,12 @@
 package world;
 
 public class Air {
-	public static float TOTAL_GLOBAL_CARBON;
-	
+	public static float TOTAL_GLOBAL_CARBON = 10000;
 	private float carbon;
+	
+	public Air() {
+		carbon = TOTAL_GLOBAL_CARBON;
+	}
 
 	public float getCarbon() {
 		return carbon;

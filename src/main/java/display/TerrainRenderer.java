@@ -12,6 +12,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
+import agents.Agent;
 import agents.Animal;
 import constants.Constants;
 import gpu.VAO;
@@ -232,52 +233,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		Program.unbind();
 	}
 
-	void drawAnimals() {
-		int i = 0;
-		float x0 = -Constants.WORLD_SIZE_X/2.0f;
-		float z0 = -Constants.WORLD_SIZE_Y/2.0f;
-		
-		float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
-		float zNudge = 3.0f/9.0f;
-		
-		glLineWidth(10);
-		glBegin(GL_LINES);
-		glColor3f(0,0,0);
-		for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
-			for (int x = 0; x < Constants.WORLD_SIZE_X; x+=1) {
-				// RENDER ANIMAL
-				Animal id  = World.animalManager.containsAnimals[i];
-				if (id != null) {
-					float xScale = (float)(Math.sqrt(3)*0.5);
-					float zScale = 1.5f;
-										
-					int hexX = x/2;
-					int hexZ = z/2; 
-					
-					float xPosOffset = (hexZ%2 == 1) ? xScale : 0.0f;
-					
-					float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
-					float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
-					
-					renderAnimalAt(id, xpos, zpos);
-				}
-				
-				++i;
-			}
-		}
-		glEnd();
-		glLineWidth(1);
-	}
 	
-	void renderAnimalAt(Animal animal, float x, float z) {
-		float[] c = animal.species.secondaryColor;
-		float h = (float)Math.pow(World.terrain.height[animal.pos], 1.5);
-		h *= mHeightScale;
-		glColor3f(c[0],c[1],c[2]);
-		glVertex3f(x,h,z);
-		glVertex3f(x,h+1,z);
-	}
-
 	
 	void swapTextures(Texture[] texture) {
 		Texture tmp = texture[0];
@@ -315,7 +271,6 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		m = new Matrix4f();
 		glLoadMatrixf(new Matrix4f(mCamera.getViewMatrix()).mul(m.translate(17, 0, 33)).get(matrixBuffer)); GpuUtils.GpuErrorCheck();
 		
-		drawAnimals();
 		mGrassRenderer.drawGrass(mHeightScale);
 		
 		glMatrixMode(GL_PROJECTION);

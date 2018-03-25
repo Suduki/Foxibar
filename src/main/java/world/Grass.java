@@ -9,8 +9,6 @@ public class Grass {
 	public float[] color;
 	public Tree tree;
 	
-	public static final boolean GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT = true;
-	
 	public Grass() {
 		height = new float[Constants.WORLD_SIZE];
 		toBeUpdated = new boolean[Constants.WORLD_SIZE];
@@ -19,46 +17,40 @@ public class Grass {
 	}
 
 	public void grow(int timeStep, int updateFrequency) {
+		if (World.air.getCarbon() < Constants.GROWTH * Constants.WORLD_SIZE) {
+			System.out.println("World.air.getCarbon()=" + World.air.getCarbon());
+			return;
+		}
 		for(int i = timeStep%updateFrequency; i < Constants.WORLD_SIZE; i+=updateFrequency) {
+			float totalGrowth = 0; 
 			if (toBeUpdated[i]) {
-				if (GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT) {
-					height[i] += Constants.GROWTH * World.terrain.growth[i] * updateFrequency;
-					if (height[i] > World.terrain.growth[i]) {
-						toBeUpdated[i] = false;
-						height[i] = World.terrain.growth[i];
-					}
+				totalGrowth -= height[i];
+				height[i] += Constants.GROWTH * World.terrain.growth[i] * updateFrequency;
+				if (height[i] > World.terrain.growth[i]) {
+					toBeUpdated[i] = false;
+					height[i] = World.terrain.growth[i];
 				}
-				else {
-					height[i] += Constants.GROWTH * updateFrequency;
-					if (height[i] > 1f) {
-						toBeUpdated[i] = false;
-						height[i] = 1f;
-					}
-				}
+				totalGrowth += height[i];
 			}
+			World.air.harvest(totalGrowth);
 		}
 		tree.update();
 	}
 
 	public void regenerate() {
+		tree.killAll();
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
 			if (World.terrain.stone[i] || World.terrain.water[i]) {
-				this.height[i] = 0;
 				toBeUpdated[i] = false;
 				continue;
 			}
-			if (GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT) {
-				this.height[i] = World.terrain.growth[i];
-			}
-			else {
-				this.height[i] = 1;
-			}
-			toBeUpdated[i] = false;
+			this.height[i] = 0;
+			toBeUpdated[i] = true;
 		}
-		tree.killAll();
 	}
 
 	public void killAllGrass() {
+		tree.killAll();
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
 			if (World.terrain.stone[i] || World.terrain.water[i]) {
 				toBeUpdated[i] = false;
@@ -68,7 +60,6 @@ public class Grass {
 				toBeUpdated[i] = true;
 			}
 		}
-		tree.killAll();
 	}
 
 	public float harvest(float grassHarvest, int pos) {

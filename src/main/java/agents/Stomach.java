@@ -9,7 +9,9 @@ import world.World;
 
 public class Stomach {
 
-	private float energyCost;
+	public static final float MAX_FULLNESS = 100;
+	
+	float energyCost;
 	public float fiber;
 	public float blood;
 	public float fat;
@@ -24,11 +26,10 @@ public class Stomach {
 		if (p < -1) p = -1;
 		if (p > 1) p = 1;
 		init(p);
-		
-		
 	}
 	
-	private void init(float p2) {
+	void init(float p2) {
+		fat  = 10;//TODO move
 		p = p2;
 		pFiber = mattiasFunction(p);
 		pBlood = mattiasFunction(-p);
@@ -60,37 +61,46 @@ public class Stomach {
 	/**
 	 * Called at the end of round to digest blood/grass and create fat.
 	 * Also burns the fat.
-	 * @return fat > 0, whether this animal is critically hungry
+	 * @return fat > 0, whether this animal is starving
 	 */
 	public boolean stepStomach(Species species) {
 		uglySpeciesFactor = species.getUglySpeciesFactor();
 		energyCost = 1;
 		digest();
 		burnFat();
+		checkFullness();
 		return fat > 0;
+	}
+
+	private void checkFullness() {
+		float digestAmount = getMass() - MAX_FULLNESS;
+		if (digestAmount > 0) {
+			float total = getMass();
+			fiber -= fiber * digestAmount / MAX_FULLNESS;
+			blood -= blood * digestAmount / MAX_FULLNESS;
+			fat -= fat * digestAmount / MAX_FULLNESS;
+		}
 	}
 
 	/**
 	 * Digests
 	 */
-	private static final float digestAmount = 1; //TODO: styr upp konstanter som denna.
+	private static final float DIGEST_AMOUNT = 1; //TODO: styr upp konstanter som denna.
 	private void digest() {
-		
 		float totalFullness = fiber + blood;
-		if (totalFullness > digestAmount ) {
+		if (totalFullness > DIGEST_AMOUNT ) {
 			
-			energyCost += pFiber * fiber * uglySpeciesFactor * digestAmount / totalFullness;
-			energyCost += pBlood * blood * uglySpeciesFactor * digestAmount / totalFullness;
+			energyCost += pFiber * fiber * uglySpeciesFactor * DIGEST_AMOUNT / totalFullness;
+			energyCost += pBlood * blood * uglySpeciesFactor * DIGEST_AMOUNT / totalFullness;
 			
-			fiber -= fiber * digestAmount / totalFullness;
-			blood -= blood * digestAmount / totalFullness;
+			fiber -= fiber * DIGEST_AMOUNT / totalFullness;
+			blood -= blood * DIGEST_AMOUNT / totalFullness;
 			
-			fat += digestAmount;
+			fat += DIGEST_AMOUNT;
 		}
 		else {
 			energyCost += pFiber * fiber * uglySpeciesFactor;
 			energyCost += pBlood * blood * uglySpeciesFactor;
-			System.out.println(fiber + " " + blood);
 			fiber = 0;
 			blood = 0;
 			
@@ -99,10 +109,9 @@ public class Stomach {
 		
 	}
 	private void burnFat() {
-		fat -= energyCost;
-		System.out.println(energyCost);
-		energyCost = 0;
+		fat -= energyCost/10;
 		World.air.addCarbon(energyCost);
+		energyCost = 0;
 	}
 	
 	public float getMass() {
@@ -123,6 +132,10 @@ public class Stomach {
 	}
 	public void addFiber(float amount) {
 		fiber += amount;
+	}
+
+	public float getRelativeFullness() {
+		return getMass() / MAX_FULLNESS;
 	}
 	
 }

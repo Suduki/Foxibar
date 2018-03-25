@@ -7,6 +7,7 @@ import static org.lwjgl.opengl.GL20.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import agents.Agent;
 import agents.Animal;
 import agents.Species;
 import buttons.Button;
@@ -136,18 +137,23 @@ public void actionLoadBrains() {
 				float screenPositionY = y * pixelsPerNodeY + pixelsPerNodeY/2;
 
 				// RENDER ANIMAL
-				Animal id;
-				if ((id = World.animalManager.containsAnimals[i]) != null && shouldThisAnimalBePrinted(id)) {
+				Agent tmp = World.animalManager.containsAnimals[i];
+				Animal animal = null;
+				if (tmp != null && tmp.getClass() == Animal.class) {
+					animal = (Animal) tmp;
+				}
+				
+				if (animal != null && shouldThisAnimalBePrinted(animal)) {
 //					if (World.animalManager.pool[id].species.speciesId == Constants.SpeciesId.GRASSLER) {
 //						renderTriangle(World.animalManager.pool[id].color, World.animalManager.pool[id].size*pixelsPerNodeX, 
 //								World.animalManager.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 //						continue;
 //					}
-					float ageFactor = 1f - ((float)id.age)/(Species.AGE_DEATH);
-					float hungerFactor = id.hunger/(Species.HUNGRY_HUNGER*2);
-					float healthFactor = id.health;
+					float ageFactor = 1f - ((float)animal.age)/(Species.AGE_DEATH);
+					float hungerFactor = animal.stomach.getRelativeFullness();
+					float healthFactor = animal.health;
 //					if (RenderState.DRAW_VISION_CIRCLE) {
-//						if (RenderState.FOLLOW_BLOODLING && id == Constants.SpeciesId.BEST_BLOODLING_ID) {
+//						if (RenderState.FOLLOW_BLOODLING && id == World.animalManager.species[0].) {
 //							renderCircle(id.primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
 //						}
 //						else if (RenderState.FOLLOW_GRASSLER && id == Constants.SpeciesId.BEST_GRASSLER_ID) {
@@ -156,10 +162,10 @@ public void actionLoadBrains() {
 //					}
 					if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
 //						if (Constants.BEST_ID == id) {
-						renderThreePartsOfAnimal(id.species.secondaryColor, id.species.color, 
+						renderThreePartsOfAnimal(animal.species.secondaryColor, animal.species.color, 
 								ageFactor, healthFactor, hungerFactor, 
-								id.size*pixelsPerNodeX, 
-								id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
+								animal.size*pixelsPerNodeX, 
+								animal.size*pixelsPerNodeY, screenPositionX, screenPositionY);
 //							renderThreePartsOfAnimal(id.secondaryColor, id.mainColor, 
 //									ageFactor, healthFactor, hungerFactor, 
 //									id.size*pixelsPerNodeX, 
@@ -171,25 +177,25 @@ public void actionLoadBrains() {
 ////						}
 					}
 					else if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
-						renderTwoPartsOfAnimal(id.species.secondaryColor, id.species.color, 
+						renderTwoPartsOfAnimal(animal.species.secondaryColor, animal.species.color, 
 								ageFactor, hungerFactor, 
-								id.size*pixelsPerNodeX, 
-								id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
+								animal.size*pixelsPerNodeX, 
+								animal.size*pixelsPerNodeY, screenPositionX, screenPositionY);
 					}
 					else if (RenderState.RENDER_AGE) {
-						renderPartOfAnimal(id.species.secondaryColor, id.species.color, ageFactor, 
-								id.size*pixelsPerNodeX, 
-								id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
+						renderPartOfAnimal(animal.species.secondaryColor, animal.species.color, ageFactor, 
+								animal.size*pixelsPerNodeX, 
+								animal.size*pixelsPerNodeY, screenPositionX, screenPositionY);
 						
 					}
 					else if (RenderState.RENDER_HUNGER) {
-						renderPartOfAnimal(id.species.secondaryColor, id.species.color, hungerFactor, 
-								id.size*pixelsPerNodeX, 
-								id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
+						renderPartOfAnimal(animal.species.secondaryColor, animal.species.color, hungerFactor, 
+								animal.size*pixelsPerNodeX, 
+								animal.size*pixelsPerNodeY, screenPositionX, screenPositionY);
 					}
 					else {
-						renderTriangle(id.species.color, id.size*pixelsPerNodeX, 
-								id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
+						renderTriangle(animal.species.color, animal.size*pixelsPerNodeX, 
+								animal.size*pixelsPerNodeY, screenPositionX, screenPositionY);
 					}
 
 				}

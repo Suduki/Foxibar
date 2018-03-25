@@ -10,7 +10,7 @@ public class Tree {
 	public float[] height;
 	public float[] health;
 	public boolean[] isAlive;
-	private float spawnRate = 0.95f; // TODO: Replace with i++
+	private float spawnRate = 0.1f; // TODO: Replace with i++
 	private int numTrees = 0;
 	
 	public Tree() {
@@ -24,14 +24,14 @@ public class Tree {
 			if (isAlive[pos]) {
 				height[pos] += growth;
 				height[pos] *= 0.99f;
-				health[pos] -= numTrees;
+				health[pos] -= 1;
 
 				if (health[pos] < 0) {
 					die(pos);
 				}
 			}
 		}
-		if (Constants.RANDOM.nextFloat() > spawnRate) {
+		if (Constants.RANDOM.nextFloat() < spawnRate/numTrees) {
 			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
 			if (!isAlive[pos]) {
 				resurrect(pos);
@@ -51,7 +51,7 @@ public class Tree {
 	public void resurrect(int pos) {
 		isAlive[pos] = true;
 		height[pos] = 1;
-		health[pos] = 10000;
+		health[pos] = 1000;
 		numTrees  ++;
 	}
 

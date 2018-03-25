@@ -6,6 +6,7 @@ import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glColor3f;
 import static org.lwjgl.opengl.GL11.glColor4f;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glEnd;
@@ -14,6 +15,9 @@ import static org.lwjgl.opengl.GL11.glVertex3f;
 
 import org.joml.Vector3f;
 
+import agents.Agent;
+import agents.Animal;
+import agents.Plant;
 import world.Terrain;
 import world.World;
 import constants.Constants;
@@ -23,6 +27,7 @@ public class GrassRenderer {
 	private int grassQuality = 3;
 	
 	void drawGrass(float heightScale) {
+		drawAgents(heightScale);
 		if (!drawGrass) return;
 		int i = 0;
 		float x0 = -Constants.WORLD_SIZE_X/2.0f;
@@ -64,7 +69,57 @@ public class GrassRenderer {
 		glLineWidth(1);
 	}
 	
+	void drawAgents(float heightScale) {
+		int i = 0;
+		float x0 = -Constants.WORLD_SIZE_X/2.0f;
+		float z0 = -Constants.WORLD_SIZE_Y/2.0f;
+		
+		float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
+		float zNudge = 3.0f/9.0f;
+		
+		glLineWidth(10);
+		glBegin(GL_LINES);
+		glColor3f(0,0,0);
+		for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
+			for (int x = 0; x < Constants.WORLD_SIZE_X; x+=1) {
+				// RENDER ANIMAL
+				Agent id = World.animalManager.containsAnimals[i];
+				if (id != null) {
+					float xScale = (float)(Math.sqrt(3)*0.5);
+					float zScale = 1.5f;
+										
+					int hexX = x/2;
+					int hexZ = z/2; 
+					
+					float xPosOffset = (hexZ%2 == 1) ? xScale : 0.0f;
+					
+					float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
+					float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
+					
+					if (id.getClass() == Animal.class) {
+						renderAnimalAt((Animal) id, xpos, zpos, heightScale);
+					}
+					if (id.getClass() == Plant.class) {
+//						renderTreeAt((Plant) id, xpos, zpos);
+					}
+				}
+				
+				++i;
+			}
+		}
+		glEnd();
+		glLineWidth(1);
+	}
 	
+	void renderAnimalAt(Animal animal, float x, float z, float heightScale) {
+		float[] c = animal.species.secondaryColor;
+		float h = (float)Math.pow(World.terrain.height[animal.pos], 1.5);
+		h *= heightScale;
+		glColor3f(c[0],c[1],c[2]);
+		glVertex3f(x,h,z);
+		glVertex3f(x,h+1,z);
+	}
+
 	private void renderTreeAt(float height, float x, float z, int pos, float heightScale) {
 		float[] c = Constants.Colors.TREE;
 		float y = (float)Math.pow(World.terrain.height[pos], 1.5);

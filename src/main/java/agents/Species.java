@@ -2,9 +2,7 @@ package agents;
 
 public class Species {
 	
-	public static final int BIRTH_HUNGER = 60;
-	public static final int HUNGRY_HUNGER = 100;
-	public static final int BIRTH_HUNGER_COST = 80;
+	public static final int BIRTH_HUNGER_COST = 5;
 	public static final int AGE_DEATH = 1000;
 	
 	public int speciesId;
