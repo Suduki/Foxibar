@@ -22,13 +22,19 @@ public class Stomach {
 	private static final float MUTATION = 0.1f;
 	
 	public void inherit(Stomach parent) {
-		p = (0.5f - Constants.RANDOM.nextFloat()) * MUTATION + parent.p;
+		if (parent == null) {
+			p = (0.5f - Constants.RANDOM.nextFloat());
+		}
+		else {
+			p = (0.5f - Constants.RANDOM.nextFloat()) * MUTATION + parent.p;
+		}
 		if (p < -1) p = -1;
 		if (p > 1) p = 1;
 		init(p);
 	}
 	
 	void init(float p2) {
+		empty();
 		fat  = 10;//TODO move
 		p = p2;
 		pFiber = mattiasFunction(p);
@@ -137,6 +143,6 @@ public class Stomach {
 	public float getRelativeFullness() {
 		return getMass() / MAX_FULLNESS;
 	}
-	
+
 }
 

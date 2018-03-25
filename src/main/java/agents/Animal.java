@@ -20,7 +20,6 @@ public class Animal extends Agent {
 	public int oldX;
 	public int oldY;
 	
-	public float hunger;
 	public Animal[] nearbyAnimals;
 	public float[] nearbyAnimalsDistance;
 	
@@ -51,6 +50,9 @@ public class Animal extends Agent {
 
 	@Override
 	public boolean stepAgent() {
+		
+		if (!isAlive) return false;
+		
 		// Step recover. This is to enable different speeds for different agents.
 		recover += getSpeed();
 		if (recover < 1f){
@@ -164,7 +166,7 @@ public class Animal extends Agent {
 	 */
 	private void interact(int positionToInteractWith) {
 		Agent agent = getAgentAt(positionToInteractWith);
-		if (agent != null && agent.getClass() == Animal.class) {
+		if (agent != null && agent != this && agent.getClass() == Animal.class) {
 			mateWith((Animal) agent);
 		}
 	}
@@ -192,7 +194,7 @@ public class Animal extends Agent {
 			}
 			
 			
-			brain.neural.z[tile][0][NeuralFactors.AGE] = ((float)age)/Species.AGE_DEATH;
+			brain.neural.z[tile][0][NeuralFactors.AGE] = ((float)age)/maxAge;
 			
 			brain.neural.z[tile][0][NeuralFactors.TILE_FIBER] = World.grass.height[tilePos] + 
 					World.fiber.height[tilePos] - 
@@ -304,6 +306,7 @@ public class Animal extends Agent {
 		World.fiber.append(pos, stomach.fiber);
 		World.fat.append(pos, stomach.fat);
 		stomach.empty();
+		
 		
 		isAlive = false;
 		

@@ -13,8 +13,6 @@ public class Vision {
 	public static final int ZONES_X = Constants.WORLD_SIZE_X/ZONE_WIDTH;
 	public static final int ZONES_Y = Constants.WORLD_SIZE_Y/ZONE_HEIGHT;
 	
-	
-	
 	public static void init() {
 		zoneGrid = new Zone[ZONES_X][ZONES_Y];
 		for (int i = 0; i < ZONES_X; ++i) {
@@ -136,13 +134,19 @@ public class Vision {
 	}
 	
 	private static void addAnimalToZone(Animal id, int zoneX, int zoneY) {
+//		System.out.println("num before add: " + zoneGrid[zoneX][zoneY].animalsInZone.size()
+//				+ "zoneX=" + zoneX + "zoneY=" + zoneY);
 		zoneGrid[zoneX][zoneY].animalsInZone.add(id);
+//		System.out.println("num after add: " + zoneGrid[zoneX][zoneY].animalsInZone.size());
 	}
 	private static void removeAnimalFromZone(Animal id, int zoneX, int zoneY) {
+//		System.out.println("num before remove: " + zoneGrid[zoneX][zoneY].animalsInZone.size()
+//				+ "zoneX=" + zoneX + "zoneY=" + zoneY);
 		zoneGrid[zoneX][zoneY].animalsInZone.remove(id);
+//		System.out.println("num after remove: " + zoneGrid[zoneX][zoneY].animalsInZone.size());
 	}
 	
-	private static class Zone {
+	public static class Zone {
 		public ArrayList<Animal> animalsInZone;
 		public float[] color;
 		

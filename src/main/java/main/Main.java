@@ -27,7 +27,7 @@ public class Main
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
 		RenderState.activateState(RenderState.RENDER_WORLD_STILL);
 		
-		spawnRandomAnimal(Constants.Species.BLOODLING, 100);
+//		spawnRandomAnimal(Constants.Species.BLOODLING, 100);
 		
 		try {
 //			LoadBrains.loadBrains(Constants.Species.BLOODLING); //TODO: Make Animal Serializable

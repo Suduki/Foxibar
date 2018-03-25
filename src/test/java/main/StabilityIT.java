@@ -9,6 +9,7 @@ import agents.AnimalManager;
 import agents.Species;
 import constants.Constants;
 import simulation.Simulation;
+import vision.Vision;
 import world.World;
 
 public class StabilityIT {
@@ -17,18 +18,20 @@ public class StabilityIT {
 	@BeforeClass
 	public static void init() {
 		simulation     = new Simulation();
-
 		System.out.println("before");
 	}
 	@Test
-	public void hum() {
+	public void singleAnimalTest() {
+		for (int i = 0; i < 2000; ++i) {
+			verifyThatAloneAnimalDies();
+		}
+	}
+	public void verifyThatAloneAnimalDies() {
 		int timeStep = 0;
 		
-
-		System.out.println("Test step 1, verify that mr. lonely dies");
-		spawnRandomAnimal(Constants.Species.GRASSLER, 1);
+		Main.spawnRandomAnimal(Constants.Species.GRASSLER, 1);
 		Assert.assertTrue(World.animalManager.numAnimals == 1);
-		while (simulation.handleMessages() && timeStep <= 10000)
+		while (simulation.handleMessages() && timeStep <= 300)
 		{
 			timeStep++;
 			simulation.step(timeStep);
@@ -38,6 +41,7 @@ public class StabilityIT {
 		}
 		Assert.assertTrue("Expected all animals to be dead. Currently " + 
 				World.animalManager.numAnimals + " alive", World.animalManager.numAnimals == 0);
+		Assert.assertTrue("zoneSize() was " + zoneSize(), zoneSize() == 0);
 		
 //		System.out.println("Test step 2, verify that a population of Grasslers survive");
 //		spawnRandomAnimal(Constants.Species.GRASSLER, 100);
@@ -65,11 +69,15 @@ public class StabilityIT {
 //		Assert.assertTrue(Animal.numBloodlings > 10);
 //		System.out.println("num animals after test step 3: Grasslers: " + Animal.numGrasslers + ", Bloodlings: " + Animal.numBloodlings);
 	}
-
-	public static void spawnRandomAnimal(Species species, int num) {
-		for (int i = 0; i < num; ++i) {
-			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
-			World.animalManager.spawn(pos, species);
+	
+	
+	private int zoneSize() {
+		int num = 0;
+		for (Vision.Zone[] zi : Vision.zoneGrid) {
+			for (Vision.Zone z : zi) {
+				num += z.animalsInZone.size();
+			}	
 		}
+		return num;
 	}
 }

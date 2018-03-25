@@ -4,7 +4,7 @@ public abstract class Agent {
 	
 
 	public float age;
-	protected float maxAge;
+	public float maxAge;
 	
 	public float health;
 	protected float healPower;
@@ -20,7 +20,7 @@ public abstract class Agent {
 		age = 0;
 		this.health = health;
 		
-		maxAge = 200; //TODO: move these
+		maxAge = 20000; //TODO: move these
 		healPower = 0.01f;
 		maxHealth = 100;
 		

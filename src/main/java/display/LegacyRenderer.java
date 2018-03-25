@@ -149,7 +149,7 @@ public void actionLoadBrains() {
 //								World.animalManager.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 //						continue;
 //					}
-					float ageFactor = 1f - ((float)animal.age)/(Species.AGE_DEATH);
+					float ageFactor = 1f - ((float)animal.age)/(animal.maxAge);
 					float hungerFactor = animal.stomach.getRelativeFullness();
 					float healthFactor = animal.health;
 //					if (RenderState.DRAW_VISION_CIRCLE) {

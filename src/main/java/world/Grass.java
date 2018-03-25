@@ -17,22 +17,22 @@ public class Grass {
 	}
 
 	public void grow(int timeStep, int updateFrequency) {
-		if (World.air.getCarbon() < Constants.GROWTH * Constants.WORLD_SIZE) {
-			System.out.println("World.air.getCarbon()=" + World.air.getCarbon());
-			return;
-		}
+//		if (World.air.getCarbon() < Constants.GROWTH * Constants.WORLD_SIZE) {
+////			System.out.println("World.air.getCarbon()=" + World.air.getCarbon());
+//			return;
+//		}
 		for(int i = timeStep%updateFrequency; i < Constants.WORLD_SIZE; i+=updateFrequency) {
-			float totalGrowth = 0; 
+//			float totalGrowth = 0; 
 			if (toBeUpdated[i]) {
-				totalGrowth -= height[i];
+//				totalGrowth -= height[i];
 				height[i] += Constants.GROWTH * World.terrain.growth[i] * updateFrequency;
 				if (height[i] > World.terrain.growth[i]) {
 					toBeUpdated[i] = false;
 					height[i] = World.terrain.growth[i];
 				}
-				totalGrowth += height[i];
+//				totalGrowth += height[i];
 			}
-			World.air.harvest(totalGrowth);
+//			World.air.harvest(totalGrowth);
 		}
 		tree.update();
 	}

@@ -3,7 +3,6 @@ package agents;
 public class Species {
 	
 	public static final int BIRTH_HUNGER_COST = 5;
-	public static final int AGE_DEATH = 1000;
 	
 	public int speciesId;
 	public static int numSpecies = 0;
@@ -28,11 +27,11 @@ public class Species {
 		else if (numAlive > 1000) {
 			return 2f;
 		}
-		return 0.5f;
+		return 1f;
 	}
 	
 	
-	public void someoneWasBorn(Species mom) {
+	public void someoneWasBorn() {
 		numAlive++;
 	}
 	

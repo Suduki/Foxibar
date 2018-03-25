@@ -1,7 +1,7 @@
 package world;
 
 public class Air {
-	public static float TOTAL_GLOBAL_CARBON = 10000;
+	public static float TOTAL_GLOBAL_CARBON = 1000000;
 	private float carbon;
 	
 	public Air() {

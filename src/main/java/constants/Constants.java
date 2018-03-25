@@ -6,7 +6,7 @@ import vision.Vision;
 
 public class Constants {
 
-	public static final short WORLD_MULTIPLIER = 7;
+	public static final short WORLD_MULTIPLIER = 8;
 	public static final float INIT_ZOOM = 1f;
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
@@ -19,7 +19,7 @@ public class Constants {
 	public static final float PIXELS_PER_NODE_Y = ((float)PIXELS_Y)/WORLD_SIZE_Y;
 	public static final Random RANDOM = new Random(1);
 	public static final float TILES_PER_ANIMAL = 20;
-	public static final float GROWTH = 0.01f;
+	public static final float GROWTH = 0.05f;
 	public static final int MAX_NUM_ANIMALS = 30000;
 	public static final float ZOOM_SPEED = 1.05f;
 	public static final int NUM_NEIGHBOURS = 3;

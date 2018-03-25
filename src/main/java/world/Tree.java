@@ -10,7 +10,7 @@ public class Tree {
 	public float[] height;
 	public float[] health;
 	public boolean[] isAlive;
-	private float spawnRate = 0.1f; // TODO: Replace with i++
+	private float spawnRate = 0f; // TODO: Replace with i++
 	private int numTrees = 0;
 	
 	public Tree() {

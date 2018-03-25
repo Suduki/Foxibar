@@ -70,7 +70,6 @@ public class AnimalManager {
 		toDie.clear();
 		for (Animal a : toLive) {
 			alive.add(a);
-			dead.remove(a);
 		}
 		toLive.clear();
 	}
@@ -80,11 +79,13 @@ public class AnimalManager {
 		Animal child = resurrectAnimal();
 		child.brain.neural.initWeightsRandom();
 		child.species = species;
-		child.species.someoneWasBorn(species);
+		child.species.someoneWasBorn();
 
 		child.pos = pos;
 		child.oldPos = pos;
-		child.stomach.init(Constants.RANDOM.nextFloat());
+		Vision.addAnimalToZone(child);
+		
+		child.stomach.inherit(null);
 //			if (LoadBrains.bestBloodling != null && id.species.speciesId == Constants.SpeciesId.BLOODLING) {
 //				id.neuralNetwork.inherit(LoadBrains.bestBloodling, LoadBrains.bestBloodling);
 //			}
@@ -97,8 +98,11 @@ public class AnimalManager {
 		Animal child = resurrectAnimal();
 		child.brain.inherit(a1.brain, a2.brain);
 		child.species = a1.species;
+		child.species.someoneWasBorn();
 		child.pos = a1.pos;
 		child.oldPos = a2.pos;
+		Vision.addAnimalToZone(child);
+		
 		child.stomach.inherit(a1.stomach);
 		
 		return a2;
@@ -122,7 +126,6 @@ public class AnimalManager {
 		numAnimals++;
 		containsAnimals[id.pos] = id;
 		
-		Vision.addAnimalToZone(id);
 		return id;
 	}
 	
@@ -139,6 +142,9 @@ public class AnimalManager {
 	
 	public void someoneDied(Animal animal) {
 		numAnimals--;
+		if (containsAnimals[animal.pos] == animal) {
+			containsAnimals[animal.pos] = null;
+		}
 		toDie.add(animal);
 	}
 
