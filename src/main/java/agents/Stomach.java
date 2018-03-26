@@ -47,7 +47,7 @@ public class Stomach {
 	private float mattiasFunction(float p2) {
 		return (float) (a * Math.exp(b*p2) + c);
 	}
-	@Test
+//	@Test
 	public void testMattiasFunction() { //TODO: Låt Mattias styra upp detta.....
 		System.out.println("Mattias Function Test:" +mattiasFunction(-1) +" " + mattiasFunction(0) + " " + mattiasFunction(1));
 		org.junit.Assert.assertTrue(mattiasFunction(-1) < 0.5f);
@@ -115,7 +115,7 @@ public class Stomach {
 		
 	}
 	private void burnFat() {
-		fat -= energyCost/10;
+		fat -= energyCost/3;
 		World.air.addCarbon(energyCost);
 		energyCost = 0;
 	}

@@ -19,7 +19,7 @@ public class Constants {
 	public static final float PIXELS_PER_NODE_Y = ((float)PIXELS_Y)/WORLD_SIZE_Y;
 	public static final Random RANDOM = new Random(1);
 	public static final float TILES_PER_ANIMAL = 20;
-	public static final float GROWTH = 0.05f;
+	public static final float GROWTH = 0.005f;
 	public static final int MAX_NUM_ANIMALS = 30000;
 	public static final float ZOOM_SPEED = 1.05f;
 	public static final int NUM_NEIGHBOURS = 3;
@@ -60,7 +60,7 @@ public class Constants {
 	public static class Blood {
 		public static final float SPLASH = 1f;
 		public static final float ADDITION_ON_DEATH = 1f;
-		public static final float DECAY_FACTOR = 0.9999f;
+		public static final float DECAY_FACTOR = 0.99f;
 		public static final float DECAY_FACTOR_WATER = 0.9f;
 		public static final float DECAY_FACTOR_STONE = 0.9f;
 		public static final float DEATH_FROM_HUNGER_FACTOR = 1f;

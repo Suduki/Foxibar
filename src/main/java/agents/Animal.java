@@ -31,7 +31,7 @@ public class Animal extends Agent {
 	public Species species;
 	private int timeBetweenBabies = 10;
 
-	public float muscle;
+	public float muscle = 1;
 
 	private boolean starving;
 	
@@ -53,13 +53,10 @@ public class Animal extends Agent {
 		
 		if (!isAlive) return false;
 		
-		// Step recover. This is to enable different speeds for different agents.
-		recover += getSpeed();
-		if (recover < 1f){
-			return isAlive;
+		if (!timeToMove()) {
+			return false;
 		}
-		recover--;
-		
+
 		if (!isAlive) {
 			System.out.println("Trying to step a dead agent.");
 			return false;
@@ -70,6 +67,19 @@ public class Animal extends Agent {
 		
 		return isAlive;
 	}
+	/**
+	 * Step recover. This is to enable different speeds for different agents.
+	 * @return
+	 */
+	private boolean timeToMove() {
+//		recover += getSpeed();
+//		if (recover < 1f){
+//			return false;
+//		}
+//		recover--;
+		return true;
+	}
+
 	private void actionUpdate() {
 		look();
 		int direction = think(); // direction points to a tile position where to move.
@@ -152,20 +162,22 @@ public class Animal extends Agent {
 		}
 	}
 
-	private void move(int direction) {
+	private void move(int tileDir) {
 		oldPos = pos;
-		if (World.animalManager.containsAnimals[World.neighbour[direction][pos]] == null) {
-			pos = World.neighbour[direction][pos];
+		int tilePos = World.neighbour[tileDir][pos];
+		if (World.animalManager.containsAnimals[tilePos] == null) {
+			pos = tilePos;
 			Vision.updateAnimalZone(this);
 		}
 	}
 
 	/**
 	 * Interacts with the agent at direction
-	 * @param positionToInteractWith
+	 * @param tileToInteractWith
 	 */
-	private void interact(int positionToInteractWith) {
-		Agent agent = getAgentAt(positionToInteractWith);
+	private void interact(int tileToInteractWith) {
+		int tilePos = World.neighbour[tileToInteractWith][pos];
+		Agent agent = getAgentAt(tilePos);
 		if (agent != null && agent != this && agent.getClass() == Animal.class) {
 			mateWith((Animal) agent);
 		}
@@ -204,7 +216,7 @@ public class Animal extends Agent {
 			brain.neural.z[tile][0][NeuralFactors.TILE_TERRAIN_HEIGHT] = 
 					World.terrain.height[tilePos] - World.terrain.height[pos];
 			
-			brain.neural.z[tile][0][NeuralFactors.TILE_DANGER] = animalOnTile == null ? -1 : 1;
+			brain.neural.z[tile][0][NeuralFactors.TILE_DANGER] = 0;
 			brain.neural.z[tile][0][NeuralFactors.TILE_HUNT] = 0;
 			brain.neural.z[tile][0][NeuralFactors.TILE_FRIENDS] = 0;
 			brain.neural.z[tile][0][NeuralFactors.TILE_FERTILITY] = 0;
@@ -303,10 +315,10 @@ public class Animal extends Agent {
 		species.someoneDied(this);
 		World.animalManager.someoneDied(this);
 		World.blood.append(pos, stomach.blood);
+		World.blood.append(pos, 1f);
 		World.fiber.append(pos, stomach.fiber);
 		World.fat.append(pos, stomach.fat);
 		stomach.empty();
-		
 		
 		isAlive = false;
 		
