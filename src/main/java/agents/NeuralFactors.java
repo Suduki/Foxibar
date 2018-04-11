@@ -14,8 +14,9 @@ public class NeuralFactors {
 	public static final int TILE_TERRAIN_HEIGHT	= NUM_INPUT_FACTORS++;
 	
 	public static int NUM_OUTPUT_FACTORS  	= 0;
-	public static final int AGGRESSIVE		= NUM_OUTPUT_FACTORS++;
-	public static final int NODE_GOODNESS	= NUM_OUTPUT_FACTORS++;
+	public static final int OUT_AGGRESSIVE		= NUM_OUTPUT_FACTORS++;
+	public static final int OUT_HARVEST			= NUM_OUTPUT_FACTORS++;
+	public static final int OUT_NODE_GOODNESS	= NUM_OUTPUT_FACTORS++;
 	
 	public static final String[] NAMES = {
 			"HUNGER   ",

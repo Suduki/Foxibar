@@ -2,6 +2,7 @@ package agents;
 
 public abstract class Agent {
 	
+	public static final int MAX_AGE = 30000;
 
 	public float age;
 	public float maxAge;
@@ -20,7 +21,7 @@ public abstract class Agent {
 		age = 0;
 		this.health = health;
 		
-		maxAge = 20000; //TODO: move these
+		maxAge = MAX_AGE; //TODO: move these
 		healPower = 0.01f;
 		maxHealth = 100;
 		

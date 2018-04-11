@@ -18,20 +18,23 @@ public class StabilityIT {
 	@BeforeClass
 	public static void init() {
 		simulation     = new Simulation();
-		System.out.println("before");
+		System.out.println("Before class completed");
 	}
 	@Test
 	public void singleAnimalTest() {
-		for (int i = 0; i < 2000; ++i) {
+		System.out.println("Test starts: verifying that alone animals die");
+		for (int i = 0; i < 200; ++i) {
 			verifyThatAloneAnimalDies();
 		}
+		System.out.println("Test ends: success");
 	}
 	public void verifyThatAloneAnimalDies() {
 		int timeStep = 0;
+		verifyContainsAnimalsEmpty();
 		
 		Main.spawnRandomAnimal(Constants.Species.GRASSLER, 1);
 		Assert.assertTrue(World.animalManager.numAnimals == 1);
-		while (simulation.handleMessages() && timeStep <= 300)
+		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE+1)
 		{
 			timeStep++;
 			simulation.step(timeStep);
@@ -42,6 +45,7 @@ public class StabilityIT {
 		Assert.assertTrue("Expected all animals to be dead. Currently " + 
 				World.animalManager.numAnimals + " alive", World.animalManager.numAnimals == 0);
 		Assert.assertTrue("zoneSize() was " + zoneSize(), zoneSize() == 0);
+		verifyContainsAnimalsEmpty();
 		
 //		System.out.println("Test step 2, verify that a population of Grasslers survive");
 //		spawnRandomAnimal(Constants.Species.GRASSLER, 100);
@@ -68,6 +72,13 @@ public class StabilityIT {
 //		Assert.assertTrue(Animal.numBloodlings < 10000);
 //		Assert.assertTrue(Animal.numBloodlings > 10);
 //		System.out.println("num animals after test step 3: Grasslers: " + Animal.numGrasslers + ", Bloodlings: " + Animal.numBloodlings);
+	}
+	
+	private void verifyContainsAnimalsEmpty() {
+		for (int i = 0; i < World.animalManager.containsAnimals.length; ++i) {
+			Assert.assertTrue("containsAnimals is not empty even though all animals are dead: at " + i, 
+					World.animalManager.containsAnimals[i] == null);
+		}
 	}
 	
 	

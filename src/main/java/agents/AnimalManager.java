@@ -86,13 +86,6 @@ public class AnimalManager {
 		Vision.addAnimalToZone(child);
 		
 		child.stomach.inherit(null);
-//			if (LoadBrains.bestBloodling != null && id.species.speciesId == Constants.SpeciesId.BLOODLING) {
-//				id.neuralNetwork.inherit(LoadBrains.bestBloodling, LoadBrains.bestBloodling);
-//			}
-//			else if (LoadBrains.bestGrassler != null && id.species.speciesId == Constants.SpeciesId.GRASSLER) {
-//				id.neuralNetwork.inherit(LoadBrains.bestGrassler, LoadBrains.bestGrassler);
-//			}
-//			else {
 	}
 	public Animal mate(Animal a1, Animal a2) {
 		Animal child = resurrectAnimal();
@@ -116,15 +109,9 @@ public class AnimalManager {
 			return null;
 		}
 		
-		id.isAlive = true;
-		id.age = 0;
-		id.score = 0;
-		id.sinceLastBaby = 0;
-		id.recover = 0f;
-		id.health = 0.1f;
+		id.reset();
 		
 		numAnimals++;
-		containsAnimals[id.pos] = id;
 		
 		return id;
 	}

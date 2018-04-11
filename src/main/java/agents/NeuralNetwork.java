@@ -11,17 +11,17 @@ public class NeuralNetwork {
 	
 	public float[][][] weights;
 	public float[][][] weightsOld;
-	public double[][][] z;
-	public double[][][] zOld;
+	public float[][][] z;
+	public float[][][] zOld;
 	public int bestDirection;
-	public double[][] bias;
+	public float[][] bias;
 
 	public NeuralNetwork(boolean initZero) {
 		weights = new float[NUM_WEIGHTS][][];
 		weightsOld = new float[NUM_WEIGHTS][][];
-		z = new double[NUM_OPTIONS][NUM_LAYERS][];
-		zOld = new double[NUM_OPTIONS][NUM_LAYERS][];
-		bias = new double[NUM_LAYERS-2][]; // Skip input layer and output layer.
+		z = new float[NUM_OPTIONS][NUM_LAYERS][];
+		zOld = new float[NUM_OPTIONS][NUM_LAYERS][];
+		bias = new float[NUM_LAYERS-2][]; // Skip input layer and output layer.
 		bestDirection = -1;
 		
 		for (int weight = 0 ; weight < NUM_WEIGHTS; ++weight) {
@@ -32,10 +32,10 @@ public class NeuralNetwork {
 		}
 		for (int direction = 0; direction < NUM_OPTIONS; ++direction) {
 			for (int layer = 0 ; layer < NUM_LAYERS; ++layer) {
-				z[direction][layer] = new double[LAYER_SIZES[layer]];
+				z[direction][layer] = new float[LAYER_SIZES[layer]];
 
 				if (layer != 0) { // We do not use these at the first layer.	
-					zOld[direction][layer] = new double[LAYER_SIZES[layer]];
+					zOld[direction][layer] = new float[LAYER_SIZES[layer]];
 				}
 			}
 		}
@@ -52,7 +52,7 @@ public class NeuralNetwork {
 	
 	private void initBias() {
 		for (int layer = 0 ; layer < bias.length; ++layer) {
-			bias[layer] = new double[LAYER_SIZES[layer]];
+			bias[layer] = new float[LAYER_SIZES[layer]];
 			for (int i = 0; i < bias[layer].length; ++i) {
 				bias[layer][i] = getRandom();
 			}
@@ -142,8 +142,8 @@ public class NeuralNetwork {
 		double bestVal = Double.NEGATIVE_INFINITY;
 		bestDirection = -1;
 		for(int direction = 0; direction < NUM_OPTIONS; ++direction) {
-			if (z[direction][LAYER_SIZES.length-1][0] > bestVal) {
-				bestVal = z[direction][LAYER_SIZES.length-1][0];
+			if (z[direction][LAYER_SIZES.length-1][NeuralFactors.OUT_NODE_GOODNESS] > bestVal) {
+				bestVal = z[direction][LAYER_SIZES.length-1][NeuralFactors.OUT_NODE_GOODNESS];
 				bestDirection = direction;
 			}
 		}
@@ -154,9 +154,13 @@ public class NeuralNetwork {
 		return bestDirection;
 	}
 	
-	private double sigmoid(double f) {
-		double result = 1d/(1d+Math.exp(-f));
-		return result;
+	public float getOutput(int neuralFactorId) {
+		return z[bestDirection][LAYER_SIZES.length-1][neuralFactorId];
+	}
+	
+	private float sigmoid(float f) {
+		float result = (float) (1d/(1d+Math.exp(-f)));
+		return result*2-0.5f;
 	}
 	
 	public void copy(NeuralNetwork d, float mutation) {

@@ -5,7 +5,7 @@ import vision.Vision;
 import world.World;
 
 public class Animal extends Agent {
-	
+	public int incarnation = 0;
 	public int score = 0;
 	
 	public int sinceLastBaby = 0;
@@ -31,8 +31,6 @@ public class Animal extends Agent {
 	public Species species;
 	private int timeBetweenBabies = 10;
 
-	public float muscle = 1;
-
 	private boolean starving;
 	
 	public Animal(float health, int id, Species species) {
@@ -50,17 +48,11 @@ public class Animal extends Agent {
 
 	@Override
 	public boolean stepAgent() {
-		
-		if (!isAlive) return false;
-		
-		if (!timeToMove()) {
-			return false;
-		}
-
 		if (!isAlive) {
 			System.out.println("Trying to step a dead agent.");
 			return false;
 		}
+		if (!timeToMove()) return false;
 		
 		actionUpdate();
 		internalOrgansUpdate();
@@ -143,13 +135,14 @@ public class Animal extends Agent {
 	 * Recommended between (0.5, speed, 1]
 	 * Used to step initiative (recover)
 	 * 
-	 * Reduced by agent mass.
-	 * Increased by agent muscle.
+	 * TODO: Reduced by agent mass.
+	 * TODO: Increased by agent muscle.
 	 * @return speed
 	 */
 	private float getSpeed() {
-		float totalMass = (muscle + stomach.getMass())*size;
-		return muscle / totalMass;
+//		float totalMass = (stomach.getMass());
+//		return 1f / totalMass;
+		return 1f;
 	}
 	
 	private void look() {
@@ -179,16 +172,24 @@ public class Animal extends Agent {
 		int tilePos = World.neighbour[tileToInteractWith][pos];
 		Agent agent = getAgentAt(tilePos);
 		if (agent != null && agent != this && agent.getClass() == Animal.class) {
-			mateWith((Animal) agent);
+			if (brain.neural.getOutput(NeuralFactors.OUT_AGGRESSIVE) > 0) {
+				fightWith((Animal) agent);
+			}
+			else if (((Animal)agent).species == species){
+				mateWith((Animal) agent);
+			}
 		}
 	}
 
 	
+	private void fightWith(Animal agent) {
+		agent.health -= getFightSkill();
+	}
+
 	private Agent getAgentAt(int position) {
 		return World.animalManager.getAgentAt(position);
 	}
 
-	private double[] tileGoodness = new double[5];
 
 	/**
 	 * Decides where to go.
@@ -197,7 +198,6 @@ public class Animal extends Agent {
 	private int think() {
 		for (int tile = 0; tile < 4; ++tile) {
 			int tilePos = World.neighbour[tile][pos];
-			Agent animalOnTile = getAgentAt(tilePos); 
 			
 			brain.neural.z[tile][0][NeuralFactors.HUNGER] = stomach.getRelativeFullness();
 			if (brain.neural.z[tile][0][NeuralFactors.HUNGER] > 1) {
@@ -258,7 +258,7 @@ public class Animal extends Agent {
 
 	@Override
 	protected void harvest() {
-		float neuralOutput = 1f;//TODO
+		float neuralOutput = brain.neural.getOutput(NeuralFactors.OUT_HARVEST);//TODO
 		float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
 		float amount = World.fat.harvest(harvestSkill, pos);
 		stomach.addFat(amount);
@@ -315,7 +315,7 @@ public class Animal extends Agent {
 		species.someoneDied(this);
 		World.animalManager.someoneDied(this);
 		World.blood.append(pos, stomach.blood);
-		World.blood.append(pos, 1f);
+		World.blood.append(pos, size);
 		World.fiber.append(pos, stomach.fiber);
 		World.fat.append(pos, stomach.fat);
 		stomach.empty();
@@ -330,7 +330,7 @@ public class Animal extends Agent {
 	}
 
 	private float getFightSkill() {
-		return muscle * size;
+		return size;
 	}
 
 	private boolean isFertileWith(Animal animal) {
@@ -343,5 +343,15 @@ public class Animal extends Agent {
 	
 	private boolean isFertile() {
 		return isFertile;
+	}
+
+	public void reset() {
+		isAlive = true;
+		age = 0;
+		score = 0;
+		sinceLastBaby = 0;
+		recover = 0f;
+		health = 0.1f;
+		incarnation++;
 	}
 }

@@ -41,9 +41,9 @@ public class Stomach {
 		pBlood = mattiasFunction(-p);
 	}
 
-	private float a = 0.2f;
-	private float b = 1f;
-	private float c = 0.2f;
+	private static final float a = 0.2f;
+	private static final float b = 1f;
+	private static final float c = 0.2f;
 	private float mattiasFunction(float p2) {
 		return (float) (a * Math.exp(b*p2) + c);
 	}
@@ -91,7 +91,7 @@ public class Stomach {
 	/**
 	 * Digests
 	 */
-	private static final float DIGEST_AMOUNT = 1; //TODO: styr upp konstanter som denna.
+	private static final float DIGEST_AMOUNT = 0.4f; //TODO: styr upp konstanter som denna.
 	private void digest() {
 		float totalFullness = fiber + blood;
 		if (totalFullness > DIGEST_AMOUNT ) {
@@ -114,8 +114,9 @@ public class Stomach {
 		}
 		
 	}
+	private final float fatToEnergyFactor = 0.02f;
 	private void burnFat() {
-		fat -= energyCost/3;
+		fat -= energyCost*fatToEnergyFactor;
 		World.air.addCarbon(energyCost);
 		energyCost = 0;
 	}
