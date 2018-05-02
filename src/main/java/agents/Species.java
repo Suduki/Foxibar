@@ -2,7 +2,7 @@ package agents;
 
 public class Species {
 	
-	public static final int BIRTH_HUNGER_COST = 5;
+	public static final int BIRTH_HUNGER_COST = 500;
 	
 	public int speciesId;
 	public static int numSpecies = 0;

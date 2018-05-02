@@ -60,7 +60,7 @@ public class Stomach {
 		energyCost += f*healCostFactor;
 	}
 	public void addGrowCost(float f) {
-		float growCostFactor = 0; // TODO
+		float growCostFactor = 10; // TODO
 		energyCost += f*growCostFactor;
 	}
 	
@@ -71,7 +71,7 @@ public class Stomach {
 	 */
 	public boolean stepStomach(Species species) {
 		uglySpeciesFactor = species.getUglySpeciesFactor();
-		energyCost = 1;
+		energyCost += 1;
 		digest();
 		burnFat();
 		checkFullness();
@@ -91,7 +91,7 @@ public class Stomach {
 	/**
 	 * Digests
 	 */
-	private static final float DIGEST_AMOUNT = 0.4f; //TODO: styr upp konstanter som denna.
+	private static final float DIGEST_AMOUNT = 1f; //TODO: styr upp konstanter som denna.
 	private void digest() {
 		float totalFullness = fiber + blood;
 		if (totalFullness > DIGEST_AMOUNT ) {

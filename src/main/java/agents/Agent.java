@@ -26,7 +26,7 @@ public abstract class Agent {
 		maxHealth = 100;
 		
 		size = 1;
-		growth = 0.1f;
+		growth = 0.01f;
 		maxSize = 1;
 	}
 

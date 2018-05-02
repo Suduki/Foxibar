@@ -64,11 +64,11 @@ public class Animal extends Agent {
 	 * @return
 	 */
 	private boolean timeToMove() {
-//		recover += getSpeed();
-//		if (recover < 1f){
-//			return false;
-//		}
-//		recover--;
+		recover += getSpeed();
+		if (recover < 1f){
+			return false;
+		}
+		recover--;
 		return true;
 	}
 
@@ -240,7 +240,7 @@ public class Animal extends Agent {
 				}
 				
 				if (looksDangerous(nearbyAnimalId)) {
-					brain.neural.z[tile][0][NeuralFactors.TILE_DANGER] = Math.max(distanceFactor, brain.neural.z[tile][0][NeuralFactors.TILE_DANGER]);
+//					brain.neural.z[tile][0][NeuralFactors.TILE_DANGER] = Math.max(distanceFactor, brain.neural.z[tile][0][NeuralFactors.TILE_DANGER]);
 				}
 				else {
 					brain.neural.z[tile][0][NeuralFactors.TILE_HUNT] = Math.max(distanceFactor, brain.neural.z[tile][0][NeuralFactors.TILE_HUNT]);
