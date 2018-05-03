@@ -271,6 +271,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		m = new Matrix4f();
 		glLoadMatrixf(new Matrix4f(mCamera.getViewMatrix()).mul(m.translate(17, 0, 33)).get(matrixBuffer)); GpuUtils.GpuErrorCheck();
 		
+		mGrassRenderer.drawAgents(mHeightScale);
 		mGrassRenderer.drawGrass(mHeightScale);
 		
 		glMatrixMode(GL_PROJECTION);

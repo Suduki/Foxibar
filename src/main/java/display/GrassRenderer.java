@@ -17,7 +17,6 @@ import org.joml.Vector3f;
 
 import agents.Agent;
 import agents.Animal;
-import agents.Plant;
 import world.Terrain;
 import world.World;
 import constants.Constants;
@@ -27,7 +26,6 @@ public class GrassRenderer {
 	private int grassQuality = 3;
 	
 	void drawGrass(float heightScale) {
-		drawAgents(heightScale);
 		if (!drawGrass) return;
 		int i = 0;
 		float x0 = -Constants.WORLD_SIZE_X/2.0f;
@@ -43,22 +41,23 @@ public class GrassRenderer {
 		for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
 			for (int x = 0; x < Constants.WORLD_SIZE_X; x+=1) {
 				float height  = World.grass.height[i];
-				if (height > 0.3f) {
-					float xScale = (float)(Math.sqrt(3)*0.5);
-					float zScale = 1.5f;
+				float xScale = (float)(Math.sqrt(3)*0.5);
+				float zScale = 1.5f;
 
-					int hexX = x/2;
-					int hexZ = z/2; 
-					
-					float xPosOffset = (hexZ%2 == 1) ? xScale : 0.0f;
-					
-					float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
-					float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
-					
-					if (World.grass.tree.isAlive[i]) {
-						renderTreeAt(World.grass.tree.height[i], xpos, zpos, i, heightScale);
-					}
-					else {
+				int hexX = x/2;
+				int hexZ = z/2; 
+
+				float xPosOffset = (hexZ%2 == 1) ? xScale : 0.0f;
+
+				float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
+				float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
+
+
+				if (World.grass.tree.isAlive[i]) {
+					renderTreeAt(World.grass.tree.height[i], xpos, zpos, i, heightScale);
+				}
+				else {
+					if (height > 0.3f) {
 						renderGrassAt(height*2, xpos, zpos, i, heightScale);
 					}
 				}
@@ -66,7 +65,38 @@ public class GrassRenderer {
 			}
 		}
 		glEnd();
-		glLineWidth(1);
+		
+		
+		//TODO: Make code pretty (koden efteråt är retired copy/paste.)
+		i = 0;
+		glLineWidth(25);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_LINES);
+		for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
+			for (int x = 0; x < Constants.WORLD_SIZE_X; x+=1) {
+				float height  = World.grass.height[i];
+				float xScale = (float)(Math.sqrt(3)*0.5);
+				float zScale = 1.5f;
+
+				int hexX = x/2;
+				int hexZ = z/2; 
+
+				float xPosOffset = (hexZ%2 == 1) ? xScale : 0.0f;
+
+				float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
+				float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
+
+
+				if (World.grass.tree.isAlive[i]) {
+					renderTreeTopAt(World.grass.tree.height[i], xpos, zpos, i, heightScale);
+				}
+
+				++i;
+			}
+		}
+		glEnd();
+		
 	}
 	
 	void drawAgents(float heightScale) {
@@ -99,9 +129,6 @@ public class GrassRenderer {
 					if (id.getClass() == Animal.class) {
 						renderAnimalAt((Animal) id, xpos, zpos, heightScale);
 					}
-					if (id.getClass() == Plant.class) {
-//						renderTreeAt((Plant) id, xpos, zpos);
-					}
 				}
 				
 				++i;
@@ -131,7 +158,7 @@ public class GrassRenderer {
 		numSplits = (int) Math.ceil(numSplits*height);
 		Vector3f drawPos = new Vector3f();
 		Vector3f force = new Vector3f();
-		for (int i = 0; i < numSplits; ++i) {
+		for (int i = 0; i < numSplits/2; ++i) {
 			float colorGrad = 0.5f+(0.5f*((float)i+1f)/numSplits);
 			float alphaGrad = 0.1f*((float)i)/numSplits;
 			glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
@@ -144,8 +171,45 @@ public class GrassRenderer {
 			drawPos.add(force);
 			glVertex3f(x + drawPos.x,y + drawPos.y,z + drawPos.z);
 		}
+		
 	}
 
+	private void renderTreeTopAt(float height, float x, float z, int pos, float heightScale) {
+		float[] c = Constants.Colors.TREE;
+		float y = (float)Math.pow(World.terrain.height[pos], 1.5);
+		y *= heightScale;
+		float xWind = 1f-2*World.wind.getWindX(x, z);
+		float zWind = 1f-2*World.wind.getWindZ(x, z);
+		
+		int numSplits = 20;
+		numSplits = (int) Math.ceil(numSplits*height);
+		Vector3f drawPos = new Vector3f();
+		Vector3f force = new Vector3f();
+		
+		c = Constants.Colors.TREE_TOP;
+		//TODO : Styr upp sån här idiotduplicerad kod
+		for (int i = 0; i < numSplits; ++i) {
+			float colorGrad = 0.5f+(0.5f*((float)i+1f)/numSplits);
+			float alphaGrad = 0.1f*((float)i)/numSplits;
+			if (i > numSplits/2) {
+				glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
+				glVertex3f(x + drawPos.x,y + drawPos.y,z + drawPos.z);
+				force.y = 20f; // Stiffness, force towards middle TODO: Make a force normal from ground
+			}
+			else {
+				force.y = 50f; // Stiffness, force towards middle TODO: Make a force normal from ground
+			}
+			force.x = World.wind.getWindForceAtY(xWind, drawPos.y);
+			force.z = World.wind.getWindForceAtY(zWind, drawPos.y);
+			float factor = height / force.length() / numSplits;
+			force.mul(factor);
+			drawPos.add(force);
+			if (i > numSplits/2) {
+				glVertex3f(x + drawPos.x,y + drawPos.y,z + drawPos.z);
+			}
+
+		}
+	}
 
 	private void renderGrassAt(float height, float x, float z, int pos, float heightScale) {
 		float[] c = Constants.Colors.GRASS_STRAW;

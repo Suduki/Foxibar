@@ -17,7 +17,7 @@ public class Grass {
 	}
 
 	public void grow(int timeStep, int updateFrequency) {
-//		if (World.air.getCarbon() < Constants.GROWTH * Constants.WORLD_SIZE) {
+//		if (World.air.getCarbon() < Constants.GROWTH * Constants.WORLD_SIZE) { //TODO: Carbon stuff
 ////			System.out.println("World.air.getCarbon()=" + World.air.getCarbon());
 //			return;
 //		}
@@ -63,10 +63,6 @@ public class Grass {
 	}
 
 	public float harvest(float grassHarvest, int pos) {
-		if (tree.isAlive[pos]) {
-			System.err.println("Trying to harvest a tree?");
-			return 0;
-		}
 		if (World.terrain.water[pos] || World.terrain.stone[pos]) {
 			return 0;
 		}

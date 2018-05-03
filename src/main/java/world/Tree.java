@@ -6,11 +6,11 @@ import constants.Constants;
 
 public class Tree {
 
-	private static final float growth = 0.1f;
+	private static final float growth = 0.05f;
 	public float[] height;
 	public float[] health;
 	public boolean[] isAlive;
-	private float spawnRate = 0f; // TODO: Replace with i++
+	private float spawnRate = 1f; // TODO: Replace with i++
 	private int numTrees = 0;
 	
 	public Tree() {
@@ -23,7 +23,7 @@ public class Tree {
 		for (int pos = 0 ; pos < Constants.WORLD_SIZE; ++pos) {
 			if (isAlive[pos]) {
 				height[pos] += growth;
-				height[pos] *= 0.99f;
+				height[pos] *= 0.996f;
 				health[pos] -= 1;
 
 				if (health[pos] < 0) {
@@ -33,7 +33,7 @@ public class Tree {
 		}
 		if (Constants.RANDOM.nextFloat() < spawnRate/numTrees) {
 			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
-			if (!isAlive[pos]) {
+			if (!isAlive[pos] && !World.terrain.water[pos] && !World.terrain.stone[pos]) {
 				resurrect(pos);
 			}
 		}
@@ -51,7 +51,7 @@ public class Tree {
 	public void resurrect(int pos) {
 		isAlive[pos] = true;
 		height[pos] = 1;
-		health[pos] = 1000;
+		health[pos] = 100000;
 		numTrees  ++;
 	}
 

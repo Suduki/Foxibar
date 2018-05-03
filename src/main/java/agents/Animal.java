@@ -318,6 +318,7 @@ public class Animal extends Agent {
 		World.blood.append(pos, size);
 		World.fiber.append(pos, stomach.fiber);
 		World.fat.append(pos, stomach.fat);
+		System.out.println("in die(), fat = " + stomach.fat);
 		stomach.empty();
 		
 		isAlive = false;

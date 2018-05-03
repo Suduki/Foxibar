@@ -46,6 +46,7 @@ public class Constants {
 		public static final float[] GRASS_STRAW = new float[]{0.4f, 0.8f, 0f};
 		public static final float[] TREE = new float[]{0.5f, 0.2f, 0.1f};
 		public static final float[] FIBER = new float[]{0.5f, 0.2f, 0.1f};
+		public static final float[] TREE_TOP = new float[]{0.4f, 0.8f, 0f};
 	}
 
 	public static class Neighbours {

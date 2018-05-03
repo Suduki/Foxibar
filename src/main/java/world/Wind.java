@@ -55,7 +55,7 @@ public class Wind {
 		return  ((((int)val % max) + max) % max);
 	}
 	public void regenerate() {
-		windX = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.4f);
-		windZ = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.4f);		
+		windX = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.5f);
+		windZ = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.5f);		
 	}
 }

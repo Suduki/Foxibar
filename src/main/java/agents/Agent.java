@@ -2,7 +2,7 @@ package agents;
 
 public abstract class Agent {
 	
-	public static final int MAX_AGE = 30000;
+	public static final int MAX_AGE = 3000;
 
 	public float age;
 	public float maxAge;
