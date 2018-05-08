@@ -17,6 +17,8 @@ public class CarbonElement {
 	}
 	
 	public void append(int pos, float amount) {
+		if (amount < 0) return;
+		
 		height[pos] += amount;
 		for (short dir = 0; dir < 4; ++dir) {
 			height[World.neighbour[dir][pos]] += amount * splash;

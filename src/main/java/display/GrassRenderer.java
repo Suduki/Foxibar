@@ -69,7 +69,7 @@ public class GrassRenderer {
 		
 		//TODO: Make code pretty (koden efteråt är retired copy/paste.)
 		i = 0;
-		glLineWidth(25);
+		glLineWidth(15);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_LINES);
@@ -181,7 +181,7 @@ public class GrassRenderer {
 		float xWind = 1f-2*World.wind.getWindX(x, z);
 		float zWind = 1f-2*World.wind.getWindZ(x, z);
 		
-		int numSplits = 20;
+		int numSplits = 4;
 		numSplits = (int) Math.ceil(numSplits*height);
 		Vector3f drawPos = new Vector3f();
 		Vector3f force = new Vector3f();

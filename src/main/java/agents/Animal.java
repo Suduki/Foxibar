@@ -335,15 +335,16 @@ public class Animal extends Agent {
 	}
 
 	private boolean isFertileWith(Animal animal) {
-		return isFriendWith(animal) && isFertile() && animal.isFertile();
+		return isFriendWith(animal) && isFertileAndNotHungry() && animal.isFertileAndNotHungry();
 	}
 
 	private boolean isFriendWith(Animal animal) {
 		return species.speciesId == animal.species.speciesId;
 	}
 	
-	private boolean isFertile() {
-		return isFertile;
+	private boolean isFertileAndNotHungry() {
+		
+		return isFertile && stomach.canHaveBaby(Species.BIRTH_HUNGER_COST);
 	}
 
 	public void reset() {

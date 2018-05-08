@@ -19,18 +19,9 @@ public class Stomach {
 	private float pFiber;
 	private float pBlood;
 	private float uglySpeciesFactor;
-	private static final float MUTATION = 0.1f;
 	
-	public void inherit(Stomach parent) {
-		if (parent == null) {
-			p = (0.5f - Constants.RANDOM.nextFloat());
-		}
-		else {
-			p = (0.5f - Constants.RANDOM.nextFloat()) * MUTATION + parent.p;
-		}
-		if (p < -1) p = -1;
-		if (p > 1) p = 1;
-		init(p);
+	public void inherit(float p) {
+		init(this.p);
 	}
 	
 	void init(float p2) {
@@ -143,6 +134,10 @@ public class Stomach {
 
 	public float getRelativeFullness() {
 		return getMass() / MAX_FULLNESS;
+	}
+
+	public boolean canHaveBaby(int birthHungerCost) {
+		return fat / fatToEnergyFactor > birthHungerCost;
 	}
 
 }

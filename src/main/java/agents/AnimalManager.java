@@ -85,7 +85,7 @@ public class AnimalManager {
 		child.oldPos = pos;
 		Vision.addAnimalToZone(child);
 		
-		child.stomach.inherit(null);
+		child.stomach.inherit(species.p);
 	}
 	public Animal mate(Animal a1, Animal a2) {
 		Animal child = resurrectAnimal();
@@ -96,7 +96,7 @@ public class AnimalManager {
 		child.oldPos = a2.pos;
 		Vision.addAnimalToZone(child);
 		
-		child.stomach.inherit(a1.stomach);
+		child.stomach.inherit(a1.species.p);
 		
 		return a2;
 	}
