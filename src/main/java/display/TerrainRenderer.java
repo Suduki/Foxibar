@@ -26,6 +26,7 @@ import gui.KeyboardState;
 import gui.MouseEvent;
 import gui.MouseState;
 import gui.Region;
+import main.Main;
 import world.World;
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -161,7 +162,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);
 	public void updateColorTexture() {
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			World.updateColor(LegacyRenderer.terrainColor, i);
+			Main.simulation.mWorld.updateColor(LegacyRenderer.terrainColor, i);
 			
 			if (i == 0) {
 				colorBuffer.put(i*4+0, 0);
@@ -415,7 +416,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private void initSimulationTextures() {
 		FloatBuffer heightBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			float h = (float)Math.pow(World.terrain.height[i], 1.5);
+			float h = (float)Math.pow(Main.simulation.mWorld.terrain.height[i], 1.5);
 			h *= mHeightScale;
 			heightBuffer.put(i*4+0, h);
 			heightBuffer.put(i*4+1, 0);

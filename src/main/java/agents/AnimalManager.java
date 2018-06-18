@@ -18,13 +18,15 @@ public class AnimalManager {
 	public ArrayList<Animal> toDie = new ArrayList<>();
 	public ArrayList<Animal> toLive = new ArrayList<>();
 	public int numAnimals = 0;
-	public Agent[] containsAnimals;
+	public Animal[] containsAnimals;
 	public boolean killAll = false;
 	public boolean saveBrains = false;
 	public boolean loadBrains = false;
 	public Species[] species;
+	public Vision vision;
 	
-	public AnimalManager() {
+	public AnimalManager(World world) {
+		vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
 		int numSpecies = 2; //TODO: Make this part of species instead. Also spawn part.
 		species = new Species[numSpecies];
 		species[0] = new Species(Constants.Colors.BLACK, Constants.Colors.RED);
@@ -40,7 +42,7 @@ public class AnimalManager {
 		}
 		
 		for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-			pool[id] = new Animal(0, id, species[0]); //TODO behövs id?
+			pool[id] = new Animal(0, id, species[0], world); //TODO behövs id?
 			dead.add(pool[id]);
 		}
 	}
@@ -57,9 +59,11 @@ public class AnimalManager {
 		else {
 			for (Animal a : alive) {
 				containsAnimals[a.pos] = null;
+				vision.updateNearestNeighbours(a);
 				if (a.stepAgent()) {
 					containsAnimals[a.pos] = a;
 				}
+				vision.updateAnimalZone(a);
 			}
 		}
 		
@@ -83,7 +87,7 @@ public class AnimalManager {
 
 		child.pos = pos;
 		child.oldPos = pos;
-		Vision.addAnimalToZone(child);
+		vision.addAnimalToZone(child);
 		
 		child.stomach.inherit(species.p);
 	}
@@ -94,7 +98,7 @@ public class AnimalManager {
 		child.species.someoneWasBorn();
 		child.pos = a1.pos;
 		child.oldPos = a2.pos;
-		Vision.addAnimalToZone(child);
+		vision.addAnimalToZone(child);
 		
 		child.stomach.inherit(a1.species.p);
 		
@@ -133,9 +137,10 @@ public class AnimalManager {
 			containsAnimals[animal.pos] = null;
 		}
 		toDie.add(animal);
+		vision.removeAnimalFromZone(animal);
 	}
 
-	public Agent getAgentAt(int position) {
+	public Animal getAnimalAt(int position) {
 		return containsAnimals[position];
 	}
 

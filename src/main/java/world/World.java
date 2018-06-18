@@ -7,15 +7,13 @@ import static constants.Constants.Neighbours.*;
 
 public class World {
 
-	public static Terrain terrain;
-	public static Grass grass;
-	public static CarbonElement blood;
-	public static CarbonElement fiber;
-	public static CarbonElement fat;
-	public static Wind wind;
-	public static Air air;
-	public static  AnimalManager animalManager;
-
+	public Terrain terrain;
+	public Grass grass;
+	public CarbonElement blood;
+	public CarbonElement fiber;
+	public CarbonElement fat;
+	public Wind wind;
+	
 	public static int[] east;
 	public static int[] north;
 	public static int[] west;
@@ -26,14 +24,13 @@ public class World {
 
 	public World() {
 		terrain = new Terrain();
-		grass = new Grass();
+		grass = new Grass(terrain);
 		blood = new CarbonElement(1, Constants.Colors.BLOOD, 1, Constants.Blood.DECAY_FACTOR);
 		fiber = new CarbonElement(1, Constants.Colors.TREE, 1, Constants.Blood.DECAY_FACTOR);
 		fat = new CarbonElement(1, Constants.Colors.WHITE, 1, Constants.Blood.DECAY_FACTOR);
 		wind = new Wind();
-		air = new Air();
-		animalManager = new AnimalManager();
-
+		
+		
 		calculateNeighbours();
 		regenerate();
 	}
@@ -100,7 +97,7 @@ public class World {
 
 	}
 
-	public static void regenerate() {
+	public void regenerate() {
 		terrain.regenerate();
 		grass.regenerate();
 		wind.regenerate();
@@ -108,7 +105,7 @@ public class World {
 
 	private static float[] tempColor = new float[3];
 	
-	public static void updateColor(float[][] a, int pos) {
+	public void updateColor(float[][] a, int pos) {
 		float grassness, dirtness;
 
 		a[pos][0] = 0f;

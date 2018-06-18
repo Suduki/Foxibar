@@ -13,10 +13,13 @@ public class Tree {
 	private float spawnRate = 1f; // TODO: Replace with i++
 	private int numTrees = 0;
 	
-	public Tree() {
+	private Terrain terrain;
+	
+	public Tree(Terrain terrain) {
 		height = new float[Constants.WORLD_SIZE];
 		health = new float[Constants.WORLD_SIZE];
 		isAlive = new boolean[Constants.WORLD_SIZE];
+		this.terrain = terrain;
 	}
 	
 	public void update() {
@@ -33,7 +36,7 @@ public class Tree {
 		}
 		if (Constants.RANDOM.nextFloat() < spawnRate/numTrees) {
 			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
-			if (!isAlive[pos] && !World.terrain.water[pos] && !World.terrain.stone[pos]) {
+			if (!isAlive[pos] && !terrain.water[pos] && !terrain.stone[pos]) {
 				resurrect(pos);
 			}
 		}

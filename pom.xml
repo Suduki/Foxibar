@@ -26,11 +26,13 @@
 		<maven.compiler.version>3.7.0</maven.compiler.version>
 		<maven.failsafe.version>2.21.0</maven.failsafe.version>
 		<build.helper.maven.version>3.0.0</build.helper.maven.version>
+		
 
 		<!-- Dependencies -->
 		<lwjgl.version>3.1.5</lwjgl.version>
 		<joml.version>1.9.8</joml.version>
 		<junit.version>4.12</junit.version>
+		<mockito.version>2.18.3</mockito.version>
 	</properties>
 
 	<dependencies>
@@ -91,6 +93,11 @@
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-core</artifactId>
+		    <version>${mockito.version}</version>
 		</dependency>
 	</dependencies>
 

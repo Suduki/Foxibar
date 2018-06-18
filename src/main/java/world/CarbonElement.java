@@ -32,9 +32,7 @@ public class CarbonElement {
 	public void decay(int timeStep, int updateFrequency) {
 		
 		for(int i = timeStep%updateFrequency; i < Constants.WORLD_SIZE; i+=updateFrequency) {
-			float oldH = height[i];
 			height[i] *= TRUE_DECAY;
-			World.air.addCarbon(oldH - height[i]);
 		}
 	}
 	

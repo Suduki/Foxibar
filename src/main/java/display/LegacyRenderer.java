@@ -17,6 +17,7 @@ import gui.MouseEvent;
 import gui.MouseState;
 import gui.Region;
 import input.Mouse;
+import main.Main;
 import math.Vector2f;
 import simulation.Simulation;
 import world.World;
@@ -137,7 +138,7 @@ public void actionLoadBrains() {
 				float screenPositionY = y * pixelsPerNodeY + pixelsPerNodeY/2;
 
 				// RENDER ANIMAL
-				Agent tmp = World.animalManager.containsAnimals[i];
+				Agent tmp = Simulation.animalManager.containsAnimals[i];
 				Animal animal = null;
 				if (tmp != null && tmp.getClass() == Animal.class) {
 					animal = (Animal) tmp;
@@ -389,7 +390,7 @@ public void actionLoadBrains() {
 			i = j;
 			for (int y = 0; y < height; ++y, i = World.east[i])
 			{
-				World.updateColor(terrainColor, i);
+				Main.simulation.mWorld.updateColor(terrainColor, i);
 				float screenPositionX = x * pixelsPerNodeX;
 				float screenPositionY = y * pixelsPerNodeY;
 				renderQuad(terrainColor[i],
@@ -451,7 +452,7 @@ public void actionLoadBrains() {
 		drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
 		//drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
 		drawString(PIXELS_X + 150,40, "seed: " + ((int)noise.Noise.seed-1));
-		drawString(PIXELS_X + 20,60, "nAni: " + World.animalManager.getNumAnimals());
+		drawString(PIXELS_X + 20,60, "nAni: " + Simulation.animalManager.getNumAnimals());
 	}
 
 	private void togglePause() {
@@ -634,8 +635,8 @@ public void actionLoadBrains() {
 				Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
 
 				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
-				if (World.animalManager.containsAnimals[pos] == null) {
-					World.animalManager.spawn(pos, species);
+				if (Simulation.animalManager.containsAnimals[pos] == null) {
+					Simulation.animalManager.spawn(pos, species);
 				}
 			}
 

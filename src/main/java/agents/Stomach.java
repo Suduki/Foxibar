@@ -46,15 +46,6 @@ public class Stomach {
 		org.junit.Assert.assertTrue(mattiasFunction(0) < 0.6f);
 	}
 
-	public void addHealCost(float f) {
-		float healCostFactor = 0; // TODO
-		energyCost += f*healCostFactor;
-	}
-	public void addGrowCost(float f) {
-		float growCostFactor = 10; // TODO
-		energyCost += f*growCostFactor;
-	}
-	
 	/**
 	 * Called at the end of round to digest blood/grass and create fat.
 	 * Also burns the fat.
@@ -108,7 +99,6 @@ public class Stomach {
 	private final float fatToEnergyFactor = 0.02f;
 	private void burnFat() {
 		fat -= energyCost*fatToEnergyFactor;
-		World.air.addCarbon(energyCost);
 		energyCost = 0;
 	}
 	

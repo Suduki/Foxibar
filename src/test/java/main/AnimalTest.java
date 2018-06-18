@@ -11,7 +11,7 @@ public class AnimalTest {
 
 	@Test
 	public void ageTest() {
-		Animal a = new Animal(0, 0, null);
+		Animal a = new Animal(0, 0, null, null);
 		a.species = Constants.Species.BLOODLING;
 		a.age = 0;
 		a.isAlive = true;
@@ -31,4 +31,10 @@ public class AnimalTest {
 		assertTrue(a.isAlive == true);
 	}
 
+	
+	@Test
+	public void testMockito() {
+		System.out.println("asd");
+		
+	}
 }

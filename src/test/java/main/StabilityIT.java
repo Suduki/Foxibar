@@ -33,18 +33,18 @@ public class StabilityIT {
 		verifyContainsAnimalsEmpty();
 		
 		Main.spawnRandomAnimal(Constants.Species.GRASSLER, 1);
-		Assert.assertTrue(World.animalManager.numAnimals == 1);
+		Assert.assertTrue(Simulation.animalManager.numAnimals == 1);
 		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE+1)
 		{
 			timeStep++;
 			simulation.step(timeStep);
-			if (World.animalManager.numAnimals == 0) {
+			if (Simulation.animalManager.numAnimals == 0) {
 				break;
 			}
 		}
 		Assert.assertTrue("Expected all animals to be dead. Currently " + 
-				World.animalManager.numAnimals + " alive", World.animalManager.numAnimals == 0);
-		Assert.assertTrue("zoneSize() was " + zoneSize(), zoneSize() == 0);
+				Simulation.animalManager.numAnimals + " alive", Simulation.animalManager.numAnimals == 0);
+		Assert.assertTrue("There are still animals in the vision zones..." + visionZoneSize(), visionZoneSize() == 0);
 		verifyContainsAnimalsEmpty();
 		
 //		System.out.println("Test step 2, verify that a population of Grasslers survive");
@@ -75,16 +75,16 @@ public class StabilityIT {
 	}
 	
 	private void verifyContainsAnimalsEmpty() {
-		for (int i = 0; i < World.animalManager.containsAnimals.length; ++i) {
+		for (int i = 0; i < Simulation.animalManager.containsAnimals.length; ++i) {
 			Assert.assertTrue("containsAnimals is not empty even though all animals are dead: at " + i, 
-					World.animalManager.containsAnimals[i] == null);
+					Simulation.animalManager.containsAnimals[i] == null);
 		}
 	}
 	
 	
-	private int zoneSize() {
+	private int visionZoneSize() {
 		int num = 0;
-		for (Vision.Zone[] zi : Vision.zoneGrid) {
+		for (Vision.Zone[] zi : Simulation.animalManager.vision.zoneGrid) {
 			for (Vision.Zone z : zi) {
 				num += z.animalsInZone.size();
 			}	

@@ -25,8 +25,12 @@ public class Constants {
 	public static final int NUM_NEIGHBOURS = 3;
 	
 	
-	public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = Vision.ZONE_HEIGHT;
-	public static final boolean LEARN_FROM_ELDERS = false;
+	public static class Vision{
+		public static final int HEIGHT = 16;
+		public static final int WIDTH = 16;
+		public static final int MAX_DISTANCE_AN_ANIMAL_CAN_SEE = HEIGHT;
+		
+	}
 	
 	public static class Colors
 	{

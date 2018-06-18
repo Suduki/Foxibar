@@ -19,10 +19,11 @@ import world.World;
 public class Main
 {
 	public final static int plottingNumber = 50;
+	public static Simulation simulation;
 	public static void main(String[] args)
 	{
 		
-		Simulation     simulation     = new Simulation();
+		simulation     = new Simulation();
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
 		RenderState.activateState(RenderState.RENDER_WORLD_STILL);
@@ -83,13 +84,13 @@ public class Main
 		posY /= Constants.WORLD_MULTIPLIER;
 		
 		pos = (posX+Constants.WORLD_SIZE_X/2) + Constants.WORLD_SIZE_X * (posY+Constants.WORLD_SIZE_X/2);
-		World.animalManager.spawn(pos, species);
+		Simulation.animalManager.spawn(pos, species);
 	}
 
 	public static void spawnRandomAnimal(Species species, int num) {
 		for (int i = 0; i < num; ++i) {
 			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
-			World.animalManager.spawn(pos, species);
+			Simulation.animalManager.spawn(pos, species);
 		}
 	}
 }

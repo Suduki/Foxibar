@@ -12,14 +12,16 @@ import messages.MessageHandler;
 import messages.Message;
 
 public class Simulation extends MessageHandler {
-	private World mWorld;
+	public World mWorld;
 	private boolean mPaused = false;
+	
+	public static  AnimalManager animalManager;
 	
 	public Simulation()
 	{
 		mWorld = new World();
-		Vision.init();
 		this.message(new messages.DummyMessage());
+		animalManager = new AnimalManager(mWorld);
 	}
 	
 	protected void evaluateMessage(Message pMessage)
@@ -32,7 +34,7 @@ public class Simulation extends MessageHandler {
 		if (!mPaused)
 		{
 			mWorld.update(timeStep);
-			mWorld.animalManager.moveAll();
+			animalManager.moveAll();
 			mWorld.wind.stepWind();
 		}
 	}

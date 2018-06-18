@@ -1,6 +1,7 @@
 package agents;
 
 import constants.Constants;
+import simulation.Simulation;
 import vision.Vision;
 import world.World;
 
@@ -33,7 +34,9 @@ public class Animal extends Agent {
 
 	private boolean starving;
 	
-	public Animal(float health, int id, Species species) {
+	private World world;
+	
+	public Animal(float health, int id, Species species, World world) {
 		super(health);
 		this.species = species;
 		this.nearbyAnimals = new Animal[Constants.NUM_NEIGHBOURS];
@@ -44,6 +47,8 @@ public class Animal extends Agent {
 		stomach = new Stomach();
 		
 		isAlive = false;
+		
+		this.world = world;
 	}
 
 	@Override
@@ -73,7 +78,6 @@ public class Animal extends Agent {
 	}
 
 	private void actionUpdate() {
-		look();
 		int direction = think(); // direction points to a tile position where to move.
 		interact(direction);
 		move(direction);
@@ -114,7 +118,7 @@ public class Animal extends Agent {
 	
 	private void mateWith(Animal animal) {
 		if (isFertileWith(animal)) {
-			World.animalManager.mate(animal, this);
+			Simulation.animalManager.mate(animal, this);
 			this.childCost();
 			animal.childCost();
 		}
@@ -145,10 +149,6 @@ public class Animal extends Agent {
 		return 1f;
 	}
 	
-	private void look() {
-		Vision.updateNearestNeighbours(this);
-	}
-
 	private void stepFertility() {
 		if (sinceLastBaby++ > timeBetweenBabies) {
 			isFertile = true;
@@ -158,9 +158,8 @@ public class Animal extends Agent {
 	private void move(int tileDir) {
 		oldPos = pos;
 		int tilePos = World.neighbour[tileDir][pos];
-		if (World.animalManager.containsAnimals[tilePos] == null) {
+		if (Simulation.animalManager.containsAnimals[tilePos] == null) {
 			pos = tilePos;
-			Vision.updateAnimalZone(this);
 		}
 	}
 
@@ -187,7 +186,7 @@ public class Animal extends Agent {
 	}
 
 	private Agent getAgentAt(int position) {
-		return World.animalManager.getAgentAt(position);
+		return Simulation.animalManager.getAnimalAt(position);
 	}
 
 
@@ -208,13 +207,13 @@ public class Animal extends Agent {
 			
 			brain.neural.z[tile][0][NeuralFactors.AGE] = ((float)age)/maxAge;
 			
-			brain.neural.z[tile][0][NeuralFactors.TILE_FIBER] = World.grass.height[tilePos] + 
-					World.fiber.height[tilePos] - 
-					World.grass.height[pos] - World.fiber.height[pos];
-			brain.neural.z[tile][0][NeuralFactors.TILE_FAT] = World.fat.height[tilePos] - World.fat.height[pos];
-			brain.neural.z[tile][0][NeuralFactors.TILE_BLOOD] = World.blood.height[tilePos] - World.blood.height[pos];
+//			brain.neural.z[tile][0][NeuralFactors.TILE_FIBER] = World.grass.height[tilePos] + 
+//					World.fiber.height[tilePos] - 
+//					World.grass.height[pos] - World.fiber.height[pos];
+			brain.neural.z[tile][0][NeuralFactors.TILE_FAT] = world.fat.height[tilePos] - world.fat.height[pos];
+			brain.neural.z[tile][0][NeuralFactors.TILE_BLOOD] = world.blood.height[tilePos] - world.blood.height[pos];
 			brain.neural.z[tile][0][NeuralFactors.TILE_TERRAIN_HEIGHT] = 
-					World.terrain.height[tilePos] - World.terrain.height[pos];
+					world.terrain.height[tilePos] - world.terrain.height[pos];
 			
 			brain.neural.z[tile][0][NeuralFactors.TILE_DANGER] = 0;
 			brain.neural.z[tile][0][NeuralFactors.TILE_HUNT] = 0;
@@ -229,10 +228,10 @@ public class Animal extends Agent {
 				}
 				
 				float distance = (float) Vision.calculateCircularDistance(tilePos, nearbyAnimalId.pos);
-				if (distance > Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE) {
+				if (distance > Constants.Vision.MAX_DISTANCE_AN_ANIMAL_CAN_SEE) {
 					continue;
 				}
-				float distanceFactor = 1f-distance/Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE;
+				float distanceFactor = 1f-distance/Constants.Vision.MAX_DISTANCE_AN_ANIMAL_CAN_SEE;
 				
 				// 0 distanceF means the animal is too far away
 				if (distanceFactor < 0  || distanceFactor > 1) {
@@ -260,17 +259,17 @@ public class Animal extends Agent {
 	protected void harvest() {
 		float neuralOutput = brain.neural.getOutput(NeuralFactors.OUT_HARVEST);//TODO
 		float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
-		float amount = World.fat.harvest(harvestSkill, pos);
+		float amount = world.fat.harvest(harvestSkill, pos);
 		stomach.addFat(amount);
 		if (neuralOutput > 0) {
 			// Harvest fiber
+//			if (harvestSkill > amount) {
+//				float tmp = World.fiber.harvest(harvestSkill - amount, pos);
+//				stomach.addFiber(tmp);
+//				amount += tmp;
+//			}
 			if (harvestSkill > amount) {
-				float tmp = World.fiber.harvest(harvestSkill - amount, pos);
-				stomach.addFiber(tmp);
-				amount += tmp;
-			}
-			if (harvestSkill > amount) {
-				float tmp = World.grass.harvest(harvestSkill - amount, pos);
+				float tmp = world.grass.harvest(harvestSkill - amount, pos);
 				stomach.addFiber(tmp);
 				amount += tmp;
 			}
@@ -278,7 +277,7 @@ public class Animal extends Agent {
 		else {
 			// Harvest blood
 			if (harvestSkill > amount) {
-				float tmp = World.blood.harvest(harvestSkill - amount, pos);
+				float tmp = world.blood.harvest(harvestSkill - amount, pos);
 				stomach.addBlood(tmp);
 				amount += tmp;
 			}
@@ -288,36 +287,31 @@ public class Animal extends Agent {
 	@Override
 	protected void grow() {
 		if (size < maxSize) {
-			float oldSize = size;
 			size += growth;
 			if (size > maxSize) {
 				size = maxSize;
 			}
-			stomach.addGrowCost(size - oldSize); 
 		}
 	}
 
 	@Override
 	protected void heal() {
 		if (health < maxHealth) {
-			float oldHealth = health;
 			health += healPower;
 			if (health > maxHealth) {
 				health = maxHealth;
 			}
-			stomach.addHealCost(health - oldHealth);
 		}
 	}
 
 	@Override
 	protected void die() {
-		Vision.removeAnimalFromZone(this);
 		species.someoneDied(this);
-		World.animalManager.someoneDied(this);
-		World.blood.append(pos, stomach.blood);
-		World.blood.append(pos, size);
-		World.fiber.append(pos, stomach.fiber);
-		World.fat.append(pos, stomach.fat);
+		Simulation.animalManager.someoneDied(this);
+		world.blood.append(pos, stomach.blood);
+		world.blood.append(pos, size);
+//		world.fiber.append(pos, stomach.fiber);
+		world.fat.append(pos, stomach.fat);
 		System.out.println("in die(), fat = " + stomach.fat);
 		stomach.empty();
 		
