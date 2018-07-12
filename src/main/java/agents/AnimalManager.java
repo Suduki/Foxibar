@@ -1,14 +1,10 @@
 package agents;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import vision.Vision;
 import world.World;
 import constants.Constants;
-import display.RenderState;
-import messages.LoadBrains;
-import messages.SaveBrains;
 
 public class AnimalManager {
 	
@@ -18,12 +14,12 @@ public class AnimalManager {
 	public ArrayList<Animal> toDie = new ArrayList<>();
 	public ArrayList<Animal> toLive = new ArrayList<>();
 	public int numAnimals = 0;
-	public Animal[] containsAnimals;
 	public boolean killAll = false;
 	public boolean saveBrains = false;
 	public boolean loadBrains = false;
 	public Species[] species;
 	public Vision vision;
+	private World world;
 	
 	public AnimalManager(World world) {
 		vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
@@ -34,44 +30,46 @@ public class AnimalManager {
 		species[1] = new Species(Constants.Colors.WHITE, Constants.Colors.BLUE);
 		Constants.Species.GRASSLER = species[1]; //TODO: Should not be needed.
 		
-		
-		containsAnimals = new Animal[Constants.WORLD_SIZE];
-		
-		for (int pos = 0; pos < Constants.WORLD_SIZE; ++pos) {
-			containsAnimals[pos] = null;
-		}
-		
 		for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-			pool[id] = new Animal(0, id, species[0], world); //TODO behövs id?
+			pool[id] = new Animal(0, species[0], world, this); //TODO behövs id?
 			dead.add(pool[id]);
 		}
+		this.world = world;
 	}
 	
 	public void moveAll() {
 		if (killAll) {
 			for (Animal a : alive) {
 				a.die();
+				someoneDied(a, false);
 			}
-			System.out.println("Num animals alive after killing them all: " + numAnimals);
+			if (numAnimals != 0) {
+				System.err.println("numAnimals = " + numAnimals + ", should be 0 after killing all");
+			}
 			numAnimals = 0;
 			killAll = false;
 		}
 		else {
 			for (Animal a : alive) {
-				containsAnimals[a.pos] = null;
 				vision.updateNearestNeighbours(a);
 				if (a.stepAgent()) {
-					containsAnimals[a.pos] = a;
+					vision.updateAnimalZone(a);
+					world.updateContainsAnimals(a);
 				}
-				vision.updateAnimalZone(a);
+				else {
+					someoneDied(a, true);
+				}
 			}
 		}
-		
+
+		// Remove all dead animals from loop
 		for (Animal a : toDie) {
 			alive.remove(a);
 			dead.add(a);
 		}
 		toDie.clear();
+		
+		// Add all newborn animals to loop
 		for (Animal a : toLive) {
 			alive.add(a);
 		}
@@ -131,17 +129,12 @@ public class AnimalManager {
 		return next;
 	}
 	
-	public void someoneDied(Animal animal) {
+	public void someoneDied(Animal animal, boolean diedNaturally) {
 		numAnimals--;
-		if (containsAnimals[animal.pos] == animal) {
-			containsAnimals[animal.pos] = null;
-		}
 		toDie.add(animal);
-		vision.removeAnimalFromZone(animal);
-	}
-
-	public Animal getAnimalAt(int position) {
-		return containsAnimals[position];
+		
+		world.removeAnimalFromContainsAnimals(animal);
+		vision.removeAnimalFromZone(animal, diedNaturally);
 	}
 
 	public int getNumAnimals() {

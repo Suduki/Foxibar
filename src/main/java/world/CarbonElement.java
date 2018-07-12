@@ -50,5 +50,11 @@ public class CarbonElement {
 		}
 		return old - height[pos];
 	}
+
+	public void reset() {
+		for (int i = 0; i < height.length; ++i) {
+			height[i] = 0;
+		}
+	}
 }
 

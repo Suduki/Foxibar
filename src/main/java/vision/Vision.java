@@ -132,22 +132,34 @@ public class Vision {
 		int zoneY = getZoneYFromPos(id.pos);
 		addAnimalToZone(id, zoneX, zoneY);
 	}
-	public void removeAnimalFromZone(Animal id) {
-		int zoneX = getZoneXFromPos(id.pos);
-		int zoneY = getZoneYFromPos(id.pos);
+	public void removeAnimalFromZone(Animal id, boolean useOldPos) {
+		int zoneX;
+		int zoneY;
+		if (useOldPos) {
+			zoneX = getZoneXFromPos(id.oldPos);
+			zoneY = getZoneYFromPos(id.oldPos);
+		}
+		else {
+			zoneX = getZoneXFromPos(id.pos);
+			zoneY = getZoneYFromPos(id.pos);
+		}
 		removeAnimalFromZone(id, zoneX, zoneY);
 	}
 	
 	private void addAnimalToZone(Animal id, int zoneX, int zoneY) {
 //		System.out.println("num before add: " + zoneGrid[zoneX][zoneY].animalsInZone.size()
 //				+ "zoneX=" + zoneX + "zoneY=" + zoneY);
-		zoneGrid[zoneX][zoneY].animalsInZone.add(id);
+		if(!zoneGrid[zoneX][zoneY].animalsInZone.add(id)) {
+			System.err.println("Trying to add animal to vision zone, but failed.");
+		}
 //		System.out.println("num after add: " + zoneGrid[zoneX][zoneY].animalsInZone.size());
 	}
 	private void removeAnimalFromZone(Animal id, int zoneX, int zoneY) {
 //		System.out.println("num before remove: " + zoneGrid[zoneX][zoneY].animalsInZone.size()
 //				+ "zoneX=" + zoneX + "zoneY=" + zoneY);
-		zoneGrid[zoneX][zoneY].animalsInZone.remove(id);
+		if(!zoneGrid[zoneX][zoneY].animalsInZone.remove(id)) {
+			System.err.println("Trying to remove animal from vision zone, but failed.");
+		}
 //		System.out.println("num after remove: " + zoneGrid[zoneX][zoneY].animalsInZone.size());
 	}
 	

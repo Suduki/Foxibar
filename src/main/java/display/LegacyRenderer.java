@@ -138,7 +138,7 @@ public void actionLoadBrains() {
 				float screenPositionY = y * pixelsPerNodeY + pixelsPerNodeY/2;
 
 				// RENDER ANIMAL
-				Agent tmp = Simulation.animalManager.containsAnimals[i];
+				Agent tmp = Main.simulation.mWorld.containsAnimals[i];
 				Animal animal = null;
 				if (tmp != null && tmp.getClass() == Animal.class) {
 					animal = (Animal) tmp;
@@ -452,7 +452,7 @@ public void actionLoadBrains() {
 		drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
 		//drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
 		drawString(PIXELS_X + 150,40, "seed: " + ((int)noise.Noise.seed-1));
-		drawString(PIXELS_X + 20,60, "nAni: " + Simulation.animalManager.getNumAnimals());
+		drawString(PIXELS_X + 20,60, "nAni: " + Main.simulation.animalManager.getNumAnimals());
 	}
 
 	private void togglePause() {
@@ -635,8 +635,8 @@ public void actionLoadBrains() {
 				Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
 
 				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
-				if (Simulation.animalManager.containsAnimals[pos] == null) {
-					Simulation.animalManager.spawn(pos, species);
+				if (Main.simulation.mWorld.containsAnimals[pos] == null) {
+					Main.simulation.animalManager.spawn(pos, species);
 				}
 			}
 

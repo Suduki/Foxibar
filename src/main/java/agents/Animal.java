@@ -1,6 +1,7 @@
 package agents;
 
 import constants.Constants;
+import main.Main;
 import simulation.Simulation;
 import vision.Vision;
 import world.World;
@@ -11,8 +12,6 @@ public class Animal extends Agent {
 	
 	public int sinceLastBaby = 0;
 	boolean isFertile;
-	
-	Integer id;
 	
 	public float size;
 	
@@ -35,29 +34,34 @@ public class Animal extends Agent {
 	private boolean starving;
 	
 	private World world;
+	private AnimalManager animalManager;
 	
-	public Animal(float health, int id, Species species, World world) {
+	public Animal(float health, Species species, World world, AnimalManager animalManager) {
 		super(health);
 		this.species = species;
 		this.nearbyAnimals = new Animal[Constants.NUM_NEIGHBOURS];
 		this.nearbyAnimalsDistance = new float[Constants.NUM_NEIGHBOURS];
 		this.brain = new Brain(false);
-		this.id = id;
 		
 		stomach = new Stomach();
 		
 		isAlive = false;
 		
 		this.world = world;
+		this.animalManager = animalManager;
 	}
 
+	/**
+	 * Steps the animal one time step.
+	 * @return whether the animal is alive or not.
+	 */
 	@Override
 	public boolean stepAgent() {
 		if (!isAlive) {
-			System.out.println("Trying to step a dead agent.");
+			System.err.println("Trying to step a dead agent.");
 			return false;
 		}
-		if (!timeToMove()) return false;
+		if (!timeToMove()) return isAlive;
 		
 		actionUpdate();
 		internalOrgansUpdate();
@@ -118,7 +122,7 @@ public class Animal extends Agent {
 	
 	private void mateWith(Animal animal) {
 		if (isFertileWith(animal)) {
-			Simulation.animalManager.mate(animal, this);
+			animalManager.mate(animal, this);
 			this.childCost();
 			animal.childCost();
 		}
@@ -158,7 +162,7 @@ public class Animal extends Agent {
 	private void move(int tileDir) {
 		oldPos = pos;
 		int tilePos = World.neighbour[tileDir][pos];
-		if (Simulation.animalManager.containsAnimals[tilePos] == null) {
+		if (world.containsAnimals[tilePos] == null) {
 			pos = tilePos;
 		}
 	}
@@ -169,7 +173,7 @@ public class Animal extends Agent {
 	 */
 	private void interact(int tileToInteractWith) {
 		int tilePos = World.neighbour[tileToInteractWith][pos];
-		Agent agent = getAgentAt(tilePos);
+		Agent agent = world.getAgentAt(tilePos);
 		if (agent != null && agent != this && agent.getClass() == Animal.class) {
 			if (brain.neural.getOutput(NeuralFactors.OUT_AGGRESSIVE) > 0) {
 				fightWith((Animal) agent);
@@ -184,11 +188,6 @@ public class Animal extends Agent {
 	private void fightWith(Animal agent) {
 		agent.health -= getFightSkill();
 	}
-
-	private Agent getAgentAt(int position) {
-		return Simulation.animalManager.getAnimalAt(position);
-	}
-
 
 	/**
 	 * Decides where to go.
@@ -306,13 +305,11 @@ public class Animal extends Agent {
 
 	@Override
 	protected void die() {
-		species.someoneDied(this);
-		Simulation.animalManager.someoneDied(this);
 		world.blood.append(pos, stomach.blood);
 		world.blood.append(pos, size);
 //		world.fiber.append(pos, stomach.fiber);
 		world.fat.append(pos, stomach.fat);
-		System.out.println("in die(), fat = " + stomach.fat);
+//		System.out.println("in die(), fat = " + stomach.fat);
 		stomach.empty();
 		
 		isAlive = false;

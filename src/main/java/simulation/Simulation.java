@@ -1,13 +1,10 @@
 package simulation;
 
-import vision.Vision;
 import world.World;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import agents.Animal;
 import agents.AnimalManager;
-import agents.NeuralNetwork;
+import agents.Species;
+import constants.Constants;
 import messages.MessageHandler;
 import messages.Message;
 
@@ -15,7 +12,7 @@ public class Simulation extends MessageHandler {
 	public World mWorld;
 	private boolean mPaused = false;
 	
-	public static  AnimalManager animalManager;
+	public AnimalManager animalManager;
 	
 	public Simulation()
 	{
@@ -47,5 +44,21 @@ public class Simulation extends MessageHandler {
 	public void setPause(boolean pPaused)
 	{
 		mPaused = pPaused;
+	}
+
+	public void killAllAnimals() {
+		animalManager.killAll=true;
+		animalManager.moveAll();
+	}
+	
+	public void spawnRandomAnimal(Species species, int num) {
+		for (int i = 0; i < num; ++i) {
+			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
+			animalManager.spawn(pos, species);
+		}
+	}
+
+	public void resetWorld() {
+		mWorld.reset();
 	}
 }

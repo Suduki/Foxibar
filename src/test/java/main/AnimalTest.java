@@ -11,7 +11,7 @@ public class AnimalTest {
 
 	@Test
 	public void ageTest() {
-		Animal a = new Animal(0, 0, null, null);
+		Animal a = new Animal(0, null, null, null);
 		a.species = Constants.Species.BLOODLING;
 		a.age = 0;
 		a.isAlive = true;

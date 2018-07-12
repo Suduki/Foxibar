@@ -1,9 +1,10 @@
 package world;
 
-import agents.AnimalManager;
 import constants.Constants;
-import display.RenderState;
 import static constants.Constants.Neighbours.*;
+
+import agents.Agent;
+import agents.Animal;
 
 public class World {
 
@@ -13,6 +14,7 @@ public class World {
 	public CarbonElement fiber;
 	public CarbonElement fat;
 	public Wind wind;
+	public Animal[] containsAnimals;
 	
 	public static int[] east;
 	public static int[] north;
@@ -20,7 +22,7 @@ public class World {
 	public static int[] south;
 	public static int[] none;
 	public static int[][] neighbour;
-
+	
 
 	public World() {
 		terrain = new Terrain();
@@ -30,6 +32,7 @@ public class World {
 		fat = new CarbonElement(1, Constants.Colors.WHITE, 1, Constants.Blood.DECAY_FACTOR);
 		wind = new Wind();
 		
+		containsAnimals = new Animal[Constants.WORLD_SIZE];
 		
 		calculateNeighbours();
 		regenerate();
@@ -139,5 +142,46 @@ public class World {
 		a[pos][0] += tempColor[0];
 		a[pos][1] += tempColor[1];
 		a[pos][2] += tempColor[2];
+	}
+
+	public void updateContainsAnimals(Animal a) {
+		if (containsAnimals[a.pos] == a) {
+			// No movement, no change
+		}
+		else if (a.oldPos == a.pos) {
+			// No movement
+			if (containsAnimals[a.pos] == null) {
+				// but this animal was never the owner of the tile. (Should rarely happen)
+				// Make the animal the owner of the tile.
+				containsAnimals[a.pos] = a;
+			}
+		}
+		else if (containsAnimals[a.oldPos] == a) {
+			containsAnimals[a.oldPos] = null;
+			if (containsAnimals[a.pos] != null) {
+				System.err.println("Animal trying to move to a full Tile");
+			}
+			else {
+				containsAnimals[a.pos] = a;
+			}
+		}
+	}
+
+	public Agent getAgentAt(int tilePos) {
+		return containsAnimals[tilePos];
+	}
+
+	public void removeAnimalFromContainsAnimals(Animal animal) {
+		if (containsAnimals[animal.pos] == animal) {
+			containsAnimals[animal.pos] = null;
+		}
+		if (containsAnimals[animal.oldPos] == animal) {
+			containsAnimals[animal.oldPos] = null;
+		}
+	}
+
+	public void reset() {
+		grass.regenerate();
+		blood.reset();
 	}
 }
