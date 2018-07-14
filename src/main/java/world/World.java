@@ -102,7 +102,7 @@ public class World {
 
 	public void regenerate() {
 		terrain.regenerate();
-		grass.regenerate();
+		grass.regenerate(false);
 		wind.regenerate();
 	}
 
@@ -180,8 +180,10 @@ public class World {
 		}
 	}
 
-	public void reset() {
-		grass.regenerate();
+	public void reset(boolean b) {
+		grass.regenerate(b);
 		blood.reset();
+		fiber.reset();
+		fat.reset();
 	}
 }

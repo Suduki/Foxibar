@@ -58,7 +58,7 @@ public class Simulation extends MessageHandler {
 		}
 	}
 
-	public void resetWorld() {
-		mWorld.reset();
+	public void resetWorld(boolean b) {
+		mWorld.reset(b);
 	}
 }

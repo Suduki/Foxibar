@@ -30,7 +30,7 @@ public class StabilityIT {
 	@Test
 	public void multipleAnimalSingleSpeciesTest() {
 		int numSuccess = 0;
-		int numTries = 200;
+		int numTries = 20;
 		for (int i = 0; i < numTries; ++i) {
 			numSuccess += multipleAnimalsSingleSpeciesSimulation();
 		}
@@ -46,7 +46,7 @@ public class StabilityIT {
 		int populationSurvived = 0;
 		verifyContainsAnimalsEmpty();
 		Constants.RANDOM = new Random(1);
-		simulation.resetWorld();
+		simulation.resetWorld(true);
 		simulation.spawnRandomAnimal(Constants.Species.GRASSLER, 100);
 		Assert.assertTrue(simulation.animalManager.numAnimals == 100);
 		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE+1)

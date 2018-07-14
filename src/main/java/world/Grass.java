@@ -39,15 +39,21 @@ public class Grass {
 		tree.update();
 	}
 
-	public void regenerate() {
+	public void regenerate(boolean fullyGrown) {
 		tree.killAll();
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
 			if (terrain.stone[i] || terrain.water[i]) {
 				toBeUpdated[i] = false;
 				continue;
 			}
-			this.height[i] = 0;
-			toBeUpdated[i] = true;
+			if (fullyGrown) {
+				this.height[i] = terrain.growth[i];
+				toBeUpdated[i] = false;
+			}
+			else {
+				this.height[i] = 0;
+				toBeUpdated[i] = true;
+			}
 		}
 	}
 
