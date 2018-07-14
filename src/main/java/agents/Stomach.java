@@ -21,17 +21,12 @@ public class Stomach {
 	private float uglySpeciesFactor;
 	
 	public void inherit(float p) {
-		init(this.p);
-	}
-	
-	void init(float p2) {
 		empty();
-		fat  = 10;//TODO move
-		p = p2;
+		this.p = p;
 		pFiber = mattiasFunction(p);
 		pBlood = mattiasFunction(-p);
 	}
-
+	
 	private static final float a = 0.2f;
 	private static final float b = 1f;
 	private static final float c = 0.2f;
@@ -96,7 +91,7 @@ public class Stomach {
 		}
 		
 	}
-	private final float fatToEnergyFactor = 0.02f;
+	private final float fatToEnergyFactor = 0.001f;
 	private void burnFat() {
 		fat -= energyCost*fatToEnergyFactor;
 		energyCost = 0;
@@ -127,7 +122,7 @@ public class Stomach {
 	}
 
 	public boolean canHaveBaby(int birthHungerCost) {
-		return fat / fatToEnergyFactor > birthHungerCost;
+		return (fat / fatToEnergyFactor) > birthHungerCost;
 	}
 
 }

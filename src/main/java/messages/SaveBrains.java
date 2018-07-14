@@ -65,14 +65,4 @@ public class SaveBrains extends Message {
 			e.printStackTrace();
 		}
 	}
-
-	
-	public static boolean goodTimeToSave(final Species bloodling) {
-		if (bloodling.timeToSave) {
-			bloodling.timeToSave = false;
-			return true;
-		}
-		return false;
-
-	}
 }

@@ -125,6 +125,8 @@ public class Animal extends Agent {
 			animalManager.mate(animal, this);
 			this.childCost();
 			animal.childCost();
+			this.score++;
+			animal.score++;
 		}
 	}
 	
@@ -306,11 +308,13 @@ public class Animal extends Agent {
 	@Override
 	protected void die() {
 		world.blood.append(pos, stomach.blood);
-		world.blood.append(pos, size);
+//		world.blood.append(pos, size);
 //		world.fiber.append(pos, stomach.fiber);
 		world.fat.append(pos, stomach.fat);
-//		System.out.println("in die(), fat = " + stomach.fat);
+		System.out.println("in die(), fat = " + stomach.fat + "sincelastbaby = " + sinceLastBaby
+				+ "age=" + age);
 		stomach.empty();
+		species.someoneDied(this);
 		
 		isAlive = false;
 		
@@ -322,7 +326,7 @@ public class Animal extends Agent {
 	}
 
 	private float getFightSkill() {
-		return size;
+		return species.fightSkill;
 	}
 
 	private boolean isFertileWith(Animal animal) {

@@ -597,10 +597,10 @@ public void actionLoadBrains() {
 
 		if (insideViewport(mouse.getPos())) {
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				addBloodling(Constants.Species.GRASSLER);
+				addBloodling(Constants.Species.BLOODLING);
 			}
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-				addBloodling(Constants.Species.BLOODLING);
+				addBloodling(Constants.Species.GRASSLER);
 			}
 		}
 	}

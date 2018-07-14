@@ -22,7 +22,7 @@ public class StabilityIT {
 	@Test
 	public void singleAnimalTest() {
 		System.out.println("Test starts: verifying that alone animals die");
-		for (int i = 0; i < 200; ++i) {
+		for (int i = 0; i < 20; ++i) {
 			verifyThatAloneAnimalDies();
 		}
 		System.out.println("Test ends: success");
@@ -49,7 +49,7 @@ public class StabilityIT {
 		simulation.resetWorld(true);
 		simulation.spawnRandomAnimal(Constants.Species.GRASSLER, 100);
 		Assert.assertTrue(simulation.animalManager.numAnimals == 100);
-		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE+1)
+		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE*2+1)
 		{
 			timeStep++;
 			simulation.step(timeStep);
