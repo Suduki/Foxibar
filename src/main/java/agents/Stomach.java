@@ -15,10 +15,9 @@ public class Stomach {
 	public float fiber;
 	public float blood;
 	public float fat;
-	private float p; // -1 for bloodling, 1 for grassler
+	float p; // -1 for bloodling, 1 for grassler
 	private float pFiber;
 	private float pBlood;
-	private float uglySpeciesFactor;
 	
 	public void inherit(float p) {
 		empty();
@@ -46,8 +45,7 @@ public class Stomach {
 	 * Also burns the fat.
 	 * @return fat > 0, whether this animal is starving
 	 */
-	public boolean stepStomach(Species species) {
-		uglySpeciesFactor = species.getUglySpeciesFactor();
+	public boolean stepStomach() {
 		energyCost += 1;
 		digest();
 		burnFat();
@@ -73,8 +71,8 @@ public class Stomach {
 		float totalFullness = fiber + blood;
 		if (totalFullness > DIGEST_AMOUNT ) {
 			
-			energyCost += pFiber * fiber * uglySpeciesFactor * DIGEST_AMOUNT / totalFullness;
-			energyCost += pBlood * blood * uglySpeciesFactor * DIGEST_AMOUNT / totalFullness;
+			energyCost += pFiber * fiber * DIGEST_AMOUNT / totalFullness;
+			energyCost += pBlood * blood * DIGEST_AMOUNT / totalFullness;
 			
 			fiber -= fiber * DIGEST_AMOUNT / totalFullness;
 			blood -= blood * DIGEST_AMOUNT / totalFullness;
@@ -82,8 +80,8 @@ public class Stomach {
 			fat += DIGEST_AMOUNT;
 		}
 		else {
-			energyCost += pFiber * fiber * uglySpeciesFactor;
-			energyCost += pBlood * blood * uglySpeciesFactor;
+			energyCost += pFiber * fiber;
+			energyCost += pBlood * blood;
 			fiber = 0;
 			blood = 0;
 			

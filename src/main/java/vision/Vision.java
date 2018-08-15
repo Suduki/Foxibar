@@ -2,7 +2,7 @@ package vision;
 
 import java.util.ArrayList;
 
-import agents.Animal;
+import agents.Agent;
 import constants.Constants;
 
 public class Vision {
@@ -27,42 +27,42 @@ public class Vision {
 		}
 	}
 	
-	public void updateNearestNeighbours(Animal animal) {
-		int pos = animal.pos;
+	public void updateNearestNeighbours(Agent a) {
+		int pos = a.pos;
 		int zoneX = getZoneXFromPos(pos);
 		int zoneY = getZoneYFromPos(pos);
-		for (int i = 0; i < animal.nearbyAnimalsDistance.length; ++i) {
-			animal.nearbyAnimalsDistance[i] = -1;
+		for (int i = 0; i < a.nearbyAgentsDistance.length; ++i) {
+			a.nearbyAgentsDistance[i] = -1;
 		}
 		
-		for (int anI = 0; anI < animal.nearbyAnimals.length; ++anI) {
-			animal.nearbyAnimals[anI] = null;
+		for (int anI = 0; anI < a.nearbyAgents.length; ++anI) {
+			a.nearbyAgents[anI] = null;
 		}
 		
 		for (int i = -1; i <= 1; ++i) {
 			for (int j = -1; j <= 1; ++j) {
 				int zoneIX = (zoneX + zonesX + i) % zonesX;
 				int zoneIY = (zoneY + zonesY + j) % zonesY;
-				for (Animal anI : zoneGrid[zoneIX][zoneIY].animalsInZone) {
-					if (anI != animal) {
+				for (Agent anI : zoneGrid[zoneIX][zoneIY].agentsInZone) {
+					if (anI != a) {
 						float d = calculateDistance(pos, anI.pos);
-						if (d > Constants.Vision.MAX_DISTANCE_AN_ANIMAL_CAN_SEE) {
+						if (d > Constants.Vision.MAX_DISTANCE_AN_AGENT_CAN_SEE) {
 							continue;
 						}
-						for (int neighId = 0; neighId < animal.nearbyAnimalsDistance.length; ++neighId) {
-							if (animal.nearbyAnimalsDistance[neighId] == -1) {
-								animal.nearbyAnimalsDistance[neighId] = d;
-								animal.nearbyAnimals[neighId] = anI;
+						for (int neighId = 0; neighId < a.nearbyAgentsDistance.length; ++neighId) {
+							if (a.nearbyAgentsDistance[neighId] == -1) {
+								a.nearbyAgentsDistance[neighId] = d;
+								a.nearbyAgents[neighId] = anI;
 								break;
 							}
-							else if (d <= animal.nearbyAnimalsDistance[neighId]) {
+							else if (d <= a.nearbyAgentsDistance[neighId]) {
 								float tmpD = d;
-								d = animal.nearbyAnimalsDistance[neighId];
-								animal.nearbyAnimalsDistance[neighId] = tmpD;
+								d = a.nearbyAgentsDistance[neighId];
+								a.nearbyAgentsDistance[neighId] = tmpD;
 								
-								Animal tmpI = anI;
-								anI = animal.nearbyAnimals[neighId];
-								animal.nearbyAnimals[neighId] = tmpI;
+								Agent tmpI = anI;
+								anI = a.nearbyAgents[neighId];
+								a.nearbyAgents[neighId] = tmpI;
 							}
 						}
 					}
@@ -112,7 +112,7 @@ public class Vision {
 		return pos / Constants.WORLD_SIZE_X / zoneHeight;
 	}
 	
-	public void updateAnimalZone(Animal id) {
+	public void updateAgentZone(Agent id) {
 		int oldPos = id.oldPos;
 		int pos = id.pos;
 		
@@ -122,17 +122,17 @@ public class Vision {
 		int zoneY = getZoneYFromPos(pos);
 		
 		if (oldZoneX != zoneX || oldZoneY != zoneY) {
-			removeAnimalFromZone(id, oldZoneX, oldZoneY);
-			addAnimalToZone(id, zoneX, zoneY);
+			removeAgentFromZone(id, oldZoneX, oldZoneY);
+			addAgentToZone(id, zoneX, zoneY);
 		}
 	}
 	
-	public void addAnimalToZone(Animal id) {
+	public void addAgentToZone(Agent id) {
 		int zoneX = getZoneXFromPos(id.pos);
 		int zoneY = getZoneYFromPos(id.pos);
-		addAnimalToZone(id, zoneX, zoneY);
+		addAgentToZone(id, zoneX, zoneY);
 	}
-	public void removeAnimalFromZone(Animal id, boolean useOldPos) {
+	public void removeAgentFromZone(Agent id, boolean useOldPos) {
 		int zoneX;
 		int zoneY;
 		if (useOldPos) {
@@ -143,32 +143,32 @@ public class Vision {
 			zoneX = getZoneXFromPos(id.pos);
 			zoneY = getZoneYFromPos(id.pos);
 		}
-		removeAnimalFromZone(id, zoneX, zoneY);
+		removeAgentFromZone(id, zoneX, zoneY);
 	}
 	
-	private void addAnimalToZone(Animal id, int zoneX, int zoneY) {
-//		System.out.println("num before add: " + zoneGrid[zoneX][zoneY].animalsInZone.size()
+	private void addAgentToZone(Agent id, int zoneX, int zoneY) {
+//		System.out.println("num before add: " + zoneGrid[zoneX][zoneY].agentsInZone.size()
 //				+ "zoneX=" + zoneX + "zoneY=" + zoneY);
-		if(!zoneGrid[zoneX][zoneY].animalsInZone.add(id)) {
-			System.err.println("Trying to add animal to vision zone, but failed.");
+		if(!zoneGrid[zoneX][zoneY].agentsInZone.add(id)) {
+			System.err.println("Trying to add agent to vision zone, but failed.");
 		}
-//		System.out.println("num after add: " + zoneGrid[zoneX][zoneY].animalsInZone.size());
+//		System.out.println("num after add: " + zoneGrid[zoneX][zoneY].agentsInZone.size());
 	}
-	private void removeAnimalFromZone(Animal id, int zoneX, int zoneY) {
-//		System.out.println("num before remove: " + zoneGrid[zoneX][zoneY].animalsInZone.size()
+	private void removeAgentFromZone(Agent id, int zoneX, int zoneY) {
+//		System.out.println("num before remove: " + zoneGrid[zoneX][zoneY].agentsInZone.size()
 //				+ "zoneX=" + zoneX + "zoneY=" + zoneY);
-		if(!zoneGrid[zoneX][zoneY].animalsInZone.remove(id)) {
-			System.err.println("Trying to remove animal from vision zone, but failed.");
+		if(!zoneGrid[zoneX][zoneY].agentsInZone.remove(id)) {
+			System.err.println("Trying to remove agent from vision zone, but failed.");
 		}
-//		System.out.println("num after remove: " + zoneGrid[zoneX][zoneY].animalsInZone.size());
+//		System.out.println("num after remove: " + zoneGrid[zoneX][zoneY].agentsInZone.size());
 	}
 	
 	public class Zone {
-		public ArrayList<Animal> animalsInZone;
+		public ArrayList<Agent> agentsInZone;
 		public float[] color;
 		
 		public Zone() {
-			animalsInZone = new ArrayList<>();
+			agentsInZone = new ArrayList<>();
 			color = new float[3];
 			color[0] = Constants.RANDOM.nextFloat();
 			color[1] = Constants.RANDOM.nextFloat();

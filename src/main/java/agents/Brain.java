@@ -8,7 +8,7 @@ public class Brain {
 		neural = new NeuralNetwork(b);
 	}
 
-	public void inherit(Brain brain, Brain brain2) {
-		neural.inherit(brain.neural, brain2.neural);
+	public void inherit(Brain brain) {
+		neural.inherit(brain.neural);
 	}
 }

@@ -114,7 +114,7 @@ public class GrassRenderer {
 		for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
 			for (int x = 0; x < Constants.WORLD_SIZE_X; x+=1) {
 				// RENDER ANIMAL
-				Agent id = Main.simulation.mWorld.containsAnimals[i];
+				Agent id = Main.simulation.mWorld.containsAgents[i];
 				if (id != null) {
 					float xScale = (float)(Math.sqrt(3)*0.5);
 					float zScale = 1.5f;

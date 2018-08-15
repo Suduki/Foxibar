@@ -76,11 +76,11 @@ public class LoadBrains extends Message {
 				}
 			}
 			for (int weight = 1; weight < NeuralNetwork.NUM_WEIGHTS; ++weight) {
-				for (int i = 0; i < best.neural.weightsOld[weight].length; ++i) {
+				for (int i = 0; i < best.neural.weights[weight].length; ++i) {
 					String[] tmpDataFromFile = a[fileRow++].split(" ");
-					for (int j = 0; j < best.neural.weightsOld[weight][i].length; ++j) {
+					for (int j = 0; j < best.neural.weights[weight][i].length; ++j) {
 //						System.out.print(tmpDataFromFile[j] + " ");
-						best.neural.weightsOld[weight][i][j] = Float.valueOf(tmpDataFromFile[j]); 
+						best.neural.weights[weight][i][j] = Float.valueOf(tmpDataFromFile[j]); 
 					}
 //					System.out.println();
 				}

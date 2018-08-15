@@ -6,22 +6,21 @@ public class CarbonElement {
 	public float[] height;
 	public float[] color;
 	
-	public float maxHeight, splash, decayFactor;
+	public float maxHeight, decayFactor;
 	
 	public CarbonElement(float maxHeight, float[] color, float splash, float decayFactor) {
 		this.height = new float[Constants.WORLD_SIZE];
 		this.color = color;
 		this.maxHeight = maxHeight;
-		this.splash = splash;
 		this.decayFactor = decayFactor;
 	}
 	
 	public void append(int pos, float amount) {
 		if (amount < 0) return;
 		
-		height[pos] += amount;
+		height[pos] += amount/5;
 		for (short dir = 0; dir < 4; ++dir) {
-			height[World.neighbour[dir][pos]] += amount * splash;
+			height[World.neighbour[dir][pos]] += amount/5;
 			if (height[World.neighbour[dir][pos]] > 1f) {
 				height[World.neighbour[dir][pos]] = 1f;
 			}

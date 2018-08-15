@@ -2,7 +2,7 @@ package simulation;
 
 import world.World;
 
-import agents.AnimalManager;
+import agents.AgentManager;
 import agents.Species;
 import constants.Constants;
 import messages.MessageHandler;
@@ -12,13 +12,13 @@ public class Simulation extends MessageHandler {
 	public World mWorld;
 	private boolean mPaused = false;
 	
-	public AnimalManager animalManager;
+	public AgentManager agentManager;
 	
 	public Simulation()
 	{
 		mWorld = new World();
 		this.message(new messages.DummyMessage());
-		animalManager = new AnimalManager(mWorld);
+		agentManager = new AgentManager(mWorld);
 	}
 	
 	protected void evaluateMessage(Message pMessage)
@@ -31,7 +31,7 @@ public class Simulation extends MessageHandler {
 		if (!mPaused)
 		{
 			mWorld.update(timeStep);
-			animalManager.moveAll();
+			agentManager.moveAll();
 			mWorld.wind.stepWind();
 		}
 	}
@@ -46,15 +46,15 @@ public class Simulation extends MessageHandler {
 		mPaused = pPaused;
 	}
 
-	public void killAllAnimals() {
-		animalManager.killAll=true;
-		animalManager.moveAll();
+	public void killAllAgents() {
+		agentManager.killAll=true;
+		agentManager.moveAll();
 	}
 	
 	public void spawnRandomAnimal(Species species, int num) {
 		for (int i = 0; i < num; ++i) {
 			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
-			animalManager.spawn(pos, species);
+			agentManager.spawnAnimal(pos, species);
 		}
 	}
 

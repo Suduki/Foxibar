@@ -4,7 +4,7 @@ import constants.Constants;
 import static constants.Constants.Neighbours.*;
 
 import agents.Agent;
-import agents.Animal;
+import agents.Agent;
 
 public class World {
 
@@ -14,7 +14,7 @@ public class World {
 	public CarbonElement fiber;
 	public CarbonElement fat;
 	public Wind wind;
-	public Animal[] containsAnimals;
+	public Agent[] containsAgents;
 	
 	public static int[] east;
 	public static int[] north;
@@ -32,7 +32,7 @@ public class World {
 		fat = new CarbonElement(1, Constants.Colors.WHITE, 1, Constants.Blood.DECAY_FACTOR);
 		wind = new Wind();
 		
-		containsAnimals = new Animal[Constants.WORLD_SIZE];
+		containsAgents = new Agent[Constants.WORLD_SIZE];
 		
 		calculateNeighbours();
 		regenerate();
@@ -144,39 +144,39 @@ public class World {
 		a[pos][2] += tempColor[2];
 	}
 
-	public void updateContainsAnimals(Animal a) {
-		if (containsAnimals[a.pos] == a) {
+	public void updateContainsAgents(Agent a) {
+		if (containsAgents[a.pos] == a) {
 			// No movement, no change
 		}
 		else if (a.oldPos == a.pos) {
 			// No movement
-			if (containsAnimals[a.pos] == null) {
-				// but this animal was never the owner of the tile. (Should rarely happen)
-				// Make the animal the owner of the tile.
-				containsAnimals[a.pos] = a;
+			if (containsAgents[a.pos] == null) {
+				// but this agent was never the owner of the tile. (Should rarely happen)
+				// Make the agent the owner of the tile.
+				containsAgents[a.pos] = a;
 			}
 		}
-		else if (containsAnimals[a.oldPos] == a) {
-			containsAnimals[a.oldPos] = null;
-			if (containsAnimals[a.pos] != null) {
-				System.err.println("Animal trying to move to a full Tile");
+		else if (containsAgents[a.oldPos] == a) {
+			containsAgents[a.oldPos] = null;
+			if (containsAgents[a.pos] != null) {
+				System.err.println("Agent trying to move to a full Tile");
 			}
 			else {
-				containsAnimals[a.pos] = a;
+				containsAgents[a.pos] = a;
 			}
 		}
 	}
 
 	public Agent getAgentAt(int tilePos) {
-		return containsAnimals[tilePos];
+		return containsAgents[tilePos];
 	}
 
-	public void removeAnimalFromContainsAnimals(Animal animal) {
-		if (containsAnimals[animal.pos] == animal) {
-			containsAnimals[animal.pos] = null;
+	public void removeAgentFromContainsAgents(Agent agent) {
+		if (containsAgents[agent.pos] == agent) {
+			containsAgents[agent.pos] = null;
 		}
-		if (containsAnimals[animal.oldPos] == animal) {
-			containsAnimals[animal.oldPos] = null;
+		if (containsAgents[agent.oldPos] == agent) {
+			containsAgents[agent.oldPos] = null;
 		}
 	}
 

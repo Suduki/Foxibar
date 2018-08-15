@@ -48,19 +48,19 @@ public class StabilityIT {
 		Constants.RANDOM = new Random(1);
 		simulation.resetWorld(true);
 		simulation.spawnRandomAnimal(Constants.Species.GRASSLER, 100);
-		Assert.assertTrue(simulation.animalManager.numAnimals == 100);
+		Assert.assertTrue(simulation.agentManager.numAgents == 100);
 		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE*2+1)
 		{
 			timeStep++;
 			simulation.step(timeStep);
-			if (simulation.animalManager.numAnimals == 0) {
+			if (simulation.agentManager.numAgents == 0) {
 				break;
 			}
 		}
-		if (simulation.animalManager.numAnimals > 0) {
+		if (simulation.agentManager.numAgents > 0) {
 			populationSurvived = 1;
 		}
-		simulation.killAllAnimals();
+		simulation.killAllAgents();
 		Assert.assertTrue("There are still animals in the vision zones..." + visionZoneSize(), visionZoneSize() == 0);
 		verifyContainsAnimalsEmpty();
 		
@@ -73,34 +73,45 @@ public class StabilityIT {
 		verifyContainsAnimalsEmpty();
 		
 		simulation.spawnRandomAnimal(Constants.Species.GRASSLER, 1);
-		Assert.assertTrue(simulation.animalManager.numAnimals == 1);
+		Assert.assertTrue(simulation.agentManager.numAgents == 1);
 		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE+1)
 		{
 			timeStep++;
 			simulation.step(timeStep);
-			if (simulation.animalManager.numAnimals == 0) {
+			if (simulation.agentManager.numAgents == 0) {
 				break;
 			}
+			verifyContainsAnimalsNotEmpty();
 		}
 		Assert.assertTrue("Expected all animals to be dead. Currently " + 
-				simulation.animalManager.numAnimals + " alive", simulation.animalManager.numAnimals == 0);
+				simulation.agentManager.numAgents + " alive", simulation.agentManager.numAgents == 0);
 		Assert.assertTrue("There are still animals in the vision zones..." + visionZoneSize(), visionZoneSize() == 0);
 		verifyContainsAnimalsEmpty();
 	}
 	
 	private void verifyContainsAnimalsEmpty() {
-		for (int i = 0; i < simulation.mWorld.containsAnimals.length; ++i) {
+		for (int i = 0; i < simulation.mWorld.containsAgents.length; ++i) {
 			Assert.assertTrue("containsAnimals is not empty even though all animals are dead: at " + i, 
-					simulation.mWorld.containsAnimals[i] == null);
+					simulation.mWorld.containsAgents[i] == null);
 		}
 	}
 	
+	private void verifyContainsAnimalsNotEmpty() {
+		boolean contains = false;
+		for (int i = 0; i < simulation.mWorld.containsAgents.length; ++i) {
+			if (simulation.mWorld.containsAgents[i] != null) {
+				contains = true;
+				break;
+			}
+		}
+		Assert.assertFalse("containsAnimals is empty even though all animals are alive", contains);
+	}
 	
 	private int visionZoneSize() {
 		int num = 0;
-		for (Vision.Zone[] zi : simulation.animalManager.vision.zoneGrid) {
+		for (Vision.Zone[] zi : simulation.agentManager.vision.zoneGrid) {
 			for (Vision.Zone z : zi) {
-				num += z.animalsInZone.size();
+				num += z.agentsInZone.size();
 			}	
 		}
 		return num;

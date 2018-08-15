@@ -15,7 +15,6 @@ public class Species {
 	public Brain bestBrain;
 	public float bestScore;
 	public boolean timeToSave;
-	public float p;
 
 	public float fightSkill;
 	
@@ -24,20 +23,6 @@ public class Species {
 		this.secondaryColor = secondaryColor;
 		speciesId = numSpecies++;
 		bestBrain = new Brain(true);
-		if (speciesId == 0) {
-			p = -1;
-			fightSkill = 0;
-		}
-		else if (speciesId == 1) {
-			p = 1;
-			fightSkill = 0;
-		}
-		else {
-			fightSkill = Constants.RANDOM.nextFloat();
-			p = fightSkill*2f - 1f;
-			System.err.println("Totalgissning här.");
-		}
-		
 	}
 	public float getUglySpeciesFactor() {
 		if (numAlive > 100) {
@@ -54,11 +39,11 @@ public class Species {
 		numAlive++;
 	}
 	
-	public void someoneDied(Animal a) {
-		if (a.score >= bestScore && a.score > 5) {
+	public void someoneDied(Animal agent) {
+		if (agent.score >= bestScore && agent.score > 5) {
 			System.out.println("new best species of id " + speciesId);
-			bestScore = a.score;
-			bestBrain.inherit(a.brain, a.brain);
+			bestScore = agent.score;
+			bestBrain.inherit(agent.brain);
 		}
 		numAlive--;
 	}

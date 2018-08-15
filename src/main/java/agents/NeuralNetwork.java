@@ -7,36 +7,25 @@ public class NeuralNetwork {
 	public static final int NUM_LAYERS = LAYER_SIZES.length;
 	public static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
-	public static final int NUM_OPTIONS = 5;
+	public static final int NUM_OPTIONS = 4;
 	
 	public float[][][] weights;
-	public float[][][] weightsOld;
 	public float[][][] z;
-	public float[][][] zOld;
 	public int bestDirection;
 	public float[][] bias;
 
 	public NeuralNetwork(boolean initZero) {
 		weights = new float[NUM_WEIGHTS][][];
-		weightsOld = new float[NUM_WEIGHTS][][];
 		z = new float[NUM_OPTIONS][NUM_LAYERS][];
-		zOld = new float[NUM_OPTIONS][NUM_LAYERS][];
 		bias = new float[NUM_LAYERS-2][]; // Skip input layer and output layer.
 		bestDirection = -1;
 		
 		for (int weight = 0 ; weight < NUM_WEIGHTS; ++weight) {
 			weights[weight] = new float[LAYER_SIZES[weight]][LAYER_SIZES[weight+1]];
-			if (weight > 0) {
-				weightsOld[weight] = new float[LAYER_SIZES[weight+1]][LAYER_SIZES[weight+1]];
-			}
 		}
 		for (int direction = 0; direction < NUM_OPTIONS; ++direction) {
 			for (int layer = 0 ; layer < NUM_LAYERS; ++layer) {
 				z[direction][layer] = new float[LAYER_SIZES[layer]];
-
-				if (layer != 0) { // We do not use these at the first layer.	
-					zOld[direction][layer] = new float[LAYER_SIZES[layer]];
-				}
 			}
 		}
 		
@@ -71,26 +60,12 @@ public class NeuralNetwork {
 				}
 			}
 		}
-		for (int weight = 1; weight < weightsOld.length ; ++weight) {
-			for (int i = 0; i < weightsOld[weight].length; ++i) {
-				for (int j = 0; j < weightsOld[weight][i].length; ++j) {
-					weightsOld[weight][i][j] = 0;
-				}
-			}
-		}
 	}
 	void initWeightsRandom() {
 		for (int weight = 0; weight < weights.length ; ++weight) {
 			for (int i = 0; i < weights[weight].length; ++i) {
 				for (int j = 0; j < weights[weight][i].length; ++j) {
 					weights[weight][i][j] = getRandom();
-				}
-			}
-		}
-		for (int weight = 1; weight < weightsOld.length ; ++weight) {
-			for (int i = 0; i < weightsOld[weight].length; ++i) {
-				for (int j = 0; j < weightsOld[weight][i].length; ++j) {
-					weightsOld[weight][i][j] = getRandom();
 				}
 			}
 		}
@@ -111,15 +86,6 @@ public class NeuralNetwork {
 										weights[weightLayer][nodeCurrentLayer][nodeNextLayer]);
 					}
 					
-					// Append from previous time step
-					if (weightLayer != 0 && bestDirection != -1) {
-						for (int oldNodeLayer = 0; oldNodeLayer < LAYER_SIZES[weightLayer+1]; oldNodeLayer++) {
-							z[direction][weightLayer+1][nodeNextLayer] += 
-									(zOld[bestDirection][weightLayer+1][oldNodeLayer] * 
-											weightsOld[weightLayer][oldNodeLayer][nodeNextLayer]);
-						}
-					}
-					
 					// Append from bias
 					if (weightLayer < bias.length) {
 						z[direction][weightLayer+1][nodeNextLayer] += bias[weightLayer][nodeNextLayer]; 
@@ -127,11 +93,6 @@ public class NeuralNetwork {
 					
 					// Apply sigmoid
 					z[direction][weightLayer+1][nodeNextLayer] = sigmoid(z[direction][weightLayer+1][nodeNextLayer]);
-				}
-			}
-			for (int weightLayer = 0; weightLayer < NUM_WEIGHTS; ++weightLayer) {
-				for (int nodeNextLayer = 0; nodeNextLayer < LAYER_SIZES[weightLayer+1]; ++nodeNextLayer) {
-					zOld[direction][weightLayer+1][nodeNextLayer] = z[direction][weightLayer+1][nodeNextLayer];
 				}
 			}
 		}
@@ -178,14 +139,9 @@ public class NeuralNetwork {
 		}
 	}
 	
-	public void inherit(NeuralNetwork neuralMom, NeuralNetwork neuralDad) {
+	public void inherit(NeuralNetwork neuralMom) {
 		bestDirection = -1;
 		float evolution = 0.1f;
-		if (Constants.RANDOM.nextBoolean()) {
-			copy(neuralMom, evolution);
-		}
-		else {
-			copy(neuralDad, evolution);
-		}
+		copy(neuralMom, evolution);
 	}
 }

@@ -8,7 +8,7 @@ public class NeuralFactors {
 	public static final int TILE_BLOOD 			= NUM_INPUT_FACTORS++;
 	public static final int TILE_FAT			= NUM_INPUT_FACTORS++;
 	public static final int TILE_DANGER 		= NUM_INPUT_FACTORS++;
-	public static final int TILE_FERTILITY		= NUM_INPUT_FACTORS++;
+	public static final int FERTILE		= NUM_INPUT_FACTORS++;
 	public static final int TILE_FRIENDS		= NUM_INPUT_FACTORS++;
 	public static final int TILE_HUNT			= NUM_INPUT_FACTORS++;
 	public static final int TILE_TERRAIN_HEIGHT	= NUM_INPUT_FACTORS++;
@@ -17,6 +17,7 @@ public class NeuralFactors {
 	public static final int OUT_AGGRESSIVE		= NUM_OUTPUT_FACTORS++;
 	public static final int OUT_HARVEST			= NUM_OUTPUT_FACTORS++;
 	public static final int OUT_NODE_GOODNESS	= NUM_OUTPUT_FACTORS++;
+	public static final int OUT_REPRODUCE 		= NUM_OUTPUT_FACTORS++;
 	
 	public static final String[] NAMES = {
 			"HUNGER   ",
@@ -30,5 +31,7 @@ public class NeuralFactors {
 			"HEIGHT   ",
 //			"OLD_POS  "
 	};
+	public static final int X = 0;
+	public static final int Y = 1;
 	
 }

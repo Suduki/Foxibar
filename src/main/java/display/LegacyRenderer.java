@@ -138,9 +138,9 @@ public void actionLoadBrains() {
 				float screenPositionY = y * pixelsPerNodeY + pixelsPerNodeY/2;
 
 				// RENDER ANIMAL
-				Agent tmp = Main.simulation.mWorld.containsAnimals[i];
+				Agent tmp = Main.simulation.mWorld.containsAgents[i];
 				Animal animal = null;
-				if (tmp != null && tmp.getClass() == Animal.class) {
+				if (tmp != null && tmp instanceof Animal) {
 					animal = (Animal) tmp;
 				}
 				
@@ -153,6 +153,8 @@ public void actionLoadBrains() {
 					float ageFactor = 1f - ((float)animal.age)/(animal.maxAge);
 					float hungerFactor = animal.stomach.getRelativeFullness();
 					float healthFactor = animal.health;
+					float size = 0.5f * animal.size + 0.5f;
+					System.out.println(size);
 //					if (RenderState.DRAW_VISION_CIRCLE) {
 //						if (RenderState.FOLLOW_BLOODLING && id == World.animalManager.species[0].) {
 //							renderCircle(id.primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
@@ -165,8 +167,8 @@ public void actionLoadBrains() {
 //						if (Constants.BEST_ID == id) {
 						renderThreePartsOfAnimal(animal.species.secondaryColor, animal.species.color, 
 								ageFactor, healthFactor, hungerFactor, 
-								animal.size*pixelsPerNodeX, 
-								animal.size*pixelsPerNodeY, screenPositionX, screenPositionY);
+								size*pixelsPerNodeX, 
+								size*pixelsPerNodeY, screenPositionX, screenPositionY);
 //							renderThreePartsOfAnimal(id.secondaryColor, id.mainColor, 
 //									ageFactor, healthFactor, hungerFactor, 
 //									id.size*pixelsPerNodeX, 
@@ -180,23 +182,23 @@ public void actionLoadBrains() {
 					else if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
 						renderTwoPartsOfAnimal(animal.species.secondaryColor, animal.species.color, 
 								ageFactor, hungerFactor, 
-								animal.size*pixelsPerNodeX, 
-								animal.size*pixelsPerNodeY, screenPositionX, screenPositionY);
+								size*pixelsPerNodeX, 
+								size*pixelsPerNodeY, screenPositionX, screenPositionY);
 					}
 					else if (RenderState.RENDER_AGE) {
 						renderPartOfAnimal(animal.species.secondaryColor, animal.species.color, ageFactor, 
-								animal.size*pixelsPerNodeX, 
-								animal.size*pixelsPerNodeY, screenPositionX, screenPositionY);
+								size*pixelsPerNodeX, 
+								size*pixelsPerNodeY, screenPositionX, screenPositionY);
 						
 					}
 					else if (RenderState.RENDER_HUNGER) {
 						renderPartOfAnimal(animal.species.secondaryColor, animal.species.color, hungerFactor, 
-								animal.size*pixelsPerNodeX, 
-								animal.size*pixelsPerNodeY, screenPositionX, screenPositionY);
+								size*pixelsPerNodeX, 
+								size*pixelsPerNodeY, screenPositionX, screenPositionY);
 					}
 					else {
-						renderTriangle(animal.species.color, animal.size*pixelsPerNodeX, 
-								animal.size*pixelsPerNodeY, screenPositionX, screenPositionY);
+						renderTriangle(animal.species.color, size*pixelsPerNodeX, 
+								size*pixelsPerNodeY, screenPositionX, screenPositionY);
 					}
 
 				}
@@ -207,32 +209,7 @@ public void actionLoadBrains() {
 	}
 	
 	private boolean shouldThisAnimalBePrinted(Animal id) {
-		if (!RenderState.LIMIT_VISION) {
-			return true;
-		}
-		else {
-//			if (RenderState.FOLLOW_BLOODLING) {
-//				if (Constants.SpeciesId.BEST_BLOODLING_ID == -1) {
-//					return true;
-//				}
-//				for (int nearby : Animal.pool[Constants.SpeciesId.BEST_BLOODLING_ID].nearbyAnimals) {
-//					if (nearby == id || id == Constants.SpeciesId.BEST_BLOODLING_ID) {
-//						return true;
-//					}
-//				}
-//			}
-//			else if (RenderState.FOLLOW_GRASSLER) {
-//				if (Constants.SpeciesId.BEST_GRASSLER_ID == -1) {
-//					return true;
-//				}
-//				for (int nearby : Animal.pool[Constants.SpeciesId.BEST_GRASSLER_ID].nearbyAnimals) {
-//					if (nearby == id || id == Constants.SpeciesId.BEST_GRASSLER_ID) {
-//						return true;
-//					}
-//				}
-//			}
-		}
-		return false;
+		return true;
 	}
 
 	private void renderPartOfAnimal(float[] colorBackground, float[] colorAnimal, float factor, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
@@ -452,7 +429,7 @@ public void actionLoadBrains() {
 		drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
 		//drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
 		drawString(PIXELS_X + 150,40, "seed: " + ((int)noise.Noise.seed-1));
-		drawString(PIXELS_X + 20,60, "nAni: " + Main.simulation.animalManager.getNumAnimals());
+		drawString(PIXELS_X + 20,60, "nAni: " + Main.simulation.agentManager.getNumAgents());
 	}
 
 	private void togglePause() {
@@ -635,8 +612,8 @@ public void actionLoadBrains() {
 				Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
 
 				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
-				if (Main.simulation.mWorld.containsAnimals[pos] == null) {
-					Main.simulation.animalManager.spawn(pos, species);
+				if (Main.simulation.mWorld.containsAgents[pos] == null) {
+					Main.simulation.agentManager.spawnAnimal(pos, species);
 				}
 			}
 

@@ -90,4 +90,16 @@ public class Grass {
 		}
 		return heightTot;
 	}
+	
+	public void append(int pos, float amount) {
+		if (amount < 0) return;
+		
+		height[pos] += amount/5;
+		for (short dir = 0; dir < 4; ++dir) {
+			height[World.neighbour[dir][pos]] += amount/5;
+			if (height[World.neighbour[dir][pos]] > 1f) {
+				toBeUpdated[World.neighbour[dir][pos]] = false;
+			}
+		}
+	}
 }
