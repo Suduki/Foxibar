@@ -147,6 +147,7 @@ public class World {
 	public void updateContainsAgents(Agent a) {
 		if (containsAgents[a.pos] == a) {
 			// No movement, no change
+			return;
 		}
 		else if (a.oldPos == a.pos) {
 			// No movement
@@ -155,11 +156,14 @@ public class World {
 				// Make the agent the owner of the tile.
 				containsAgents[a.pos] = a;
 			}
+			return;
 		}
-		else if (containsAgents[a.oldPos] == a) {
-			containsAgents[a.oldPos] = null;
+		else {
+			if (containsAgents[a.oldPos] == a) {
+				containsAgents[a.oldPos] = null;
+			}
 			if (containsAgents[a.pos] != null) {
-				System.err.println("Agent trying to move to a full Tile");
+				System.err.println("trying to move to a populated tile.");
 			}
 			else {
 				containsAgents[a.pos] = a;

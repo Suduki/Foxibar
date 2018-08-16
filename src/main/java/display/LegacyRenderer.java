@@ -154,7 +154,6 @@ public void actionLoadBrains() {
 					float hungerFactor = animal.stomach.getRelativeFullness();
 					float healthFactor = animal.health;
 					float size = 0.5f * animal.size + 0.5f;
-					System.out.println(size);
 //					if (RenderState.DRAW_VISION_CIRCLE) {
 //						if (RenderState.FOLLOW_BLOODLING && id == World.animalManager.species[0].) {
 //							renderCircle(id.primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
