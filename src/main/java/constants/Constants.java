@@ -72,8 +72,4 @@ public class Constants {
 		public static final float DEATH_FROM_AGE_FACTOR = 1.0f;
 		public static final float DEATH_FROM_LOW_HEALTH = 1f;
 	}
-	public static class Species {
-		public static agents.Species BLOODLING = new agents.Species(Colors.BLACK, Colors.RED);
-		public static agents.Species GRASSLER = new agents.Species(Colors.GREY, Colors.WHITE);
-	}
 }

@@ -11,13 +11,10 @@ import world.World;
 public class Animal extends Agent {
 	public Brain brain;
 	public Species species;
-
 	
-	public Animal(float health, Species species, World world, AgentManager agentManager) {
+	public Animal(float health, World world, AgentManager<Animal> agentManager) {
 		super(health, world, agentManager);
-		this.species = species;
 		this.brain = new Brain(false);
-
 	}
 	
 	private void fightWith(Agent agent) {
@@ -30,16 +27,6 @@ public class Animal extends Agent {
 	 */
 	@Override
 	protected int think() {
-//		public static final int HUNGER 				= NUM_INPUT_FACTORS++;
-//		public static final int AGE 				= NUM_INPUT_FACTORS++;
-////		public static final int TILE_FIBER 			= NUM_INPUT_FACTORS++;
-//		public static final int TILE_BLOOD 			= NUM_INPUT_FACTORS++;
-//		public static final int TILE_FAT			= NUM_INPUT_FACTORS++;
-//		public static final int TILE_DANGER 		= NUM_INPUT_FACTORS++;
-//		public static final int FERTILE		= NUM_INPUT_FACTORS++;
-//		public static final int TILE_FRIENDS		= NUM_INPUT_FACTORS++;
-//		public static final int TILE_HUNT			= NUM_INPUT_FACTORS++;
-//		public static final int TILE_TERRAIN_HEIGHT	= NUM_INPUT_FACTORS++;
 		
 		float fullness = stomach.getRelativeFullness();
 		if (fullness > 1) {
@@ -49,13 +36,6 @@ public class Animal extends Agent {
 		brain.neural.z[NeuralFactors.Y][0][NeuralFactors.HUNGER] = fullness;
 		
 		brain.neural.z[NeuralFactors.Y][0][NeuralFactors.AGE] = ((float)age)/maxAge;
-		
-		// Look in Y-direction.
-		int tileNorth = World.neighbour[Constants.Neighbours.NORTH][pos];
-		int tileSouth = World.neighbour[Constants.Neighbours.SOUTH][pos];
-		
-		
-		
 		
 		for (int tile = 0; tile < 4; ++tile) {
 			int tilePos = World.neighbour[tile][pos];
@@ -121,16 +101,22 @@ public class Animal extends Agent {
 
 
 	@Override
-	public void inherit(Agent a) {
-		if (a instanceof Animal) {
+	public void inherit(Agent a, int speciesId) {
+		if (a == null) {
+			this.brain.neural.initWeightsRandom();
+			this.species = Species.getSpeciesFromId(speciesId);
+		}
+		else if (a instanceof Animal) {
 			System.err.println("Trying to inherit a non-animal.");
 			return;
 		}
 		else {
 			this.brain.inherit(((Animal)a).brain);
-			species = ((Animal)a).species;
-			species.someoneWasBorn();
+			this.species = ((Animal)a).species;
 		}
+		color = species.color;
+		secondaryColor = species.secondaryColor;
+		this.species.someoneWasBorn();
 	}
 
 
@@ -146,16 +132,11 @@ public class Animal extends Agent {
 	}
 	
 	@Override
-	protected void interact(int tileToInteractWith) {
-		int tilePos = World.neighbour[tileToInteractWith][pos];
-		Agent agent = world.getAgentAt(tilePos);
-		if (agent != null && agent != this) {
-			if (brain.neural.getOutput(NeuralFactors.OUT_AGGRESSIVE) > 0) {
-				fightWith((Animal) agent);
-			}
+	protected void interactWith(Agent agent) {
+		if (brain.neural.getOutput(NeuralFactors.OUT_AGGRESSIVE) > 0) {
+			fightWith((Animal) agent);
 		}
 	}
-
 	@Override
 	protected float getFightSkill() {
 		return species.fightSkill;

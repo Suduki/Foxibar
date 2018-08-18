@@ -139,21 +139,16 @@ public void actionLoadBrains() {
 
 				// RENDER ANIMAL
 				Agent tmp = Main.simulation.mWorld.containsAgents[i];
-				Animal animal = null;
-				if (tmp != null && tmp instanceof Animal) {
-					animal = (Animal) tmp;
-				}
-				
-				if (animal != null && shouldThisAnimalBePrinted(animal)) {
+				if (tmp != null && shouldThisAnimalBePrinted(tmp)) {
 //					if (World.animalManager.pool[id].species.speciesId == Constants.SpeciesId.GRASSLER) {
 //						renderTriangle(World.animalManager.pool[id].color, World.animalManager.pool[id].size*pixelsPerNodeX, 
 //								World.animalManager.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 //						continue;
 //					}
-					float ageFactor = 1f - ((float)animal.age)/(animal.maxAge);
-					float hungerFactor = animal.stomach.getRelativeFullness();
-					float healthFactor = animal.health;
-					float size = 0.5f * animal.size + 0.5f;
+					float ageFactor = 1f - ((float)tmp.age)/(tmp.maxAge);
+					float hungerFactor = tmp.stomach.getRelativeFullness();
+					float healthFactor = tmp.health;
+					float size = 0.5f * tmp.size + 0.5f;
 //					if (RenderState.DRAW_VISION_CIRCLE) {
 //						if (RenderState.FOLLOW_BLOODLING && id == World.animalManager.species[0].) {
 //							renderCircle(id.primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
@@ -164,7 +159,7 @@ public void actionLoadBrains() {
 //					}
 					if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
 //						if (Constants.BEST_ID == id) {
-						renderThreePartsOfAnimal(animal.species.secondaryColor, animal.species.color, 
+						renderThreePartsOfAnimal(tmp.secondaryColor, tmp.color, 
 								ageFactor, healthFactor, hungerFactor, 
 								size*pixelsPerNodeX, 
 								size*pixelsPerNodeY, screenPositionX, screenPositionY);
@@ -179,24 +174,24 @@ public void actionLoadBrains() {
 ////						}
 					}
 					else if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
-						renderTwoPartsOfAnimal(animal.species.secondaryColor, animal.species.color, 
+						renderTwoPartsOfAnimal(tmp.secondaryColor, tmp.color, 
 								ageFactor, hungerFactor, 
 								size*pixelsPerNodeX, 
 								size*pixelsPerNodeY, screenPositionX, screenPositionY);
 					}
 					else if (RenderState.RENDER_AGE) {
-						renderPartOfAnimal(animal.species.secondaryColor, animal.species.color, ageFactor, 
+						renderPartOfAnimal(tmp.secondaryColor, tmp.color, ageFactor, 
 								size*pixelsPerNodeX, 
 								size*pixelsPerNodeY, screenPositionX, screenPositionY);
 						
 					}
 					else if (RenderState.RENDER_HUNGER) {
-						renderPartOfAnimal(animal.species.secondaryColor, animal.species.color, hungerFactor, 
+						renderPartOfAnimal(tmp.secondaryColor, tmp.color, hungerFactor, 
 								size*pixelsPerNodeX, 
 								size*pixelsPerNodeY, screenPositionX, screenPositionY);
 					}
 					else {
-						renderTriangle(animal.species.color, size*pixelsPerNodeX, 
+						renderTriangle(tmp.color, size*pixelsPerNodeX, 
 								size*pixelsPerNodeY, screenPositionX, screenPositionY);
 					}
 
@@ -207,7 +202,7 @@ public void actionLoadBrains() {
 		glEnd();
 	}
 	
-	private boolean shouldThisAnimalBePrinted(Animal id) {
+	private boolean shouldThisAnimalBePrinted(Agent tmp) {
 		return true;
 	}
 
@@ -516,10 +511,10 @@ public void actionLoadBrains() {
 
 		if (insideViewport(mouse.getPos())) {
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				addBloodling(Constants.Species.BLOODLING);
+				addAgent(0);
 			}
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {//TODO: correct pos
-				addBloodling(Constants.Species.GRASSLER);
+				addAgent(1);
 			}
 		}
 	}
@@ -573,10 +568,10 @@ public void actionLoadBrains() {
 
 		if (insideViewport(mouse.getPos())) {
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				addBloodling(Constants.Species.BLOODLING);
+				addAgent(0);
 			}
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-				addBloodling(Constants.Species.GRASSLER);
+				addAgent(1);
 			}
 		}
 	}
@@ -600,7 +595,7 @@ public void actionLoadBrains() {
 //		});								
 //	}
 	
-	private void addBloodling(Species species) {
+	private void addAgent(int id) {
 		mSimulation.message( new messages.Message() {
 			Mouse eventmouse = new Mouse(mouse);
 			@Override
@@ -612,7 +607,7 @@ public void actionLoadBrains() {
 
 				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
 				if (Main.simulation.mWorld.containsAgents[pos] == null) {
-					Main.simulation.agentManager.spawnAnimal(pos, species);
+					Main.simulation.agentManager.spawnAgent(pos, id);
 				}
 			}
 

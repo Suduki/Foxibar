@@ -11,14 +11,12 @@ public class AnimalTest {
 
 	@Test
 	public void ageTest() {
-		Animal a = new Animal(0, null, null, null);
-		a.species = Constants.Species.BLOODLING;
+		Animal a = new Animal(0, null, null);
 		a.age = 0;
 		a.isAlive = true;
 		assertTrue(a.age());
 		verifyAge(a);
 		
-		a.species = Constants.Species.GRASSLER;
 		a.age = 0;
 		a.isAlive = true;
 		assertTrue(a.age());

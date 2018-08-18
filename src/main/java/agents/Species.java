@@ -1,13 +1,15 @@
 package agents;
 
+import java.awt.List;
+import java.util.ArrayList;
+
 import constants.Constants;
 
 public class Species {
 	
-	public static final int BIRTH_HUNGER_COST = 50;
+	public static ArrayList<Species> speciesList;
 	
 	public int speciesId;
-	public static int numSpecies = 0;
 	public int numAlive;
 	
 	public float[] color, secondaryColor;
@@ -19,9 +21,12 @@ public class Species {
 	public float fightSkill;
 	
 	public Species(float[] color, float[] secondaryColor) {
+		if (speciesList == null) {speciesList = new ArrayList<Species>();}
+		speciesList.add(this);
+		
 		this.color = color;
 		this.secondaryColor = secondaryColor;
-		speciesId = numSpecies++;
+		speciesId = speciesList.size();
 		bestBrain = new Brain(true);
 	}
 	public float getUglySpeciesFactor() {
@@ -46,6 +51,9 @@ public class Species {
 			bestBrain.inherit(agent.brain);
 		}
 		numAlive--;
+	}
+	public static Species getSpeciesFromId(int id) {
+		return speciesList.get(id);
 	}
 	
 }

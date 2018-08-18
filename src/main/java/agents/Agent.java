@@ -8,7 +8,10 @@ import world.World;
 public abstract class Agent {
 
 	public static final int MAX_AGE = 3000;
+	public static final int BIRTH_HUNGER_COST = 50;
 
+	public float[] color, secondaryColor;
+	
 	public float age;
 	public float maxAge;
 
@@ -53,15 +56,15 @@ public abstract class Agent {
 		age = 0;
 		this.health = health;
 
-		maxAge = MAX_AGE; //TODO: move these
+		maxAge = MAX_AGE; //TODO: move these constants
 		healPower = 0.01f;
 		maxHealth = 100;
-
+		
 		size = 1;
 		growth = 0.01f;
 		maxSize = 1;
 		
-		this.nearbyAgents = new Animal[Constants.NUM_NEIGHBOURS];
+		this.nearbyAgents = new Agent[Constants.NUM_NEIGHBOURS];
 		this.nearbyAgentsDistance = new float[Constants.NUM_NEIGHBOURS];
 		children = new ArrayList<>();
 		stomach = new Stomach();
@@ -70,6 +73,19 @@ public abstract class Agent {
 		
 		this.world = world;
 		this.agentManager = agentManager;
+		
+		if (this instanceof Randomling) {
+			color = new float[] {
+					Constants.RANDOM.nextFloat(),
+					Constants.RANDOM.nextFloat(),
+					Constants.RANDOM.nextFloat()
+					};
+			secondaryColor = new float[] {
+					Constants.RANDOM.nextFloat(),
+					Constants.RANDOM.nextFloat(),
+					Constants.RANDOM.nextFloat()
+					};
+		}
 	}
 
 
@@ -86,7 +102,7 @@ public abstract class Agent {
 
 		actionUpdate();
 		internalOrgansUpdate();
-
+		
 		return isAlive;
 	}
 	/**
@@ -111,7 +127,7 @@ public abstract class Agent {
 		health --;
 	}
 	
-	private void mate() {
+	protected void mate() {
 		if (isFertileAndNotHungry()) {
 			children.add(agentManager.mate(this));
 			this.childCost();
@@ -119,7 +135,7 @@ public abstract class Agent {
 		}
 	}
 	
-	public abstract void inherit(Agent a);
+	public abstract void inherit(Agent a, int speciesId);
 	
 	private void stepScore(int score) {
 		this.score += score;
@@ -130,7 +146,7 @@ public abstract class Agent {
 
 	private void childCost() {
 		isFertile = false;
-		stomach.energyCost += Species.BIRTH_HUNGER_COST;
+		stomach.energyCost += BIRTH_HUNGER_COST;
 		sinceLastBaby = 0;
 		
 		// This will cause the mating animals to continue living, which is what we want in the end.
@@ -154,12 +170,14 @@ public abstract class Agent {
 		}
 	}
 	
-	/**
-	 * Interacts with the agent at direction
-	 * @param tileToInteractWith
-	 */
-	protected abstract void interact(int tileToInteractWith);
-	
+	protected void interact(int tileToInteractWith) {
+		int tilePos = World.neighbour[tileToInteractWith][pos];
+		Agent agent = world.getAgentAt(tilePos);
+		
+		if (agent != null && agent != this) {
+			interactWith(agent);
+		}
+	}
 	
 	private void actionUpdate() {
 		int direction = think(); // direction points to a tile position where to move.
@@ -290,7 +308,7 @@ public abstract class Agent {
 	}
 	
 	protected boolean isFertileAndNotHungry() {
-		return isFertile && stomach.canHaveBaby(Species.BIRTH_HUNGER_COST);
+		return isFertile && stomach.canHaveBaby(BIRTH_HUNGER_COST);
 	}
 
 	public void reset() {
@@ -302,6 +320,9 @@ public abstract class Agent {
 		health = 0.1f;
 		incarnation++;
 	}
+
+
+	protected abstract void interactWith(Agent agent);
 }
 
 

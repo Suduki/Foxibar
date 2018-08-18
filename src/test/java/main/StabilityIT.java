@@ -47,7 +47,7 @@ public class StabilityIT {
 		verifyContainsAnimalsEmpty();
 		Constants.RANDOM = new Random(1);
 		simulation.resetWorld(true);
-		simulation.spawnRandomAnimal(Constants.Species.GRASSLER, 100);
+		simulation.spawnRandomAgent(1, 100);
 		Assert.assertTrue(simulation.agentManager.numAgents == 100);
 		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE*2+1)
 		{
@@ -72,7 +72,7 @@ public class StabilityIT {
 		int timeStep = 0;
 		verifyContainsAnimalsEmpty();
 		
-		simulation.spawnRandomAnimal(Constants.Species.GRASSLER, 1);
+		simulation.spawnRandomAgent(1, 1);
 		Assert.assertTrue(simulation.agentManager.numAgents == 1);
 		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE+1)
 		{
