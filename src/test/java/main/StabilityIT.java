@@ -47,17 +47,17 @@ public class StabilityIT {
 		verifyContainsAnimalsEmpty();
 		Constants.RANDOM = new Random(1);
 		simulation.resetWorld(true);
-		simulation.spawnRandomAgent(1, 100);
-		Assert.assertTrue(simulation.agentManager.numAgents == 100);
+		simulation.spawnRandomAgents(1, 100);
+		Assert.assertTrue(simulation.randomlingManager.numAgents == 100);
 		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE*2+1)
 		{
 			timeStep++;
 			simulation.step(timeStep);
-			if (simulation.agentManager.numAgents == 0) {
+			if (simulation.randomlingManager.numAgents == 0) {
 				break;
 			}
 		}
-		if (simulation.agentManager.numAgents > 0) {
+		if (simulation.randomlingManager.numAgents > 0) {
 			populationSurvived = 1;
 		}
 		simulation.killAllAgents();
@@ -72,19 +72,19 @@ public class StabilityIT {
 		int timeStep = 0;
 		verifyContainsAnimalsEmpty();
 		
-		simulation.spawnRandomAgent(1, 1);
-		Assert.assertTrue(simulation.agentManager.numAgents == 1);
+		simulation.spawnRandomAgents(1, 1);
+		Assert.assertTrue(simulation.randomlingManager.numAgents == 1);
 		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE+1)
 		{
 			timeStep++;
 			simulation.step(timeStep);
-			if (simulation.agentManager.numAgents == 0) {
+			if (simulation.randomlingManager.numAgents == 0) {
 				break;
 			}
 			verifyContainsAnimalsNotEmpty();
 		}
 		Assert.assertTrue("Expected all animals to be dead. Currently " + 
-				simulation.agentManager.numAgents + " alive", simulation.agentManager.numAgents == 0);
+				simulation.randomlingManager.numAgents + " alive", simulation.randomlingManager.numAgents == 0);
 		Assert.assertTrue("There are still animals in the vision zones..." + visionZoneSize(), visionZoneSize() == 0);
 		verifyContainsAnimalsEmpty();
 	}
@@ -109,7 +109,7 @@ public class StabilityIT {
 	
 	private int visionZoneSize() {
 		int num = 0;
-		for (Vision.Zone[] zi : simulation.agentManager.vision.zoneGrid) {
+		for (Vision.Zone[] zi : simulation.randomlingManager.vision.zoneGrid) {
 			for (Vision.Zone z : zi) {
 				num += z.agentsInZone.size();
 			}	

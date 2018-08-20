@@ -46,7 +46,7 @@ public class Stomach {
 	 * @return fat > 0, whether this animal is starving
 	 */
 	public boolean stepStomach() {
-		energyCost += 1;
+		energyCost += 0.1f;
 		digest();
 		burnFat();
 		checkFullness();
@@ -89,7 +89,7 @@ public class Stomach {
 		}
 		
 	}
-	private final float fatToEnergyFactor = 0.001f;
+	private final float fatToEnergyFactor = 0.01f;
 	private void burnFat() {
 		fat -= energyCost*fatToEnergyFactor;
 		energyCost = 0;

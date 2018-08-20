@@ -12,7 +12,7 @@ public class Animal extends Agent {
 	public Brain brain;
 	public Species species;
 	
-	public Animal(float health, World world, AgentManager<Animal> agentManager) {
+	public Animal(float health, World world, AgentManager<Agent> agentManager) {
 		super(health, world, agentManager);
 		this.brain = new Brain(false);
 	}

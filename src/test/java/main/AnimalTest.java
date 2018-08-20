@@ -13,11 +13,12 @@ public class AnimalTest {
 	public void ageTest() {
 		Animal a = new Animal(0, null, null);
 		a.age = 0;
+		a.trueAge = 0;
 		a.isAlive = true;
 		assertTrue(a.age());
 		verifyAge(a);
 		
-		a.age = 0;
+		a.trueAge = 0;
 		a.isAlive = true;
 		assertTrue(a.age());
 		verifyAge(a);
@@ -26,6 +27,7 @@ public class AnimalTest {
 	
 	private void verifyAge(Animal a) {
 		assertTrue(a.age > 0);
+		assertTrue(a.trueAge > 0);
 		assertTrue(a.isAlive == true);
 	}
 

@@ -20,7 +20,7 @@ public class Constants {
 	public static Random RANDOM = new Random(1);
 	public static final float TILES_PER_ANIMAL = 20;
 	public static final float GROWTH = 0.005f;
-	public static final int MAX_NUM_ANIMALS = 30000;
+	public static final int MAX_NUM_ANIMALS = 20000;
 	public static final float ZOOM_SPEED = 1.05f;
 	public static final int NUM_NEIGHBOURS = 3;
 	

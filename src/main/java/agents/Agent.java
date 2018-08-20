@@ -13,6 +13,7 @@ public abstract class Agent {
 	public float[] color, secondaryColor;
 	
 	public float age;
+	public float trueAge;
 	public float maxAge;
 
 	public float health;
@@ -50,10 +51,11 @@ public abstract class Agent {
 	private boolean starving;
 	
 	protected World world;
-	protected AgentManager agentManager;
+	protected AgentManager<? extends Agent> agentManager;
 
 	public Agent(float health, World world, AgentManager agentManager) {
 		age = 0;
+		trueAge = 0;
 		this.health = health;
 
 		maxAge = MAX_AGE; //TODO: move these constants
@@ -73,19 +75,7 @@ public abstract class Agent {
 		
 		this.world = world;
 		this.agentManager = agentManager;
-		
-		if (this instanceof Randomling) {
-			color = new float[] {
-					Constants.RANDOM.nextFloat(),
-					Constants.RANDOM.nextFloat(),
-					Constants.RANDOM.nextFloat()
-					};
-			secondaryColor = new float[] {
-					Constants.RANDOM.nextFloat(),
-					Constants.RANDOM.nextFloat(),
-					Constants.RANDOM.nextFloat()
-					};
-		}
+
 	}
 
 
@@ -103,8 +93,18 @@ public abstract class Agent {
 		actionUpdate();
 		internalOrgansUpdate();
 		
+		makeBaby();
+		
 		return isAlive;
 	}
+	
+	private void makeBaby() {
+		if (isFertile && stomach.canHaveBaby(BIRTH_HUNGER_COST)) {
+			mate();
+		}
+	}
+
+
 	/**
 	 * Step recover. This is to enable different speeds for different agents.
 	 * @return
@@ -216,6 +216,7 @@ public abstract class Agent {
 	 */
 	public boolean age() {
 		age++;
+		trueAge++;
 		if (age > maxAge) {
 			die();
 			return false;
@@ -274,8 +275,7 @@ public abstract class Agent {
 	}
 
 	protected void die() {
-		world.blood.append(pos, stomach.blood);
-//		world.blood.append(pos, size);
+		world.blood.append(pos, stomach.blood + size);
 		world.grass.append(pos, stomach.fiber);
 		world.fat.append(pos, stomach.fat);
 		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
@@ -314,6 +314,7 @@ public abstract class Agent {
 	public void reset() {
 		isAlive = true;
 		age = 0;
+		trueAge = 0;
 		score = 0;
 		sinceLastBaby = 0;
 		recover = 0f;
@@ -324,5 +325,6 @@ public abstract class Agent {
 
 	protected abstract void interactWith(Agent agent);
 }
+
 
 

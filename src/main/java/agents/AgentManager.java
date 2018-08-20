@@ -6,9 +6,9 @@ import vision.Vision;
 import world.World;
 import constants.Constants;
 
-public class AgentManager<T extends Agent> {
+public class AgentManager<AgentClass extends Agent> {
 
-	public Agent[] pool = new Agent[Constants.MAX_NUM_ANIMALS];
+	public AgentClass[] pool;
 	public ArrayList<Agent> alive = new ArrayList<>();
 	public ArrayList<Agent> dead = new ArrayList<>();
 	public ArrayList<Agent> toDie = new ArrayList<>();
@@ -21,14 +21,13 @@ public class AgentManager<T extends Agent> {
 	public Vision vision;
 	private World world;
 
-	private Class<T> clazz;
-
-	public AgentManager(World world, Class<T> clazz) {
+	public AgentManager(World world, Class<AgentClass> clazz, int maxNumAnimals) {
+		pool = (AgentClass[]) new Agent[maxNumAnimals];
 		vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
-		this.clazz = clazz;
+		
 		if (clazz == Randomling.class) {
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-				pool[id] = new Randomling(0, world, this); //TODO behövs id?
+				pool[id] = (AgentClass) new Randomling(0, world, (AgentManager<Agent>) this); //TODO behövs id?
 				dead.add(pool[id]);
 			}
 		}
@@ -37,7 +36,13 @@ public class AgentManager<T extends Agent> {
 			new Species(Constants.Colors.WHITE, Constants.Colors.BLUE);
 			
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-				pool[id] = new Animal(0, world, (AgentManager<Animal>) this);
+				pool[id] = (AgentClass) new Animal(0, world, (AgentManager<Agent>) this);
+				dead.add(pool[id]);
+			}
+		}
+		else if (clazz == Bloodling.class) {
+			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
+				pool[id] = (AgentClass) new Bloodling(0, world, (AgentManager<Bloodling>) this);
 				dead.add(pool[id]);
 			}
 		}

@@ -5,23 +5,22 @@ import world.World;
 
 public class Randomling extends Agent {
 
-	public Randomling(float health, World world, AgentManager agentManager) {
+	public Randomling(float health, World world, AgentManager<Agent> agentManager) {
 		super(health, world, agentManager);
+		color = Constants.Colors.BLACK;
+		secondaryColor = Constants.Colors.WHITE;
 	}
-
-	public static int numRandomlings = 0;
 
 	@Override
 	public void inherit(Agent a, int i) {
+		stomach.inherit(-1);
 		if (a == null) {
-			numRandomlings ++;
 		}
 		else if (!(a instanceof Randomling)) {
 			System.err.println("Trying to inherit a non-Randomling.");
 			return;
 		}
 		else {
-			numRandomlings ++;
 		}		
 	}
 
@@ -37,7 +36,7 @@ public class Randomling extends Agent {
 
 	@Override
 	protected float getFightSkill() {
-		return 0;
+		return 0f;
 	}
 
 	@Override
@@ -47,7 +46,8 @@ public class Randomling extends Agent {
 
 	@Override
 	protected void interactWith(Agent agent) {
-		System.out.println("hi");
+		agent.health -= getFightSkill();
+		health -= agent.getFightSkill();
 	}
 
 }

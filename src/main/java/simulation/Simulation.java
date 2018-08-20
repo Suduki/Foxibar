@@ -2,9 +2,8 @@ package simulation;
 
 import world.World;
 import agents.AgentManager;
-import agents.Animal;
+import agents.Bloodling;
 import agents.Randomling;
-import agents.Species;
 import constants.Constants;
 import messages.MessageHandler;
 import messages.Message;
@@ -13,13 +12,15 @@ public class Simulation extends MessageHandler {
 	public World mWorld;
 	private boolean mPaused = false;
 	
-	public AgentManager<Randomling> agentManager;
+	public AgentManager<Randomling> randomlingManager;
+	public AgentManager<Bloodling> bloodlingManager;
 	
 	public Simulation()
 	{
 		mWorld = new World();
 		this.message(new messages.DummyMessage());
-		agentManager = new AgentManager(mWorld, Randomling.class);
+		randomlingManager = new AgentManager(mWorld, Randomling.class, Constants.MAX_NUM_ANIMALS);
+		bloodlingManager = new AgentManager(mWorld, Bloodling.class, Constants.MAX_NUM_ANIMALS);
 	}
 	
 	protected void evaluateMessage(Message pMessage)
@@ -32,7 +33,8 @@ public class Simulation extends MessageHandler {
 		if (!mPaused)
 		{
 			mWorld.update(timeStep);
-			agentManager.moveAll();
+			randomlingManager.moveAll();
+			bloodlingManager.moveAll();
 			mWorld.wind.stepWind();
 		}
 	}
@@ -48,18 +50,29 @@ public class Simulation extends MessageHandler {
 	}
 
 	public void killAllAgents() {
-		agentManager.killAll = true;
-		agentManager.moveAll();
+		randomlingManager.killAll = true;
+		randomlingManager.moveAll();
+		bloodlingManager.killAll = true;
+		bloodlingManager.moveAll();
 	}
 	
-	public void spawnRandomAgent(int id, int num) {
+	public void spawnRandomAgents(int id, int num) {
 		for (int i = 0; i < num; ++i) {
 			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
-			agentManager.spawnAgent(pos, id);
+			spawnAgent(pos, id);
 		}
 	}
 
 	public void resetWorld(boolean b) {
 		mWorld.reset(b);
+	}
+
+	public void spawnAgent(int pos, int id) {
+		if (id == 0) {
+			randomlingManager.spawnAgent(pos, id);
+		}
+		else {
+			bloodlingManager.spawnAgent(pos, id);
+		}
 	}
 }

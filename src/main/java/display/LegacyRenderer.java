@@ -423,7 +423,7 @@ public void actionLoadBrains() {
 		drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
 		//drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
 		drawString(PIXELS_X + 150,40, "seed: " + ((int)noise.Noise.seed-1));
-		drawString(PIXELS_X + 20,60, "nAni: " + Main.simulation.agentManager.getNumAgents());
+		drawString(PIXELS_X + 20,60, "nAni: " + Main.simulation.randomlingManager.getNumAgents());
 	}
 
 	private void togglePause() {
@@ -607,7 +607,7 @@ public void actionLoadBrains() {
 
 				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
 				if (Main.simulation.mWorld.containsAgents[pos] == null) {
-					Main.simulation.agentManager.spawnAgent(pos, id);
+					Main.simulation.spawnAgent(pos, id);
 				}
 			}
 
