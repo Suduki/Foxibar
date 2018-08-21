@@ -176,4 +176,26 @@ public class Vision {
 		}
 	}
 
+	public static int getDirectionOf(int pos, int pos2) {
+		int pX = getXFromPos(pos) -  getXFromPos(pos2); 
+		int pY = getYFromPos(pos) -  getYFromPos(pos2);
+		if (Math.abs(pX) > Math.abs(pY)) {
+			// Move in x-dir
+			if (pX > 0) {
+				return Constants.Neighbours.WEST;
+			} 
+			else {
+				return Constants.Neighbours.EAST;
+			}
+		}
+		else {
+			if (pY > 0) {
+				return Constants.Neighbours.NORTH;
+			} 
+			else {
+				return Constants.Neighbours.SOUTH;
+			}
+		}
+	}
+
 }

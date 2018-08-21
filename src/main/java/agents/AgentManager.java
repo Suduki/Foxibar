@@ -21,9 +21,9 @@ public class AgentManager<AgentClass extends Agent> {
 	public Vision vision;
 	private World world;
 
-	public AgentManager(World world, Class<AgentClass> clazz, int maxNumAnimals) {
+	public AgentManager(World world, Class<AgentClass> clazz, int maxNumAnimals, Vision vision) {
+		this.vision = vision;
 		pool = (AgentClass[]) new Agent[maxNumAnimals];
-		vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
 		
 		if (clazz == Randomling.class) {
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
@@ -99,15 +99,6 @@ public class AgentManager<AgentClass extends Agent> {
 		child.pos = pos;
 		child.oldPos = pos;
 		vision.addAgentToZone(child);
-		if (id == 0) {
-			child.stomach.inherit(-1);
-		}
-		else if (id == 1) {
-			child.stomach.inherit(1);
-		}
-		else {
-			System.err.println("Invalid id");
-		}
 	}
 	public Agent mate(Agent agent) {
 		Agent child = resurrectAgent();

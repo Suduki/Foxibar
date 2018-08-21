@@ -13,7 +13,8 @@ public class Randomling extends Agent {
 
 	@Override
 	public void inherit(Agent a, int i) {
-		stomach.inherit(-1);
+		stomach.inherit(1);
+		stomach.fat = 1;
 		if (a == null) {
 		}
 		else if (!(a instanceof Randomling)) {

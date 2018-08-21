@@ -1,5 +1,6 @@
 package simulation;
 
+import vision.Vision;
 import world.World;
 import agents.AgentManager;
 import agents.Bloodling;
@@ -11,6 +12,7 @@ import messages.Message;
 public class Simulation extends MessageHandler {
 	public World mWorld;
 	private boolean mPaused = false;
+	public Vision vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
 	
 	public AgentManager<Randomling> randomlingManager;
 	public AgentManager<Bloodling> bloodlingManager;
@@ -19,8 +21,8 @@ public class Simulation extends MessageHandler {
 	{
 		mWorld = new World();
 		this.message(new messages.DummyMessage());
-		randomlingManager = new AgentManager(mWorld, Randomling.class, Constants.MAX_NUM_ANIMALS);
-		bloodlingManager = new AgentManager(mWorld, Bloodling.class, Constants.MAX_NUM_ANIMALS);
+		randomlingManager = new AgentManager(mWorld, Randomling.class, Constants.MAX_NUM_ANIMALS, vision);
+		bloodlingManager = new AgentManager(mWorld, Bloodling.class, Constants.MAX_NUM_ANIMALS, vision);
 	}
 	
 	protected void evaluateMessage(Message pMessage)

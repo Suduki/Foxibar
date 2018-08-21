@@ -15,31 +15,37 @@ public class Stomach {
 	public float fiber;
 	public float blood;
 	public float fat;
-	float p; // -1 for bloodling, 1 for grassler
+	float p;
 	private float pFiber;
 	private float pBlood;
 	
 	public void inherit(float p) {
 		empty();
 		this.p = p;
-		pFiber = mattiasFunction(p);
-		pBlood = mattiasFunction(-p);
+		pFiber = grassFunction(p);
+		pBlood = bloodFunction(-p);
 	}
 	
-	private static final float a = 0.2f;
-	private static final float b = 1f;
-	private static final float c = 0.2f;
-	private float mattiasFunction(float p2) {
-		return (float) (a * Math.exp(b*p2) + c);
+	private static final float MAX_G = 2f;
+	private float grassFunction(float p2) {
+		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
-//	@Test
-	public void testMattiasFunction() { //TODO: Låt Mattias styra upp detta.....
-		System.out.println("Mattias Function Test:" +mattiasFunction(-1) +" " + mattiasFunction(0) + " " + mattiasFunction(1));
-		org.junit.Assert.assertTrue(mattiasFunction(-1) < 0.5f);
-		org.junit.Assert.assertTrue(mattiasFunction(1) > 0.5f);
-		org.junit.Assert.assertTrue(mattiasFunction(0) < 0.6f);
+	private static final float MAX_B = 100f;
+	private float bloodFunction(float p2) {
+		return (float) (a(MAX_B)*p2*p2 + b(MAX_B) * p2 + c(MAX_B));
 	}
-
+	
+	private static float a(float max) {
+		return max/4;
+	}
+	private static float b(float max) {
+		return max/2;
+	}
+	private static float c(float max) {
+		return max/4;
+	}
+	
+	
 	/**
 	 * Called at the end of round to digest blood/grass and create fat.
 	 * Also burns the fat.
@@ -71,25 +77,22 @@ public class Stomach {
 		float totalFullness = fiber + blood;
 		if (totalFullness > DIGEST_AMOUNT ) {
 			
-			energyCost += pFiber * fiber * DIGEST_AMOUNT / totalFullness;
-			energyCost += pBlood * blood * DIGEST_AMOUNT / totalFullness;
+			fat += pFiber * fiber * DIGEST_AMOUNT / totalFullness;;
+			fat += pBlood * blood * DIGEST_AMOUNT / totalFullness;
 			
 			fiber -= fiber * DIGEST_AMOUNT / totalFullness;
 			blood -= blood * DIGEST_AMOUNT / totalFullness;
 			
-			fat += DIGEST_AMOUNT;
 		}
 		else {
-			energyCost += pFiber * fiber;
-			energyCost += pBlood * blood;
+			fat += pFiber * fiber;
+			fat += pBlood * blood;
 			fiber = 0;
 			blood = 0;
-			
-			fat += totalFullness;
 		}
 		
 	}
-	private final float fatToEnergyFactor = 0.01f;
+	private final float fatToEnergyFactor = 0.1f;
 	private void burnFat() {
 		fat -= energyCost*fatToEnergyFactor;
 		energyCost = 0;
