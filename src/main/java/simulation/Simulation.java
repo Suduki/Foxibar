@@ -3,6 +3,7 @@ package simulation;
 import vision.Vision;
 import world.World;
 import agents.AgentManager;
+import agents.Animal;
 import agents.Bloodling;
 import agents.Randomling;
 import constants.Constants;
@@ -15,14 +16,14 @@ public class Simulation extends MessageHandler {
 	public Vision vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
 	
 	public AgentManager<Randomling> randomlingManager;
-	public AgentManager<Bloodling> bloodlingManager;
+	public AgentManager<Animal> bloodlingManager;
 	
 	public Simulation()
 	{
 		mWorld = new World();
 		this.message(new messages.DummyMessage());
-		randomlingManager = new AgentManager(mWorld, Randomling.class, Constants.MAX_NUM_ANIMALS, vision);
-		bloodlingManager = new AgentManager(mWorld, Bloodling.class, Constants.MAX_NUM_ANIMALS, vision);
+		randomlingManager = new AgentManager<Randomling>(mWorld, Randomling.class, Constants.MAX_NUM_ANIMALS, vision);
+		bloodlingManager = new AgentManager<Animal>(mWorld, Animal.class, Constants.MAX_NUM_ANIMALS, vision);
 	}
 	
 	protected void evaluateMessage(Message pMessage)

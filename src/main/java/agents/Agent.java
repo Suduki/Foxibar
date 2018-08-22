@@ -8,7 +8,7 @@ import world.World;
 public abstract class Agent {
 
 	public static final int MAX_AGE = 3000;
-	public static final int BIRTH_HUNGER_COST = 50;
+	public static final float BIRTH_HUNGER_COST = 10/Stomach.FAT_TO_ENERGY_FACTOR;
 
 	public float[] color, secondaryColor;
 	
@@ -275,12 +275,13 @@ public abstract class Agent {
 	}
 
 	protected void die() {
-		world.blood.append(pos, stomach.blood + size);
-		world.grass.append(pos, stomach.fiber);
-		world.fat.append(pos, stomach.fat);
-		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
-				+ ", age=" + age + ", score = " + score);
-		stomach.empty();
+		if (trueAge > 100) {
+			world.blood.append(pos, stomach.blood + size);
+			world.fat.append(pos, stomach.fat);
+			world.grass.append(pos, stomach.fiber);
+		}
+//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
+//				+ ", age=" + age + ", score = " + score);
 		
 		if (this.getClass() == Animal.class) {
 			((Animal)this).species.someoneDied((Animal)this); //TODO: UGLY; Override

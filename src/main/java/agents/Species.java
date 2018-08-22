@@ -28,6 +28,7 @@ public class Species {
 		this.secondaryColor = secondaryColor;
 		speciesId = speciesList.size();
 		bestBrain = new Brain(true);
+		fightSkill = 1;
 	}
 	public float getUglySpeciesFactor() {
 		if (numAlive > 100) {

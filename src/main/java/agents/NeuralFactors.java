@@ -10,7 +10,7 @@ public class NeuralFactors {
 	public static final int TILE_DANGER 		= NUM_INPUT_FACTORS++;
 	public static final int FERTILE		= NUM_INPUT_FACTORS++;
 	public static final int TILE_FRIENDS		= NUM_INPUT_FACTORS++;
-	public static final int TILE_HUNT			= NUM_INPUT_FACTORS++;
+	public static final int TILE_PREY			= NUM_INPUT_FACTORS++;
 	public static final int TILE_TERRAIN_HEIGHT	= NUM_INPUT_FACTORS++;
 	
 	public static int NUM_OUTPUT_FACTORS  	= 0;
@@ -31,7 +31,5 @@ public class NeuralFactors {
 			"HEIGHT   ",
 //			"OLD_POS  "
 	};
-	public static final int X = 0;
-	public static final int Y = 1;
 	
 }

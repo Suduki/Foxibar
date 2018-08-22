@@ -115,9 +115,6 @@ public class NeuralNetwork {
 		return bestDirection;
 	}
 	
-	public float getOutput(int neuralFactorId) {
-		return z[bestDirection][LAYER_SIZES.length-1][neuralFactorId];
-	}
 	
 	private float sigmoid(float f) {
 		float result = (float) (1d/(1d+Math.exp(-f)));
@@ -143,5 +140,12 @@ public class NeuralNetwork {
 		bestDirection = -1;
 		float evolution = 0.1f;
 		copy(neuralMom, evolution);
+	}
+
+	public float getOutput(int neuralFactorId) {
+		return z[bestDirection][LAYER_SIZES.length-1][neuralFactorId];
+	}
+	public float getScaledOutput(int neuralFactorId) {
+		return sigmoid(z[bestDirection][LAYER_SIZES.length-1][neuralFactorId]);
 	}
 }

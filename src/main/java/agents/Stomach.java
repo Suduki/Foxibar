@@ -10,6 +10,7 @@ import world.World;
 public class Stomach {
 
 	public static final float MAX_FULLNESS = 100;
+	public static final float FAT_ON_BIRTH = 1;
 	
 	float energyCost;
 	public float fiber;
@@ -21,16 +22,18 @@ public class Stomach {
 	
 	public void inherit(float p) {
 		empty();
+		fat = FAT_ON_BIRTH;
+		
 		this.p = p;
 		pFiber = grassFunction(p);
 		pBlood = bloodFunction(-p);
 	}
 	
-	private static final float MAX_G = 2f;
+	private static final float MAX_G = 1f;
 	private float grassFunction(float p2) {
 		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
-	private static final float MAX_B = 100f;
+	private static final float MAX_B = 10f;
 	private float bloodFunction(float p2) {
 		return (float) (a(MAX_B)*p2*p2 + b(MAX_B) * p2 + c(MAX_B));
 	}
@@ -92,9 +95,9 @@ public class Stomach {
 		}
 		
 	}
-	private final float fatToEnergyFactor = 0.1f;
+	public final static float FAT_TO_ENERGY_FACTOR = 0.5f;
 	private void burnFat() {
-		fat -= energyCost*fatToEnergyFactor;
+		fat -= energyCost*FAT_TO_ENERGY_FACTOR;
 		energyCost = 0;
 	}
 	
@@ -122,8 +125,8 @@ public class Stomach {
 		return getMass() / MAX_FULLNESS;
 	}
 
-	public boolean canHaveBaby(int birthHungerCost) {
-		return (fat / fatToEnergyFactor) > birthHungerCost;
+	public boolean canHaveBaby(float birthHungerCost) {
+		return (fat / FAT_TO_ENERGY_FACTOR) > birthHungerCost;
 	}
 
 }
