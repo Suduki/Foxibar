@@ -2,24 +2,28 @@ package simulation;
 
 import vision.Vision;
 import world.World;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
-
+import agents.AgentManager;
 import agents.Animal;
-import agents.NeuralNetwork;
+import agents.Bloodling;
+import agents.Randomling;
+import constants.Constants;
 import messages.MessageHandler;
 import messages.Message;
 
 public class Simulation extends MessageHandler {
-	private World mWorld;
+	public World mWorld;
 	private boolean mPaused = false;
+	public Vision vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
+	
+	public AgentManager<Randomling> randomlingManager;
+	public AgentManager<Animal> bloodlingManager;
 	
 	public Simulation()
 	{
 		mWorld = new World();
-		Animal.init();
-		Vision.init();
 		this.message(new messages.DummyMessage());
+		randomlingManager = new AgentManager<Randomling>(mWorld, Randomling.class, Constants.MAX_NUM_ANIMALS, vision);
+		bloodlingManager = new AgentManager<Animal>(mWorld, Animal.class, Constants.MAX_NUM_ANIMALS, vision);
 	}
 	
 	protected void evaluateMessage(Message pMessage)
@@ -32,7 +36,8 @@ public class Simulation extends MessageHandler {
 		if (!mPaused)
 		{
 			mWorld.update(timeStep);
-			Animal.moveAll();
+			randomlingManager.moveAll();
+			bloodlingManager.moveAll();
 			mWorld.wind.stepWind();
 		}
 	}
@@ -45,5 +50,32 @@ public class Simulation extends MessageHandler {
 	public void setPause(boolean pPaused)
 	{
 		mPaused = pPaused;
+	}
+
+	public void killAllAgents() {
+		randomlingManager.killAll = true;
+		randomlingManager.moveAll();
+		bloodlingManager.killAll = true;
+		bloodlingManager.moveAll();
+	}
+	
+	public void spawnRandomAgents(int id, int num) {
+		for (int i = 0; i < num; ++i) {
+			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
+			spawnAgent(pos, id);
+		}
+	}
+
+	public void resetWorld(boolean b) {
+		mWorld.reset(b);
+	}
+
+	public void spawnAgent(int pos, int id) {
+		if (id == 0) {
+			randomlingManager.spawnAgent(pos, id);
+		}
+		else {
+			bloodlingManager.spawnAgent(pos, id);
+		}
 	}
 }

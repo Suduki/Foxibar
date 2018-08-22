@@ -1,34 +1,39 @@
 package world;
 
-import java.awt.Container;
-
-import agents.Animal;
 import constants.Constants;
-import display.RenderState;
-
 import static constants.Constants.Neighbours.*;
+
+import agents.Agent;
+import agents.Agent;
 
 public class World {
 
-	public static Terrain terrain;
-	public static Grass grass;
-	public static Blood blood;
-	public static Wind wind;
-
+	public Terrain terrain;
+	public Grass grass;
+	public CarbonElement blood;
+	public CarbonElement fiber;
+	public CarbonElement fat;
+	public Wind wind;
+	public Agent[] containsAgents;
+	
 	public static int[] east;
 	public static int[] north;
 	public static int[] west;
 	public static int[] south;
 	public static int[] none;
 	public static int[][] neighbour;
-
+	
 
 	public World() {
 		terrain = new Terrain();
-		grass = new Grass();
-		blood = new Blood();
+		grass = new Grass(terrain);
+		blood = new CarbonElement(1, Constants.Colors.BLOOD, 1, Constants.Blood.DECAY_FACTOR);
+		fiber = new CarbonElement(1, Constants.Colors.TREE, 1, Constants.Blood.DECAY_FACTOR);
+		fat = new CarbonElement(1, Constants.Colors.WHITE, 1, Constants.Blood.DECAY_FACTOR);
 		wind = new Wind();
-
+		
+		containsAgents = new Agent[Constants.WORLD_SIZE];
+		
 		calculateNeighbours();
 		regenerate();
 	}
@@ -90,17 +95,20 @@ public class World {
 		
 		grass.grow(timeStep, UPDATE_FREQUENCY);
 		blood.decay(timeStep, UPDATE_FREQUENCY);
+		fiber.decay(timeStep, UPDATE_FREQUENCY);
+		fat.decay(timeStep, UPDATE_FREQUENCY);
 
 	}
 
-	public static void regenerate() {
+	public void regenerate() {
 		terrain.regenerate();
-		grass.regenerate();
+		grass.regenerate(false);
 		wind.regenerate();
 	}
 
 	private static float[] tempColor = new float[3];
-	public static void updateColor(float[][] a, int pos) {
+	
+	public void updateColor(float[][] a, int pos) {
 		float grassness, dirtness;
 
 		a[pos][0] = 0f;
@@ -121,11 +129,65 @@ public class World {
 		a[pos][1] += dirtness*tempColor[1];
 		a[pos][2] += dirtness*tempColor[2];
 
-		if (RenderState.RENDER_BLOOD) {
-			blood.getColor(pos, tempColor);
-			a[pos][0] += tempColor[0];
-			a[pos][1] += tempColor[1];
-			a[pos][2] += tempColor[2];
+		// Find the highest pile of fiber/fat/blood and use that color.
+		blood.getColor(pos, tempColor);
+		a[pos][0] += tempColor[0];
+		a[pos][1] += tempColor[1];
+		a[pos][2] += tempColor[2];
+		fiber.getColor(pos, tempColor);
+		a[pos][0] += tempColor[0];
+		a[pos][1] += tempColor[1];
+		a[pos][2] += tempColor[2];
+		fat.getColor(pos, tempColor);
+		a[pos][0] += tempColor[0];
+		a[pos][1] += tempColor[1];
+		a[pos][2] += tempColor[2];
+	}
+
+	public void updateContainsAgents(Agent a) {
+		if (containsAgents[a.pos] == a) {
+			// No movement, no change
+			return;
 		}
+		else if (a.oldPos == a.pos) {
+			// No movement
+			if (containsAgents[a.pos] == null) {
+				// but this agent was never the owner of the tile. (Should rarely happen)
+				// Make the agent the owner of the tile.
+				containsAgents[a.pos] = a;
+			}
+			return;
+		}
+		else {
+			if (containsAgents[a.oldPos] == a) {
+				containsAgents[a.oldPos] = null;
+			}
+			if (containsAgents[a.pos] != null) {
+				System.err.println("trying to move to a populated tile.");
+			}
+			else {
+				containsAgents[a.pos] = a;
+			}
+		}
+	}
+
+	public Agent getAgentAt(int tilePos) {
+		return containsAgents[tilePos];
+	}
+
+	public void removeAgentFromContainsAgents(Agent agent) {
+		if (containsAgents[agent.pos] == agent) {
+			containsAgents[agent.pos] = null;
+		}
+		if (containsAgents[agent.oldPos] == agent) {
+			containsAgents[agent.oldPos] = null;
+		}
+	}
+
+	public void reset(boolean b) {
+		grass.regenerate(b);
+		blood.reset();
+		fiber.reset();
+		fat.reset();
 	}
 }

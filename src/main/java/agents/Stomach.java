@@ -1,0 +1,133 @@
+package agents;
+
+import org.junit.Test;
+import org.junit.runner.JUnitCore;
+import org.junit.runners.JUnit4;
+
+import constants.Constants;
+import world.World;
+
+public class Stomach {
+
+	public static final float MAX_FULLNESS = 100;
+	public static final float FAT_ON_BIRTH = 1;
+	
+	float energyCost;
+	public float fiber;
+	public float blood;
+	public float fat;
+	float p;
+	private float pFiber;
+	private float pBlood;
+	
+	public void inherit(float p) {
+		empty();
+		fat = FAT_ON_BIRTH;
+		
+		this.p = p;
+		pFiber = grassFunction(p);
+		pBlood = bloodFunction(-p);
+	}
+	
+	private static final float MAX_G = 1f;
+	private float grassFunction(float p2) {
+		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
+	}
+	private static final float MAX_B = 10f;
+	private float bloodFunction(float p2) {
+		return (float) (a(MAX_B)*p2*p2 + b(MAX_B) * p2 + c(MAX_B));
+	}
+	
+	private static float a(float max) {
+		return max/4;
+	}
+	private static float b(float max) {
+		return max/2;
+	}
+	private static float c(float max) {
+		return max/4;
+	}
+	
+	
+	/**
+	 * Called at the end of round to digest blood/grass and create fat.
+	 * Also burns the fat.
+	 * @return fat > 0, whether this animal is starving
+	 */
+	public boolean stepStomach() {
+		energyCost += 0.1f;
+		digest();
+		burnFat();
+		checkFullness();
+		return fat > 0;
+	}
+
+	private void checkFullness() {
+		float digestAmount = getMass() - MAX_FULLNESS;
+		if (digestAmount > 0) {
+			float total = getMass();
+			fiber -= fiber * digestAmount / MAX_FULLNESS;
+			blood -= blood * digestAmount / MAX_FULLNESS;
+			fat -= fat * digestAmount / MAX_FULLNESS;
+		}
+	}
+
+	/**
+	 * Digests
+	 */
+	private static final float DIGEST_AMOUNT = 1f; //TODO: styr upp konstanter som denna.
+	private void digest() {
+		float totalFullness = fiber + blood;
+		if (totalFullness > DIGEST_AMOUNT ) {
+			
+			fat += pFiber * fiber * DIGEST_AMOUNT / totalFullness;;
+			fat += pBlood * blood * DIGEST_AMOUNT / totalFullness;
+			
+			fiber -= fiber * DIGEST_AMOUNT / totalFullness;
+			blood -= blood * DIGEST_AMOUNT / totalFullness;
+			
+		}
+		else {
+			fat += pFiber * fiber;
+			fat += pBlood * blood;
+			fiber = 0;
+			blood = 0;
+		}
+		
+	}
+	public final static float FAT_TO_ENERGY_FACTOR = 0.5f;
+	private void burnFat() {
+		fat -= energyCost*FAT_TO_ENERGY_FACTOR;
+		energyCost = 0;
+	}
+	
+	public float getMass() {
+		return fat + fiber + blood;
+	}
+
+	public void empty() {
+		fat = 0;
+		fiber = 0;
+		blood = 0;
+	}
+
+	public void addFat(float amount) {
+		fat += amount;
+	}
+	public void addBlood(float amount) {
+		blood += amount;
+	}
+	public void addFiber(float amount) {
+		fiber += amount;
+	}
+
+	public float getRelativeFullness() {
+		return getMass() / MAX_FULLNESS;
+	}
+
+	public boolean canHaveBaby(float birthHungerCost) {
+		return (fat / FAT_TO_ENERGY_FACTOR) > birthHungerCost;
+	}
+
+}
+

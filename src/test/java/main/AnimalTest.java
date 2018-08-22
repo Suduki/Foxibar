@@ -4,37 +4,37 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import agents.Animal;
 import constants.Constants;
-import static constants.Constants.*;
 
-public class AnimalTest extends agents.Animal {
+public class AnimalTest {
 
-	//@Test
+	@Test
 	public void ageTest() {
-		AnimalTest a = new AnimalTest();
-		a.species = Constants.Species.BLOODLING;
+		Animal a = new Animal(0, null, null);
 		a.age = 0;
-		a.health = 0.1f;
-		a.hunger = 10;
+		a.trueAge = 0;
 		a.isAlive = true;
 		assertTrue(a.age());
 		verifyAge(a);
 		
-		a.species = Constants.Species.GRASSLER;
-		a.age = 0;
-		a.health = 0.1f;
-		a.hunger = 10;
+		a.trueAge = 0;
 		a.isAlive = true;
 		assertTrue(a.age());
 		verifyAge(a);
 
 	}
 	
-	private void verifyAge(AnimalTest a) {
+	private void verifyAge(Animal a) {
 		assertTrue(a.age > 0);
-		assertTrue(a.health > 0.1f);
-		assertTrue(a.hunger < 10);
+		assertTrue(a.trueAge > 0);
 		assertTrue(a.isAlive == true);
 	}
 
+	
+	@Test
+	public void testMockito() {
+		System.out.println("asd");
+		
+	}
 }

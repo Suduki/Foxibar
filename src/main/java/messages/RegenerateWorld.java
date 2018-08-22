@@ -1,5 +1,6 @@
 package messages;
 
+import main.Main;
 import simulation.Simulation;
 import world.World;
 
@@ -15,6 +16,6 @@ public class RegenerateWorld extends Message {
 	public void evaluate(Simulation pSimulation)
 	{
 		// TODO: Make good.
-		World.regenerate();		
+		Main.simulation.mWorld.regenerate();		
 	}
 }

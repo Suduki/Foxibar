@@ -5,7 +5,9 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import agents.Animal;
+import agents.Brain;
 import agents.NeuralNetwork;
+import agents.Species;
 import constants.Constants;
 import world.World;
 
@@ -19,18 +21,17 @@ public class LoadBrains extends Message {
 	@Override
 	public void evaluate(simulation.Simulation pSimulation)
 	{
-		Animal.loadBrains = true;
+//		Animal.loadBrains = true;
+		System.err.println("Not implemented this.");
 	}
 	
-	public static NeuralNetwork bestBloodling;
-	public static NeuralNetwork bestGrassler;
 	
-	public static void loadBrains(final int speciesId) {
+	public static void loadBrains(final Species bloodling) {
 		
-		NeuralNetwork best = new NeuralNetwork(true);
+		Brain best = new Brain(true);
 		BufferedReader br = null;
 		try {
-			String filename = "brain" + speciesId;
+			String filename = "brain" + bloodling.speciesId;
 			for (int i : NeuralNetwork.LAYER_SIZES) {
 				filename = filename + "_" + i;
 			}
@@ -65,21 +66,21 @@ public class LoadBrains extends Message {
 		    int fileRow = 2;
 		    
 			for (int weight = 0; weight < NeuralNetwork.NUM_WEIGHTS; ++weight) {
-				for (int i = 0; i < best.weights[weight].length; ++i) {
+				for (int i = 0; i < best.neural.weights[weight].length; ++i) {
 					String[] tmpDataFromFile = a[fileRow++].split(" ");
-					for (int j = 0; j < best.weights[weight][i].length; ++j) {
+					for (int j = 0; j < best.neural.weights[weight][i].length; ++j) {
 //						System.out.print(tmpDataFromFile[j] + " ");
-						best.weights[weight][i][j] = Float.valueOf(tmpDataFromFile[j]); 
+						best.neural.weights[weight][i][j] = Float.valueOf(tmpDataFromFile[j]); 
 					}
 //					System.out.println();
 				}
 			}
 			for (int weight = 1; weight < NeuralNetwork.NUM_WEIGHTS; ++weight) {
-				for (int i = 0; i < best.weightsOld[weight].length; ++i) {
+				for (int i = 0; i < best.neural.weights[weight].length; ++i) {
 					String[] tmpDataFromFile = a[fileRow++].split(" ");
-					for (int j = 0; j < best.weightsOld[weight][i].length; ++j) {
+					for (int j = 0; j < best.neural.weights[weight][i].length; ++j) {
 //						System.out.print(tmpDataFromFile[j] + " ");
-						best.weightsOld[weight][i][j] = Float.valueOf(tmpDataFromFile[j]); 
+						best.neural.weights[weight][i][j] = Float.valueOf(tmpDataFromFile[j]); 
 					}
 //					System.out.println();
 				}
@@ -93,17 +94,6 @@ public class LoadBrains extends Message {
 				e.printStackTrace();
 			}
 		}
-		switch (speciesId) {
-		case Constants.SpeciesId.BLOODLING:
-			System.out.println("Loading bloodling brain");
-			bestBloodling = best;
-			break;
-		case Constants.SpeciesId.GRASSLER:
-			System.out.println("Loading grassler brain");
-			bestGrassler = best;
-			break;
-		default:
-			System.err.println("aa what is this2?");
-		}
+		bloodling.bestBrain = best;
 	}
 }

@@ -7,57 +7,60 @@ public class Grass {
 	public float[] height;
 	public boolean[] toBeUpdated;
 	public float[] color;
-	
-	public static final boolean GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT = true;
-	
-	public Grass() {
+	public Tree tree;
+	private Terrain terrain;
+
+	public Grass(Terrain terrain) {
 		height = new float[Constants.WORLD_SIZE];
 		toBeUpdated = new boolean[Constants.WORLD_SIZE];
 		color = Constants.Colors.GRASS;
+		tree = new Tree(terrain);
+		this.terrain = terrain;
 	}
 
-	private static final float WATER_LIMIT = 0.8f;
 	public void grow(int timeStep, int updateFrequency) {
+//		if (World.air.getCarbon() < Constants.GROWTH * Constants.WORLD_SIZE) { //TODO: Carbon stuff
+////			System.out.println("World.air.getCarbon()=" + World.air.getCarbon());
+//			return;
+//		}
 		for(int i = timeStep%updateFrequency; i < Constants.WORLD_SIZE; i+=updateFrequency) {
+//			float totalGrowth = 0; 
 			if (toBeUpdated[i]) {
-				if (GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT) {
-					height[i] += Constants.GROWTH * World.terrain.growth[i] * updateFrequency;
-					if (height[i] > World.terrain.growth[i]) {
-						toBeUpdated[i] = false;
-						height[i] = World.terrain.growth[i];
-					}
+//				totalGrowth -= height[i];
+				height[i] += Constants.GROWTH * terrain.growth[i] * updateFrequency;
+				if (height[i] > terrain.growth[i]) {
+					toBeUpdated[i] = false;
+					height[i] = terrain.growth[i];
 				}
-				else {
-					height[i] += Constants.GROWTH * updateFrequency;
-					if (height[i] > 1f) {
-						toBeUpdated[i] = false;
-						height[i] = 1f;
-					}
-				}
+//				totalGrowth += height[i];
 			}
+//			World.air.harvest(totalGrowth);
 		}
+		tree.update();
 	}
 
-	public void regenerate() {
+	public void regenerate(boolean fullyGrown) {
+		tree.killAll();
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			if (World.terrain.stone[i] || World.terrain.water[i]) {
-				this.height[i] = 0;
+			if (terrain.stone[i] || terrain.water[i]) {
 				toBeUpdated[i] = false;
 				continue;
 			}
-			if (GRASS_MAX_HEIGHT_EQUAL_TO_TERRAIN_HEIGHT) {
-				this.height[i] = World.terrain.growth[i];
+			if (fullyGrown) {
+				this.height[i] = terrain.growth[i];
+				toBeUpdated[i] = false;
 			}
 			else {
-				this.height[i] = 1;
+				this.height[i] = 0;
+				toBeUpdated[i] = true;
 			}
-			toBeUpdated[i] = false;
 		}
 	}
 
 	public void killAllGrass() {
+		tree.killAll();
 		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			if (World.terrain.stone[i] || World.terrain.water[i]) {
+			if (terrain.stone[i] || terrain.water[i]) {
 				toBeUpdated[i] = false;
 			}
 			else {
@@ -68,7 +71,7 @@ public class Grass {
 	}
 
 	public float harvest(float grassHarvest, int pos) {
-		if (World.terrain.water[pos] || World.terrain.stone[pos]) {
+		if (terrain.water[pos] || terrain.stone[pos]) {
 			return 0;
 		}
 		float old = height[pos];
@@ -86,5 +89,17 @@ public class Grass {
 			heightTot += height[i];
 		}
 		return heightTot;
+	}
+	
+	public void append(int pos, float amount) {
+		if (amount < 0) return;
+		
+		height[pos] += amount/5;
+		for (short dir = 0; dir < 4; ++dir) {
+			height[World.neighbour[dir][pos]] += amount/5;
+			if (height[World.neighbour[dir][pos]] > 1f) {
+				toBeUpdated[World.neighbour[dir][pos]] = false;
+			}
+		}
 	}
 }

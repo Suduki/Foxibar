@@ -1,56 +1,60 @@
 package agents;
 
+import java.awt.List;
+import java.util.ArrayList;
+
 import constants.Constants;
 
 public class Species {
+	
+	public static ArrayList<Species> speciesList;
+	
 	public int speciesId;
+	public int numAlive;
 	
-	float grassHarvest;
-	float grassDigestion;
+	public float[] color, secondaryColor;
 	
-	float bloodDigestion;
-	float bloodHarvest;
+	public Brain bestBrain;
+	public float bestScore;
+	public boolean timeToSave;
 
-	float speed;
-	float fight;
-
-	float healing;
+	public float fightSkill;
 	
-	float babyHungerLimit;
-	
-	public Species(int speciesId, float grassHarvest, float grassDigestion,
-			float bloodHarvest, float bloodDigestion, float speed,
-			float fight, float healing) {
-		this.speciesId = speciesId;
-		this.grassHarvest = grassHarvest;
-		this.grassDigestion = grassDigestion;
-		this.bloodDigestion = bloodDigestion;
-		this.bloodHarvest = bloodHarvest;
-		this.speed = speed;
-		this.fight = fight;
-		this.healing = healing;
-		this.babyHungerLimit = babyHungerLimit;
-
+	public Species(float[] color, float[] secondaryColor) {
+		if (speciesList == null) {speciesList = new ArrayList<Species>();}
+		speciesList.add(this);
+		
+		this.color = color;
+		this.secondaryColor = secondaryColor;
+		speciesId = speciesList.size();
+		bestBrain = new Brain(true);
+		fightSkill = 1;
+	}
+	public float getUglySpeciesFactor() {
+		if (numAlive > 100) {
+			return 200f;
+		}
+		else if (numAlive > 1000) {
+			return 2000f;
+		}
+		return 1f;
 	}
 	
-	public Species() {
+	
+	public void someoneWasBorn() {
+		numAlive++;
 	}
-
-	public void inherit(Species mom, Species dad) {
-		this.speciesId = mom.speciesId; 
-		
-		float evolution = 0.0f; // Needs balance otherwise. Evolving this is advanced stuff.
-		this.grassHarvest = (mom.grassHarvest + dad.grassHarvest)/2 + evolution*(Constants.RANDOM.nextFloat()-0.5f);
-		this.grassDigestion = (mom.grassDigestion + dad.grassDigestion)/2 + evolution*(Constants.RANDOM.nextFloat()-0.5f);
-		
-		this.bloodHarvest = (mom.bloodHarvest + dad.bloodHarvest)/2 + evolution*(Constants.RANDOM.nextFloat()-0.5f);
-		this.bloodDigestion = (mom.bloodDigestion + dad.bloodDigestion)/2 + evolution*(Constants.RANDOM.nextFloat()-0.5f);
-		
-		this.speed = (mom.speed + dad.speed)/2 + evolution*(Constants.RANDOM.nextFloat()-0.5f);
-		this.fight = (mom.fight + dad.fight)/2;
-		
-		this.healing = (mom.healing + dad.healing)/2;
-		
-		this.babyHungerLimit = (mom.babyHungerLimit + dad.babyHungerLimit)/2;
+	
+	public void someoneDied(Animal agent) {
+		if (agent.score >= bestScore && agent.score > 5) {
+			System.out.println("new best species of id " + speciesId);
+			bestScore = agent.score;
+			bestBrain.inherit(agent.brain);
+		}
+		numAlive--;
 	}
+	public static Species getSpeciesFromId(int id) {
+		return speciesList.get(id);
+	}
+	
 }

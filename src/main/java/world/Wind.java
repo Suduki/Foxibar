@@ -13,8 +13,8 @@ public class Wind {
 		windZ = new float[Constants.WORLD_SIZE_X][Constants.WORLD_SIZE_Y];
 	}
 
-	public float[][] windX; //TODO: Only used by rendering. Move!
-	public float[][] windZ; //TODO: Only used by rendering. Move!
+	public float[][] windX;
+	public float[][] windZ;
 	
 	private Vector3f windXOffset = new Vector3f(0,0,0);
 	private Vector3f windZOffset = new Vector3f(0,0,0);
@@ -22,11 +22,12 @@ public class Wind {
 	private Vector3f windZSpeed = new Vector3f(0,0,0);
 	public void stepWind() {
 		float damping = 0.99f;
-		windXSpeed.x += rand();
-		windXSpeed.y += rand();
+		float speed = 0.5f;
+		windXSpeed.x += rand()*speed;
+		windXSpeed.y += rand()*speed;
 		
-		windZSpeed.x += rand();
-		windZSpeed.y += rand();
+		windZSpeed.x += rand()*speed;
+		windZSpeed.y += rand()*speed;
 		
 		windXSpeed.mul(damping);
 		windZSpeed.mul(damping);
@@ -54,7 +55,7 @@ public class Wind {
 		return  ((((int)val % max) + max) % max);
 	}
 	public void regenerate() {
-		windX = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.7f);
-		windZ = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.7f);		
+		windX = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.5f);
+		windZ = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.5f);		
 	}
 }

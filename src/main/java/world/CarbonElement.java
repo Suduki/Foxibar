@@ -2,19 +2,25 @@ package world;
 
 import constants.Constants;
 
-public class Blood {
+public class CarbonElement {
 	public float[] height;
-	public final float[] color;
+	public float[] color;
 	
-	public Blood() {
+	public float maxHeight, decayFactor;
+	
+	public CarbonElement(float maxHeight, float[] color, float splash, float decayFactor) {
 		this.height = new float[Constants.WORLD_SIZE];
-		this.color = Constants.Colors.BLOOD;
+		this.color = color;
+		this.maxHeight = maxHeight;
+		this.decayFactor = decayFactor;
 	}
 	
-	public void append(int pos, float factor) {
-		height[pos] += factor*Constants.Blood.ADDITION_ON_DEATH;
+	public void append(int pos, float amount) {
+		if (amount < 0) return;
+		
+		height[pos] += amount/5;
 		for (short dir = 0; dir < 4; ++dir) {
-			height[World.neighbour[dir][pos]] += factor*Constants.Blood.SPLASH*Constants.Blood.ADDITION_ON_DEATH;
+			height[World.neighbour[dir][pos]] += amount/5;
 			if (height[World.neighbour[dir][pos]] > 1f) {
 				height[World.neighbour[dir][pos]] = 1f;
 			}
@@ -22,20 +28,10 @@ public class Blood {
 	}
 
 	private static final float TRUE_DECAY = (float) Math.pow(Constants.Blood.DECAY_FACTOR, World.UPDATE_FREQUENCY);
-	private static final float TRUE_DECAY_WATER = (float) Math.pow(Constants.Blood.DECAY_FACTOR_WATER, World.UPDATE_FREQUENCY);
-	private static final float TRUE_DECAY_STONE = (float) Math.pow(Constants.Blood.DECAY_FACTOR_STONE, World.UPDATE_FREQUENCY);
-	
 	public void decay(int timeStep, int updateFrequency) {
+		
 		for(int i = timeStep%updateFrequency; i < Constants.WORLD_SIZE; i+=updateFrequency) {
-			if (World.terrain.water[i]) {
-				height[i] *= TRUE_DECAY_WATER;
-			}
-			else if (World.terrain.stone[i]) {
-				height[i] *= TRUE_DECAY_STONE;
-			}
-			else {
-				height[i] *= TRUE_DECAY;
-			}
+			height[i] *= TRUE_DECAY;
 		}
 	}
 	
@@ -53,4 +49,11 @@ public class Blood {
 		}
 		return old - height[pos];
 	}
+
+	public void reset() {
+		for (int i = 0; i < height.length; ++i) {
+			height[i] = 0;
+		}
+	}
 }
+
