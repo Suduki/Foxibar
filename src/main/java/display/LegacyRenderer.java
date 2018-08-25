@@ -419,13 +419,6 @@ public void actionLoadBrains() {
 		return yOffset;
 	}
 
-	private void renderStrings() {
-		drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
-		//drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
-		drawString(PIXELS_X + 150,40, "seed: " + ((int)noise.Noise.seed-1));
-		drawString(PIXELS_X + 20,60, "nAni: " + Main.simulation.randomlingManager.getNumAgents());
-	}
-
 	private void togglePause() {
 		if ((mSimulationPaused ^= true))
 		{

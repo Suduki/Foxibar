@@ -97,6 +97,7 @@ public class World {
 		blood.decay(timeStep, UPDATE_FREQUENCY);
 		fiber.decay(timeStep, UPDATE_FREQUENCY);
 		fat.decay(timeStep, UPDATE_FREQUENCY);
+		wind.stepWind();
 
 	}
 

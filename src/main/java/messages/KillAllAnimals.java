@@ -15,7 +15,6 @@ public class KillAllAnimals extends Message {
 	@Override
 	public void evaluate(simulation.Simulation pSimulation)
 	{
-		Main.simulation.randomlingManager.killAll = true;
-		//World.grass.killAllGrass();
+		Main.simulation.killAllAgents();
 	}
 }

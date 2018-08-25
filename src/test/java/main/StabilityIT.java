@@ -6,87 +6,49 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import agents.Agent;
+import agents.AgentManager;
 import agents.Animal;
+import agents.Bloodling;
+import agents.Randomling;
 import constants.Constants;
 import simulation.Simulation;
 import vision.Vision;
 
 public class StabilityIT {
 	private static Simulation     simulation;
+	
+	private static final int RANDOMLING = 0;
+	private static final int BLOODLING = 1;
+	private static final int ANIMAL = 2;
 
 	@BeforeClass
-	public static void init() {
-		simulation     = new Simulation();
+	public static <T extends Agent> void init() {
+		simulation     = new Simulation(new Class[] {Randomling.class, Bloodling.class, Animal.class});
 		System.out.println("Before class completed");
 	}
+	
 	@Test
-	public void singleAnimalTest() {
-		System.out.println("Test starts: verifying that alone animals die");
-		for (int i = 0; i < 20; ++i) {
-			verifyThatAloneAnimalDies();
-		}
-		System.out.println("Test ends: success");
-	}
-	@Test
-	public void multipleAnimalSingleSpeciesTest() {
-		int numSuccess = 0;
-		int numTries = 20;
-		for (int i = 0; i < numTries; ++i) {
-			numSuccess += multipleAnimalsSingleSpeciesSimulation();
-		}
-		System.out.println("successRate = " + ((float)numSuccess)/numTries);
+	public void testWorldPopulated() {
+		System.out.println("Initiating test case");
+		testWorldPopulated(RANDOMLING);
+		testWorldPopulated(BLOODLING);
+		testWorldPopulated(ANIMAL);
+		System.out.println("Test case completed.");
 	}
 	
-	/**
-	 * 
-	 * @return 0 on death of species, 1 on survival of species
-	 */
-	private int multipleAnimalsSingleSpeciesSimulation() {
-		int timeStep = 0;
-		int populationSurvived = 0;
+	private void testWorldPopulated(int agentType) {
 		verifyContainsAnimalsEmpty();
-		Constants.RANDOM = new Random(1);
-		simulation.resetWorld(true);
-		simulation.spawnRandomAgents(1, 100);
-		Assert.assertTrue(simulation.randomlingManager.numAgents == 100);
-		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE*2+1)
-		{
-			timeStep++;
-			simulation.step(timeStep);
-			if (simulation.randomlingManager.numAgents == 0) {
-				break;
-			}
-		}
-		if (simulation.randomlingManager.numAgents > 0) {
-			populationSurvived = 1;
-		}
+		Assert.assertTrue(visionZoneSize() == 0);
+		simulation.spawnRandomAgents(agentType, 100);
+		simulation.step(1);
+		verifyContainsAnimalsNotEmpty();
+		Assert.assertTrue(visionZoneSize() > 1);
+		
 		simulation.killAllAgents();
-		Assert.assertTrue("There are still animals in the vision zones..." + visionZoneSize(), visionZoneSize() == 0);
+		simulation.step(1);
 		verifyContainsAnimalsEmpty();
-		
-		return populationSurvived;
-	}
-	
-	//================= HELPERS =======================
-	public void verifyThatAloneAnimalDies() {
-		int timeStep = 0;
-		verifyContainsAnimalsEmpty();
-		
-		simulation.spawnRandomAgents(1, 1);
-		Assert.assertTrue(simulation.randomlingManager.numAgents == 1);
-		while (simulation.handleMessages() && timeStep <= Animal.MAX_AGE+1)
-		{
-			timeStep++;
-			simulation.step(timeStep);
-			if (simulation.randomlingManager.numAgents == 0) {
-				break;
-			}
-			verifyContainsAnimalsNotEmpty();
-		}
-		Assert.assertTrue("Expected all animals to be dead. Currently " + 
-				simulation.randomlingManager.numAgents + " alive", simulation.randomlingManager.numAgents == 0);
-		Assert.assertTrue("There are still animals in the vision zones..." + visionZoneSize(), visionZoneSize() == 0);
-		verifyContainsAnimalsEmpty();
+		Assert.assertTrue(visionZoneSize() == 0);
 	}
 	
 	private void verifyContainsAnimalsEmpty() {
@@ -109,7 +71,7 @@ public class StabilityIT {
 	
 	private int visionZoneSize() {
 		int num = 0;
-		for (Vision.Zone[] zi : simulation.randomlingManager.vision.zoneGrid) {
+		for (Vision.Zone[] zi : simulation.vision.zoneGrid) {
 			for (Vision.Zone z : zi) {
 				num += z.agentsInZone.size();
 			}	

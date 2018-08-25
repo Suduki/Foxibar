@@ -32,8 +32,14 @@ public class AgentManager<AgentClass extends Agent> {
 			}
 		}
 		else if (clazz == Animal.class) {
-			new Species(Constants.Colors.WHITE, Constants.Colors.BLUE);
-			new Species(Constants.Colors.BLACK, Constants.Colors.RED);
+			if (Species.loadSpeciesFromEarlierRun()) {
+				
+			}
+			else {
+				System.out.println("Creating new specieses");
+				new Species(Constants.Colors.WHITE, Constants.Colors.BLUE);
+				new Species(Constants.Colors.BLACK, Constants.Colors.RED);
+			}
 			
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
 				pool[id] = (AgentClass) new Animal(0, world, (AgentManager<Agent>) this);

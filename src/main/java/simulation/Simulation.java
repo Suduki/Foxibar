@@ -2,6 +2,10 @@ package simulation;
 
 import vision.Vision;
 import world.World;
+
+import java.util.ArrayList;
+
+import agents.Agent;
 import agents.AgentManager;
 import agents.Animal;
 import agents.Bloodling;
@@ -15,15 +19,15 @@ public class Simulation extends MessageHandler {
 	private boolean mPaused = false;
 	public Vision vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
 	
-	public AgentManager<Randomling> randomlingManager;
-	public AgentManager<Animal> bloodlingManager;
+	public ArrayList<AgentManager<?>> agentManagers = new ArrayList<>();
 	
-	public Simulation()
+	public <T extends Agent> Simulation(Class<T>... classes)
 	{
 		mWorld = new World();
+		for (Class<T> clazz : classes) {
+			agentManagers.add(new AgentManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));
+		}
 		this.message(new messages.DummyMessage());
-		randomlingManager = new AgentManager<Randomling>(mWorld, Randomling.class, Constants.MAX_NUM_ANIMALS, vision);
-		bloodlingManager = new AgentManager<Animal>(mWorld, Animal.class, Constants.MAX_NUM_ANIMALS, vision);
 	}
 	
 	protected void evaluateMessage(Message pMessage)
@@ -36,9 +40,9 @@ public class Simulation extends MessageHandler {
 		if (!mPaused)
 		{
 			mWorld.update(timeStep);
-			randomlingManager.moveAll();
-			bloodlingManager.moveAll();
-			mWorld.wind.stepWind();
+			for (AgentManager<?> aM : agentManagers) {
+				aM.moveAll();
+			}
 		}
 	}
 	
@@ -53,10 +57,10 @@ public class Simulation extends MessageHandler {
 	}
 
 	public void killAllAgents() {
-		randomlingManager.killAll = true;
-		randomlingManager.moveAll();
-		bloodlingManager.killAll = true;
-		bloodlingManager.moveAll();
+		for (AgentManager<?> aM : agentManagers) {
+			aM.killAll = true;
+			aM.moveAll();
+		}
 	}
 	
 	public void spawnRandomAgents(int id, int num) {
@@ -71,11 +75,8 @@ public class Simulation extends MessageHandler {
 	}
 
 	public void spawnAgent(int pos, int id) {
-		if (id == 0) {
-			randomlingManager.spawnAgent(pos, id);
-		}
-		else {
-			bloodlingManager.spawnAgent(pos, id);
+		if (agentManagers.size() >= id) {
+			agentManagers.get(id).spawnAgent(pos, id);
 		}
 	}
 }
