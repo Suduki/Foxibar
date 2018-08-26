@@ -7,9 +7,6 @@ import java.util.ArrayList;
 
 import agents.Agent;
 import agents.AgentManager;
-import agents.Animal;
-import agents.Bloodling;
-import agents.Randomling;
 import constants.Constants;
 import messages.MessageHandler;
 import messages.Message;
@@ -63,10 +60,10 @@ public class Simulation extends MessageHandler {
 		}
 	}
 	
-	public void spawnRandomAgents(int id, int num) {
+	public void spawnRandomAgents(int managerId, int speciesId, int num) {
 		for (int i = 0; i < num; ++i) {
 			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
-			spawnAgent(pos, id);
+			spawnAgent(pos, managerId, speciesId);
 		}
 	}
 
@@ -74,9 +71,12 @@ public class Simulation extends MessageHandler {
 		mWorld.reset(b);
 	}
 
-	public void spawnAgent(int pos, int id) {
-		if (agentManagers.size() >= id) {
-			agentManagers.get(id).spawnAgent(pos, id);
+	public void spawnAgent(int pos, int managerId, int speciesId) {
+		if (agentManagers.size() >= managerId) {
+			agentManagers.get(managerId).spawnAgent(pos, speciesId);
+		}
+		else {
+			System.err.println("Trying to spawn agents in a non-existing manager?");
 		}
 	}
 }

@@ -504,10 +504,10 @@ public void actionLoadBrains() {
 
 		if (insideViewport(mouse.getPos())) {
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				addAgent(0);
+				addAgent(0, 0);
 			}
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {//TODO: correct pos
-				addAgent(1);
+				addAgent(1, 1);
 			}
 		}
 	}
@@ -561,10 +561,10 @@ public void actionLoadBrains() {
 
 		if (insideViewport(mouse.getPos())) {
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				addAgent(0);
+				addAgent(0, 0);
 			}
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-				addAgent(1);
+				addAgent(1, 1);
 			}
 		}
 	}
@@ -588,7 +588,7 @@ public void actionLoadBrains() {
 //		});								
 //	}
 	
-	private void addAgent(int id) {
+	private void addAgent(int managerId, int speciesId) {
 		mSimulation.message( new messages.Message() {
 			Mouse eventmouse = new Mouse(mouse);
 			@Override
@@ -600,7 +600,7 @@ public void actionLoadBrains() {
 
 				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
 				if (Main.simulation.mWorld.containsAgents[pos] == null) {
-					Main.simulation.spawnAgent(pos, id);
+					Main.simulation.spawnAgent(pos, managerId, speciesId);
 				}
 			}
 

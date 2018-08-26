@@ -1,17 +1,13 @@
 package main;
 
-import java.util.Random;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import agents.Agent;
-import agents.AgentManager;
 import agents.Animal;
 import agents.Bloodling;
 import agents.Randomling;
-import constants.Constants;
 import simulation.Simulation;
 import vision.Vision;
 
@@ -30,25 +26,62 @@ public class StabilityIT {
 	
 	@Test
 	public void testWorldPopulated() {
-		System.out.println("Initiating test case");
+		System.out.println("Initiating test case 1");
+		System.out.println("Testing Randomling");
 		testWorldPopulated(RANDOMLING);
+		System.out.println("Testing Bloodling");
 		testWorldPopulated(BLOODLING);
+		System.out.println("Testing Animal");
 		testWorldPopulated(ANIMAL);
-		System.out.println("Test case completed.");
+		System.out.println("Test case 1 completed.");
+	}
+	
+	@Test
+	public void testSurvivability () {
+		System.out.println("Initiating test case 2");
+		System.out.println("Testing Randomling");
+		testSurvivability(RANDOMLING, true);
+		System.out.println("Testing Bloodling");
+		testSurvivability(BLOODLING, false);
+		System.out.println("Testing Animal");
+		testSurvivability(ANIMAL, true);
+		System.out.println("Test case 2 completed.");
+	}
+	
+	
+
+	/////////////
+	// HELPERS //
+	/////////////
+	private void testSurvivability(int agentType, boolean expectSurvived) {
+		verifyContainsAnimalsEmpty();
+		Assert.assertTrue(visionZoneSize() == 0);
+		simulation.spawnRandomAgents(agentType, 0, 100);
+		for (int timeStep = 0; timeStep < 1000; timeStep++) {
+			simulation.step(1);
+		}
+		if (expectSurvived) {
+			verifyContainsAnimalsNotEmpty();
+			cleanup();
+		}
+		else {
+			verifyContainsAnimalsEmpty();
+		}
 	}
 	
 	private void testWorldPopulated(int agentType) {
 		verifyContainsAnimalsEmpty();
-		Assert.assertTrue(visionZoneSize() == 0);
-		simulation.spawnRandomAgents(agentType, 100);
+		simulation.spawnRandomAgents(agentType, 0, 100);
 		simulation.step(1);
 		verifyContainsAnimalsNotEmpty();
-		Assert.assertTrue(visionZoneSize() > 1);
 		
+		cleanup();
+	}
+
+	private void cleanup() {
 		simulation.killAllAgents();
 		simulation.step(1);
 		verifyContainsAnimalsEmpty();
-		Assert.assertTrue(visionZoneSize() == 0);
 	}
 	
 	private void verifyContainsAnimalsEmpty() {
@@ -56,6 +89,7 @@ public class StabilityIT {
 			Assert.assertTrue("containsAnimals is not empty even though all animals are dead: at " + i, 
 					simulation.mWorld.containsAgents[i] == null);
 		}
+		Assert.assertTrue(visionZoneSize() == 0);
 	}
 	
 	private void verifyContainsAnimalsNotEmpty() {
@@ -66,6 +100,7 @@ public class StabilityIT {
 				break;
 			}
 		}
+		Assert.assertTrue(visionZoneSize() > 1);
 		Assert.assertFalse("containsAnimals is empty even though all animals are alive", contains);
 	}
 	
