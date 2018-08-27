@@ -29,11 +29,11 @@ public class Stomach {
 		pBlood = bloodFunction(-p);
 	}
 	
-	private static final float MAX_G = 1f;
+	private static final float MAX_G = 0.05f;
 	private float grassFunction(float p2) {
 		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
-	private static final float MAX_B = 10f;
+	private static final float MAX_B = 0.5f;
 	private float bloodFunction(float p2) {
 		return (float) (a(MAX_B)*p2*p2 + b(MAX_B) * p2 + c(MAX_B));
 	}
@@ -95,7 +95,7 @@ public class Stomach {
 		}
 		
 	}
-	public final static float FAT_TO_ENERGY_FACTOR = 0.5f;
+	public final static float FAT_TO_ENERGY_FACTOR = 0.05f;
 	private void burnFat() {
 		fat -= energyCost*FAT_TO_ENERGY_FACTOR;
 		energyCost = 0;

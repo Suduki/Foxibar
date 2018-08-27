@@ -17,6 +17,8 @@ public class StabilityIT {
 	private static final int RANDOMLING = 0;
 	private static final int BLOODLING = 1;
 	private static final int ANIMAL = 2;
+	
+	private static int timeStep = 1;
 
 	@BeforeClass
 	public static <T extends Agent> void init() {
@@ -29,10 +31,13 @@ public class StabilityIT {
 		System.out.println("Initiating test case 1");
 		System.out.println("Testing Randomling");
 		testWorldPopulated(RANDOMLING);
+		cleanup();
 		System.out.println("Testing Bloodling");
 		testWorldPopulated(BLOODLING);
+		cleanup();
 		System.out.println("Testing Animal");
 		testWorldPopulated(ANIMAL);
+		cleanup();
 		System.out.println("Test case 1 completed.");
 	}
 	
@@ -41,10 +46,13 @@ public class StabilityIT {
 		System.out.println("Initiating test case 2");
 		System.out.println("Testing Randomling");
 		testSurvivability(RANDOMLING, true);
+		cleanup();
 		System.out.println("Testing Bloodling");
 		testSurvivability(BLOODLING, false);
+		cleanup();
 		System.out.println("Testing Animal");
-		testSurvivability(ANIMAL, true);
+		testSurvivability(ANIMAL, false);
+		cleanup();
 		System.out.println("Test case 2 completed.");
 	}
 	
@@ -54,45 +62,46 @@ public class StabilityIT {
 	// HELPERS //
 	/////////////
 	private void testSurvivability(int agentType, boolean expectSurvived) {
-		verifyContainsAnimalsEmpty();
+		verifyWorldEmpty();
 		Assert.assertTrue(visionZoneSize() == 0);
 		simulation.spawnRandomAgents(agentType, 0, 100);
-		for (int timeStep = 0; timeStep < 1000; timeStep++) {
-			simulation.step(1);
+		for (int t = 0; t < 10000; t++) {
+			simulation.step(timeStep++);
 		}
 		if (expectSurvived) {
-			verifyContainsAnimalsNotEmpty();
-			cleanup();
+			verifyWorldNotEmpty();
 		}
 		else {
-			verifyContainsAnimalsEmpty();
+			verifyWorldEmpty();
 		}
 	}
 	
 	private void testWorldPopulated(int agentType) {
-		verifyContainsAnimalsEmpty();
+		verifyWorldEmpty();
 		simulation.spawnRandomAgents(agentType, 0, 100);
-		simulation.step(1);
-		verifyContainsAnimalsNotEmpty();
-		
-		cleanup();
+		simulation.step(timeStep++);
+		verifyWorldNotEmpty();
 	}
 
 	private void cleanup() {
 		simulation.killAllAgents();
-		simulation.step(1);
-		verifyContainsAnimalsEmpty();
+		simulation.step(timeStep++);
+		verifyWorldEmpty();
+		simulation.mWorld.reset(true);
 	}
 	
-	private void verifyContainsAnimalsEmpty() {
+	private void verifyWorldEmpty() {
+		Assert.assertTrue(simulation.getNumAgents() == 0);
+		Assert.assertTrue(visionZoneSize() == 0);
 		for (int i = 0; i < simulation.mWorld.containsAgents.length; ++i) {
 			Assert.assertTrue("containsAnimals is not empty even though all animals are dead: at " + i, 
 					simulation.mWorld.containsAgents[i] == null);
 		}
-		Assert.assertTrue(visionZoneSize() == 0);
 	}
 	
-	private void verifyContainsAnimalsNotEmpty() {
+	private void verifyWorldNotEmpty() {
+		Assert.assertTrue(simulation.getNumAgents() > 0);
+		Assert.assertTrue(visionZoneSize() > 1);
 		boolean contains = false;
 		for (int i = 0; i < simulation.mWorld.containsAgents.length; ++i) {
 			if (simulation.mWorld.containsAgents[i] != null) {
@@ -100,8 +109,7 @@ public class StabilityIT {
 				break;
 			}
 		}
-		Assert.assertTrue(visionZoneSize() > 1);
-		Assert.assertFalse("containsAnimals is empty even though all animals are alive", contains);
+		Assert.assertTrue("containsAgents should contain living Agents, but does not", contains);
 	}
 	
 	private int visionZoneSize() {

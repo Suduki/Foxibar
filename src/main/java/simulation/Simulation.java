@@ -79,4 +79,12 @@ public class Simulation extends MessageHandler {
 			System.err.println("Trying to spawn agents in a non-existing manager?");
 		}
 	}
+
+	public int getNumAgents() {
+		int numAgents = 0;
+		for (AgentManager<?> aM : agentManagers) {
+			numAgents += aM.numAgents;
+		}
+		return numAgents;
+	}
 }

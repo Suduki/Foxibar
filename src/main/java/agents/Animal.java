@@ -24,10 +24,6 @@ public class Animal extends Agent {
 		agent.health -= getFightSkill();
 	}
 
-	/**
-	 * Decides where to go.
-	 * @return 
-	 */
 	@Override
 	protected int think() {
 
@@ -123,6 +119,7 @@ public class Animal extends Agent {
 		if (a == null) {
 			this.brain.neural.initWeightsRandom();
 			this.species = Species.getSpeciesFromId(speciesId);
+			stomach.inherit((Constants.RANDOM.nextFloat()*2)-1f);
 		}
 		else if (!(a instanceof Animal)) {
 			System.err.println("Trying to inherit a non-animal.");
@@ -131,11 +128,11 @@ public class Animal extends Agent {
 		else {
 			this.brain.inherit(((Animal)a).brain);
 			this.species = ((Animal)a).species;
+			stomach.inherit(a.stomach.p);
 		}
 		color = species.color;
 		secondaryColor = species.secondaryColor;
-		this.species.someoneWasBorn();
-		stomach.inherit(1);
+		species.someoneWasBorn();
 	}
 
 
@@ -152,8 +149,10 @@ public class Animal extends Agent {
 
 	@Override
 	protected void interactWith(Agent agent) {
-		if (agent instanceof Animal && ((Animal) agent).species == species)
-		if (brain.neural.getOutput(NeuralFactors.OUT_AGGRESSIVE) > 0) {
+		if (agent instanceof Animal && ((Animal) agent).species == species) {
+			
+		} 
+		else if (brain.neural.getOutput(NeuralFactors.OUT_AGGRESSIVE) > 0) {
 			fightWith(agent);
 		}
 	}

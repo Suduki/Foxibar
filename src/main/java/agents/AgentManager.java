@@ -94,6 +94,7 @@ public class AgentManager<AgentClass extends Agent> {
 		// Add all newborn agents to loop
 		for (Agent a : toLive) {
 			alive.add(a);
+			world.updateContainsAgents(a);
 		}
 		toLive.clear();
 	}

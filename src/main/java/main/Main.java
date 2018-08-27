@@ -1,5 +1,7 @@
 package main;
 
+import agents.Bloodling;
+import agents.Randomling;
 import agents.Species;
 import constants.Constants;
 import display.DisplayHandler;
@@ -14,7 +16,7 @@ public class Main
 	public static void main(String[] args)
 	{
 		
-		simulation     = new Simulation();
+		simulation     = new Simulation(new Class[] {Randomling.class, Bloodling.class});
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
 		RenderState.activateState(RenderState.RENDER_WORLD_STILL);
