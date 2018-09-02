@@ -27,6 +27,7 @@ public class Species implements Serializable {
 	public boolean timeToSave;
 
 	public float fightSkill;
+	public float p;
 
 	public Species(float[] color, float[] secondaryColor) {
 		speciesList.add(this);
@@ -35,16 +36,9 @@ public class Species implements Serializable {
 		this.secondaryColor = secondaryColor;
 		speciesId = speciesList.size();
 		bestBrain = new Brain(true);
-		fightSkill = 1;
-	}
-	public float getUglySpeciesFactor() {
-		if (numAlive > 100) {
-			return 200f;
-		}
-		else if (numAlive > 1000) {
-			return 2000f;
-		}
-		return 1f;
+		fightSkill = 0.5f;
+		
+		
 	}
 
 

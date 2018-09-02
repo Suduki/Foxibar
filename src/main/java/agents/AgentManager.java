@@ -48,7 +48,13 @@ public class AgentManager<AgentClass extends Agent> {
 		}
 		else if (clazz == Bloodling.class) {
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-				pool[id] = (AgentClass) new Bloodling(0, world, (AgentManager<Bloodling>) this);
+				pool[id] = (AgentClass) new Bloodling(0, world, (AgentManager<Agent>) this);
+				dead.add(pool[id]);
+			}
+		}
+		else if (clazz == Grassler.class) {
+			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
+				pool[id] = (AgentClass) new Grassler(0, world, (AgentManager<Agent>) this);
 				dead.add(pool[id]);
 			}
 		}
@@ -121,8 +127,6 @@ public class AgentManager<AgentClass extends Agent> {
 		child.oldPos = agent.oldPos;
 		child.parent = agent;
 		vision.addAgentToZone(child);
-
-		child.stomach.inherit(agent.stomach.p);
 
 		return child;
 	}

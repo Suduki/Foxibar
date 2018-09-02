@@ -7,6 +7,7 @@ import org.junit.Test;
 import agents.Agent;
 import agents.Animal;
 import agents.Bloodling;
+import agents.Grassler;
 import agents.Randomling;
 import simulation.Simulation;
 import vision.Vision;
@@ -17,12 +18,13 @@ public class StabilityIT {
 	private static final int RANDOMLING = 0;
 	private static final int BLOODLING = 1;
 	private static final int ANIMAL = 2;
+	private static final int GRASSLER = 3;
 	
 	private static int timeStep = 1;
 
 	@BeforeClass
 	public static <T extends Agent> void init() {
-		simulation     = new Simulation(new Class[] {Randomling.class, Bloodling.class, Animal.class});
+		simulation     = new Simulation(new Class[] {Randomling.class, Bloodling.class, Animal.class, Grassler.class});
 		System.out.println("Before class completed");
 	}
 	
@@ -38,6 +40,9 @@ public class StabilityIT {
 		System.out.println("Testing Animal");
 		testWorldPopulated(ANIMAL);
 		cleanup();
+		System.out.println("Testing Grassler");
+		testWorldPopulated(GRASSLER);
+		cleanup();
 		System.out.println("Test case 1 completed.");
 	}
 	
@@ -51,7 +56,10 @@ public class StabilityIT {
 		testSurvivability(BLOODLING, false);
 		cleanup();
 		System.out.println("Testing Animal");
-		testSurvivability(ANIMAL, false);
+		testSurvivability(ANIMAL, true);
+		cleanup();
+		System.out.println("Testing Grassler");
+		testSurvivability(GRASSLER, true);
 		cleanup();
 		System.out.println("Test case 2 completed.");
 	}
@@ -65,7 +73,7 @@ public class StabilityIT {
 		verifyWorldEmpty();
 		Assert.assertTrue(visionZoneSize() == 0);
 		simulation.spawnRandomAgents(agentType, 0, 100);
-		for (int t = 0; t < 10000; t++) {
+		for (int t = 0; t < 3000; t++) {
 			simulation.step(timeStep++);
 		}
 		if (expectSurvived) {

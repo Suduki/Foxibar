@@ -322,6 +322,14 @@ public abstract class Agent {
 		health = 0.1f;
 		incarnation++;
 	}
+	
+	/**
+	 * 
+	 * @return random number between [-1, 1]
+	 */
+	protected static float rand() {
+		return 2*Constants.RANDOM.nextFloat() - 1;
+	}
 
 
 	protected abstract void interactWith(Agent agent);

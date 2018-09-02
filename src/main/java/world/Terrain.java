@@ -50,7 +50,7 @@ public class Terrain {
 	}
 
 	public void regenerate() {
-		float[][] noise = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.4f);
+		float[][] noise = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.6f);
 		analyzeNoise(noise);
 		int i = 0;
 		for(int x = 0; x < Constants.WORLD_SIZE_X; ++x) {

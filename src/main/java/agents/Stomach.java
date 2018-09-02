@@ -20,16 +20,19 @@ public class Stomach {
 	private float pFiber;
 	private float pBlood;
 	
-	public void inherit(float p) {
+	
+	public void inherit(float p, float mutation) {
 		empty();
 		fat = FAT_ON_BIRTH;
 		
-		this.p = p;
+		this.p = p + Agent.rand() * mutation;
+		if (p < -1) p = -1;
+		if (p > 1) p = 1;
 		pFiber = grassFunction(p);
 		pBlood = bloodFunction(-p);
 	}
 	
-	private static final float MAX_G = 0.05f;
+	private static final float MAX_G = 0.7f;
 	private float grassFunction(float p2) {
 		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
@@ -95,7 +98,7 @@ public class Stomach {
 		}
 		
 	}
-	public final static float FAT_TO_ENERGY_FACTOR = 0.05f;
+	public final static float FAT_TO_ENERGY_FACTOR = 0.5f;
 	private void burnFat() {
 		fat -= energyCost*FAT_TO_ENERGY_FACTOR;
 		energyCost = 0;
