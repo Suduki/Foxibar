@@ -46,7 +46,7 @@ public abstract class Agent {
 	float recover;
 
 	public Stomach stomach;
-	private int timeBetweenBabies = 10;
+	private int timeBetweenBabies = 40;
 
 	private boolean starving;
 

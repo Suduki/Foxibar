@@ -50,22 +50,22 @@ public class StabilityIT {
 	public void test2Survivability () {
 		System.out.println("Initiating testSurvivability");
 		System.out.println("Testing Randomling");
-		testSurvivability(RANDOMLING, 3000);
+		testSurvivability(RANDOMLING, 1000);
 		verifyWorldNotEmpty();
 		cleanup();
 		
 		System.out.println("Testing Bloodling");
-		testSurvivability(BLOODLING, 3000);
+		testSurvivability(BLOODLING, 1000);
 		verifyWorldEmpty();
 		cleanup();
 		
 		System.out.println("Testing Animal");
-		testSurvivability(ANIMAL, 3000);
+		testSurvivability(ANIMAL, 1000);
 		verifyWorldNotEmpty();
 		cleanup();
 		
 		System.out.println("Testing Grassler");
-		testSurvivability(GRASSLER, 3000);
+		testSurvivability(GRASSLER, 1000);
 		verifyWorldNotEmpty();
 		cleanup();
 		
