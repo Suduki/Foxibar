@@ -29,8 +29,8 @@ public class StabilityIT {
 	}
 	
 	@Test
-	public void testWorldPopulated() {
-		System.out.println("Initiating test case 1");
+	public void test1WorldPopulated() {
+		System.out.println("Initiating testWorldPopulated");
 		System.out.println("Testing Randomling");
 		testWorldPopulated(RANDOMLING);
 		cleanup();
@@ -43,50 +43,75 @@ public class StabilityIT {
 		System.out.println("Testing Grassler");
 		testWorldPopulated(GRASSLER);
 		cleanup();
-		System.out.println("Test case 1 completed.");
+		System.out.println("Test case testWorldPopulated completed.");
 	}
 	
 	@Test
-	public void testSurvivability () {
-		System.out.println("Initiating test case 2");
+	public void test2Survivability () {
+		System.out.println("Initiating testSurvivability");
 		System.out.println("Testing Randomling");
-		testSurvivability(RANDOMLING, true);
+		testSurvivability(RANDOMLING, 3000);
+		verifyWorldNotEmpty();
 		cleanup();
+		
 		System.out.println("Testing Bloodling");
-		testSurvivability(BLOODLING, false);
+		testSurvivability(BLOODLING, 3000);
+		verifyWorldEmpty();
 		cleanup();
+		
 		System.out.println("Testing Animal");
-		testSurvivability(ANIMAL, true);
+		testSurvivability(ANIMAL, 3000);
+		verifyWorldNotEmpty();
 		cleanup();
+		
 		System.out.println("Testing Grassler");
-		testSurvivability(GRASSLER, true);
+		testSurvivability(GRASSLER, 3000);
+		verifyWorldNotEmpty();
 		cleanup();
-		System.out.println("Test case 2 completed.");
+		
+		System.out.println("Test case testSurvivability completed.");
 	}
 	
-	
+	@Test
+	public void test3MultipleAgentTypes() {
+		System.out.println("Initiating testMultipleAgentTypes");
+		System.out.println("Testing Randomling and Bloodling");
+		testSurvivability(RANDOMLING, 1000);
+		simulation.spawnRandomAgents(BLOODLING, 100);
+		for (int t = 0; t < 6000; t++) {
+			simulation.step(timeStep++);
+			if (simulation.getNumAgents(BLOODLING) == 0) {
+				System.out.println("Bloodlings died after " + t + " time steps.");
+				break;
+			}
+		}
+		
+		// Expect either both specieses survived or none.
+		if (simulation.getNumAgents(BLOODLING) == 0) {
+			verifyWorldEmpty();
+		}
+		else {
+			verifyWorldNotEmpty();
+		}
+		
+		cleanup();
+		System.out.println("Test case testMultipleAgentTypes completed.");
+	}
 
 	/////////////
 	// HELPERS //
 	/////////////
-	private void testSurvivability(int agentType, boolean expectSurvived) {
-		verifyWorldEmpty();
-		Assert.assertTrue(visionZoneSize() == 0);
-		simulation.spawnRandomAgents(agentType, 0, 100);
-		for (int t = 0; t < 3000; t++) {
+	private void testSurvivability(int agentType, int simTime) {
+		simulation.spawnRandomAgents(agentType, 500);
+		for (int t = 0; t < simTime; t++) {
 			simulation.step(timeStep++);
-		}
-		if (expectSurvived) {
-			verifyWorldNotEmpty();
-		}
-		else {
-			verifyWorldEmpty();
+			if (simulation.agentManagers.get(agentType).numAgents == 0) break;
 		}
 	}
 	
 	private void testWorldPopulated(int agentType) {
 		verifyWorldEmpty();
-		simulation.spawnRandomAgents(agentType, 0, 100);
+		simulation.spawnRandomAgents(agentType, 100);
 		simulation.step(timeStep++);
 		verifyWorldNotEmpty();
 	}

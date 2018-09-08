@@ -19,7 +19,7 @@ public class AgentManager<AgentClass extends Agent> {
 	public boolean loadBrains = false;
 
 	public Vision vision;
-	private World world;
+	World world;
 
 	public AgentManager(World world, Class<AgentClass> clazz, int maxNumAnimals, Vision vision) {
 		this.vision = vision;
@@ -32,15 +32,6 @@ public class AgentManager<AgentClass extends Agent> {
 			}
 		}
 		else if (clazz == Animal.class) {
-			if (Species.loadSpeciesFromEarlierRun()) {
-				
-			}
-			else {
-				System.out.println("Creating new specieses");
-				new Species(Constants.Colors.WHITE, Constants.Colors.BLUE);
-				new Species(Constants.Colors.BLACK, Constants.Colors.RED);
-			}
-			
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
 				pool[id] = (AgentClass) new Animal(0, world, (AgentManager<Agent>) this);
 				dead.add(pool[id]);
@@ -78,11 +69,12 @@ public class AgentManager<AgentClass extends Agent> {
 			killAll = false;
 		}
 		else {
+			boolean printStuff = true;
 			for (Agent a : alive) {
+				a.printStuff = printStuff;
+				printStuff = false;
 				vision.updateNearestNeighbours(a);
 				if (a.stepAgent()) {
-					vision.updateAgentZone(a);
-					world.updateContainsAgents(a);
 				}
 				else {
 					someoneDied(a, true);
@@ -100,15 +92,16 @@ public class AgentManager<AgentClass extends Agent> {
 		// Add all newborn agents to loop
 		for (Agent a : toLive) {
 			alive.add(a);
+			vision.updateAgentZone(a);
 			world.updateContainsAgents(a);
 		}
 		toLive.clear();
 	}
 
 
-	public void spawnAgent(int pos, int id) {
+	public void spawnAgent(int pos) {
 		Agent child = resurrectAgent();
-		child.inherit(null, id);
+		child.inherit(null);
 		child.pos = pos;
 		child.oldPos = pos;
 		vision.addAgentToZone(child);
@@ -116,14 +109,9 @@ public class AgentManager<AgentClass extends Agent> {
 	public Agent mate(Agent agent) {
 		Agent child = resurrectAgent();
 		
-		if (agent instanceof Animal) {
-			child.inherit(agent, ((Animal)agent).species.speciesId);
-		} 
-		else {
-			child.inherit(agent, 0);
-		}
+		child.inherit(agent);
 
-		child.pos = agent.pos;
+		child.pos = agent.oldPos;
 		child.oldPos = agent.oldPos;
 		child.parent = agent;
 		vision.addAgentToZone(child);

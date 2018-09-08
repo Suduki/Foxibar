@@ -7,7 +7,6 @@ import java.io.IOException;
 import agents.Animal;
 import agents.Brain;
 import agents.NeuralNetwork;
-import agents.Species;
 import constants.Constants;
 import world.World;
 
@@ -27,6 +26,6 @@ public class LoadBrains extends Message {
 	
 	
 	public static void loadBrains() {
-		Species.loadSpeciesFromEarlierRun();
+		System.err.println("Not implemented this.");
 	}
 }

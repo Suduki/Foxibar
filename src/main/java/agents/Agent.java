@@ -11,7 +11,7 @@ public abstract class Agent {
 	public static final float BIRTH_HUNGER_COST = 10/Stomach.FAT_TO_ENERGY_FACTOR;
 
 	public float[] color, secondaryColor;
-	
+
 	public float age;
 	public float trueAge;
 	public float maxAge;
@@ -25,33 +25,35 @@ public abstract class Agent {
 	protected float maxSize;
 
 	public boolean isAlive;
-	
+
 	public int incarnation = 0;
 	public int score = 0;
-	
+
 	public int sinceLastBaby = 0;
 	boolean isFertile;
-	
+
 	public int pos;
 	public int oldPos;
 	public int oldX;
 	public int oldY;
-	
+
 	public Agent[] nearbyAgents;
 	public float[] nearbyAgentsDistance;
-	
+
 	protected ArrayList<Agent> children;
 	Agent parent;
-	
+
 	float recover;
-	
+
 	public Stomach stomach;
 	private int timeBetweenBabies = 10;
 
 	private boolean starving;
-	
+
 	protected World world;
 	protected AgentManager<? extends Agent> agentManager;
+	public boolean moved;
+	public boolean printStuff;
 
 	public Agent(float health, World world, AgentManager agentManager) {
 		age = 0;
@@ -61,18 +63,18 @@ public abstract class Agent {
 		maxAge = MAX_AGE; //TODO: move these constants
 		healPower = 0.01f;
 		maxHealth = 100;
-		
+
 		size = 1;
 		growth = 0.01f;
 		maxSize = 1;
-		
+
 		this.nearbyAgents = new Agent[Constants.NUM_NEIGHBOURS];
 		this.nearbyAgentsDistance = new float[Constants.NUM_NEIGHBOURS];
 		children = new ArrayList<>();
 		stomach = new Stomach();
-		
+
 		isAlive = false;
-		
+
 		this.world = world;
 		this.agentManager = agentManager;
 
@@ -84,20 +86,24 @@ public abstract class Agent {
 	 * @return whether the animal is alive or not.
 	 */
 	public boolean stepAgent() {
+		moved = false;
 		if (!isAlive) {
 			System.err.println("Trying to step a dead agent.");
 			return false;
 		}
-		if (!timeToMove()) return isAlive;
+		if (timeToMove()) {
+			moved = true;
+			actionUpdate();
+			internalOrgansUpdate();
+			makeBaby();
+		}
+		else {
+			internalOrgansUpdate();
+		}
 
-		actionUpdate();
-		internalOrgansUpdate();
-		
-		makeBaby();
-		
 		return isAlive;
 	}
-	
+
 	private void makeBaby() {
 		if (isFertile && stomach.canHaveBaby(BIRTH_HUNGER_COST)) {
 			mate();
@@ -110,8 +116,10 @@ public abstract class Agent {
 	 * @return
 	 */
 	private boolean timeToMove() {
-		recover += getSpeed();
-		if (recover < 1f){
+		float speed = getSpeed();
+		recover += speed;
+		stomach.addRecoverCost(speed);
+		if (recover < 1f) {
 			return false;
 		}
 		recover--;
@@ -126,7 +134,7 @@ public abstract class Agent {
 	private void starve() {
 		health --;
 	}
-	
+
 	protected void mate() {
 		if (isFertileAndNotHungry()) {
 			children.add(agentManager.mate(this));
@@ -134,9 +142,9 @@ public abstract class Agent {
 			this.stepScore(1);
 		}
 	}
-	
-	public abstract void inherit(Agent a, int speciesId);
-	
+
+	public abstract void inherit(Agent a);
+
 	private void stepScore(int score) {
 		this.score += score;
 		if (parent != null) {
@@ -148,14 +156,14 @@ public abstract class Agent {
 		isFertile = false;
 		stomach.energyCost += BIRTH_HUNGER_COST;
 		sinceLastBaby = 0;
-		
+
 		// This will cause the mating animals to continue living, which is what we want in the end.
 		// A bit unconventional and forced.
 		age = 0;
 	}
 
 	protected abstract float getSpeed() ;
-	
+
 	private void stepFertility() {
 		if (sinceLastBaby++ > timeBetweenBabies) {
 			isFertile = true;
@@ -163,22 +171,24 @@ public abstract class Agent {
 	}
 
 	private void move(int tileDir) {
-		oldPos = pos;
 		int tilePos = World.neighbour[tileDir][pos];
 		if (world.containsAgents[tilePos] == null) {
 			pos = tilePos;
+			agentManager.vision.updateAgentZone(this);
+			agentManager.world.updateContainsAgents(this);
 		}
+		oldPos = pos;
 	}
-	
+
 	protected void interact(int tileToInteractWith) {
 		int tilePos = World.neighbour[tileToInteractWith][pos];
 		Agent agent = world.getAgentAt(tilePos);
-		
+
 		if (agent != null && agent != this) {
 			interactWith(agent);
 		}
 	}
-	
+
 	private void actionUpdate() {
 		int direction = think(); // direction points to a tile position where to move.
 		interact(direction);
@@ -223,35 +233,45 @@ public abstract class Agent {
 		}
 		return true;
 	}
-	
+
 	protected abstract float getFightSkill();
 
-	protected abstract float getHarvestRatio();
+	protected float getHarvestRatio() {
+		if (stomach.p > 0) {return 1;}
+		else { return 0;}
+	}
 
 	protected void harvest() {
-		float neuralOutput = getHarvestRatio();
+		float harvestRatio = getHarvestRatio();
 		float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
-		float amount = world.fat.harvest(harvestSkill, pos);
-		stomach.addFat(amount);
-		if (neuralOutput > 0) {
+		float amountHarvestedSoFar = world.fat.harvest(harvestSkill, pos);
+		stomach.addFat(amountHarvestedSoFar);
+		if (harvestRatio > 0) {
 			// Harvest fiber
-//			if (harvestSkill > amount) {
-//				float tmp = World.fiber.harvest(harvestSkill - amount, pos);
-//				stomach.addFiber(tmp);
-//				amount += tmp;
-//			}
-			if (harvestSkill > amount) {
-				float tmp = world.grass.harvest(harvestSkill - amount, pos);
+			if (harvestSkill > amountHarvestedSoFar) {
+				float tmp = world.grass.harvest(harvestSkill - amountHarvestedSoFar, pos);
 				stomach.addFiber(tmp);
-				amount += tmp;
+				amountHarvestedSoFar += tmp;
+			}
+			// Harvest blood
+			if (harvestSkill > amountHarvestedSoFar) {
+				float tmp = world.blood.harvest(harvestSkill - amountHarvestedSoFar, pos);
+				stomach.addFiber(tmp);
+				amountHarvestedSoFar += tmp;
 			}
 		}
 		else {
 			// Harvest blood
-			if (harvestSkill > amount) {
-				float tmp = world.blood.harvest(harvestSkill - amount, pos);
+			if (harvestSkill > amountHarvestedSoFar) {
+				float tmp = world.blood.harvest(harvestSkill - amountHarvestedSoFar, pos);
 				stomach.addBlood(tmp);
-				amount += tmp;
+				amountHarvestedSoFar += tmp;
+			}
+			// Harvest fiber
+			if (harvestSkill > amountHarvestedSoFar) {
+				float tmp = world.grass.harvest(harvestSkill - amountHarvestedSoFar, pos);
+				stomach.addFiber(tmp);
+				amountHarvestedSoFar += tmp;
 			}
 		}
 	}
@@ -275,27 +295,22 @@ public abstract class Agent {
 	}
 
 	protected void die() {
-		if (trueAge > 100) {
+		if (age > 100) {
 			world.blood.append(pos, stomach.blood + size);
 			world.fat.append(pos, stomach.fat);
 			world.grass.append(pos, stomach.fiber);
 		}
-//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
-//				+ ", age=" + age + ", score = " + score);
-		
-		if (this.getClass() == Animal.class) {
-			((Animal)this).species.someoneDied((Animal)this); //TODO: UGLY; Override
-		}
-		
+		//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
+		//				+ ", age=" + age + ", score = " + score);
+
 		for (Agent child : children) {
 			child.parentDied();
 		}
-		
+
 		isAlive = false;
-		
 	}
-	
-	
+
+
 	private void parentDied() {
 		parent = null;
 	}
@@ -307,7 +322,7 @@ public abstract class Agent {
 	protected boolean isFriendWith(Agent animal) {
 		return this.getClass() == animal.getClass();
 	}
-	
+
 	protected boolean isFertileAndNotHungry() {
 		return isFertile && stomach.canHaveBaby(BIRTH_HUNGER_COST);
 	}
@@ -322,7 +337,7 @@ public abstract class Agent {
 		health = 0.1f;
 		incarnation++;
 	}
-	
+
 	/**
 	 * 
 	 * @return random number between [-1, 1]
@@ -334,6 +349,3 @@ public abstract class Agent {
 
 	protected abstract void interactWith(Agent agent);
 }
-
-
-

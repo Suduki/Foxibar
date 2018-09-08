@@ -7,7 +7,6 @@ import java.io.PrintWriter;
 
 import agents.Animal;
 import agents.NeuralNetwork;
-import agents.Species;
 import constants.Constants;
 import world.World;
 
@@ -27,6 +26,6 @@ public class SaveBrains extends Message {
 	
 	
 	public static void saveBrains() {
-		Species.saveSpecies();
+		System.err.println("save Brains not implemented");
 	}
 }

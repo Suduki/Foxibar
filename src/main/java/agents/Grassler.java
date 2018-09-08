@@ -12,7 +12,7 @@ public class Grassler extends Agent {
 	}
 
 	@Override
-	public void inherit(Agent a, int i) {
+	public void inherit(Agent a) {
 		stomach.inherit(1, 0);
 		if (a == null) {
 		}
@@ -46,11 +46,6 @@ public class Grassler extends Agent {
 	@Override
 	protected float getFightSkill() {
 		return 0f;
-	}
-
-	@Override
-	protected float getHarvestRatio() {
-		return 1;
 	}
 
 	@Override

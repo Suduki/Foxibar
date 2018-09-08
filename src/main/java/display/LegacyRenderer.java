@@ -9,7 +9,6 @@ import java.util.List;
 
 import agents.Agent;
 import agents.Animal;
-import agents.Species;
 import buttons.Button;
 import constants.Constants;
 import gui.KeyboardState;
@@ -600,7 +599,7 @@ public void actionLoadBrains() {
 
 				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
 				if (Main.simulation.mWorld.containsAgents[pos] == null) {
-					Main.simulation.spawnAgent(pos, managerId, speciesId);
+					Main.simulation.spawnAgent(pos, managerId);
 				}
 			}
 

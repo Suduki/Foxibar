@@ -4,7 +4,6 @@ import agents.Animal;
 import agents.Bloodling;
 import agents.Grassler;
 import agents.Randomling;
-import agents.Species;
 import constants.Constants;
 import display.DisplayHandler;
 import display.RenderState;
@@ -18,7 +17,7 @@ public class Main
 	public static void main(String[] args)
 	{
 		
-		simulation     = new Simulation(new Class[] {Bloodling.class, Animal.class});
+		simulation     = new Simulation(new Class[] {Randomling.class, Bloodling.class});
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
 		RenderState.activateState(RenderState.RENDER_WORLD_STILL);
@@ -35,7 +34,7 @@ public class Main
 
 		try
 		{
-			simulation.spawnRandomAgents(0, 0, 1000);
+			simulation.spawnRandomAgents(0, 100);
 			int timeStep = 0;
 			while (simulation.handleMessages() && displayHandler.renderThreadThread.isAlive())
 			{

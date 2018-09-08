@@ -60,10 +60,10 @@ public class Simulation extends MessageHandler {
 		}
 	}
 	
-	public void spawnRandomAgents(int managerId, int speciesId, int num) {
+	public void spawnRandomAgents(int managerId, int num) {
 		for (int i = 0; i < num; ++i) {
 			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
-			spawnAgent(pos, managerId, speciesId);
+			spawnAgent(pos, managerId);
 		}
 	}
 
@@ -71,9 +71,9 @@ public class Simulation extends MessageHandler {
 		mWorld.reset(b);
 	}
 
-	public void spawnAgent(int pos, int managerId, int speciesId) {
+	public void spawnAgent(int pos, int managerId) {
 		if (agentManagers.size() >= managerId) {
-			agentManagers.get(managerId).spawnAgent(pos, speciesId);
+			agentManagers.get(managerId).spawnAgent(pos);
 		}
 		else {
 			System.err.println("Trying to spawn agents in a non-existing manager?");
@@ -86,5 +86,9 @@ public class Simulation extends MessageHandler {
 			numAgents += aM.numAgents;
 		}
 		return numAgents;
+	}
+	public int getNumAgents(int agentType) {
+		AgentManager<?> aM = agentManagers.get(agentType);
+		return aM.numAgents;
 	}
 }

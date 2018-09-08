@@ -21,7 +21,7 @@ public class NeuralNetwork implements Serializable {
 		weights = new float[NUM_WEIGHTS][][];
 		z = new float[NUM_OPTIONS][NUM_LAYERS][];
 		bias = new float[NUM_LAYERS-2][]; // Skip input layer and output layer.
-		bestDirection = -1;
+		bestDirection = 0;
 		
 		for (int weight = 0 ; weight < NUM_WEIGHTS; ++weight) {
 			weights[weight] = new float[LAYER_SIZES[weight]][LAYER_SIZES[weight+1]];
@@ -140,7 +140,7 @@ public class NeuralNetwork implements Serializable {
 	}
 	
 	public void inherit(NeuralNetwork neuralMom) {
-		bestDirection = -1;
+		bestDirection = 0;
 		float evolution = 0.1f;
 		copy(neuralMom, evolution);
 	}

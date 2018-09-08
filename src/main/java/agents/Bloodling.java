@@ -16,7 +16,7 @@ public class Bloodling extends Agent {
 	}
 
 	@Override
-	public void inherit(Agent a, int speciesId) {
+	public void inherit(Agent a) {
 		stomach.inherit(-1, 0);
 		if (a != null && !(a instanceof Bloodling)) {
 			System.err.println("inheriting non-Bloodling");
@@ -91,11 +91,6 @@ public class Bloodling extends Agent {
 	@Override
 	protected float getFightSkill() {
 		return 1f;
-	}
-
-	@Override
-	protected float getHarvestRatio() {
-		return 0;
 	}
 
 	@Override
