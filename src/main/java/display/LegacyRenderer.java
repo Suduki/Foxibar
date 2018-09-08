@@ -9,7 +9,6 @@ import java.util.List;
 
 import agents.Agent;
 import agents.Animal;
-import agents.Species;
 import buttons.Button;
 import constants.Constants;
 import gui.KeyboardState;
@@ -419,13 +418,6 @@ public void actionLoadBrains() {
 		return yOffset;
 	}
 
-	private void renderStrings() {
-		drawString(PIXELS_X + 20,20, "zoom: " + zoomFactor);
-		//drawString(PIXELS_X + 20,40, "fps:  " + (int)main.Main.simulationFps);
-		drawString(PIXELS_X + 150,40, "seed: " + ((int)noise.Noise.seed-1));
-		drawString(PIXELS_X + 20,60, "nAni: " + Main.simulation.randomlingManager.getNumAgents());
-	}
-
 	private void togglePause() {
 		if ((mSimulationPaused ^= true))
 		{
@@ -511,10 +503,10 @@ public void actionLoadBrains() {
 
 		if (insideViewport(mouse.getPos())) {
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				addAgent(0);
+				addAgent(0, 0);
 			}
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {//TODO: correct pos
-				addAgent(1);
+				addAgent(1, 1);
 			}
 		}
 	}
@@ -568,10 +560,10 @@ public void actionLoadBrains() {
 
 		if (insideViewport(mouse.getPos())) {
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				addAgent(0);
+				addAgent(0, 0);
 			}
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-				addAgent(1);
+				addAgent(1, 1);
 			}
 		}
 	}
@@ -595,7 +587,7 @@ public void actionLoadBrains() {
 //		});								
 //	}
 	
-	private void addAgent(int id) {
+	private void addAgent(int managerId, int speciesId) {
 		mSimulation.message( new messages.Message() {
 			Mouse eventmouse = new Mouse(mouse);
 			@Override
@@ -607,7 +599,7 @@ public void actionLoadBrains() {
 
 				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
 				if (Main.simulation.mWorld.containsAgents[pos] == null) {
-					Main.simulation.spawnAgent(pos, id);
+					Main.simulation.spawnAgent(pos, managerId);
 				}
 			}
 

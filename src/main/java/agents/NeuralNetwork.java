@@ -1,8 +1,11 @@
 package agents;
 
+import java.io.Serializable;
+
 import constants.Constants;
 
-public class NeuralNetwork {
+public class NeuralNetwork implements Serializable {
+	private static final long serialVersionUID = 1L;
 	public static final int[] LAYER_SIZES = {NeuralFactors.NUM_INPUT_FACTORS, 8, 4, NeuralFactors.NUM_OUTPUT_FACTORS};
 	public static final int NUM_LAYERS = LAYER_SIZES.length;
 	public static final int NUM_WEIGHTS = NUM_LAYERS - 1;
@@ -18,7 +21,7 @@ public class NeuralNetwork {
 		weights = new float[NUM_WEIGHTS][][];
 		z = new float[NUM_OPTIONS][NUM_LAYERS][];
 		bias = new float[NUM_LAYERS-2][]; // Skip input layer and output layer.
-		bestDirection = -1;
+		bestDirection = 0;
 		
 		for (int weight = 0 ; weight < NUM_WEIGHTS; ++weight) {
 			weights[weight] = new float[LAYER_SIZES[weight]][LAYER_SIZES[weight+1]];
@@ -137,7 +140,7 @@ public class NeuralNetwork {
 	}
 	
 	public void inherit(NeuralNetwork neuralMom) {
-		bestDirection = -1;
+		bestDirection = 0;
 		float evolution = 0.1f;
 		copy(neuralMom, evolution);
 	}

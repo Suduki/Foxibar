@@ -3,11 +3,9 @@ package agents;
 import constants.Constants;
 import world.World;
 
-public class Randomling extends Agent {
+public class Grassler extends Agent {
 
-	public float speed = 1f;
-	
-	public Randomling(float health, World world, AgentManager<Agent> agentManager) {
+	public Grassler(float health, World world, AgentManager<Agent> agentManager) {
 		super(health, world, agentManager);
 		color = Constants.Colors.BLACK;
 		secondaryColor = Constants.Colors.WHITE;
@@ -18,7 +16,7 @@ public class Randomling extends Agent {
 		stomach.inherit(1, 0);
 		if (a == null) {
 		}
-		else if (!(a instanceof Randomling)) {
+		else if (!(a instanceof Grassler)) {
 			System.err.println("Trying to inherit a non-Randomling.");
 			return;
 		}
@@ -28,12 +26,21 @@ public class Randomling extends Agent {
 
 	@Override
 	protected float getSpeed() {
-		return speed;
+		return 1f;
 	}
 
 	@Override
 	protected int think() {
-		return Constants.RANDOM.nextInt(4);
+		int bestDir = Constants.RANDOM.nextInt(4);
+		float bestGrass = 0;
+		for (int i = 0; i < 4; ++i) {
+			int tilePos = World.neighbour[i][pos];
+			if (world.grass.height[tilePos] > bestGrass) {
+				bestDir = i;
+				bestGrass = world.grass.height[tilePos];
+			}
+		}
+		return bestDir;
 	}
 
 	@Override

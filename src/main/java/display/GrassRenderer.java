@@ -140,7 +140,7 @@ public class GrassRenderer {
 	}
 	
 	void renderAnimalAt(Animal animal, float x, float z, float heightScale) {
-		float[] c = animal.species.secondaryColor;
+		float[] c = animal.secondaryColor;
 		float h = (float)Math.pow(Main.simulation.mWorld.terrain.height[animal.pos], 1.5);
 		h *= heightScale;
 		glColor3f(c[0],c[1],c[2]);

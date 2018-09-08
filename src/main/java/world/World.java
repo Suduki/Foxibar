@@ -97,6 +97,7 @@ public class World {
 		blood.decay(timeStep, UPDATE_FREQUENCY);
 		fiber.decay(timeStep, UPDATE_FREQUENCY);
 		fat.decay(timeStep, UPDATE_FREQUENCY);
+		wind.stepWind();
 
 	}
 
@@ -162,7 +163,7 @@ public class World {
 			if (containsAgents[a.oldPos] == a) {
 				containsAgents[a.oldPos] = null;
 			}
-			if (containsAgents[a.pos] != null) {
+			if (containsAgents[a.pos] != null && a.trueAge > 0) {
 				System.err.println("trying to move to a populated tile.");
 			}
 			else {

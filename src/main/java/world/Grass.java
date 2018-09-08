@@ -16,6 +16,7 @@ public class Grass {
 		color = Constants.Colors.GRASS;
 		tree = new Tree(terrain);
 		this.terrain = terrain;
+		regenerate(true);
 	}
 
 	public void grow(int timeStep, int updateFrequency) {

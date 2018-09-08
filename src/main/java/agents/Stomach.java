@@ -20,20 +20,23 @@ public class Stomach {
 	private float pFiber;
 	private float pBlood;
 	
-	public void inherit(float p) {
+	
+	public void inherit(float p, float mutation) {
 		empty();
 		fat = FAT_ON_BIRTH;
 		
-		this.p = p;
+		this.p = p + Agent.rand() * mutation;
+		if (p < -1) p = -1;
+		if (p > 1) p = 1;
 		pFiber = grassFunction(p);
 		pBlood = bloodFunction(-p);
 	}
 	
-	private static final float MAX_G = 1f;
+	private static final float MAX_G = 0.7f;
 	private float grassFunction(float p2) {
 		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
-	private static final float MAX_B = 10f;
+	private static final float MAX_B = 1f;
 	private float bloodFunction(float p2) {
 		return (float) (a(MAX_B)*p2*p2 + b(MAX_B) * p2 + c(MAX_B));
 	}
@@ -55,7 +58,7 @@ public class Stomach {
 	 * @return fat > 0, whether this animal is starving
 	 */
 	public boolean stepStomach() {
-		energyCost += 0.1f;
+		energyCost += 1f;
 		digest();
 		burnFat();
 		checkFullness();
@@ -95,7 +98,7 @@ public class Stomach {
 		}
 		
 	}
-	public final static float FAT_TO_ENERGY_FACTOR = 0.5f;
+	public final static float FAT_TO_ENERGY_FACTOR = 0.01f;
 	private void burnFat() {
 		fat -= energyCost*FAT_TO_ENERGY_FACTOR;
 		energyCost = 0;
@@ -127,6 +130,15 @@ public class Stomach {
 
 	public boolean canHaveBaby(float birthHungerCost) {
 		return (fat / FAT_TO_ENERGY_FACTOR) > birthHungerCost;
+	}
+
+	static final float minSpeed = 0.5f;
+	private static final float energyCostAtMaxSpeed = 3f;
+	public void addRecoverCost(float speed) {
+		float c = energyCostAtMaxSpeed / (-1 + 1/minSpeed);
+		float b = -2 * c;
+		float a = c / minSpeed;
+		energyCost += a*speed*speed + b*speed + c;
 	}
 
 }

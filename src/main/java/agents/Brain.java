@@ -1,7 +1,9 @@
 package agents;
-//
-//
-public class Brain {
+
+import java.io.Serializable;
+
+public class Brain implements Serializable {
+	private static final long serialVersionUID = 1L;
 	public NeuralNetwork neural;
 	
 	public Brain(boolean b) {
