@@ -22,7 +22,7 @@ public class Constants {
 	public static final float GROWTH = 0.005f;
 	public static final int MAX_NUM_ANIMALS = 20000;
 	public static final float ZOOM_SPEED = 1.05f;
-	public static final int NUM_NEIGHBOURS = 3;
+	public static final int NUM_NEIGHBOURS = 6;
 	
 	
 	public static class Vision{

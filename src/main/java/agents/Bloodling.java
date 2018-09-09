@@ -50,6 +50,11 @@ public class Bloodling extends Agent {
 		if (( dir = seekPrey() )!= Constants.Neighbours.INVALID_DIRECTION) {
 			return dir;
 		}
+		
+		// Friendlers are unattractive
+		if (( dir = seekFriend() )!= Constants.Neighbours.INVALID_DIRECTION) {
+			return dir;
+		}
 		return Constants.RANDOM.nextInt(4);
 	}
 	
@@ -84,6 +89,25 @@ public class Bloodling extends Agent {
 		}
 		if (bestAgent != null) {
 			return Vision.getDirectionOf(pos, bestAgent.pos);
+		}
+		return Constants.Neighbours.INVALID_DIRECTION;
+	}
+	
+	private int seekFriend() {
+		double bestDistance = 1000000;
+		Agent bestAgent = null;
+		for (Agent a : nearbyAgents) {
+			if (a != null && (a instanceof Bloodling)) {
+				double d = Vision.calculateCircularDistance(pos, a.pos);
+				if (d < bestDistance) {
+					bestAgent = a;
+					bestDistance = d;
+				}
+			}
+		}
+		if (bestAgent != null) {
+			//NOTE: Flipped the order of pos <=> bestAgent.pos to get the opposite effect
+			return Vision.getDirectionOf(bestAgent.pos, pos);
 		}
 		return Constants.Neighbours.INVALID_DIRECTION;
 	}

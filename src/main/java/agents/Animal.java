@@ -117,7 +117,7 @@ public class Animal extends Agent {
 		inheritAppearanceFactors((Animal)a);
 	}
 
-	private static final float MUTATION = 0.1f;
+	public static float MUTATION = 0.04f;
 	private void inheritAppearanceFactors(Animal a) {
 		if (a == null) {
 			for (int i = 0; i < NUM_APPEARANCE_FACTORS; ++i) {
@@ -126,7 +126,7 @@ public class Animal extends Agent {
 		}
 		else {
 			for (int i = 0; i < NUM_APPEARANCE_FACTORS; ++i) {
-				appearanceFactors[i] = ((Animal) a).appearanceFactors[i] + rand()*MUTATION;
+				appearanceFactors[i] = a.appearanceFactors[i] + rand()*MUTATION;
 				if (appearanceFactors[i] > 1) {appearanceFactors[i] = 1;}
 				if (appearanceFactors[i] < 0) {appearanceFactors[i] = 0;}
 			}
@@ -137,18 +137,18 @@ public class Animal extends Agent {
 		}
 	}
 	
-	private boolean isCloselyRelated(Agent a) {
+	public boolean isCloselyRelated(Agent a) {
 		if (a instanceof Animal) {
-			return findRelationTo((Animal) a) < 0.1f;
+			return findRelationTo((Animal) a) < 0.005f;
 		}
 		return false;
 	}
 	
-	private float findRelationTo(Animal a) {
+	public float findRelationTo(Animal a) {
 		float relation = 0;
 		for (int i = 0; i < NUM_APPEARANCE_FACTORS; ++i) {
 			float delta = appearanceFactors[i] - a.appearanceFactors[i];
-			relation += delta*delta;
+			relation += (delta*delta);
 		}
 		return relation;
 	}

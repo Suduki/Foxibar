@@ -1,10 +1,13 @@
 package main;
 
+import java.util.ArrayList;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import agents.Agent;
+import agents.AgentManager;
 import agents.Animal;
 import agents.Bloodling;
 import agents.Grassler;
@@ -50,22 +53,22 @@ public class StabilityIT {
 	public void test2Survivability () {
 		System.out.println("Initiating testSurvivability");
 		System.out.println("Testing Randomling");
-		testSurvivability(RANDOMLING, 3000);
+		testSurvivability(RANDOMLING, 1000);
 		verifyWorldNotEmpty();
 		cleanup();
 		
 		System.out.println("Testing Bloodling");
-		testSurvivability(BLOODLING, 3000);
+		testSurvivability(BLOODLING, 1000);
 		verifyWorldEmpty();
 		cleanup();
 		
 		System.out.println("Testing Animal");
-		testSurvivability(ANIMAL, 3000);
+		testSurvivability(ANIMAL, 1000);
 		verifyWorldNotEmpty();
 		cleanup();
 		
 		System.out.println("Testing Grassler");
-		testSurvivability(GRASSLER, 3000);
+		testSurvivability(GRASSLER, 1000);
 		verifyWorldNotEmpty();
 		cleanup();
 		
@@ -97,10 +100,35 @@ public class StabilityIT {
 		cleanup();
 		System.out.println("Test case testMultipleAgentTypes completed.");
 	}
+	
+	@Test
+	public void test4SpeciesTest() {
+		testRelated();
+	}
+
 
 	/////////////
 	// HELPERS //
 	/////////////
+	private void testRelated() {
+		Animal a = new Animal(0, null, null);
+		a.inherit(null);
+		Animal b = new Animal(0, null, null);
+
+		b.inherit(null);
+		Assert.assertFalse(a.isCloselyRelated(b));
+		
+		b.inherit(a);
+		Assert.assertTrue(a.isCloselyRelated(b));
+		
+		for (int gen = 0; gen < 20; gen++) {
+			b.inherit(b);
+			System.out.println(a.findRelationTo(b));
+		}
+		Assert.assertFalse(a.isCloselyRelated(b));
+		
+	}
+	
 	private void testSurvivability(int agentType, int simTime) {
 		simulation.spawnRandomAgents(agentType, 500);
 		for (int t = 0; t < simTime; t++) {
