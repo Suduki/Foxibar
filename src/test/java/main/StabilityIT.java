@@ -1,10 +1,13 @@
 package main;
 
+import java.util.ArrayList;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import agents.Agent;
+import agents.AgentManager;
 import agents.Animal;
 import agents.Bloodling;
 import agents.Grassler;
@@ -97,10 +100,35 @@ public class StabilityIT {
 		cleanup();
 		System.out.println("Test case testMultipleAgentTypes completed.");
 	}
+	
+	@Test
+	public void test4SpeciesTest() {
+		testRelated();
+	}
+
 
 	/////////////
 	// HELPERS //
 	/////////////
+	private void testRelated() {
+		Animal a = new Animal(0, null, null);
+		a.inherit(null);
+		Animal b = new Animal(0, null, null);
+
+		b.inherit(null);
+		Assert.assertFalse(a.isCloselyRelated(b));
+		
+		b.inherit(a);
+		Assert.assertTrue(a.isCloselyRelated(b));
+		
+		for (int gen = 0; gen < 20; gen++) {
+			b.inherit(b);
+			System.out.println(a.findRelationTo(b));
+		}
+		Assert.assertFalse(a.isCloselyRelated(b));
+		
+	}
+	
 	private void testSurvivability(int agentType, int simTime) {
 		simulation.spawnRandomAgents(agentType, 500);
 		for (int t = 0; t < simTime; t++) {
