@@ -362,12 +362,12 @@ public void actionLoadBrains() {
 		glBegin(GL_QUADS);
 		int i = (yOffset + Constants.WORLD_SIZE_X * xOffset) % Constants.WORLD_SIZE; 
 		int j = i;
+		Main.simulation.mWorld.updateColor(terrainColor);
 		for (int x = 0; x < width; ++x, j = (int) World.wrapX(x + xOffset))
 		{
 			i = j;
 			for (int y = 0; y < height; ++y, i = (int) World.wrapY(y + yOffset))
 			{
-				Main.simulation.mWorld.updateColor(terrainColor, j, i);
 				float screenPositionX = x * pixelsPerNodeX;
 				float screenPositionY = y * pixelsPerNodeY;
 				renderQuad(terrainColor[j][i],

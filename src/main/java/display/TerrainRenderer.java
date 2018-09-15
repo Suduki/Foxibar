@@ -162,10 +162,10 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);
 	public void updateColorTexture() {
 		int i = 0;
+		Main.simulation.mWorld.updateColor(LegacyRenderer.terrainColor);
 		for (int x = 0; x < Constants.WORLD_SIZE_V.x; ++x) {
 			for (int y = 0; y < Constants.WORLD_SIZE_V.y; ++y, ++i) {
 
-				Main.simulation.mWorld.updateColor(LegacyRenderer.terrainColor, x, y);
 
 				if (i == 0) {
 					colorBuffer.put(i*4+0, 0);
@@ -178,9 +178,9 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 					colorBuffer.put(i*4+2, 0);
 				}
 				else {
-					colorBuffer.put(i*4+0, LegacyRenderer.terrainColor[x][y][0]);
-					colorBuffer.put(i*4+1, LegacyRenderer.terrainColor[x][y][1]);
-					colorBuffer.put(i*4+2, LegacyRenderer.terrainColor[x][y][2]);
+					colorBuffer.put(i*4+0, LegacyRenderer.terrainColor[y][x][0]);
+					colorBuffer.put(i*4+1, LegacyRenderer.terrainColor[y][x][1]);
+					colorBuffer.put(i*4+2, LegacyRenderer.terrainColor[y][x][2]);
 				}
 			}
 		}
@@ -422,7 +422,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		int i = 0;
 		for (int x = 0; x < Constants.WORLD_SIZE_V.x; ++x) {
 			for (int y = 0; y < Constants.WORLD_SIZE_V.y; ++y,++i) {
-				float h = (float)Math.pow(Main.simulation.mWorld.terrain.height[x][y], 1.5);
+				float h = (float)Math.pow(Main.simulation.mWorld.terrain.height[y][x], 1.5);
 				h *= mHeightScale;
 				heightBuffer.put(i*4+0, h);
 				heightBuffer.put(i*4+1, 0);

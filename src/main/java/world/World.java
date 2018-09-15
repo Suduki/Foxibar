@@ -49,6 +49,14 @@ public class World {
 
 	private static float[] tempColor = new float[3];
 	
+	public void updateColor(float[][][] terrainColor) {
+		for (int x = 0; x < terrainColor.length; ++x) {
+			for (int y = 0; y < terrainColor.length; ++y) {
+				updateColor(terrainColor, x, y);
+			}
+		}
+		
+	}
 	public void updateColor(float[][][] a, int x, int y) {
 		float grassness, dirtness;
 
@@ -121,5 +129,6 @@ public class World {
 	public static int south(int y) {//TODO: Move to util class
 		return (int) wrapY(y-1);
 	}
+
 
 }
