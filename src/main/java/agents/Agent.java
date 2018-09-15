@@ -2,6 +2,8 @@ package agents;
 
 import java.util.ArrayList;
 
+import org.joml.Vector2f;
+
 import constants.Constants;
 import world.World;
 
@@ -32,13 +34,14 @@ public abstract class Agent {
 	public int sinceLastBaby = 0;
 	boolean isFertile;
 
-	public int pos;
-	public int oldPos;
-	public int oldX;
-	public int oldY;
+	public Vector2f pos;
+	public Vector2f old;
+	public Vector2f vel;
 
 	public Agent[] nearbyAgents;
 	public float[] nearbyAgentsDistance;
+	public Agent closestAgent;
+	public float closestAgentDistance;
 
 	protected ArrayList<Agent> children;
 	Agent parent;
@@ -59,6 +62,10 @@ public abstract class Agent {
 		age = 0;
 		trueAge = 0;
 		this.health = health;
+		
+		pos = new Vector2f();
+		old = new Vector2f();
+		vel = new Vector2f();
 
 		maxAge = MAX_AGE; //TODO: move these constants
 		healPower = 0.01f;
@@ -170,29 +177,25 @@ public abstract class Agent {
 		}
 	}
 
-	private void move(int tileDir) {
-		int tilePos = World.neighbour[tileDir][pos];
-		if (world.containsAgents[tilePos] == null) {
-			pos = tilePos;
-			agentManager.vision.updateAgentZone(this);
-			agentManager.world.updateContainsAgents(this);
-		}
-		oldPos = pos;
+	private void move() {
+		old.set(pos);
+		pos.add(vel);
+		World.wrap(pos, Constants.WORLD_SIZE_V);
+		
+		agentManager.vision.updateAgentZone(this);
 	}
 
-	protected void interact(int tileToInteractWith) {
-		int tilePos = World.neighbour[tileToInteractWith][pos];
-		Agent agent = world.getAgentAt(tilePos);
 
-		if (agent != null && agent != this) {
-			interactWith(agent);
+	protected void interact() {
+		if (closestAgent != null && closestAgent != this && closestAgentDistance < 1f) {
+			interactWith(closestAgent);
 		}
 	}
 
 	private void actionUpdate() {
-		int direction = think(); // direction points to a tile position where to move.
-		interact(direction);
-		move(direction);
+		think(); // direction points to a tile position where to move.
+		interact();
+		move();
 		harvest();
 	}
 	private void internalOrgansUpdate() {
@@ -218,7 +221,10 @@ public abstract class Agent {
 
 	}
 
-	protected abstract int think();
+	/**
+	 * Sets vel
+	 */
+	protected abstract void think();
 
 	/**
 	 * Increases age. 
@@ -233,6 +239,37 @@ public abstract class Agent {
 		}
 		return true;
 	}
+	
+	/**
+	 * Updates vel accordingly
+	 * @return whether we've found blood
+	 */
+	protected boolean seekBlood() {
+		return world.blood.seekHeight(0, vel, (int)pos.x, (int)pos.y);
+	}
+	
+	/**
+	 * Updates vel accordingly
+	 * @return whether we've found fat
+	 */
+	protected boolean seekFat() {
+		return world.fat.seekHeight(0, vel, (int)pos.x, (int)pos.y);
+	}
+	
+	/**
+	 * Updates vel accordingly
+	 * @return whether we've found grass
+	 */
+	protected boolean seekGrass() {
+		return world.grass.seekHeight(0.05f, vel, (int)pos.x, (int)pos.y);
+	}
+	
+	private final static float TWO_PI = (float)Math.PI * 2;
+	protected void randomWalk() {
+		float angle = Constants.RANDOM.nextFloat() * TWO_PI;
+		vel.x = (float) Math.cos(angle);
+		vel.y = (float) Math.sin(angle);
+	}
 
 	protected abstract float getFightSkill();
 
@@ -244,18 +281,18 @@ public abstract class Agent {
 	protected void harvest() {
 		float harvestRatio = getHarvestRatio();
 		float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
-		float amountHarvestedSoFar = world.fat.harvest(harvestSkill, pos);
+		float amountHarvestedSoFar = world.fat.harvest(harvestSkill, (int) pos.x, (int) pos.y);
 		stomach.addFat(amountHarvestedSoFar);
 		if (harvestRatio > 0) {
 			// Harvest fiber
 			if (harvestSkill > amountHarvestedSoFar) {
-				float tmp = world.grass.harvest(harvestSkill - amountHarvestedSoFar, pos);
+				float tmp = world.grass.harvest(harvestSkill - amountHarvestedSoFar, (int) pos.x, (int) pos.y);
 				stomach.addFiber(tmp);
 				amountHarvestedSoFar += tmp;
 			}
 			// Harvest blood
 			if (harvestSkill > amountHarvestedSoFar) {
-				float tmp = world.blood.harvest(harvestSkill - amountHarvestedSoFar, pos);
+				float tmp = world.blood.harvest(harvestSkill - amountHarvestedSoFar, (int) pos.x, (int) pos.y);
 				stomach.addFiber(tmp);
 				amountHarvestedSoFar += tmp;
 			}
@@ -263,13 +300,13 @@ public abstract class Agent {
 		else {
 			// Harvest blood
 			if (harvestSkill > amountHarvestedSoFar) {
-				float tmp = world.blood.harvest(harvestSkill - amountHarvestedSoFar, pos);
+				float tmp = world.blood.harvest(harvestSkill - amountHarvestedSoFar, (int) pos.x, (int) pos.y);
 				stomach.addBlood(tmp);
 				amountHarvestedSoFar += tmp;
 			}
 			// Harvest fiber
 			if (harvestSkill > amountHarvestedSoFar) {
-				float tmp = world.grass.harvest(harvestSkill - amountHarvestedSoFar, pos);
+				float tmp = world.grass.harvest(harvestSkill - amountHarvestedSoFar, (int) pos.x, (int) pos.y);
 				stomach.addFiber(tmp);
 				amountHarvestedSoFar += tmp;
 			}
@@ -296,9 +333,9 @@ public abstract class Agent {
 
 	protected void die() {
 		if (age > 100) {
-			world.blood.append(pos, stomach.blood + size);
-			world.fat.append(pos, stomach.fat);
-			world.grass.append(pos, stomach.fiber);
+			world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size);
+			world.fat.append((int) pos.x, (int) pos.y, stomach.fat);
+			world.grass.append((int) pos.x, (int) pos.y, stomach.fiber);
 		}
 		//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
 		//				+ ", age=" + age + ", score = " + score);

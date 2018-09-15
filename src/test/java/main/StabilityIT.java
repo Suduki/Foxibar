@@ -102,19 +102,24 @@ public class StabilityIT {
 	}
 	
 	@Test
-	public void test4SpeciesTest() {
-		testRelated();
+	public void walkTest() {
+		verifyWorldEmpty();
+		simulation.spawnAgent(5, 6, RANDOMLING);
+		
+		simulation.step(timeStep++);
+		simulation.step(timeStep++);
+
+		Agent a = simulation.agentManagers.get(RANDOMLING).alive.get(0);
+		Assert.assertNotEquals(a.pos.x, 5);
+		Assert.assertNotEquals(a.pos.y, 6);
 	}
-
-
-	/////////////
-	// HELPERS //
-	/////////////
-	private void testRelated() {
+	
+	@Test //TODO: MOVE
+	public void test4SpeciesTest() {
 		Animal a = new Animal(0, null, null);
 		a.inherit(null);
 		Animal b = new Animal(0, null, null);
-
+		
 		b.inherit(null);
 		Assert.assertFalse(a.isCloselyRelated(b));
 		
@@ -123,11 +128,14 @@ public class StabilityIT {
 		
 		for (int gen = 0; gen < 20; gen++) {
 			b.inherit(b);
-			System.out.println(a.findRelationTo(b));
 		}
 		Assert.assertFalse(a.isCloselyRelated(b));
-		
 	}
+
+
+	/////////////
+	// HELPERS //
+	/////////////
 	
 	private void testSurvivability(int agentType, int simTime) {
 		simulation.spawnRandomAgents(agentType, 500);
@@ -154,23 +162,11 @@ public class StabilityIT {
 	private void verifyWorldEmpty() {
 		Assert.assertTrue(simulation.getNumAgents() == 0);
 		Assert.assertTrue(visionZoneSize() == 0);
-		for (int i = 0; i < simulation.mWorld.containsAgents.length; ++i) {
-			Assert.assertTrue("containsAnimals is not empty even though all animals are dead: at " + i, 
-					simulation.mWorld.containsAgents[i] == null);
-		}
 	}
 	
 	private void verifyWorldNotEmpty() {
 		Assert.assertTrue(simulation.getNumAgents() > 0);
 		Assert.assertTrue(visionZoneSize() > 1);
-		boolean contains = false;
-		for (int i = 0; i < simulation.mWorld.containsAgents.length; ++i) {
-			if (simulation.mWorld.containsAgents[i] != null) {
-				contains = true;
-				break;
-			}
-		}
-		Assert.assertTrue("containsAgents should contain living Agents, but does not", contains);
 	}
 	
 	private int visionZoneSize() {

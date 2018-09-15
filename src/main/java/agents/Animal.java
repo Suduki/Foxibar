@@ -24,64 +24,61 @@ public class Animal extends Agent {
 	}
 
 	@Override
-	protected int think() {
-
-		int dirTowardsPrey = seekPrey();
-		int dirTowardsFriend = seekFriend();
-
-		float fullness = stomach.getRelativeFullness();
-		if (fullness > 1) {
-			fullness = 1; 
-			System.out.println("brain.neural.z[tile][0][NeuralFactors.HUNGER] > 1:  " + fullness);
-		}
-
-		for (int tile = 0; tile < 4; ++tile) {
-			brain.neural.z[tile][0][NeuralFactors.HUNGER] = fullness;
-			
-			if (tile == dirTowardsFriend) {
-				brain.neural.z[tile][0][NeuralFactors.TILE_FRIENDS] = 1;
-			}
-			else {
-				brain.neural.z[tile][0][NeuralFactors.TILE_FRIENDS] = -1;
-			}
-			if (tile == dirTowardsPrey) {
-				brain.neural.z[tile][0][NeuralFactors.TILE_PREY] = 1;
-			}
-			else {
-				brain.neural.z[tile][0][NeuralFactors.TILE_PREY] = -1;
-			}
-			
-			int tilePos = World.neighbour[tile][pos];
-
-			brain.neural.z[tile][0][NeuralFactors.TILE_FAT] = world.fat.height[tilePos] - world.fat.height[pos];
-			brain.neural.z[tile][0][NeuralFactors.TILE_BLOOD] = world.blood.height[tilePos] - world.blood.height[pos];
-			brain.neural.z[tile][0][NeuralFactors.TILE_FIBER] = world.grass.height[tilePos] - world.grass.height[pos];
-			brain.neural.z[tile][0][NeuralFactors.TILE_TERRAIN_HEIGHT] = 
-					world.terrain.height[tilePos] - world.terrain.height[pos];
-
-		}
-		return brain.neural.neuralMagic();
+	protected void think() {
+//
+//		int dirTowardsPrey = seekPrey();
+//		int dirTowardsFriend = seekFriend();
+//
+//		float fullness = stomach.getRelativeFullness();
+//		if (fullness > 1) {
+//			fullness = 1; 
+//			System.out.println("brain.neural.z[tile][0][NeuralFactors.HUNGER] > 1:  " + fullness);
+//		}
+//
+//		for (int tile = 0; tile < 4; ++tile) {
+//			brain.neural.z[tile][0][NeuralFactors.HUNGER] = fullness;
+//			
+//			if (tile == dirTowardsFriend) {
+//				brain.neural.z[tile][0][NeuralFactors.TILE_FRIENDS] = 1;
+//			}
+//			else {
+//				brain.neural.z[tile][0][NeuralFactors.TILE_FRIENDS] = -1;
+//			}
+//			if (tile == dirTowardsPrey) {
+//				brain.neural.z[tile][0][NeuralFactors.TILE_PREY] = 1;
+//			}
+//			else {
+//				brain.neural.z[tile][0][NeuralFactors.TILE_PREY] = -1;
+//			}
+//			
+//			int tilePos = World.neighbour[tile][pos];
+//
+//			brain.neural.z[tile][0][NeuralFactors.TILE_FAT] = world.fat.height[tilePos] - world.fat.height[pos];
+//			brain.neural.z[tile][0][NeuralFactors.TILE_BLOOD] = world.blood.height[tilePos] - world.blood.height[pos];
+//			brain.neural.z[tile][0][NeuralFactors.TILE_FIBER] = world.grass.height[tilePos] - world.grass.height[pos];
+//			brain.neural.z[tile][0][NeuralFactors.TILE_TERRAIN_HEIGHT] = 
+//					world.terrain.height[tilePos] - world.terrain.height[pos];
+//
+//		}
+//		return brain.neural.neuralMagic();
 	}
 
-	private int seekFriend() {
+	private Agent seekFriend() {
 		double closestDistance = 1000000;
-		Agent closestAgent = null;
+		Agent closestFriend = null;
 		for (Agent a : nearbyAgents) {
 			if (a != null && isCloselyRelated(a)) {
 				// This is an Animal of my species.
 				double d = Vision.calculateCircularDistance(pos, a.pos);
 				if (d < closestDistance) {
-					closestAgent = a;
+					closestFriend = a;
 					closestDistance = d;
 				}
 			}
 		}
-		if (closestAgent != null) {
-			return Vision.getDirectionOf(pos, closestAgent.pos);
-		}
-		return Constants.Neighbours.INVALID_DIRECTION;
+		return closestFriend;
 	}
-	private int seekPrey() {
+	private Agent seekPrey() {
 		double closestDistance = 1000000;
 		Agent closestAgent = null;
 		for (Agent a : nearbyAgents) {
@@ -94,10 +91,7 @@ public class Animal extends Agent {
 				}
 			}
 		}
-		if (closestAgent != null) {
-			return Vision.getDirectionOf(pos, closestAgent.pos);
-		}
-		return Constants.Neighbours.INVALID_DIRECTION;
+		return closestAgent;
 	}
 
 	@Override

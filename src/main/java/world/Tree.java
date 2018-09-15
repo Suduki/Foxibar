@@ -1,66 +1,70 @@
 package world;
 
-import java.util.ArrayList;
-
 import constants.Constants;
 
 public class Tree {
 
 	private static final float growth = 0.05f;
-	public float[] height;
-	public float[] health;
-	public boolean[] isAlive;
+	public float[][] height;
+	public float[][] health;
+	public boolean[][] isAlive;
 	private float spawnRate = 1f; // TODO: Replace with i++
 	private int numTrees = 0;
 	
 	private Terrain terrain;
 	
 	public Tree(Terrain terrain) {
-		height = new float[Constants.WORLD_SIZE];
-		health = new float[Constants.WORLD_SIZE];
-		isAlive = new boolean[Constants.WORLD_SIZE];
+		height = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
+		health = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
+		isAlive = new boolean[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
 		this.terrain = terrain;
 	}
 	
 	public void update() {
-		for (int pos = 0 ; pos < Constants.WORLD_SIZE; ++pos) {
-			if (isAlive[pos]) {
-				height[pos] += growth;
-				height[pos] *= 0.996f;
-				health[pos] -= 1;
+		for (int x = 0 ; x < Constants.WORLD_SIZE_V.x; ++x) {
+			for (int y = 0 ; y < Constants.WORLD_SIZE_V.y; ++y) {
+				if (isAlive[x][y]) {
+					height[x][y] += growth;
+					height[x][y] *= 0.996f;
+					health[x][y] -= 1;
 
-				if (health[pos] < 0) {
-					die(pos);
+					if (health[x][y] < 0) {
+						die(x, y);
+					}
 				}
 			}
 		}
 		if (Constants.RANDOM.nextFloat() < spawnRate/numTrees) {
-			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
-			if (!isAlive[pos] && !terrain.water[pos] && !terrain.stone[pos]) {
-				resurrect(pos);
+			int x = Constants.RANDOM.nextInt(Constants.WORLD_SIZE_V.x);
+			int y = Constants.RANDOM.nextInt(Constants.WORLD_SIZE_V.y);
+			if (!isAlive[x][y] && !terrain.water[x][y] && !terrain.stone[x][y]) {
+				resurrect(x, y);
 			}
 		}
 	}
 	
-	private void die(int pos) {
-		if (isAlive[pos]) {
-			height[pos] = 0;
-			health[pos] = 0;
+	private void die(int x, int y) {
+		if (isAlive[x][y]) {
+			height[x][y] = 0;
+			health[x][y] = 0;
 			numTrees --;
 		}
-		isAlive[pos] = false;
+		isAlive[x][y] = false;
 	}
 
-	public void resurrect(int pos) {
-		isAlive[pos] = true;
-		height[pos] = 1;
-		health[pos] = 100000;
+	public void resurrect(int x, int y) {
+		isAlive[x][y] = true;
+		height[x][y] = 1;
+		health[x][y] = 100000;
 		numTrees  ++;
 	}
 
 	public void killAll() {
-		for (int pos = 0; pos < Constants.WORLD_SIZE; ++pos) {
-			die(pos);
+
+		for (int x = 0 ; x < Constants.WORLD_SIZE_V.x; ++x) {
+			for (int y = 0 ; y < Constants.WORLD_SIZE_V.y; ++y) {
+				die(x, y);
+			}
 		}
 	}
 

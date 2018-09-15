@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import agents.Agent;
+import agents.AgentManager;
 import agents.Animal;
 import buttons.Button;
 import constants.Constants;
@@ -31,7 +32,7 @@ public class LegacyRenderer implements gui.SceneRegionRenderer {
 	static int width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
 	static int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
 	private static Mouse mouse = new input.Mouse();
-	public static float[][] terrainColor = new float[Constants.WORLD_SIZE][3];
+	public static float[][][] terrainColor = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y][3];
 	private Simulation mSimulation;
 	private DisplayHandler mDisplayHandler;
 	private boolean mSimulationPaused = false;
@@ -121,33 +122,44 @@ public void actionLoadBrains() {
 		
 		width = Math.round(zoomFactor*Constants.WORLD_SIZE_X);
 		height = Math.round(zoomFactor*Constants.WORLD_SIZE_Y);
-		float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
-		float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
 
 		glBegin(GL_TRIANGLES);
 
-		int xOffset = getXOffset();
-		int yOffset = getYOffset();
 		
-		int j = yOffset + Constants.WORLD_SIZE_X * xOffset;
-		for (int x = 0; x < width; ++x, j = World.south[j]) {
-			int i = j;
-			for (int y = 0; y < height; ++y, i = World.east[i]) {
-				float screenPositionX = x * pixelsPerNodeX + pixelsPerNodeX/2;
-				float screenPositionY = y * pixelsPerNodeY + pixelsPerNodeY/2;
-
-				// RENDER ANIMAL
-				Agent tmp = Main.simulation.mWorld.containsAgents[i];
-				if (tmp != null && shouldThisAnimalBePrinted(tmp)) {
+		for (AgentManager<?> manager : Main.simulation.agentManagers) {
+			for (int i = 0; i < manager.alive.size(); ++i) {
+				Agent a = manager.alive.get(i);
+				renderAgent(a);
+			}
+		}
+		
+		glEnd();
+	}
+	
+	private boolean isWithinView(Agent a) {
+		return true;
+	}
+	
+	private void renderAgent(Agent a) {
+		if (!isWithinView(a)) return;
+		
+		float x = World.wrapX(a.pos.x + getXOffset());
+		float y = World.wrapY(a.pos.y + getYOffset());
+		
+		float pixelsPerNodeX = ((float)Constants.PIXELS_X)/width;
+		float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
+		float screenPositionX = x * pixelsPerNodeX + pixelsPerNodeX/2;
+		float screenPositionY = y * pixelsPerNodeY + pixelsPerNodeY/2;
+		if (a != null && shouldThisAnimalBePrinted(a)) {
 //					if (World.animalManager.pool[id].species.speciesId == Constants.SpeciesId.GRASSLER) {
 //						renderTriangle(World.animalManager.pool[id].color, World.animalManager.pool[id].size*pixelsPerNodeX, 
 //								World.animalManager.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
 //						continue;
 //					}
-					float ageFactor = 1f - ((float)tmp.age)/(tmp.maxAge);
-					float hungerFactor = tmp.stomach.getRelativeFullness();
-					float healthFactor = tmp.health;
-					float size = 0.5f * tmp.size + 0.5f;
+			float ageFactor = 1f - ((float)a.age)/(a.maxAge);
+			float hungerFactor = a.stomach.getRelativeFullness();
+			float healthFactor = a.health;
+			float size = 0.5f * a.size + 0.5f;
 //					if (RenderState.DRAW_VISION_CIRCLE) {
 //						if (RenderState.FOLLOW_BLOODLING && id == World.animalManager.species[0].) {
 //							renderCircle(id.primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
@@ -156,12 +168,12 @@ public void actionLoadBrains() {
 //							renderCircle(World.animalManager.pool[id].primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
 //						}
 //					}
-					if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
+			if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
 //						if (Constants.BEST_ID == id) {
-						renderThreePartsOfAnimal(tmp.secondaryColor, tmp.color, 
-								ageFactor, healthFactor, hungerFactor, 
-								size*pixelsPerNodeX, 
-								size*pixelsPerNodeY, screenPositionX, screenPositionY);
+				renderThreePartsOfAnimal(a.secondaryColor, a.color, 
+						ageFactor, healthFactor, hungerFactor, 
+						size*pixelsPerNodeX, 
+						size*pixelsPerNodeY, screenPositionX, screenPositionY);
 //							renderThreePartsOfAnimal(id.secondaryColor, id.mainColor, 
 //									ageFactor, healthFactor, hungerFactor, 
 //									id.size*pixelsPerNodeX, 
@@ -171,34 +183,29 @@ public void actionLoadBrains() {
 ////							renderTriangle(id.secondaryColor, id.size*pixelsPerNodeX, 
 ////									id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
 ////						}
-					}
-					else if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
-						renderTwoPartsOfAnimal(tmp.secondaryColor, tmp.color, 
-								ageFactor, hungerFactor, 
-								size*pixelsPerNodeX, 
-								size*pixelsPerNodeY, screenPositionX, screenPositionY);
-					}
-					else if (RenderState.RENDER_AGE) {
-						renderPartOfAnimal(tmp.secondaryColor, tmp.color, ageFactor, 
-								size*pixelsPerNodeX, 
-								size*pixelsPerNodeY, screenPositionX, screenPositionY);
-						
-					}
-					else if (RenderState.RENDER_HUNGER) {
-						renderPartOfAnimal(tmp.secondaryColor, tmp.color, hungerFactor, 
-								size*pixelsPerNodeX, 
-								size*pixelsPerNodeY, screenPositionX, screenPositionY);
-					}
-					else {
-						renderTriangle(tmp.color, size*pixelsPerNodeX, 
-								size*pixelsPerNodeY, screenPositionX, screenPositionY);
-					}
-
-				}
-
+			}
+			else if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
+				renderTwoPartsOfAnimal(a.secondaryColor, a.color, 
+						ageFactor, hungerFactor, 
+						size*pixelsPerNodeX, 
+						size*pixelsPerNodeY, screenPositionX, screenPositionY);
+			}
+			else if (RenderState.RENDER_AGE) {
+				renderPartOfAnimal(a.secondaryColor, a.color, ageFactor, 
+						size*pixelsPerNodeX, 
+						size*pixelsPerNodeY, screenPositionX, screenPositionY);
+				
+			}
+			else if (RenderState.RENDER_HUNGER) {
+				renderPartOfAnimal(a.secondaryColor, a.color, hungerFactor, 
+						size*pixelsPerNodeX, 
+						size*pixelsPerNodeY, screenPositionX, screenPositionY);
+			}
+			else {
+				renderTriangle(a.color, size*pixelsPerNodeX, 
+						size*pixelsPerNodeY, screenPositionX, screenPositionY);
 			}
 		}
-		glEnd();
 	}
 	
 	private boolean shouldThisAnimalBePrinted(Agent tmp) {
@@ -355,15 +362,15 @@ public void actionLoadBrains() {
 		glBegin(GL_QUADS);
 		int i = (yOffset + Constants.WORLD_SIZE_X * xOffset) % Constants.WORLD_SIZE; 
 		int j = i;
-		for (int x = 0; x < width; ++x, j = World.south[j])
+		for (int x = 0; x < width; ++x, j = (int) World.wrapX(x + xOffset))
 		{
 			i = j;
-			for (int y = 0; y < height; ++y, i = World.east[i])
+			for (int y = 0; y < height; ++y, i = (int) World.wrapY(y + yOffset))
 			{
-				Main.simulation.mWorld.updateColor(terrainColor, i);
+				Main.simulation.mWorld.updateColor(terrainColor, j, i);
 				float screenPositionX = x * pixelsPerNodeX;
 				float screenPositionY = y * pixelsPerNodeY;
-				renderQuad(terrainColor[i],
+				renderQuad(terrainColor[j][i],
 						screenPositionX, screenPositionY, 
 						screenPositionX + pixelsPerNodeX, screenPositionY, 
 						screenPositionX + pixelsPerNodeX, screenPositionY + pixelsPerNodeY, 
@@ -540,14 +547,15 @@ public void actionLoadBrains() {
 		}
 	}
 
-	private Vector2f worldPosFromViewPos(float x, float y)
+	private void worldPosFromViewPos(float x, float y)
 	{
 		float u = x0 + zoomFactor*x;
 		float v = y0 + zoomFactor*y;
 		for (;u < 0; u+=1.0f); for (;u >= 1.0f; u-=1.0f);
 		for (;v < 0; v+=1.0f); for (;v >= 1.0f; v-=1.0f);
 
-		return new Vector2f(u*Constants.WORLD_SIZE_X, v*Constants.WORLD_SIZE_Y);
+		worldPos.x = u*Constants.WORLD_SIZE_X;
+		worldPos.y = v*Constants.WORLD_SIZE_Y;
 	}
 
 	boolean insideViewport(Vector2f pos)
@@ -586,7 +594,7 @@ public void actionLoadBrains() {
 //			public String messageName() { return "AddAnimal"; }
 //		});								
 //	}
-	
+	private Vector2f worldPos = new Vector2f(0, 0);
 	private void addAgent(int managerId, int speciesId) {
 		mSimulation.message( new messages.Message() {
 			Mouse eventmouse = new Mouse(mouse);
@@ -595,12 +603,9 @@ public void actionLoadBrains() {
 				float viewX = eventmouse.getX()/Constants.PIXELS_X;
 				float viewY = eventmouse.getY()/Constants.PIXELS_Y;
 
-				Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
+				worldPosFromViewPos(viewX, viewY);
 
-				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
-				if (Main.simulation.mWorld.containsAgents[pos] == null) {
-					Main.simulation.spawnAgent(pos, managerId);
-				}
+				Main.simulation.spawnAgent((int) worldPos.x, (int) worldPos.y, managerId);
 			}
 
 			public String messageName() { return "AddAnimal"; }

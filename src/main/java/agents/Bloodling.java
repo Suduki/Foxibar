@@ -32,84 +32,55 @@ public class Bloodling extends Agent {
 	}
 
 	@Override
-	protected int think() {
+	protected void think() {
 		// Seek partner
-		int dir;
 //		if (isFertileAndNotHungry()) {
-//			if (( dir = seekPartner() )!= Constants.Neighbours.INVALID_DIRECTION) {
-//				return dir;
+//			if (seekPartner()) {
+//				return;
 //			}
 //		}
 		
 		// Seek Blood
-		if (( dir = seekBlood() )!= Constants.Neighbours.INVALID_DIRECTION) {
-			return dir;
+		if (seekBlood()) {
+			return;
 		}
 		
 		// Seek prey
-		if (( dir = seekPrey() )!= Constants.Neighbours.INVALID_DIRECTION) {
-			return dir;
+		if (seekPrey()) {
+			return;
 		}
 		
 		// Friendlers are unattractive
-		if (( dir = seekFriend() )!= Constants.Neighbours.INVALID_DIRECTION) {
-			return dir;
+		if (seekFriend()) {
+			return;
 		}
-		return Constants.RANDOM.nextInt(4);
+		
+		randomWalk();
 	}
 	
-//	private int seekPartner() {
-//		mate();
-//		return Constants.RANDOM.nextInt(4);
-//	}
-	private int seekBlood() {
-		int bestDir = Constants.Neighbours.INVALID_DIRECTION;
-		float bestH = 0;
-		for (int tile = 0; tile < 4; tile++) {
-			float h = world.blood.height[World.neighbour[tile][pos]];
-			if (h > 0 && h > bestH) {
-				bestDir = tile;
-				bestH = h;
-			}
-		}
-		return bestDir;
-
-	}
-	private int seekPrey() {
-		double bestDistance = 1000000;
-		Agent bestAgent = null;
+	/**
+	 * Updates vel accordingly
+	 * @return whether we've found prey
+	 */
+	private boolean seekPrey() {
 		for (Agent a : nearbyAgents) {
 			if (a != null && !(a instanceof Bloodling)) {
-				double d = Vision.calculateCircularDistance(pos, a.pos);
-				if (d < bestDistance) {
-					bestAgent = a;
-					bestDistance = d;
-				}
+				Vision.getDirectionOf(vel, pos, a.pos);
+				return true;
 			}
 		}
-		if (bestAgent != null) {
-			return Vision.getDirectionOf(pos, bestAgent.pos);
-		}
-		return Constants.Neighbours.INVALID_DIRECTION;
+		return false;
 	}
 	
-	private int seekFriend() {
-		double bestDistance = 1000000;
-		Agent bestAgent = null;
+	private boolean seekFriend() {
 		for (Agent a : nearbyAgents) {
 			if (a != null && (a instanceof Bloodling)) {
-				double d = Vision.calculateCircularDistance(pos, a.pos);
-				if (d < bestDistance) {
-					bestAgent = a;
-					bestDistance = d;
-				}
+				//NOTE: Flipped the order of pos <=> bestAgent.pos to get the opposite effect
+				Vision.getDirectionOf(vel, a.pos, pos);
+				return true;
 			}
 		}
-		if (bestAgent != null) {
-			//NOTE: Flipped the order of pos <=> bestAgent.pos to get the opposite effect
-			return Vision.getDirectionOf(bestAgent.pos, pos);
-		}
-		return Constants.Neighbours.INVALID_DIRECTION;
+		return false;
 	}
 
 	@Override

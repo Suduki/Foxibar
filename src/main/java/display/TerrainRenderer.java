@@ -161,23 +161,27 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	
 	FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);
 	public void updateColorTexture() {
-		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			Main.simulation.mWorld.updateColor(LegacyRenderer.terrainColor, i);
-			
-			if (i == 0) {
-				colorBuffer.put(i*4+0, 0);
-				colorBuffer.put(i*4+1, 0);
-				colorBuffer.put(i*4+2, 0);
-			}
-			else if (i == 1) {
-				colorBuffer.put(i*4+0, 1);
-				colorBuffer.put(i*4+1, 0);
-				colorBuffer.put(i*4+2, 0);
-			}
-			else {
-				colorBuffer.put(i*4+0, LegacyRenderer.terrainColor[i][0]);
-				colorBuffer.put(i*4+1, LegacyRenderer.terrainColor[i][1]);
-				colorBuffer.put(i*4+2, LegacyRenderer.terrainColor[i][2]);
+		int i = 0;
+		for (int x = 0; x < Constants.WORLD_SIZE_V.x; ++x) {
+			for (int y = 0; y < Constants.WORLD_SIZE_V.y; ++y, ++i) {
+
+				Main.simulation.mWorld.updateColor(LegacyRenderer.terrainColor, x, y);
+
+				if (i == 0) {
+					colorBuffer.put(i*4+0, 0);
+					colorBuffer.put(i*4+1, 0);
+					colorBuffer.put(i*4+2, 0);
+				}
+				else if (i == 1) {
+					colorBuffer.put(i*4+0, 1);
+					colorBuffer.put(i*4+1, 0);
+					colorBuffer.put(i*4+2, 0);
+				}
+				else {
+					colorBuffer.put(i*4+0, LegacyRenderer.terrainColor[x][y][0]);
+					colorBuffer.put(i*4+1, LegacyRenderer.terrainColor[x][y][1]);
+					colorBuffer.put(i*4+2, LegacyRenderer.terrainColor[x][y][2]);
+				}
 			}
 		}
 		
@@ -415,18 +419,21 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	
 	private void initSimulationTextures() {
 		FloatBuffer heightBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);
-		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
-			float h = (float)Math.pow(Main.simulation.mWorld.terrain.height[i], 1.5);
-			h *= mHeightScale;
-			heightBuffer.put(i*4+0, h);
-			heightBuffer.put(i*4+1, 0);
-			heightBuffer.put(i*4+2, 0);
+		int i = 0;
+		for (int x = 0; x < Constants.WORLD_SIZE_V.x; ++x) {
+			for (int y = 0; y < Constants.WORLD_SIZE_V.y; ++y,++i) {
+				float h = (float)Math.pow(Main.simulation.mWorld.terrain.height[x][y], 1.5);
+				h *= mHeightScale;
+				heightBuffer.put(i*4+0, h);
+				heightBuffer.put(i*4+1, 0);
+				heightBuffer.put(i*4+2, 0);
+			}
 		}
 
 		mHeightTexture[0] = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
 		mHeightTexture[1] = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
 		
-		for (int i = 0; i < Constants.WORLD_SIZE; ++i) {
+		for (i = 0; i < Constants.WORLD_SIZE; ++i) {
 			heightBuffer.put(i*4+0, 0);
 			heightBuffer.put(i*4+1, 0);
 			heightBuffer.put(i*4+2, 0);

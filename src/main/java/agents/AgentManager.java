@@ -93,17 +93,18 @@ public class AgentManager<AgentClass extends Agent> {
 		for (Agent a : toLive) {
 			alive.add(a);
 			vision.updateAgentZone(a);
-			world.updateContainsAgents(a);
 		}
 		toLive.clear();
 	}
 
 
-	public void spawnAgent(int pos) {
+	public void spawnAgent(int x, int y) {
 		Agent child = resurrectAgent();
 		child.inherit(null);
-		child.pos = pos;
-		child.oldPos = pos;
+		child.pos.x = x;
+		child.pos.y = y;
+		child.old.x = x;
+		child.old.y = y;
 		vision.addAgentToZone(child);
 	}
 	public Agent mate(Agent agent) {
@@ -111,8 +112,8 @@ public class AgentManager<AgentClass extends Agent> {
 		
 		child.inherit(agent);
 
-		child.pos = agent.oldPos;
-		child.oldPos = agent.oldPos;
+		child.pos.set(agent.old);
+		child.old.set(agent.old);
 		child.parent = agent;
 		vision.addAgentToZone(child);
 
@@ -149,8 +150,7 @@ public class AgentManager<AgentClass extends Agent> {
 		numAgents--;
 		toDie.add(agent);
 
-		world.removeAgentFromContainsAgents(agent);
-		vision.removeAgentFromZone(agent, diedNaturally);
+		vision.removeAgentFromZone(agent, false);
 	}
 
 	public int getNumAgents() {

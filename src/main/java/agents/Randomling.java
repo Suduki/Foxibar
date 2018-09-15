@@ -32,8 +32,8 @@ public class Randomling extends Agent {
 	}
 
 	@Override
-	protected int think() {
-		return Constants.RANDOM.nextInt(4);
+	protected void think() {
+		randomWalk();
 	}
 
 	@Override

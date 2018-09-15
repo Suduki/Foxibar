@@ -30,17 +30,11 @@ public class Grassler extends Agent {
 	}
 
 	@Override
-	protected int think() {
-		int bestDir = Constants.RANDOM.nextInt(4);
-		float bestGrass = 0;
-		for (int i = 0; i < 4; ++i) {
-			int tilePos = World.neighbour[i][pos];
-			if (world.grass.height[tilePos] > bestGrass) {
-				bestDir = i;
-				bestGrass = world.grass.height[tilePos];
-			}
+	protected void think() {
+		if (seekGrass()) {
+			return;
 		}
-		return bestDir;
+		randomWalk();
 	}
 
 	@Override
@@ -50,8 +44,8 @@ public class Grassler extends Agent {
 
 	@Override
 	protected void interactWith(Agent agent) {
-		agent.health -= getFightSkill();
-		health -= agent.getFightSkill();
+//		agent.health -= getFightSkill();
+//		health -= agent.getFightSkill();
 	}
 
 }
