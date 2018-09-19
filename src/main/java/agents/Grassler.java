@@ -1,6 +1,7 @@
 package agents;
 
 import constants.Constants;
+import vision.Vision;
 import world.World;
 
 public class Grassler extends Agent {
@@ -24,17 +25,35 @@ public class Grassler extends Agent {
 		}		
 	}
 
+	private float speed = 1f;
 	@Override
 	protected float getSpeed() {
-		return 1f;
+		return speed;
 	}
 
 	@Override
-	protected void think() {
-		if (seekGrass()) {
-			return;
+	protected int think() {
+		if (seekPredator()) {
+			speed = 0.7f;
+			return 0;
 		}
+		if (seekGrass(vel) > 0.05f) {
+			speed = stomach.minSpeed;
+			return 0;
+		}
+		speed = stomach.minSpeed;
 		randomWalk();
+		return 0;
+	}
+	
+	private boolean seekPredator() {
+		for (Agent a : nearbyAgents) {
+			if (a != null && !(a instanceof Grassler)) {
+				turnAwayFrom(a);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -43,9 +62,13 @@ public class Grassler extends Agent {
 	}
 
 	@Override
-	protected void interactWith(Agent agent) {
-//		agent.health -= getFightSkill();
-//		health -= agent.getFightSkill();
+	protected void actionUpdate() {
+		think();
+		move();
+		harvestGrass();
 	}
 
+	protected void interactWith(Agent agent) {
+		System.err.println("interactWith not implemented for Grassler");
+	}
 }

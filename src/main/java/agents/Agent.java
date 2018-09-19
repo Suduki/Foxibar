@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 
 import constants.Constants;
+import vision.Vision;
 import world.World;
 
 public abstract class Agent {
 
 	public static final int MAX_AGE = 3000;
 	public static final float BIRTH_HUNGER_COST = 10/Stomach.FAT_TO_ENERGY_FACTOR;
+	protected static final float REACH = 1;
 
 	public float[] color, secondaryColor;
 
@@ -40,8 +42,6 @@ public abstract class Agent {
 
 	public Agent[] nearbyAgents;
 	public float[] nearbyAgentsDistance;
-	public Agent closestAgent;
-	public float closestAgentDistance;
 
 	protected ArrayList<Agent> children;
 	Agent parent;
@@ -49,7 +49,7 @@ public abstract class Agent {
 	float recover;
 
 	public Stomach stomach;
-	private int timeBetweenBabies = 40;
+	private int timeBetweenBabies = 80;
 
 	private boolean starving;
 
@@ -59,8 +59,6 @@ public abstract class Agent {
 	public boolean printStuff;
 
 	public Agent(float health, World world, AgentManager agentManager) {
-		age = 0;
-		trueAge = 0;
 		this.health = health;
 		
 		pos = new Vector2f();
@@ -101,12 +99,10 @@ public abstract class Agent {
 		if (timeToMove()) {
 			moved = true;
 			actionUpdate();
-			internalOrgansUpdate();
 			makeBaby();
 		}
-		else {
-			internalOrgansUpdate();
-		}
+		
+		internalOrgansUpdate();
 
 		return isAlive;
 	}
@@ -177,7 +173,7 @@ public abstract class Agent {
 		}
 	}
 
-	private void move() {
+	protected void move() {
 		old.set(pos);
 		pos.add(vel);
 		World.wrap(pos, Constants.WORLD_SIZE_V);
@@ -185,32 +181,27 @@ public abstract class Agent {
 		agentManager.vision.updateAgentZone(this);
 	}
 
-
+	protected abstract void actionUpdate();
+	
 	protected void interact() {
-		if (closestAgent != null && closestAgent != this && closestAgentDistance < 1f) {
-			interactWith(closestAgent);
+		for (int i = 0; i < nearbyAgents.length; ++i) {
+			if (nearbyAgents[i] == this) System.err.println("This agent is added to nearbyAgents, should never happen.");
+			Agent a = nearbyAgents[i];
+			if (a == null || Vision.calculateCircularDistance(pos, a.pos) > REACH) {
+				break;
+			}
+			interactWith(a);
 		}
 	}
 
-	private void actionUpdate() {
-		think(); // direction points to a tile position where to move.
-		interact();
-		move();
-		harvest();
-	}
 	private void internalOrgansUpdate() {
-		if (stomach.stepStomach()) {
-			starving = false;
-		}
-		else {
-			starving = true;
-		}
+		starving = !stomach.stepStomach();
 		if(!age()) {
 			return;
 		}
-		stepFertility();
 
 		if (!starving) {
+			stepFertility();
 			grow();
 			heal();
 		}
@@ -218,13 +209,13 @@ public abstract class Agent {
 			starve();
 		}
 		checkHealth();
-
 	}
 
 	/**
 	 * Sets vel
+	 * @return 
 	 */
-	protected abstract void think();
+	protected abstract int think();
 
 	/**
 	 * Increases age. 
@@ -239,29 +230,46 @@ public abstract class Agent {
 		}
 		return true;
 	}
+	protected void attack(Agent a) {
+		if (Vision.calculateCircularDistance(pos, a.pos) < REACH) {
+			fightWith(a);
+		}
+	}
+	
+	protected void fightWith(Agent agent) {
+		agent.health -= getFightSkill();
+	}
+
+	protected void turnAwayFrom(Agent a) {
+		Vision.getDirectionOf(vel, a.pos, pos);
+	}
+	
+	protected void turnTowards(Agent a) {
+		Vision.getDirectionOf(vel, pos, a.pos);
+	}
 	
 	/**
 	 * Updates vel accordingly
 	 * @return whether we've found blood
 	 */
-	protected boolean seekBlood() {
-		return world.blood.seekHeight(0, vel, (int)pos.x, (int)pos.y);
+	protected float seekBlood(Vector2f dir) {
+		return world.blood.seekHeight(dir, (int)pos.x, (int)pos.y);
 	}
 	
 	/**
 	 * Updates vel accordingly
 	 * @return whether we've found fat
 	 */
-	protected boolean seekFat() {
-		return world.fat.seekHeight(0, vel, (int)pos.x, (int)pos.y);
+	protected float seekFat(Vector2f dir) {
+		return world.fat.seekHeight(dir, (int)pos.x, (int)pos.y);
 	}
 	
 	/**
 	 * Updates vel accordingly
 	 * @return whether we've found grass
 	 */
-	protected boolean seekGrass() {
-		return world.grass.seekHeight(0.05f, vel, (int)pos.x, (int)pos.y);
+	protected float seekGrass(Vector2f dir) {
+		return world.grass.seekHeight(dir, (int)pos.x, (int)pos.y);
 	}
 	
 	private final static float TWO_PI = (float)Math.PI * 2;
@@ -272,45 +280,15 @@ public abstract class Agent {
 	}
 
 	protected abstract float getFightSkill();
-
-	protected float getHarvestRatio() {
-		if (stomach.p > 0) {return 1;}
-		else { return 0;}
+	protected final float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
+	
+	protected void harvestBlood() {
+		stomach.addFat(world.fat.harvest(harvestSkill, (int) pos.x, (int) pos.y));
+		stomach.addBlood(world.blood.harvest(harvestSkill, (int) pos.x, (int) pos.y));
 	}
-
-	protected void harvest() {
-		float harvestRatio = getHarvestRatio();
-		float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
-		float amountHarvestedSoFar = world.fat.harvest(harvestSkill, (int) pos.x, (int) pos.y);
-		stomach.addFat(amountHarvestedSoFar);
-		if (harvestRatio > 0) {
-			// Harvest fiber
-			if (harvestSkill > amountHarvestedSoFar) {
-				float tmp = world.grass.harvest(harvestSkill - amountHarvestedSoFar, (int) pos.x, (int) pos.y);
-				stomach.addFiber(tmp);
-				amountHarvestedSoFar += tmp;
-			}
-			// Harvest blood
-			if (harvestSkill > amountHarvestedSoFar) {
-				float tmp = world.blood.harvest(harvestSkill - amountHarvestedSoFar, (int) pos.x, (int) pos.y);
-				stomach.addFiber(tmp);
-				amountHarvestedSoFar += tmp;
-			}
-		}
-		else {
-			// Harvest blood
-			if (harvestSkill > amountHarvestedSoFar) {
-				float tmp = world.blood.harvest(harvestSkill - amountHarvestedSoFar, (int) pos.x, (int) pos.y);
-				stomach.addBlood(tmp);
-				amountHarvestedSoFar += tmp;
-			}
-			// Harvest fiber
-			if (harvestSkill > amountHarvestedSoFar) {
-				float tmp = world.grass.harvest(harvestSkill - amountHarvestedSoFar, (int) pos.x, (int) pos.y);
-				stomach.addFiber(tmp);
-				amountHarvestedSoFar += tmp;
-			}
-		}
+	protected void harvestGrass() {
+		stomach.addFat(world.fat.harvest(harvestSkill, (int) pos.x, (int) pos.y));
+		stomach.addFiber(world.grass.harvest(harvestSkill, (int) pos.x, (int) pos.y));
 	}
 
 	protected void grow() {
@@ -332,11 +310,9 @@ public abstract class Agent {
 	}
 
 	protected void die() {
-		if (age > 100) {
-			world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size);
-			world.fat.append((int) pos.x, (int) pos.y, stomach.fat);
-			world.grass.append((int) pos.x, (int) pos.y, stomach.fiber);
-		}
+		world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size);
+		world.fat.append((int) pos.x, (int) pos.y, stomach.fat);
+		world.grass.append((int) pos.x, (int) pos.y, stomach.fiber);
 		//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
 		//				+ ", age=" + age + ", score = " + score);
 
@@ -356,7 +332,7 @@ public abstract class Agent {
 		return getFightSkill() < nearbyAnimalId.getFightSkill();
 	}
 
-	protected boolean isFriendWith(Agent animal) {
+	protected boolean isSameClassAs(Agent animal) {
 		return this.getClass() == animal.getClass();
 	}
 
@@ -379,7 +355,7 @@ public abstract class Agent {
 	 * 
 	 * @return random number between [-1, 1]
 	 */
-	protected static float rand() {
+	protected static float rand() { //TODO: Move to util class
 		return 2*Constants.RANDOM.nextFloat() - 1;
 	}
 

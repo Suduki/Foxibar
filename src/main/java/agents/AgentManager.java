@@ -31,9 +31,9 @@ public class AgentManager<AgentClass extends Agent> {
 				dead.add(pool[id]);
 			}
 		}
-		else if (clazz == Animal.class) {
+		else if (clazz == Brainler.class) {
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-				pool[id] = (AgentClass) new Animal(0, world, (AgentManager<Agent>) this);
+				pool[id] = (AgentClass) new Brainler(0, world, (AgentManager<Agent>) this);
 				dead.add(pool[id]);
 			}
 		}

@@ -13,7 +13,7 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
 import agents.Agent;
-import agents.Animal;
+import agents.Brainler;
 import constants.Constants;
 import gpu.VAO;
 import gpu.FBO;

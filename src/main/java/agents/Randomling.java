@@ -5,7 +5,7 @@ import world.World;
 
 public class Randomling extends Agent {
 
-	public float speed = 1f;
+	private float speed = 1f;
 	
 	public Randomling(float health, World world, AgentManager<Agent> agentManager) {
 		super(health, world, agentManager);
@@ -32,8 +32,9 @@ public class Randomling extends Agent {
 	}
 
 	@Override
-	protected void think() {
+	protected int think() {
 		randomWalk();
+		return 0;
 	}
 
 	@Override
@@ -43,8 +44,13 @@ public class Randomling extends Agent {
 
 	@Override
 	protected void interactWith(Agent agent) {
-		agent.health -= getFightSkill();
-		health -= agent.getFightSkill();
+	}
+
+	@Override
+	protected void actionUpdate() {
+		think();
+		move();
+		harvestGrass();
 	}
 
 }

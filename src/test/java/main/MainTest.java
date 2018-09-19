@@ -5,16 +5,16 @@ import static org.junit.Assert.*;
 import org.junit.Assert;
 import org.junit.Test;
 
-import agents.Animal;
+import agents.Brainler;
 
 
 public class MainTest {
 	
 	@Test
 	public void speciesTest() {
-		Animal a = new Animal(0, null, null);
+		Brainler a = new Brainler(0, null, null);
 		a.inherit(null);
-		Animal b = new Animal(0, null, null);
+		Brainler b = new Brainler(0, null, null);
 		
 		b.inherit(null);
 		Assert.assertFalse(a.isCloselyRelated(b));

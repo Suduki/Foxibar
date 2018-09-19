@@ -9,7 +9,7 @@ import java.util.List;
 
 import agents.Agent;
 import agents.AgentManager;
-import agents.Animal;
+import agents.Brainler;
 import buttons.Button;
 import constants.Constants;
 import gui.KeyboardState;

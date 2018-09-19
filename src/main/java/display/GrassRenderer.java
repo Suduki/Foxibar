@@ -17,7 +17,7 @@ import org.joml.Vector3f;
 
 import agents.Agent;
 import agents.AgentManager;
-import agents.Animal;
+import agents.Brainler;
 import world.Terrain;
 import world.World;
 import constants.Constants;

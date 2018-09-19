@@ -8,7 +8,7 @@ import vision.Vision;
 import world.World;
 
 public class Bloodling extends Agent {
-
+	
 	public Bloodling(float health, World world, AgentManager agentManager) {
 		super(health, world, agentManager);
 		color = Constants.Colors.WHITE;
@@ -21,41 +21,19 @@ public class Bloodling extends Agent {
 		if (a != null && !(a instanceof Bloodling)) {
 			System.err.println("inheriting non-Bloodling");
 		}
-		else {
-			
-		}
 	}
 
+	private float speed = 1f;
 	@Override
 	protected float getSpeed() {
-		return 1;
+		return speed;
 	}
 
+	private Agent prey;
 	@Override
-	protected void think() {
-		// Seek partner
-//		if (isFertileAndNotHungry()) {
-//			if (seekPartner()) {
-//				return;
-//			}
-//		}
-		
-		// Seek Blood
-		if (seekBlood()) {
-			return;
-		}
-		
-		// Seek prey
-		if (seekPrey()) {
-			return;
-		}
-		
-		// Friendlers are unattractive
-		if (seekFriend()) {
-			return;
-		}
-		
-		randomWalk();
+	protected int think() {
+		System.err.println("not implemented think for bloodling");
+		return 0;
 	}
 	
 	/**
@@ -63,38 +41,53 @@ public class Bloodling extends Agent {
 	 * @return whether we've found prey
 	 */
 	private boolean seekPrey() {
+		prey = null;
 		for (Agent a : nearbyAgents) {
 			if (a != null && !(a instanceof Bloodling)) {
-				Vision.getDirectionOf(vel, pos, a.pos);
+				prey = a;
 				return true;
 			}
 		}
 		return false;
 	}
 	
-	private boolean seekFriend() {
-		for (Agent a : nearbyAgents) {
-			if (a != null && (a instanceof Bloodling)) {
-				//NOTE: Flipped the order of pos <=> bestAgent.pos to get the opposite effect
-				Vision.getDirectionOf(vel, a.pos, pos);
-				return true;
-			}
-		}
-		return false;
-	}
-
 	@Override
 	protected float getFightSkill() {
 		return 1f;
 	}
-
+	
 	@Override
 	protected void interactWith(Agent agent) {
-		if (agent instanceof Bloodling) {
+		if (agent != null) {
+			attack(agent);
 		}
-		else {
-			agent.health -= getFightSkill();
+	}
+
+	@Override
+	protected void actionUpdate() {
+		// Seek Blood
+		float blood = seekBlood(vel);
+		if (blood > 0.1f) {
+			speed = 1;
+			move();
+			harvestBlood();
+			return;
 		}
+		
+		// Seek prey
+		seekPrey();
+		if (prey != null) {
+			speed = 1f;
+			turnTowards(prey);
+			move();
+			attack(prey);
+			return;
+		}
+		
+		speed = Stomach.minSpeed;
+		randomWalk();
+		move();
+		return;
 	}
 
 }

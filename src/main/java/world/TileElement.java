@@ -8,7 +8,7 @@ public abstract class TileElement {
 	public float[] color;
 	
 	public void append(int posX, int posY, float amount) {
-		if (amount < 0) return;
+		if (amount <= 0) return;
 
 		// This tile
 		int x = posX;
@@ -18,14 +18,14 @@ public abstract class TileElement {
 			height[x][y] = 1f;
 		}
 		
-		x = World.west(x);
+		x = World.west(posX);
 		y = posY;
 		height[x][y] += amount/5;
 		if (height[x][y] > 1f) {
 			height[x][y] = 1f;
 		}
 		
-		x = World.east(x);
+		x = World.east(posX);
 		y = posY;
 		height[x][y] += amount/5;
 		if (height[x][y] > 1f) {
@@ -49,11 +49,11 @@ public abstract class TileElement {
 	
 	public abstract float harvest(float amount, int x, int y);
 	
-	public boolean seekHeight(float limit, Vector2f dir, int posX, int posY) {
+	public float seekHeight(Vector2f dir, int posX, int posY) {
 		
 		int bestDirX = -1;
 		int bestDirY = -1;
-		float best = limit;
+		float best = 0;
 		
 		// This tile
 		int x = posX;
@@ -64,7 +64,7 @@ public abstract class TileElement {
 			bestDirY = y;
 		}
 		
-		x = World.west(x);
+		x = World.west(posX);
 		y = posY;
 		if (height[x][y] > best) {
 			best = height[x][y];
@@ -72,7 +72,7 @@ public abstract class TileElement {
 			bestDirY = y;
 		}
 		
-		x = World.east(x);
+		x = World.east(posX);
 		y = posY;
 		if (height[x][y] > best) {
 			best = height[x][y];
@@ -96,11 +96,13 @@ public abstract class TileElement {
 			bestDirY = y;
 		}
 		
-		if (best > limit) {
-			dir.x = bestDirX - x;
-			dir.y = bestDirY - y;
-			return true;
+		if (best > 0) {
+			dir.set(bestDirX - posX, bestDirY - posY);
+			if (dir.length() > 1f) {
+				dir.normalize();
+			}
+			return best;
 		}
-		return false;
+		return 0;
 	}
 }

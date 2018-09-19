@@ -36,7 +36,7 @@ public class Stomach {
 	private float grassFunction(float p2) {
 		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
-	private static final float MAX_B = 5f;
+	private static final float MAX_B = 1f;
 	private float bloodFunction(float p2) {
 		return (float) (a(MAX_B)*p2*p2 + b(MAX_B) * p2 + c(MAX_B));
 	}
@@ -133,7 +133,7 @@ public class Stomach {
 	}
 
 	static final float minSpeed = 0.5f;
-	private static final float energyCostAtMaxSpeed = 3f;
+	private static final float energyCostAtMaxSpeed = 5f;
 	public void addRecoverCost(float speed) {
 		float c = energyCostAtMaxSpeed / (-1 + 1/minSpeed);
 		float b = -2 * c;

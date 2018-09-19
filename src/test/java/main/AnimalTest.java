@@ -4,14 +4,14 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import agents.Animal;
+import agents.Brainler;
 import constants.Constants;
 
 public class AnimalTest {
 
 	@Test
 	public void ageTest() {
-		Animal a = new Animal(0, null, null);
+		Brainler a = new Brainler(0, null, null);
 		a.age = 0;
 		a.trueAge = 0;
 		a.isAlive = true;
@@ -25,7 +25,7 @@ public class AnimalTest {
 
 	}
 	
-	private void verifyAge(Animal a) {
+	private void verifyAge(Brainler a) {
 		assertTrue(a.age > 0);
 		assertTrue(a.trueAge > 0);
 		assertTrue(a.isAlive == true);

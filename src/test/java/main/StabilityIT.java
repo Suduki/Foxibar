@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import agents.Agent;
 import agents.AgentManager;
-import agents.Animal;
+import agents.Brainler;
 import agents.Bloodling;
 import agents.Grassler;
 import agents.Randomling;
@@ -20,14 +20,15 @@ public class StabilityIT {
 	
 	private static final int RANDOMLING = 0;
 	private static final int BLOODLING = 1;
-	private static final int ANIMAL = 2;
+	private static final int BRAINLER = 2;
 	private static final int GRASSLER = 3;
+	private static final String[] AGENT_TYPES_NAMES = new String[]{"Randomling", "Bloodling", "Brainler", "Grassler"};
 	
 	private static int timeStep = 1;
 
 	@BeforeClass
 	public static <T extends Agent> void init() {
-		simulation     = new Simulation(new Class[] {Randomling.class, Bloodling.class, Animal.class, Grassler.class});
+		simulation     = new Simulation(new Class[] {Randomling.class, Bloodling.class, Brainler.class, Grassler.class});
 		System.out.println("Before class completed");
 	}
 	
@@ -41,7 +42,7 @@ public class StabilityIT {
 		testWorldPopulated(BLOODLING);
 		cleanup();
 		System.out.println("Testing Animal");
-		testWorldPopulated(ANIMAL);
+		testWorldPopulated(BRAINLER);
 		cleanup();
 		System.out.println("Testing Grassler");
 		testWorldPopulated(GRASSLER);
@@ -52,22 +53,18 @@ public class StabilityIT {
 	@Test
 	public void test2Survivability () {
 		System.out.println("Initiating testSurvivability");
-		System.out.println("Testing Randomling");
 		testSurvivability(RANDOMLING, 1000);
 		verifyWorldNotEmpty();
 		cleanup();
 		
-		System.out.println("Testing Bloodling");
 		testSurvivability(BLOODLING, 1000);
 		verifyWorldEmpty();
 		cleanup();
 		
-		System.out.println("Testing Animal");
-		testSurvivability(ANIMAL, 1000);
+		testSurvivability(BRAINLER, 1000);
 		verifyWorldNotEmpty();
 		cleanup();
 		
-		System.out.println("Testing Grassler");
 		testSurvivability(GRASSLER, 1000);
 		verifyWorldNotEmpty();
 		cleanup();
@@ -80,23 +77,25 @@ public class StabilityIT {
 		System.out.println("Initiating testMultipleAgentTypes");
 		System.out.println("Testing Randomling and Bloodling");
 		testSurvivability(RANDOMLING, 1000);
+		int maxNumRandomlings = 0;
+		int maxNumBloodlings = 0;
 		simulation.spawnRandomAgents(BLOODLING, 100);
 		for (int t = 0; t < 6000; t++) {
 			simulation.step(timeStep++);
+			if (maxNumBloodlings < simulation.getNumAgents(BLOODLING)) {
+				maxNumBloodlings = simulation.getNumAgents(BLOODLING);
+			}
+			if (maxNumRandomlings < simulation.getNumAgents(RANDOMLING)) {
+				maxNumRandomlings = simulation.getNumAgents(RANDOMLING);
+			}
 			if (simulation.getNumAgents(BLOODLING) == 0) {
 				System.out.println("Bloodlings died after " + t + " time steps.");
+				System.out.println("Num Randomlings alive = " + simulation.getNumAgents(RANDOMLING));
 				break;
 			}
 		}
-		
-		// Expect either both specieses survived or none.
-		if (simulation.getNumAgents(BLOODLING) == 0) {
-			verifyWorldEmpty();
-		}
-		else {
-			verifyWorldNotEmpty();
-		}
-		
+		System.out.println("Max number of Randomlings: " + maxNumRandomlings);
+		System.out.println("Max number of Bloodlings: " + maxNumBloodlings);
 		cleanup();
 		System.out.println("Test case testMultipleAgentTypes completed.");
 	}
@@ -116,9 +115,9 @@ public class StabilityIT {
 	
 	@Test //TODO: MOVE
 	public void test4SpeciesTest() {
-		Animal a = new Animal(0, null, null);
+		Brainler a = new Brainler(0, null, null);
 		a.inherit(null);
-		Animal b = new Animal(0, null, null);
+		Brainler b = new Brainler(0, null, null);
 		
 		b.inherit(null);
 		Assert.assertFalse(a.isCloselyRelated(b));
@@ -138,11 +137,14 @@ public class StabilityIT {
 	/////////////
 	
 	private void testSurvivability(int agentType, int simTime) {
+		System.out.println("Testing survivability of " + AGENT_TYPES_NAMES[agentType]);
 		simulation.spawnRandomAgents(agentType, 500);
-		for (int t = 0; t < simTime; t++) {
+		int t;
+		for (t = 0; t < simTime; t++) {
 			simulation.step(timeStep++);
 			if (simulation.agentManagers.get(agentType).numAgents == 0) break;
 		}
+		System.out.println(AGENT_TYPES_NAMES[agentType] + " Survivability test completed after " + t + " time steps");
 	}
 	
 	private void testWorldPopulated(int agentType) {

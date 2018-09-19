@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import agents.Animal;
+import agents.Brainler;
 import agents.NeuralNetwork;
 import constants.Constants;
 import world.World;

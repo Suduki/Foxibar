@@ -68,8 +68,6 @@ public class Vision {
 					}
 				}
 			}
-			a.closestAgent = a.nearbyAgents[0];
-			a.closestAgentDistance = a.nearbyAgentsDistance[0];
 		}
 	}
 	
