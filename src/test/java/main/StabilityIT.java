@@ -2,6 +2,7 @@ package main;
 
 import java.util.ArrayList;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import agents.Brainler;
 import agents.Bloodling;
 import agents.Grassler;
 import agents.Randomling;
+import constants.Constants;
 import simulation.Simulation;
 import vision.Vision;
 
@@ -27,11 +29,34 @@ public class StabilityIT {
 	private static int timeStep = 1;
 
 	@BeforeClass
-	public static <T extends Agent> void init() {
+	public static void init() {
 		simulation     = new Simulation(new Class[] {Randomling.class, Bloodling.class, Brainler.class, Grassler.class});
 		System.out.println("Before class completed");
 	}
 	
+	@AfterClass
+	public static void after() {
+		sanityCheck();
+		System.out.println("Tests finished.");
+	}
+	
+	private static void sanityCheck() {
+		float[][] blood = simulation.mWorld.blood.height;
+		float[][] grass = simulation.mWorld.grass.height;
+		float[][] fat = simulation.mWorld.fat.height;
+		
+		for (int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
+			for (int y = 0; y < Constants.WORLD_SIZE_Y; ++y) {
+				Assert.assertTrue("Expected blood height to be positive and not too large, it was " + blood[x][y] + " at x="+x+" y="+y,
+						blood[x][y]>=0 && blood[x][y]<10);
+				Assert.assertTrue("Expected grass height to be positive and not too large, it was " + grass[x][y] + " at x="+x+" y="+y,
+						grass[x][y]>=0 && grass[x][y]<10);
+				Assert.assertTrue("Expected fat height to be positive and not too large, it was " + fat[x][y] + " at x="+x+" y="+y,
+						fat[x][y]>=0 && fat[x][y]<10);
+			}
+		}
+	}
+
 	@Test
 	public void test1WorldPopulated() {
 		System.out.println("Initiating testWorldPopulated");
@@ -53,19 +78,19 @@ public class StabilityIT {
 	@Test
 	public void test2Survivability () {
 		System.out.println("Initiating testSurvivability");
-		testSurvivability(RANDOMLING, 1000);
+		testSurvivability(RANDOMLING, 500, 1000);
 		verifyWorldNotEmpty();
 		cleanup();
 		
-		testSurvivability(BLOODLING, 1000);
+		testSurvivability(BLOODLING, 500, 1000);
 		verifyWorldEmpty();
 		cleanup();
 		
-		testSurvivability(BRAINLER, 1000);
+		testSurvivability(BRAINLER, 500, 1000);
 		verifyWorldNotEmpty();
 		cleanup();
 		
-		testSurvivability(GRASSLER, 1000);
+		testSurvivability(GRASSLER, 500, 1000);
 		verifyWorldNotEmpty();
 		cleanup();
 		
@@ -74,32 +99,15 @@ public class StabilityIT {
 	
 	@Test
 	public void test3MultipleAgentTypes() {
-		System.out.println("Initiating testMultipleAgentTypes");
-		System.out.println("Testing Randomling and Bloodling");
-		testSurvivability(RANDOMLING, 1000);
-		int maxNumRandomlings = 0;
-		int maxNumBloodlings = 0;
-		simulation.spawnRandomAgents(BLOODLING, 100);
-		for (int t = 0; t < 6000; t++) {
-			simulation.step(timeStep++);
-			if (maxNumBloodlings < simulation.getNumAgents(BLOODLING)) {
-				maxNumBloodlings = simulation.getNumAgents(BLOODLING);
-			}
-			if (maxNumRandomlings < simulation.getNumAgents(RANDOMLING)) {
-				maxNumRandomlings = simulation.getNumAgents(RANDOMLING);
-			}
-			if (simulation.getNumAgents(BLOODLING) == 0) {
-				System.out.println("Bloodlings died after " + t + " time steps.");
-				System.out.println("Num Randomlings alive = " + simulation.getNumAgents(RANDOMLING));
-				break;
-			}
-		}
-		System.out.println("Max number of Randomlings: " + maxNumRandomlings);
-		System.out.println("Max number of Bloodlings: " + maxNumBloodlings);
+		testMultipleAgents(RANDOMLING, BLOODLING);
 		cleanup();
-		System.out.println("Test case testMultipleAgentTypes completed.");
+		testMultipleAgents(BRAINLER, BLOODLING);
+		cleanup();
+		testMultipleAgents(GRASSLER, BLOODLING);
+		cleanup();
 	}
 	
+
 	@Test
 	public void walkTest() {
 		verifyWorldEmpty();
@@ -130,13 +138,52 @@ public class StabilityIT {
 		}
 		Assert.assertFalse(a.isCloselyRelated(b));
 	}
-
+	
 
 	/////////////
 	// HELPERS //
 	/////////////
+	private void testMultipleAgents(int type1, int type2) {
+		System.out.println("Initiating testMultipleAgentTypes");
+		System.out.println("Testing " + AGENT_TYPES_NAMES[type1] + " and " + AGENT_TYPES_NAMES[type2]);
+		int initNumAgents1 = 350;
+		int initNumAgents2 = 50;
+		testSurvivability(type1, 10000, initNumAgents1);
+		int maxNumType1 = 0;
+		int maxNumType2 = 0;
+		simulation.spawnRandomAgents(type2, initNumAgents2);
+		int t;
+		for (t = 0; t < 6000; t++) {
+			simulation.step(timeStep++);
+			if (maxNumType2 < simulation.getNumAgents(type2)) {
+				maxNumType2 = simulation.getNumAgents(type2);
+			}
+			if (maxNumType1 < simulation.getNumAgents(type1)) {
+				maxNumType1 = simulation.getNumAgents(type1);
+			}
+			if (simulation.getNumAgents(type1) == 0) {
+				System.out.println(AGENT_TYPES_NAMES[type1] + " died after " + t + " time steps.");
+				System.out.println("Num " + AGENT_TYPES_NAMES[type2] + " alive = " + simulation.getNumAgents(type2));
+				break;
+			}
+			if (simulation.getNumAgents(type2) == 0) {
+				System.out.println(AGENT_TYPES_NAMES[type2] + " died after " + t + " time steps.");
+				System.out.println("Num " + AGENT_TYPES_NAMES[type1] + " alive = " + simulation.getNumAgents(type1));
+				break;
+			}
+		}
+		System.out.println("Max number of " + AGENT_TYPES_NAMES[type1] + ": " + maxNumType1);
+		System.out.println("Max number of " + AGENT_TYPES_NAMES[type2] + ": " + maxNumType2);
+		cleanup();
+		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type1] + " populations size to increase.", maxNumType1 > initNumAgents1);
+		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type2] + " populations size to increase.", maxNumType2 > initNumAgents2);
+		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type1] + " to survive longer.", t > 200);
+		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type2] + " to survive longer.", t > 200);
+		
+		System.out.println("Test case testMultipleAgentTypes completed.");
+	}
 	
-	private void testSurvivability(int agentType, int simTime) {
+	private void testSurvivability(int agentType, int simTime, int numInit) {
 		System.out.println("Testing survivability of " + AGENT_TYPES_NAMES[agentType]);
 		simulation.spawnRandomAgents(agentType, 500);
 		int t;

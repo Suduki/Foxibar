@@ -1,6 +1,7 @@
 package agents;
 
 public class NeuralFactors {
+	
 	public static final class in {
 		public static int NUM_FACTORS  				= 0;
 		public static final int HUNGER 				= NUM_FACTORS++;
@@ -22,4 +23,5 @@ public class NeuralFactors {
 		public static final int SPEED 				= 6;
 		public static final int NUM_FACTORS  		= 7;
 	}
+
 }

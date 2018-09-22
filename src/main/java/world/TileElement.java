@@ -9,6 +9,7 @@ public abstract class TileElement {
 	
 	public void append(int posX, int posY, float amount) {
 		if (amount <= 0) return;
+		if (amount > 100) System.err.println("High amount added to TileElement");
 
 		// This tile
 		int x = posX;

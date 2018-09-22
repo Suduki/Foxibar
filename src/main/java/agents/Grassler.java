@@ -33,23 +33,15 @@ public class Grassler extends Agent {
 
 	@Override
 	protected int think() {
-		if (seekPredator()) {
-			speed = 0.7f;
-			return 0;
-		}
-		if (seekGrass(vel) > 0.05f) {
-			speed = stomach.minSpeed;
-			return 0;
-		}
-		speed = stomach.minSpeed;
-		randomWalk();
+		System.err.println("think not implemented for grassler");
 		return 0;
 	}
 	
-	private boolean seekPredator() {
+	private Agent predator;
+	private boolean seekPredator() { //TODO: Same code as stranger in Brainler
 		for (Agent a : nearbyAgents) {
 			if (a != null && !(a instanceof Grassler)) {
-				turnAwayFrom(a);
+				predator = a;
 				return true;
 			}
 		}
@@ -63,9 +55,29 @@ public class Grassler extends Agent {
 
 	@Override
 	protected void actionUpdate() {
-		think();
+		// Seek Predator
+		seekPredator();
+		if (predator != null) {
+			speed = 0.6f;
+			turnAwayFrom(predator);
+			move();
+			attack(predator);
+			return;
+		}
+		
+		// Seek Grass
+		float grass = seekGrass(vel);
+		if (grass > 0.1f) {
+			speed = Stomach.minSpeed;
+			move();
+			harvestGrass();
+			return;
+		}
+		
+		speed = Stomach.minSpeed;
+		randomWalk();
 		move();
-		harvestGrass();
+		return;
 	}
 
 	protected void interactWith(Agent agent) {

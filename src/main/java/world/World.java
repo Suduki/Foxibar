@@ -14,7 +14,6 @@ public class World {
 	public Terrain terrain;
 	public Grass grass;
 	public CarbonElement blood;
-	public CarbonElement fiber;
 	public CarbonElement fat;
 	public Wind wind;
 	
@@ -22,7 +21,6 @@ public class World {
 		terrain = new Terrain();
 		grass = new Grass(terrain);
 		blood = new CarbonElement(1, Constants.Colors.BLOOD, 1, Constants.Blood.DECAY_FACTOR);
-		fiber = new CarbonElement(1, Constants.Colors.TREE, 1, Constants.Blood.DECAY_FACTOR);
 		fat = new CarbonElement(1, Constants.Colors.WHITE, 1, Constants.Blood.DECAY_FACTOR);
 		wind = new Wind();
 		
@@ -35,7 +33,6 @@ public class World {
 		
 		grass.grow(timeStep, UPDATE_FREQUENCY);
 		blood.decay(timeStep, UPDATE_FREQUENCY);
-		fiber.decay(timeStep, UPDATE_FREQUENCY);
 		fat.decay(timeStep, UPDATE_FREQUENCY);
 		wind.stepWind();
 
@@ -83,10 +80,6 @@ public class World {
 		a[x][y][0] += tempColor[0];
 		a[x][y][1] += tempColor[1];
 		a[x][y][2] += tempColor[2];
-		fiber.getColor(x, y, tempColor);
-		a[x][y][0] += tempColor[0];
-		a[x][y][1] += tempColor[1];
-		a[x][y][2] += tempColor[2];
 		fat.getColor(x, y, tempColor);
 		a[x][y][0] += tempColor[0];
 		a[x][y][1] += tempColor[1];
@@ -96,7 +89,6 @@ public class World {
 	public void reset(boolean b) {
 		grass.regenerate(b);
 		blood.reset();
-		fiber.reset();
 		fat.reset();
 	}
 
