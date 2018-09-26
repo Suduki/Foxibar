@@ -1,5 +1,6 @@
 package agents;
 
+import actions.Action;
 import constants.Constants;
 import vision.Vision;
 import world.World;
@@ -25,27 +26,10 @@ public class Grassler extends Agent {
 		}		
 	}
 
-	private float speed = 1f;
+	private float speed = 0.6f;
 	@Override
 	protected float getSpeed() {
 		return speed;
-	}
-
-	@Override
-	protected int think() {
-		System.err.println("think not implemented for grassler");
-		return 0;
-	}
-	
-	private Agent predator;
-	private boolean seekPredator() { //TODO: Same code as stranger in Brainler
-		for (Agent a : nearbyAgents) {
-			if (a != null && !(a instanceof Grassler)) {
-				predator = a;
-				return true;
-			}
-		}
-		return false;
 	}
 
 	@Override
@@ -55,32 +39,29 @@ public class Grassler extends Agent {
 
 	@Override
 	protected void actionUpdate() {
-		// Seek Predator
-		seekPredator();
-		if (predator != null) {
-			speed = 0.6f;
-			turnAwayFrom(predator);
-			move();
-			attack(predator);
+		Action action = Action.fleeFromStranger;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
 			return;
 		}
 		
-		// Seek Grass
-		float grass = seekGrass(vel);
-		if (grass > 0.1f) {
-			speed = Stomach.minSpeed;
-			move();
-			harvestGrass();
+		action = Action.seekGrass;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
 			return;
 		}
 		
-		speed = Stomach.minSpeed;
-		randomWalk();
-		move();
+		action = Action.randomWalk;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
+		}
+		System.err.println("Should always be able to commit to an action");
 		return;
 	}
-
-	protected void interactWith(Agent agent) {
-		System.err.println("interactWith not implemented for Grassler");
+	
+	@Override
+	public boolean isCloselyRelatedTo(Agent a) {
+		return isSameClassAs(a);
 	}
 }

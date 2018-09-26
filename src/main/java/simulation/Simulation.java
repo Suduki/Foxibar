@@ -5,6 +5,7 @@ import world.World;
 
 import java.util.ArrayList;
 
+import actions.Action;
 import agents.Agent;
 import agents.AgentManager;
 import constants.Constants;
@@ -20,6 +21,7 @@ public class Simulation extends MessageHandler {
 	
 	public <T extends Agent> Simulation(Class<T>... classes)
 	{
+		Action.init();
 		mWorld = new World();
 		for (Class<T> clazz : classes) {
 			agentManagers.add(new AgentManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));

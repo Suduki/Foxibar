@@ -17,16 +17,16 @@ public class MainTest {
 		Brainler b = new Brainler(0, null, null);
 		
 		b.inherit(null);
-		Assert.assertFalse(a.isCloselyRelated(b));
+		Assert.assertFalse(a.isCloselyRelatedTo(b));
 		
 		b.inherit(a);
-		Assert.assertTrue(a.isCloselyRelated(b));
+		Assert.assertTrue(a.isCloselyRelatedTo(b));
 		
 		for (int gen = 0; gen < 20; gen++) {
 			b.inherit(b);
 			System.out.println(a.findRelationTo(b));
 		}
-		Assert.assertFalse(a.isCloselyRelated(b));
+		Assert.assertFalse(a.isCloselyRelatedTo(b));
 	}
 	
 

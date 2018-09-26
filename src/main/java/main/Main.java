@@ -1,6 +1,7 @@
 package main;
 
 import agents.Brainler;
+import actions.Action;
 import agents.Bloodling;
 import agents.Grassler;
 import agents.Randomling;
@@ -61,12 +62,19 @@ public class Main
 //				}
 			}
 		}
-		catch ( IllegalStateException e)
+		catch ( Exception e)
 		{
 			e.printStackTrace();
 		}
 		
+		dump();
 		System.out.println("Simulation (main) thread finished.");
+	}
+	
+	private static void dump() {
+		for (Action act : Action.acts) {
+			System.out.println(act.getClass().getSimpleName() + " " + act.numCalls);
+		}
 	}
 
 	

@@ -1,5 +1,6 @@
 package agents;
 
+import actions.Action;
 import constants.Constants;
 import world.World;
 
@@ -32,25 +33,24 @@ public class Randomling extends Agent {
 	}
 
 	@Override
-	protected int think() {
-		randomWalk();
-		return 0;
-	}
-
-	@Override
 	protected float getFightSkill() {
 		return 0f;
 	}
 
 	@Override
-	protected void interactWith(Agent agent) {
-	}
-
-	@Override
 	protected void actionUpdate() {
-		think();
-		move();
-		harvestGrass();
+		
+		Action action = Action.randomWalk;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
+		}
+		System.err.println("Should always be able to commit to an action");
+	}
+	
+	@Override
+	public boolean isCloselyRelatedTo(Agent a) {
+		return isSameClassAs(a);
 	}
 
 }

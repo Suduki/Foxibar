@@ -4,11 +4,12 @@ import java.io.Serializable;
 
 import org.joml.Vector2f;
 
+import actions.Action;
 import constants.Constants;
 
 public class NeuralNetwork implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public static final int[] LAYER_SIZES = {NeuralFactors.in.NUM_FACTORS, 5, 4, 4, NeuralFactors.out.NUM_FACTORS};
+	public static final int[] LAYER_SIZES = {NeuralFactors.in.NUM_FACTORS, 5, 4, 4, Action.getNumActions() + 1};
 	public static final int NUM_LAYERS = LAYER_SIZES.length;
 	public static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
@@ -97,15 +98,21 @@ public class NeuralNetwork implements Serializable {
 		}
 	}
 
-	public int neuralMagic() {
+	private static int asdf = 0;
+	public int neuralMagic(final Action[] actions) {
+		asdf++;
 		evaluateNeuralNetwork();
 		float bestVal = Float.NEGATIVE_INFINITY;
 		int selection = -1;
-		for (int i = 0; i < NeuralFactors.out.NUM_FACTORS-1; ++i) {
-			if (z[LAYER_SIZES.length-1][i] > bestVal) {
+		for (int i = 0; i < actions.length; ++i) {
+			if (actions[i].isPossible && z[LAYER_SIZES.length-1][i] > bestVal) {
 				bestVal = z[LAYER_SIZES.length-1][i];
 				selection = i;
 			}
+		}
+		if (selection == -1) {
+			System.err.println("selection=-1 should never be the case. "
+					+ bestVal + "  " + asdf + "  ");
 		}
 		return selection;
 	}
@@ -141,5 +148,10 @@ public class NeuralNetwork implements Serializable {
 	}
 	public float getScaledOutput(int neuralFactorId) {
 		return sigmoid(z[LAYER_SIZES.length-1][neuralFactorId]);
+	}
+
+	public float getSpeed() {
+		// A bit ugly, but what to do...
+		return z[LAYER_SIZES.length-1][Action.getNumActions()];
 	}
 }

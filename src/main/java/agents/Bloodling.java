@@ -2,6 +2,7 @@ package agents;
 
 import java.util.Random;
 
+import actions.Action;
 import constants.Constants;
 import constants.Constants.Neighbours;
 import vision.Vision;
@@ -29,65 +30,44 @@ public class Bloodling extends Agent {
 		return speed;
 	}
 
-	private Agent prey;
-	@Override
-	protected int think() {
-		System.err.println("not implemented think for bloodling");
-		return 0;
-	}
-	
-	/**
-	 * Updates vel accordingly
-	 * @return whether we've found prey
-	 */
-	private boolean seekPrey() {
-		prey = null;
-		for (Agent a : nearbyAgents) {
-			if (a != null && !(a instanceof Bloodling)) {
-				prey = a;
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	@Override
 	protected float getFightSkill() {
 		return 1f;
 	}
 	
 	@Override
-	protected void interactWith(Agent agent) {
-		if (agent != null) {
-			attack(agent);
+	protected void actionUpdate() {
+		Action action;
+		action = Action.seekBlood;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
 		}
+		
+		action = Action.huntStranger;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
+		}
+		
+		action = Action.fleeFromFriendler;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
+		}
+		
+		action = Action.randomWalk;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
+		}
+		System.err.println("Should always be able to commit to an action");
+		return;
 	}
 
 	@Override
-	protected void actionUpdate() {
-		// Seek Blood
-		float blood = seekBlood(vel);
-		if (blood > 0.1f) {
-			speed = 1;
-			move();
-			harvestBlood();
-			return;
-		}
-		
-		// Seek prey
-		seekPrey();
-		if (prey != null) {
-			speed = 1f;
-			turnTowards(prey);
-			move();
-			attack(prey);
-			return;
-		}
-		
-		speed = Stomach.minSpeed;
-		randomWalk();
-		move();
-		return;
+	public boolean isCloselyRelatedTo(Agent a) {
+		return isSameClassAs(a);
 	}
 
 }

@@ -99,9 +99,7 @@ public class World {
 		return wrap(f, Constants.WORLD_SIZE_Y);
 	}
 	public static float wrap(float a, int limMax) { //TODO: Move to util class
-		if (a < 0) {a = limMax + a;}
-		if (a >= limMax) {a -= limMax;}
-		return a;
+		return ((a % limMax) + limMax) % limMax;
 	}
 
 	public static void wrap(Vector2f pos, Vector2i limit) {//TODO: Move to util class
@@ -110,16 +108,16 @@ public class World {
 	}
 	
 	public static int west(int x) {//TODO: Move to util class
-		return (int) wrapX(x-1);
-	}
-	public static int east(int x) {//TODO: Move to util class
 		return (int) wrapX(x+1);
 	}
+	public static int east(int x) {//TODO: Move to util class
+		return (int) wrapX(x-1);
+	}
 	public static int north(int y) {//TODO: Move to util class
-		return (int) wrapY(y+1);
+		return (int) wrapY(y-1);
 	}
 	public static int south(int y) {//TODO: Move to util class
-		return (int) wrapY(y-1);
+		return (int) wrapY(y+1);
 	}
 
 

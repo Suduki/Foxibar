@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
+import actions.Action;
+import actions.ActionI;
 import constants.Constants;
 import vision.Vision;
 import world.World;
@@ -53,10 +55,13 @@ public abstract class Agent {
 
 	private boolean starving;
 
-	protected World world;
+	public World world;
 	protected AgentManager<? extends Agent> agentManager;
 	public boolean moved;
 	public boolean printStuff;
+	
+	public Agent stranger;
+	public Agent friendler;
 
 	public Agent(float health, World world, AgentManager agentManager) {
 		this.health = health;
@@ -82,7 +87,6 @@ public abstract class Agent {
 
 		this.world = world;
 		this.agentManager = agentManager;
-
 	}
 
 
@@ -173,27 +177,24 @@ public abstract class Agent {
 		}
 	}
 
-	protected void move() {
+	public void move() {
 		old.set(pos);
 		pos.add(vel);
 		World.wrap(pos, Constants.WORLD_SIZE_V);
 		
+		if (pos.x == Float.NaN) {
+			System.err.println("NaN position!!! What did you do!");
+		}
+		if (pos.x < 0 || pos.y < 0) {
+			System.err.println("Negative position!!! What did you do!");
+		}
+		
 		agentManager.vision.updateAgentZone(this);
 	}
 
+	
 	protected abstract void actionUpdate();
 	
-	protected void interact() {
-		for (int i = 0; i < nearbyAgents.length; ++i) {
-			if (nearbyAgents[i] == this) System.err.println("This agent is added to nearbyAgents, should never happen.");
-			Agent a = nearbyAgents[i];
-			if (a == null || Vision.calculateCircularDistance(pos, a.pos) > REACH) {
-				break;
-			}
-			interactWith(a);
-		}
-	}
-
 	private void internalOrgansUpdate() {
 		starving = !stomach.stepStomach();
 		if(!age()) {
@@ -212,12 +213,6 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Sets vel
-	 * @return 
-	 */
-	protected abstract int think();
-
-	/**
 	 * Increases age. 
 	 * Kills agent if too old.
 	 */
@@ -230,7 +225,7 @@ public abstract class Agent {
 		}
 		return true;
 	}
-	protected void attack(Agent a) {
+	public void attack(Agent a) {
 		if (Vision.calculateCircularDistance(pos, a.pos) < REACH) {
 			fightWith(a);
 		}
@@ -240,40 +235,28 @@ public abstract class Agent {
 		agent.health -= getFightSkill();
 	}
 
-	protected void turnAwayFrom(Agent a) {
+	public void turnAwayFrom(Agent a) {
 		Vision.getDirectionOf(vel, a.pos, pos);
 	}
 	
-	protected void turnTowards(Agent a) {
+	public void turnTowards(Agent a) {
 		Vision.getDirectionOf(vel, pos, a.pos);
 	}
 	
-	/**
-	 * Updates vel accordingly
-	 * @return whether we've found blood
-	 */
-	protected float seekBlood(Vector2f dir) {
+	public float seekBlood(Vector2f dir) {
 		return world.blood.seekHeight(dir, (int)pos.x, (int)pos.y);
 	}
 	
-	/**
-	 * Updates vel accordingly
-	 * @return whether we've found fat
-	 */
-	protected float seekFat(Vector2f dir) {
+	public float seekFat(Vector2f dir) {
 		return world.fat.seekHeight(dir, (int)pos.x, (int)pos.y);
 	}
 	
-	/**
-	 * Updates vel accordingly
-	 * @return whether we've found grass
-	 */
-	protected float seekGrass(Vector2f dir) {
+	public float seekGrass(Vector2f dir) {
 		return world.grass.seekHeight(dir, (int)pos.x, (int)pos.y);
 	}
 	
 	private final static float TWO_PI = (float)Math.PI * 2;
-	protected void randomWalk() {
+	public void randomWalk() {
 		float angle = Constants.RANDOM.nextFloat() * TWO_PI;
 		vel.x = (float) Math.cos(angle);
 		vel.y = (float) Math.sin(angle);
@@ -282,13 +265,14 @@ public abstract class Agent {
 	protected abstract float getFightSkill();
 	protected final float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
 	
-	protected void harvestBlood() {
-		stomach.addFat(world.fat.harvest(harvestSkill, (int) pos.x, (int) pos.y));
+	public void harvestBlood() {
 		stomach.addBlood(world.blood.harvest(harvestSkill, (int) pos.x, (int) pos.y));
 	}
-	protected void harvestGrass() {
-		stomach.addFat(world.fat.harvest(harvestSkill, (int) pos.x, (int) pos.y));
+	public void harvestGrass() {
 		stomach.addFiber(world.grass.harvest(harvestSkill, (int) pos.x, (int) pos.y));
+	}
+	public void harvestFat() {
+		stomach.addFat(world.fat.harvest(harvestSkill, (int) pos.x, (int) pos.y));
 	}
 
 	protected void grow() {
@@ -331,9 +315,11 @@ public abstract class Agent {
 	protected boolean looksDangerous(Agent nearbyAnimalId) {
 		return getFightSkill() < nearbyAnimalId.getFightSkill();
 	}
+	
+	public abstract boolean isCloselyRelatedTo(Agent a);
 
-	protected boolean isSameClassAs(Agent animal) {
-		return this.getClass() == animal.getClass();
+	protected boolean isSameClassAs(Agent a) {
+		return a != null && a.getClass() == this.getClass();
 	}
 
 	protected boolean isFertileAndNotHungry() {
@@ -358,7 +344,4 @@ public abstract class Agent {
 	protected static float rand() { //TODO: Move to util class
 		return 2*Constants.RANDOM.nextFloat() - 1;
 	}
-
-
-	protected abstract void interactWith(Agent agent);
 }

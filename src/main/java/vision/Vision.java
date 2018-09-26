@@ -69,8 +69,35 @@ public class Vision {
 				}
 			}
 		}
+		
+		updateStrangerAndFriendler(a);
 	}
 	
+
+	private void updateStrangerAndFriendler(Agent a) {
+		a.stranger = null;
+		a.friendler = null;
+		
+		for (int i = 0; i < a.nearbyAgents.length; ++i) {
+			Agent n = a.nearbyAgents[i];
+			if (n == null || (a.stranger != null && a.friendler == null)) {
+				break;
+			}
+			if (a.nearbyAgentsDistance[i] < 0 || Float.isNaN(a.nearbyAgentsDistance[i])) {
+				continue;
+			}
+			if (a.stranger == null) {
+				if (!a.isCloselyRelatedTo(n)) {
+					a.stranger = n;
+				}
+			}
+			if (a.friendler == null) {
+				if (a.isCloselyRelatedTo(n)) {
+					a.friendler = n;
+				}
+			}
+		}
+	}
 
 	public static float calculateCircularDistance(Vector2f pos, Vector2f pos2) {
 		return calculateCircularDistance(pos.x, pos.y, pos2.x, pos2.y);

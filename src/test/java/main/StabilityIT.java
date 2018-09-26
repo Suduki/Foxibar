@@ -98,11 +98,17 @@ public class StabilityIT {
 	}
 	
 	@Test
-	public void test3MultipleAgentTypes() {
+	public void testMultipleAgentRandomlingBloodling() {
 		testMultipleAgents(RANDOMLING, BLOODLING);
 		cleanup();
+	}
+	@Test
+	public void testMultipleAgentBrainlerBloodling() {
 		testMultipleAgents(BRAINLER, BLOODLING);
 		cleanup();
+	}
+	@Test
+	public void testMultipleAgentGrasslerBloodling() {
 		testMultipleAgents(GRASSLER, BLOODLING);
 		cleanup();
 	}
@@ -128,15 +134,15 @@ public class StabilityIT {
 		Brainler b = new Brainler(0, null, null);
 		
 		b.inherit(null);
-		Assert.assertFalse(a.isCloselyRelated(b));
+		Assert.assertFalse(a.isCloselyRelatedTo(b));
 		
 		b.inherit(a);
-		Assert.assertTrue(a.isCloselyRelated(b));
+		Assert.assertTrue(a.isCloselyRelatedTo(b));
 		
-		for (int gen = 0; gen < 20; gen++) {
+		for (int gen = 0; gen < 25; gen++) {
 			b.inherit(b);
 		}
-		Assert.assertFalse(a.isCloselyRelated(b));
+		Assert.assertFalse("Expected not related after 25 generations. relation = " + a.findRelationTo(b), a.isCloselyRelatedTo(b));
 	}
 	
 
@@ -148,7 +154,7 @@ public class StabilityIT {
 		System.out.println("Testing " + AGENT_TYPES_NAMES[type1] + " and " + AGENT_TYPES_NAMES[type2]);
 		int initNumAgents1 = 350;
 		int initNumAgents2 = 50;
-		testSurvivability(type1, 10000, initNumAgents1);
+		testSurvivability(type1, 5000, initNumAgents1);
 		int maxNumType1 = 0;
 		int maxNumType2 = 0;
 		simulation.spawnRandomAgents(type2, initNumAgents2);

@@ -3,6 +3,7 @@ package agents;
 
 import org.joml.Vector2f;
 
+import actions.Action;
 import constants.Constants;
 import vision.Vision;
 import world.World;
@@ -20,66 +21,19 @@ public class Brainler extends Agent {
 		this.secondaryColor = new float[3];
 		this.appearanceFactors = new float[NUM_APPEARANCE_FACTORS];
 	}
-
-	// static to save memory. Don't know correct WoW, just guessing.
-	private static Brainler friendler;
-	private static Agent stranger;
-	private static Vector2f grassDir = new Vector2f();
-	private static Vector2f bloodDir = new Vector2f();
-	private static Vector2f fatDir = new Vector2f();
 	
 	@Override
 	protected void actionUpdate() {
 		int action = think();
-		switch (action) {
-		case NeuralFactors.out.HARVEST_GRASS:
-			actHarvestGrass();
-			break;
-		case NeuralFactors.out.HARVEST_BLOOD:
-			actHarvestBlood();
-			break;
-		case NeuralFactors.out.FLEE_FROM_STRANGER:
-			fleeFrom(stranger);
-			break;
-		case NeuralFactors.out.FLEE_FROM_FRIENDLER:
-			fleeFrom(friendler);
-			break;
-		case NeuralFactors.out.HUNT_STRANGER:
-			hunt(stranger);
-			break;
-		case NeuralFactors.out.HUNT_FRIENDLER:
-			hunt(friendler);
-			break;
-		default:
-			break;
+		Action.acts[action].commit(this);
+	}
+	
+	private int think() {
+		for (int i = 0; i < Action.getNumActions(); ++i) {
+			Action act = Action.acts[i];
+			act.determineIfPossible(this);
 		}
-	}
-	private void actHarvestGrass() {
-		vel.set(grassDir);
-		move();
-		harvestGrass();
-
-	}
-	private void actHarvestBlood() {
-		vel.set(bloodDir);
-		move();
-		harvestBlood();
-	}
-	private void fleeFrom(Agent a) {
-		if (a == null) return;
-		turnAwayFrom(a);
-		move();
-	}
-	private void hunt(Agent a) {
-		if (a == null) return;
-		turnTowards(a);
-		move();
-		attack(a);
-	}
-	@Override
-	protected int think() {
-//
-		seekStranger();
+		
 		if (stranger != null) {
 			brain.neural.z[0][NeuralFactors.in.STRANGER] = 1f / (1f + Vision.calculateCircularDistance(pos, stranger.pos));
 		}
@@ -87,47 +41,27 @@ public class Brainler extends Agent {
 			brain.neural.z[0][NeuralFactors.in.STRANGER] = -1f;
 		}
 		
-		seekFriendler();
-		if (stranger != null) {
+		if (friendler != null) {
 			brain.neural.z[0][NeuralFactors.in.FRIENDLER] = 1f / (1f + Vision.calculateCircularDistance(pos, friendler.pos));
 		}
 		else {
 			brain.neural.z[0][NeuralFactors.in.FRIENDLER] = -1f;
 		}
 		
-		brain.neural.z[0][NeuralFactors.in.TILE_GRASS] = seekGrass(grassDir);
-		brain.neural.z[0][NeuralFactors.in.TILE_BLOOD] = seekBlood(bloodDir);
-		brain.neural.z[0][NeuralFactors.in.TILE_FAT] = seekFat(fatDir);
+		brain.neural.z[0][NeuralFactors.in.TILE_GRASS] = Action.seekGrass.grassness;
+		brain.neural.z[0][NeuralFactors.in.TILE_BLOOD] = Action.seekBlood.bloodness;
+		brain.neural.z[0][NeuralFactors.in.TILE_FAT] = Action.seekFat.fatness;
+		
+		brain.neural.z[0][NeuralFactors.in.TILE_TERRAIN_HEIGHT] = world.terrain.height[(int) pos.x][(int) pos.y];
 		
 		brain.neural.z[0][NeuralFactors.in.HUNGER] = stomach.getRelativeFullness();
 		
-		return brain.neural.neuralMagic();
-	}
-
-
-
-	private void seekFriendler() {
-		stranger = null;
-		for (Agent a : nearbyAgents) {
-			if (a != null && isCloselyRelated(a)) {
-				friendler = (Brainler)a;
-				return;
-			}
-		}
-	}
-	private void seekStranger() {
-		stranger = null;
-		for (Agent a : nearbyAgents) {
-			if (a != null && !isCloselyRelated(a)) {
-				stranger = a;
-				return;
-			}
-		}
+		return brain.neural.neuralMagic(Action.acts);
 	}
 
 	@Override
 	public void inherit(Agent a) {
-		if (a == null) {
+		if (a == null || Constants.RANDOM.nextFloat() > 0.99f) {
 			this.brain.neural.initWeightsRandom();
 			stomach.inherit(rand(), 0);
 		}
@@ -162,7 +96,8 @@ public class Brainler extends Agent {
 		}
 	}
 	
-	public boolean isCloselyRelated(Agent a) {
+	@Override
+	public boolean isCloselyRelatedTo(Agent a) {
 		if (a instanceof Brainler) {
 			return findRelationTo((Brainler) a) < 0.005f;
 		}
@@ -181,7 +116,7 @@ public class Brainler extends Agent {
 
 	@Override
 	protected float getSpeed() {
-		float brainOutput = brain.neural.getOutput(NeuralFactors.out.SPEED);
+		float brainOutput = brain.neural.getSpeed();
 		float minSpeed = Stomach.minSpeed;
 		if (brainOutput < -1) {brainOutput = -1;}
 		else if (brainOutput > 1) {brainOutput = 1;}
@@ -191,21 +126,9 @@ public class Brainler extends Agent {
 //		}
 		return speed;
 	}
-
-
-	@Override
-	protected void interactWith(Agent agent) {
-		// Not used.
-		System.err.println("interactWith not implemented for Brainler. Should not be here.");
-	}
 	
 	@Override
 	protected float getFightSkill() {
 		return 0.5f;
 	}
-	@Override
-	protected void interact() {
-		System.err.println("interact not implemented for Brainler. Should not be here.");
-	}
-
 }
