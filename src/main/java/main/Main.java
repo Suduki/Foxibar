@@ -35,7 +35,7 @@ public class Main
 
 		try
 		{
-			simulation.spawnRandomAgents(0, 100);
+			simulation.spawnRandomAgents(0, 1000);
 			int timeStep = 0;
 			while (simulation.handleMessages() && displayHandler.renderThreadThread.isAlive())
 			{

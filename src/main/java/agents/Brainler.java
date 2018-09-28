@@ -61,9 +61,10 @@ public class Brainler extends Agent {
 
 	@Override
 	public void inherit(Agent a) {
-		if (a == null || Constants.RANDOM.nextFloat() > 0.99f) {
+		if (a == null) {
 			this.brain.neural.initWeightsRandom();
 			stomach.inherit(rand(), 0);
+			inheritAppearanceFactors(null);
 		}
 		else if (!(a instanceof Brainler)) {
 			System.err.println("Trying to inherit a non-animal.");
@@ -72,8 +73,8 @@ public class Brainler extends Agent {
 		else {
 			this.brain.inherit(((Brainler)a).brain);
 			stomach.inherit(a.stomach.p, 0.1f);
+			inheritAppearanceFactors((Brainler)a);
 		}
-		inheritAppearanceFactors((Brainler)a);
 	}
 
 	public static float MUTATION = 0.04f;

@@ -7,12 +7,14 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import actions.Action;
 import agents.Agent;
 import agents.AgentManager;
 import agents.Brainler;
 import agents.Bloodling;
 import agents.Grassler;
 import agents.Randomling;
+import agents.Stomach;
 import constants.Constants;
 import simulation.Simulation;
 import vision.Vision;
@@ -145,6 +147,43 @@ public class StabilityIT {
 		Assert.assertFalse("Expected not related after 25 generations. relation = " + a.findRelationTo(b), a.isCloselyRelatedTo(b));
 	}
 	
+	@Test
+	public void testUsageOfEveryAction() {
+		cleanup();
+		Stomach.setMAX_B(0);
+		
+		verifyWorldEmpty();
+		
+		testSurvivability(BRAINLER, 5000, 500);
+		
+		float numCalls = 0;
+		numCalls = Action.getTotCalls();
+		
+		for (Action act : Action.acts) {
+			float perc = ((float) act.numCalls * 100) / numCalls;
+			System.out.println(act.getClass().getSimpleName() + ": " + perc + "%");
+		}
+		float huntStrangerProcAtNoBloodGain = ((float) Action.huntStranger.numCalls * 100) / numCalls;
+		float seekBloodProcAtNoBloodGain = ((float) Action.seekBlood.numCalls * 100) / numCalls;
+		
+		cleanup();
+		Stomach.setMAX_B(50);
+		
+		verifyWorldEmpty();
+		testSurvivability(BRAINLER, 5000, 500);
+		
+		numCalls = Action.getTotCalls();
+		
+		for (Action act : Action.acts) {
+			float perc = ((float) act.numCalls * 100) / numCalls;
+			System.out.println(act.getClass().getSimpleName() + ": " + perc + "%");
+		}
+		float huntStrangerProcAtHighBloodGain = ((float) Action.huntStranger.numCalls * 100) / numCalls;
+		float seekBloodProcAtHighBloodGain = ((float) Action.seekBlood.numCalls * 100) / numCalls;
+		
+		Assert.assertTrue(huntStrangerProcAtHighBloodGain > huntStrangerProcAtNoBloodGain);
+		Assert.assertTrue(seekBloodProcAtHighBloodGain > seekBloodProcAtNoBloodGain);
+	}
 
 	/////////////
 	// HELPERS //
@@ -195,7 +234,10 @@ public class StabilityIT {
 		int t;
 		for (t = 0; t < simTime; t++) {
 			simulation.step(timeStep++);
-			if (simulation.agentManagers.get(agentType).numAgents == 0) break;
+			if (simulation.agentManagers.get(agentType).numAgents == 0) {
+				System.out.println(AGENT_TYPES_NAMES[agentType] + "Died after " + t);
+				break;
+			}
 		}
 		System.out.println(AGENT_TYPES_NAMES[agentType] + " Survivability test completed after " + t + " time steps");
 	}
@@ -208,6 +250,8 @@ public class StabilityIT {
 	}
 
 	private void cleanup() {
+		Action.reset();
+		
 		simulation.killAllAgents();
 		simulation.step(timeStep++);
 		verifyWorldEmpty();

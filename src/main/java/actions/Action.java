@@ -44,4 +44,18 @@ public abstract class Action implements ActionI {
 	private static boolean isInitialized() {
 		return numActions != 0;
 	}
+
+	public static void reset() {
+		for (Action act : Action.acts) {
+			act.numCalls = 0;
+		}		
+	}
+
+	public static float getTotCalls() {
+		float tot = 0;
+		for (Action act : Action.acts) {
+			tot += act.numCalls;
+		}
+		return tot;
+	}
 }

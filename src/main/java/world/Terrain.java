@@ -9,8 +9,8 @@ import constants.Constants;
 import display.RenderState;
 
 public class Terrain {
-	public static final float WATER_LIMIT = 0.3f;
-	public static final float STONE_LIMIT = 0.7f;
+	public static final float WATER_LIMIT = 0.2f;
+	public static final float STONE_LIMIT = 0.8f;
 	public float[][] height;
 	public float[][] growth;
 	
