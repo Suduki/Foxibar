@@ -158,13 +158,15 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		mTestTexture   = Texture.fromFile("pics/GuiDefault.png");
 		mTestTexture.filterNearest();
 		mSkyboxTexture = new TextureCube();
+		String skyboxPath = "pics/skybox_cool/";
+		String fileType = ".jpg";
 		mSkyboxTexture.loadFacesFromFile(
-				"pics/skybox/right.png",
-				"pics/skybox/left.png",
-				"pics/skybox/top.png",
-				"pics/skybox/bottom.png",
-				"pics/skybox/front.png",
-				"pics/skybox/back.png");
+				skyboxPath + "right" + fileType,
+				skyboxPath + "left" + fileType,
+				skyboxPath + "top" + fileType,
+				skyboxPath + "bottom" + fileType,
+				skyboxPath + "front" + fileType,
+				skyboxPath + "back" + fileType);
 	}
 	
 	FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);
@@ -206,7 +208,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		float[] matrixBuffer = new float[16];
 		
 		glClearColor(0.25f,0.5f,1.0f,1); GpuUtils.GpuErrorCheck();
-	//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GpuUtils.GpuErrorCheck();
+//		glClear(GL_DEPTH_BUFFER_BIT); GpuUtils.GpuErrorCheck();
 		
 		glEnable(GL_DEPTH_TEST); GpuUtils.GpuErrorCheck();
 		glEnable(GL_CULL_FACE); GpuUtils.GpuErrorCheck();
@@ -224,7 +226,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		glUniform1f(3, 1.0f/mHeightScale);		
 		mBufferSet.bind();
 		mIndexVbo.bind();
-		//glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
+//		glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
 
 		if (mRain > 0) { // TODO: This means "draw water"...
 			glDepthFunc(GL_LESS);
