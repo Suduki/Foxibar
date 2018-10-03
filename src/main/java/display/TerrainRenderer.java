@@ -9,6 +9,7 @@ import java.nio.FloatBuffer;
 import java.util.Random;
 
 import org.joml.Matrix4f;
+import org.joml.Matrix3f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
@@ -44,10 +45,12 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private VBO                 mPositionVbo      = null;
 	private VBO                 mTexCoordVbo      = null;
 	private VBO                 mIndexVbo         = null;
-	private VAO                 mBufferSet        = null;	
+	private VBO                 mSkyboxVbo        = null;
+	private VAO                 mBufferSet        = null;
 	private int                 mNumIndices       = 0;
 	private Program             mTerrainProgram   = null;
 	private Program             mWaterProgram     = null;
+	private Program             mSkyboxProgram     = null;
 	private GrassRenderer		mGrassRenderer    = null;
 	
 	// Simulation.
@@ -122,6 +125,11 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		mWaterProgram.attachVertexShader(new Shader(GpuE.VERTEX_SHADER, ShaderSource.waterVertex));
 		mWaterProgram.attachFragmentShader(new Shader(GpuE.FRAGMENT_SHADER, ShaderSource.waterFragment));
 		mWaterProgram.link("WaterProgram");
+		
+		mSkyboxProgram= new Program();
+		mSkyboxProgram.attachVertexShader(new Shader(GpuE.VERTEX_SHADER, ShaderSource.skyboxVertex));
+		mSkyboxProgram.attachFragmentShader(new Shader(GpuE.FRAGMENT_SHADER, ShaderSource.skyboxFragment));
+		mSkyboxProgram.link("SkyboxProgram");
 	}
 	
 	private void initSimulationShaderPrograms() {
@@ -237,6 +245,38 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		
 		Program.unbind();
 	}
+	
+	void drawSkybox() {
+		float[] matrixBuffer = new float[16];
+		
+		//glClearColor(0.25f,0.5f,1.0f,1); GpuUtils.GpuErrorCheck();
+	//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GpuUtils.GpuErrorCheck();
+		
+		glDisable(GL_DEPTH_TEST); GpuUtils.GpuErrorCheck();
+		glDisable(GL_CULL_FACE); GpuUtils.GpuErrorCheck();
+		
+		mSkyboxTexture.bind(0);
+		
+		Matrix3f rot = new Matrix3f();
+		mCamera.getViewMatrix().get3x3(rot);
+		
+		Matrix4f mat = new Matrix4f(rot);
+		
+		//glDepthFunc(GL_LEQUAL);
+		mSkyboxProgram.bind();		
+		glUniformMatrix4fv(0, false, mCamera.getProjectionMatrix().get(matrixBuffer)); GpuUtils.GpuErrorCheck();
+		glUniformMatrix4fv(1, false, mat.get(matrixBuffer)); GpuUtils.GpuErrorCheck();		
+		mBufferSet.bind();
+		
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0); GpuUtils.GpuErrorCheck();
+
+		
+		Program.unbind();
+		
+		glEnable(GL_CULL_FACE); GpuUtils.GpuErrorCheck();
+		glEnable(GL_DEPTH_TEST); GpuUtils.GpuErrorCheck();
+	}
 
 	
 	
@@ -259,6 +299,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		
 		Matrix4f m;
 		m = new Matrix4f();
+		drawSkybox();
 		mHexTerrainRenderer.drawHexTerrain(m.translate(17, 0, 33), mHeightTexture, mSrcIndex, mStrataTexture, mColorTexture, mCamera);
 		
 		m = new Matrix4f();
@@ -363,10 +404,11 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		mPositionVbo = VBO.createVertexBuffer(null);
 		mTexCoordVbo = VBO.createVertexBuffer(null);
 		mIndexVbo    = VBO.createIndexBuffer(null);
+		mSkyboxVbo   = VBO.createIndexBuffer(null);
 		mBufferSet   = new VAO();
 		mBufferSet.setVbo(0, mPositionVbo, 3, 0);
-		mBufferSet.setVbo(1, mTexCoordVbo, 2, 0);		
-		
+		mBufferSet.setVbo(1, mTexCoordVbo, 2, 0);
+				
 		final int W = 4*Constants.WORLD_SIZE_X;
 		final int H = 4*Constants.WORLD_SIZE_Y;
 		final float du = 0.5f/Constants.WORLD_SIZE_X;

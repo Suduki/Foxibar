@@ -12,6 +12,8 @@ public class ShaderSource {
 	public static String simFluxUpdateFragment = FileSlurper.slurp("shaders/simFluxUpdate.frag");
 	public static String simWaterUpdateFragment = FileSlurper.slurp("shaders/simWaterUpdate.frag");
 	public static String simSedimentUpdateFragment = FileSlurper.slurp("shaders/simSedimentUpdate.frag");
+	public static String skyboxVertex = FileSlurper.slurp("shaders/skybox.vert");
+	public static String skyboxFragment = FileSlurper.slurp("shaders/skybox.frag");
 	
 	// Bonus hex terrain :)
 	public static String hexVertex = FileSlurper.slurp("shaders/hex.vert");
