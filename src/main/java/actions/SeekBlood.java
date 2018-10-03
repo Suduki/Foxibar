@@ -15,7 +15,7 @@ public class SeekBlood extends Action {
 	@Override
 	public boolean determineIfPossible(Agent a) {
 		isPossible = false;
-		bloodness = a.world.blood.seekHeight(dir, (int)a.pos.x, (int)a.pos.y);
+		bloodness = a.seekBlood(dir);
 		if (bloodness > 0.05f) {
 			isPossible = true;
 		}

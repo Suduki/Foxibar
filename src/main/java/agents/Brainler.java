@@ -92,8 +92,8 @@ public class Brainler extends Agent {
 			}
 		}
 		for (int i = 0; i < 3; ++i) {
-			color[i] = appearanceFactors[i];
-			secondaryColor[i] = appearanceFactors[i+3];
+			color[i] = (float) Math.round(appearanceFactors[i]);
+			secondaryColor[i] = (float) Math.round(appearanceFactors[i+3]);
 		}
 	}
 	
