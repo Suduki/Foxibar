@@ -1,9 +1,5 @@
 package agents;
 
-import org.junit.Test;
-import org.junit.runner.JUnitCore;
-import org.junit.runners.JUnit4;
-
 import constants.Constants;
 import world.World;
 

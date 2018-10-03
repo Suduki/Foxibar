@@ -99,6 +99,10 @@ public class World {
 		return wrap(f, Constants.WORLD_SIZE_Y);
 	}
 	public static float wrap(float a, int limMax) { //TODO: Move to util class
+		if (Float.isNaN(a)) {
+			System.err.println("Trying to wrap a NaN pos!!!");
+			a = 0;
+		}
 		return ((a % limMax) + limMax) % limMax;
 	}
 

@@ -190,7 +190,7 @@ public class Vision {
 	public static void getDirectionOf(Vector2f vel, Vector2f pos, Vector2f pos2) {
 		vel.x = pos2.x - pos.x;
 		vel.y = pos2.y - pos.y;
-		vel.normalize();
+		if (vel.lengthSquared() > 0) vel.normalize();
 	}
 
 }

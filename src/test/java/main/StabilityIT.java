@@ -2,6 +2,7 @@ package main;
 
 import java.util.ArrayList;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -34,12 +35,6 @@ public class StabilityIT {
 	public static void init() {
 		simulation     = new Simulation(new Class[] {Randomling.class, Bloodling.class, Brainler.class, Grassler.class});
 		System.out.println("Before class completed");
-	}
-	
-	@AfterClass
-	public static void after() {
-		sanityCheck();
-		System.out.println("Tests finished.");
 	}
 	
 	private static void sanityCheck() {
@@ -147,9 +142,15 @@ public class StabilityIT {
 		Assert.assertFalse("Expected not related after 25 generations. relation = " + a.findRelationTo(b), a.isCloselyRelatedTo(b));
 	}
 	
+	@After
+	public void betweenTests() {
+		System.out.println("Between tests cleanup & sanity check");
+		sanityCheck();
+		cleanup();
+	}
+	
 	@Test
 	public void testUsageOfEveryAction() {
-		cleanup();
 		Stomach.setMAX_B(0);
 		
 		verifyWorldEmpty();
