@@ -1,11 +1,12 @@
 package agents;
 
+import actions.Action;
 import constants.Constants;
 import world.World;
 
 public class Randomling extends Agent {
 
-	public float speed = 1f;
+	private float speed = 1f;
 	
 	public Randomling(float health, World world, AgentManager<Agent> agentManager) {
 		super(health, world, agentManager);
@@ -32,19 +33,24 @@ public class Randomling extends Agent {
 	}
 
 	@Override
-	protected int think() {
-		return Constants.RANDOM.nextInt(4);
-	}
-
-	@Override
 	protected float getFightSkill() {
 		return 0f;
 	}
 
 	@Override
-	protected void interactWith(Agent agent) {
-		agent.health -= getFightSkill();
-		health -= agent.getFightSkill();
+	protected void actionUpdate() {
+		
+		Action action = Action.randomWalk;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
+		}
+		System.err.println("Should always be able to commit to an action");
+	}
+	
+	@Override
+	public boolean isCloselyRelatedTo(Agent a) {
+		return isSameClassAs(a);
 	}
 
 }

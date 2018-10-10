@@ -34,7 +34,7 @@ public class Program {
 		else
 		{
 			if (pName != null) {
-				System.out.println("Program " + pName + " linked successfuly.");
+				System.out.println("Program " + pName + " linked successfully.");
 			}
 			mLinkStatus = true;
 		}

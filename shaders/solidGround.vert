@@ -32,10 +32,10 @@ vec3 calculateNormal(sampler2D sampler, vec2 texCoord)
 
 void main()
 {
-	vec4 s = texture(substanceTexture, texCoord);  
+	vec4 s = texture(substanceTexture, texCoord.yx);  
 	vec4 pos = vec4(position, 1);
 	pos.y = s.x + s.y;
 	gl_Position = projMatrix * modelviewMatrix * pos;
-	vsTexCoord = texCoord;
-	vsNormal = calculateNormal(substanceTexture, texCoord);
+	vsTexCoord = texCoord.yx;
+	vsNormal = calculateNormal(substanceTexture, texCoord.yx);
 }

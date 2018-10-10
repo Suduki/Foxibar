@@ -1,9 +1,5 @@
 package agents;
 
-import org.junit.Test;
-import org.junit.runner.JUnitCore;
-import org.junit.runners.JUnit4;
-
 import constants.Constants;
 import world.World;
 
@@ -32,11 +28,19 @@ public class Stomach {
 		pBlood = bloodFunction(-p);
 	}
 	
-	private static final float MAX_G = 0.7f;
+	private static float MAX_G = 0.7f;
+	public static void setMAX_G(float mAX_G) {
+		MAX_G = mAX_G;
+	}
+
+	public static void setMAX_B(float mAX_B) {
+		MAX_B = mAX_B;
+	}
+
 	private float grassFunction(float p2) {
 		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
-	private static final float MAX_B = 5f;
+	private static float MAX_B = 5f;
 	private float bloodFunction(float p2) {
 		return (float) (a(MAX_B)*p2*p2 + b(MAX_B) * p2 + c(MAX_B));
 	}
@@ -133,7 +137,7 @@ public class Stomach {
 	}
 
 	static final float minSpeed = 0.5f;
-	private static final float energyCostAtMaxSpeed = 3f;
+	private static final float energyCostAtMaxSpeed = 5f;
 	public void addRecoverCost(float speed) {
 		float c = energyCostAtMaxSpeed / (-1 + 1/minSpeed);
 		float b = -2 * c;

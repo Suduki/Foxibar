@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import agents.Animal;
+import agents.Brainler;
 import agents.Brain;
 import agents.NeuralNetwork;
 import constants.Constants;

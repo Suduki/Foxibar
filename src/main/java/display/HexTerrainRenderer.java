@@ -61,7 +61,7 @@ public class HexTerrainRenderer {
 		float[] matrixBuffer = new float[16];
 		
 		glClearColor(0.0f,0.5f,1.0f,1); GpuUtils.GpuErrorCheck();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GpuUtils.GpuErrorCheck();
+		glClear(GL_DEPTH_BUFFER_BIT); GpuUtils.GpuErrorCheck();
 		
 		glEnable(GL_DEPTH_TEST); GpuUtils.GpuErrorCheck();
 		glEnable(GL_CULL_FACE); GpuUtils.GpuErrorCheck();
@@ -84,7 +84,7 @@ public class HexTerrainRenderer {
 		
 		Program.unbind();
 	}
-
+	
 	// Bonus hex terrain :)
 	public void buildHexBuffers() {
 		

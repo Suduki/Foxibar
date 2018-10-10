@@ -1,6 +1,7 @@
 package main;
 
-import agents.Animal;
+import agents.Brainler;
+import actions.Action;
 import agents.Bloodling;
 import agents.Grassler;
 import agents.Randomling;
@@ -17,7 +18,7 @@ public class Main
 	public static void main(String[] args)
 	{
 		
-		simulation     = new Simulation(new Class[] {Randomling.class, Bloodling.class});
+		simulation     = new Simulation(new Class[] {Brainler.class, Bloodling.class});
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
 		RenderState.activateState(RenderState.RENDER_WORLD_STILL);
@@ -34,7 +35,7 @@ public class Main
 
 		try
 		{
-			simulation.spawnRandomAgents(0, 100);
+//			simulation.spawnRandomAgents(0, 1000);
 			int timeStep = 0;
 			while (simulation.handleMessages() && displayHandler.renderThreadThread.isAlive())
 			{
@@ -61,12 +62,19 @@ public class Main
 //				}
 			}
 		}
-		catch ( IllegalStateException e)
+		catch ( Exception e)
 		{
 			e.printStackTrace();
 		}
 		
+		dump();
 		System.out.println("Simulation (main) thread finished.");
+	}
+	
+	private static void dump() {
+		for (Action act : Action.acts) {
+			System.out.println(act.getClass().getSimpleName() + " " + act.numCalls);
+		}
 	}
 
 	

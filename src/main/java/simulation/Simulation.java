@@ -5,6 +5,7 @@ import world.World;
 
 import java.util.ArrayList;
 
+import actions.Action;
 import agents.Agent;
 import agents.AgentManager;
 import constants.Constants;
@@ -20,6 +21,7 @@ public class Simulation extends MessageHandler {
 	
 	public <T extends Agent> Simulation(Class<T>... classes)
 	{
+		Action.init();
 		mWorld = new World();
 		for (Class<T> clazz : classes) {
 			agentManagers.add(new AgentManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));
@@ -61,9 +63,11 @@ public class Simulation extends MessageHandler {
 	}
 	
 	public void spawnRandomAgents(int managerId, int num) {
+		
 		for (int i = 0; i < num; ++i) {
-			int pos = Constants.RANDOM.nextInt(Constants.WORLD_SIZE);
-			spawnAgent(pos, managerId);
+			int x = Constants.RANDOM.nextInt(Constants.WORLD_SIZE_V.x);
+			int y = Constants.RANDOM.nextInt(Constants.WORLD_SIZE_V.y);
+			spawnAgent(x, y, managerId);
 		}
 	}
 
@@ -71,9 +75,9 @@ public class Simulation extends MessageHandler {
 		mWorld.reset(b);
 	}
 
-	public void spawnAgent(int pos, int managerId) {
+	public void spawnAgent(int x, int y, int managerId) {
 		if (agentManagers.size() >= managerId) {
-			agentManagers.get(managerId).spawnAgent(pos);
+			agentManagers.get(managerId).spawnAgent(x, y);
 		}
 		else {
 			System.err.println("Trying to spawn agents in a non-existing manager?");

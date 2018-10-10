@@ -1,6 +1,8 @@
 package agents;
 
+import actions.Action;
 import constants.Constants;
+import vision.Vision;
 import world.World;
 
 public class Grassler extends Agent {
@@ -24,23 +26,10 @@ public class Grassler extends Agent {
 		}		
 	}
 
+	private float speed = 0.6f;
 	@Override
 	protected float getSpeed() {
-		return 1f;
-	}
-
-	@Override
-	protected int think() {
-		int bestDir = Constants.RANDOM.nextInt(4);
-		float bestGrass = 0;
-		for (int i = 0; i < 4; ++i) {
-			int tilePos = World.neighbour[i][pos];
-			if (world.grass.height[tilePos] > bestGrass) {
-				bestDir = i;
-				bestGrass = world.grass.height[tilePos];
-			}
-		}
-		return bestDir;
+		return speed;
 	}
 
 	@Override
@@ -49,9 +38,30 @@ public class Grassler extends Agent {
 	}
 
 	@Override
-	protected void interactWith(Agent agent) {
-		agent.health -= getFightSkill();
-		health -= agent.getFightSkill();
+	protected void actionUpdate() {
+		Action action = Action.fleeFromStranger;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
+		}
+		
+		action = Action.seekGrass;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
+		}
+		
+		action = Action.randomWalk;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
+		}
+		System.err.println("Should always be able to commit to an action");
+		return;
 	}
-
+	
+	@Override
+	public boolean isCloselyRelatedTo(Agent a) {
+		return isSameClassAs(a);
+	}
 }

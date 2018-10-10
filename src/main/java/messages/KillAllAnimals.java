@@ -1,6 +1,6 @@
 package messages;
 
-import agents.Animal;
+import agents.Brainler;
 import main.Main;
 import simulation.Simulation;
 import world.World;

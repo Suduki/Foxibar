@@ -2,35 +2,35 @@ package vision;
 
 import java.util.ArrayList;
 
+import org.joml.Vector2f;
+import org.joml.Vector2i;
+
 import agents.Agent;
 import constants.Constants;
 
 public class Vision {
 	public Zone[][] zoneGrid;
 	
-	public final int zoneHeight;
-	public final int zoneWidth;
-	public final int zonesX;
-	public final int zonesY;
+	public final Vector2i zoneSize;
+	public final Vector2i zones;
 	
 	public Vision(int zoneHeight, int zoneWidth) {
-		this.zoneHeight = zoneHeight;
-		this.zoneWidth = zoneWidth;
-		zonesX = Constants.WORLD_SIZE_X/zoneWidth;
-		zonesY = Constants.WORLD_SIZE_Y/zoneHeight;
+		this.zoneSize = new Vector2i(zoneHeight, zoneWidth);
+		zones = new Vector2i(Constants.WORLD_SIZE_X/zoneWidth, Constants.WORLD_SIZE_Y/zoneHeight);
 		
-		zoneGrid = new Zone[zonesX][zonesY];
-		for (int i = 0; i < zonesX; ++i) {
-			for (int j = 0; j < zonesY; ++j) {
+		zoneGrid = new Zone[zones.x][zones.y];
+		for (int i = 0; i < zones.x; ++i) {
+			for (int j = 0; j < zones.y; ++j) {
 				zoneGrid[i][j] = new Zone();
 			}
 		}
 	}
 	
 	public void updateNearestNeighbours(Agent a) {
-		int pos = a.pos;
-		int zoneX = getZoneXFromPos(pos);
-		int zoneY = getZoneYFromPos(pos);
+		Vector2f pos = a.pos;
+		int zoneX = getZoneXFromPosX(pos.x);
+		int zoneY = getZoneYFromPosY(pos.y);
+		
 		for (int i = 0; i < a.nearbyAgentsDistance.length; ++i) {
 			a.nearbyAgentsDistance[i] = -1;
 		}
@@ -41,11 +41,11 @@ public class Vision {
 		
 		for (int i = -1; i <= 1; ++i) {
 			for (int j = -1; j <= 1; ++j) {
-				int zoneIX = (zoneX + zonesX + i) % zonesX;
-				int zoneIY = (zoneY + zonesY + j) % zonesY;
+				int zoneIX = (zoneX + zones.x + i) % zones.x;
+				int zoneIY = (zoneY + zones.y + j) % zones.y;
 				for (Agent anI : zoneGrid[zoneIX][zoneIY].agentsInZone) {
 					if (anI != a) {
-						float d = calculateDistance(pos, anI.pos);
+						float d = calculateCircularDistance(pos, anI.pos);
 						if (d > Constants.Vision.MAX_DISTANCE_AN_AGENT_CAN_SEE) {
 							continue;
 						}
@@ -69,57 +69,68 @@ public class Vision {
 				}
 			}
 		}
+		
+		updateStrangerAndFriendler(a);
 	}
 	
-	private static boolean WARNING_PRINTED = false;
-	public static double calculateCircularDistance(int pos, int pos2) {
-		if (!WARNING_PRINTED) {
-			System.err.println("USING CIRCULAR DISTANCE. NOT OPTIMAL FOR SIMULATIONS (I THINK)");
-			WARNING_PRINTED = true;
+
+	private void updateStrangerAndFriendler(Agent a) {
+		a.stranger = null;
+		a.friendler = null;
+		
+		for (int i = 0; i < a.nearbyAgents.length; ++i) {
+			Agent n = a.nearbyAgents[i];
+			if (n == null || (a.stranger != null && a.friendler == null)) {
+				break;
+			}
+			if (a.nearbyAgentsDistance[i] < 0 || Float.isNaN(a.nearbyAgentsDistance[i])) {
+				continue;
+			}
+			if (a.stranger == null) {
+				if (!a.isCloselyRelatedTo(n)) {
+					a.stranger = n;
+				}
+			}
+			if (a.friendler == null) {
+				if (a.isCloselyRelatedTo(n)) {
+					a.friendler = n;
+				}
+			}
 		}
-		int xDirect      = Math.abs(getXFromPos(pos) - getXFromPos(pos2));
-		int xThroughWall = Constants.WORLD_SIZE_X - xDirect;
+	}
+
+	public static float calculateCircularDistance(Vector2f pos, Vector2f pos2) {
+		return calculateCircularDistance(pos.x, pos.y, pos2.x, pos2.y);
+	}
+
+	public static float calculateCircularDistance(float posXFrom, float posYFrom, float posXTo, float posYTo) {
+		float xDirect      = Math.abs(posXFrom - posXTo);
+		float xThroughWall = Constants.WORLD_SIZE_X - xDirect;
 		
-		int yDirect      = Math.abs(getYFromPos(pos) - getYFromPos(pos2));
-		int yThroughWall = Constants.WORLD_SIZE_Y - yDirect;
+		float yDirect      = Math.abs(posYFrom - posYTo);
+		float yThroughWall = Constants.WORLD_SIZE_Y - yDirect;
 		
-		return Math.sqrt(Math.min(xDirect, xThroughWall)*Math.min(xDirect, xThroughWall) +
+		return (float) Math.sqrt(Math.min(xDirect, xThroughWall)*Math.min(xDirect, xThroughWall) +
 				Math.min(yDirect, yThroughWall)*Math.min(yDirect, yThroughWall));
 	}
 	
-	public static int calculateDistance(int pos, int pos2) {
-		int xDirect      = Math.abs(getXFromPos(pos) - getXFromPos(pos2));
-		int xThroughWall = Constants.WORLD_SIZE_X - xDirect;
-		
-		int yDirect      = Math.abs(getYFromPos(pos) - getYFromPos(pos2));
-		int yThroughWall = Constants.WORLD_SIZE_Y - yDirect;
-		
-		return Math.min(xDirect, xThroughWall) +
-				Math.min(yDirect, yThroughWall);
+	private int getZoneXFromPosX(float x) {
+		return ((int) x) / zoneSize.x;
 	}
-	
-	private static int getXFromPos(int pos) {
-		return pos % Constants.WORLD_SIZE_X;
-	}
-	private static int getYFromPos(int pos) {
-		return pos / Constants.WORLD_SIZE_X;
-	}
-	
-	private int getZoneXFromPos(int pos) {
-		return (pos % Constants.WORLD_SIZE_X) / zoneWidth;
-	}
-	private int getZoneYFromPos(int pos) {
-		return pos / Constants.WORLD_SIZE_X / zoneHeight;
+	private int getZoneYFromPosY(float y) {
+		return ((int) y) / zoneSize.y;
 	}
 	
 	public void updateAgentZone(Agent id) {
-		int oldPos = id.oldPos;
-		int pos = id.pos;
+		int oldX = (int) id.old.x;
+		int oldY = (int) id.old.y;
+		int posX = (int) id.pos.x;
+		int posY = (int) id.pos.y;
 		
-		int oldZoneX = getZoneXFromPos(oldPos);
-		int oldZoneY = getZoneYFromPos(oldPos);
-		int zoneX = getZoneXFromPos(pos);
-		int zoneY = getZoneYFromPos(pos);
+		int oldZoneX = getZoneXFromPosX(oldX);
+		int oldZoneY = getZoneYFromPosY(oldY);
+		int zoneX = getZoneXFromPosX(posX);
+		int zoneY = getZoneYFromPosY(posY);
 		
 		if (oldZoneX != zoneX || oldZoneY != zoneY) {
 			removeAgentFromZone(id, oldZoneX, oldZoneY);
@@ -128,20 +139,20 @@ public class Vision {
 	}
 	
 	public void addAgentToZone(Agent id) {
-		int zoneX = getZoneXFromPos(id.pos);
-		int zoneY = getZoneYFromPos(id.pos);
+		int zoneX = getZoneXFromPosX(id.pos.x);
+		int zoneY = getZoneYFromPosY(id.pos.y);
 		addAgentToZone(id, zoneX, zoneY);
 	}
 	public void removeAgentFromZone(Agent id, boolean useOldPos) {
 		int zoneX;
 		int zoneY;
 		if (useOldPos) {
-			zoneX = getZoneXFromPos(id.oldPos);
-			zoneY = getZoneYFromPos(id.oldPos);
+			zoneX = getZoneXFromPosX(id.old.x);
+			zoneY = getZoneYFromPosY(id.old.y);
 		}
 		else {
-			zoneX = getZoneXFromPos(id.pos);
-			zoneY = getZoneYFromPos(id.pos);
+			zoneX = getZoneXFromPosX(id.pos.x);
+			zoneY = getZoneYFromPosY(id.pos.y);
 		}
 		removeAgentFromZone(id, zoneX, zoneY);
 	}
@@ -176,26 +187,10 @@ public class Vision {
 		}
 	}
 
-	public static int getDirectionOf(int pos, int pos2) {
-		int pX = getXFromPos(pos) -  getXFromPos(pos2); 
-		int pY = getYFromPos(pos) -  getYFromPos(pos2);
-		if (Math.abs(pX) > Math.abs(pY)) {
-			// Move in x-dir
-			if (pX > 0) {
-				return Constants.Neighbours.WEST;
-			} 
-			else {
-				return Constants.Neighbours.EAST;
-			}
-		}
-		else {
-			if (pY > 0) {
-				return Constants.Neighbours.NORTH;
-			} 
-			else {
-				return Constants.Neighbours.SOUTH;
-			}
-		}
+	public static void getDirectionOf(Vector2f vel, Vector2f pos, Vector2f pos2) {
+		vel.x = pos2.x - pos.x;
+		vel.y = pos2.y - pos.y;
+		if (vel.lengthSquared() > 0) vel.normalize();
 	}
 
 }

@@ -2,6 +2,9 @@ package constants;
 
 import java.util.Random;
 
+import org.joml.Vector2f;
+import org.joml.Vector2i;
+
 import vision.Vision;
 
 public class Constants {
@@ -11,6 +14,7 @@ public class Constants {
 	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
 	public static final int WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
+	public static final Vector2i WORLD_SIZE_V = new Vector2i(WORLD_SIZE_X, WORLD_SIZE_Y);
 	public static final int WANTED_FPS = 30;
 	public static final int PIXELS_Y = 800;
 	public static final int WINDOW_WIDTH = 1080;
