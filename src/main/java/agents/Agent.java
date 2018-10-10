@@ -48,8 +48,6 @@ public abstract class Agent {
 	protected ArrayList<Agent> children;
 	Agent parent;
 
-	float recover;
-
 	public Stomach stomach;
 	private int timeBetweenBabies = 80;
 
@@ -57,7 +55,6 @@ public abstract class Agent {
 
 	public World world;
 	protected AgentManager<? extends Agent> agentManager;
-	public boolean moved;
 	public boolean printStuff;
 	
 	public Agent stranger;
@@ -95,17 +92,12 @@ public abstract class Agent {
 	 * @return whether the animal is alive or not.
 	 */
 	public boolean stepAgent() {
-		moved = false;
 		if (!isAlive) {
 			System.err.println("Trying to step a dead agent.");
 			return false;
 		}
-		if (timeToMove()) {
-			moved = true;
-			actionUpdate();
-			makeBaby();
-		}
-		
+		actionUpdate();
+		makeBaby();
 		internalOrgansUpdate();
 
 		return isAlive;
@@ -117,21 +109,6 @@ public abstract class Agent {
 		}
 	}
 
-
-	/**
-	 * Step recover. This is to enable different speeds for different agents.
-	 * @return
-	 */
-	private boolean timeToMove() {
-		float speed = getSpeed();
-		recover += speed;
-		stomach.addRecoverCost(speed);
-		if (recover < 1f) {
-			return false;
-		}
-		recover--;
-		return true;
-	}
 	private void checkHealth() {
 		if (health < 0) {
 			die();
@@ -316,7 +293,6 @@ public abstract class Agent {
 		trueAge = 0;
 		score = 0;
 		sinceLastBaby = 0;
-		recover = 0f;
 		health = 0.1f;
 		incarnation++;
 	}

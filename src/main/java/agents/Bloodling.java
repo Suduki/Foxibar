@@ -32,7 +32,7 @@ public class Bloodling extends Agent {
 
 	@Override
 	protected float getFightSkill() {
-		return 1f;
+		return 0.5f;
 	}
 	
 	@Override

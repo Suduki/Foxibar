@@ -29,7 +29,7 @@ public class StabilityIT {
 	private static final int GRASSLER = 3;
 	private static final String[] AGENT_TYPES_NAMES = new String[]{"Randomling", "Bloodling", "Brainler", "Grassler"};
 	
-	private static int timeStep = 1;
+	private static Integer timeStep = 1;
 
 	@BeforeClass
 	public static void init() {
@@ -56,16 +56,16 @@ public class StabilityIT {
 		System.out.println("Initiating testWorldPopulated");
 		System.out.println("Testing Randomling");
 		testWorldPopulated(RANDOMLING);
-		cleanup();
+		TestHelper.cleanup(simulation, timeStep);
 		System.out.println("Testing Bloodling");
 		testWorldPopulated(BLOODLING);
-		cleanup();
+		TestHelper.cleanup(simulation, timeStep);
 		System.out.println("Testing Animal");
 		testWorldPopulated(BRAINLER);
-		cleanup();
+		TestHelper.cleanup(simulation, timeStep);
 		System.out.println("Testing Grassler");
 		testWorldPopulated(GRASSLER);
-		cleanup();
+		TestHelper.cleanup(simulation, timeStep);
 		System.out.println("Test case testWorldPopulated completed.");
 	}
 	
@@ -73,20 +73,20 @@ public class StabilityIT {
 	public void test2Survivability () {
 		System.out.println("Initiating testSurvivability");
 		testSurvivability(RANDOMLING, 500, 1000);
-		verifyWorldNotEmpty();
-		cleanup();
+		TestHelper.verifyWorldNotEmpty(simulation);
+		TestHelper.cleanup(simulation, timeStep);
 		
 		testSurvivability(BLOODLING, 500, 1000);
-		verifyWorldEmpty();
-		cleanup();
+		TestHelper.verifyWorldEmpty(simulation);
+		TestHelper.cleanup(simulation, timeStep);
 		
 		testSurvivability(BRAINLER, 500, 1000);
-		verifyWorldNotEmpty();
-		cleanup();
+		TestHelper.verifyWorldNotEmpty(simulation);
+		TestHelper.cleanup(simulation, timeStep);
 		
 		testSurvivability(GRASSLER, 500, 1000);
-		verifyWorldNotEmpty();
-		cleanup();
+		TestHelper.verifyWorldNotEmpty(simulation);
+		TestHelper.cleanup(simulation, timeStep);
 		
 		System.out.println("Test case testSurvivability completed.");
 	}
@@ -94,31 +94,17 @@ public class StabilityIT {
 	@Test
 	public void testMultipleAgentRandomlingBloodling() {
 		testMultipleAgents(RANDOMLING, BLOODLING);
-		cleanup();
+		TestHelper.cleanup(simulation, timeStep);
 	}
 	@Test
 	public void testMultipleAgentBrainlerBloodling() {
 		testMultipleAgents(BRAINLER, BLOODLING);
-		cleanup();
+		TestHelper.cleanup(simulation, timeStep);
 	}
 	@Test
 	public void testMultipleAgentGrasslerBloodling() {
 		testMultipleAgents(GRASSLER, BLOODLING);
-		cleanup();
-	}
-	
-
-	@Test
-	public void walkTest() {
-		verifyWorldEmpty();
-		simulation.spawnAgent(5, 6, RANDOMLING);
-		
-		simulation.step(timeStep++);
-		simulation.step(timeStep++);
-
-		Agent a = simulation.agentManagers.get(RANDOMLING).alive.get(0);
-		Assert.assertNotEquals(a.pos.x, 5);
-		Assert.assertNotEquals(a.pos.y, 6);
+		TestHelper.cleanup(simulation, timeStep);
 	}
 	
 	@Test //TODO: MOVE
@@ -143,14 +129,14 @@ public class StabilityIT {
 	public void betweenTests() {
 		System.out.println("Between tests cleanup & sanity check");
 		sanityCheck();
-		cleanup();
+		TestHelper.cleanup(simulation, timeStep);
 	}
 	
 	@Test
 	public void testUsageOfEveryAction() {
 		Stomach.setMAX_B(0);
 		
-		verifyWorldEmpty();
+		TestHelper.verifyWorldEmpty(simulation);
 		
 		testSurvivability(BRAINLER, 5000, 500);
 		
@@ -164,10 +150,10 @@ public class StabilityIT {
 		float huntStrangerProcAtNoBloodGain = ((float) Action.huntStranger.numCalls * 100) / numCalls;
 		float seekBloodProcAtNoBloodGain = ((float) Action.seekBlood.numCalls * 100) / numCalls;
 		
-		cleanup();
+		TestHelper.cleanup(simulation, timeStep);
 		Stomach.setMAX_B(50);
 		
-		verifyWorldEmpty();
+		TestHelper.verifyWorldEmpty(simulation);
 		testSurvivability(BRAINLER, 5000, 500);
 		
 		numCalls = Action.getTotCalls();
@@ -217,7 +203,7 @@ public class StabilityIT {
 		}
 		System.out.println("Max number of " + AGENT_TYPES_NAMES[type1] + ": " + maxNumType1);
 		System.out.println("Max number of " + AGENT_TYPES_NAMES[type2] + ": " + maxNumType2);
-		cleanup();
+		TestHelper.cleanup(simulation, timeStep);
 		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type1] + " populations size to increase.", maxNumType1 > initNumAgents1);
 		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type2] + " populations size to increase.", maxNumType2 > initNumAgents2);
 		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type1] + " to survive longer.", t > 200);
@@ -241,38 +227,9 @@ public class StabilityIT {
 	}
 	
 	private void testWorldPopulated(int agentType) {
-		verifyWorldEmpty();
+		TestHelper.verifyWorldEmpty(simulation);
 		simulation.spawnRandomAgents(agentType, 100);
 		simulation.step(timeStep++);
-		verifyWorldNotEmpty();
-	}
-
-	private void cleanup() {
-		Action.reset();
-		
-		simulation.killAllAgents();
-		simulation.step(timeStep++);
-		verifyWorldEmpty();
-		simulation.mWorld.reset(true);
-	}
-	
-	private void verifyWorldEmpty() {
-		Assert.assertTrue(simulation.getNumAgents() == 0);
-		Assert.assertTrue(visionZoneSize() == 0);
-	}
-	
-	private void verifyWorldNotEmpty() {
-		Assert.assertTrue(simulation.getNumAgents() > 0);
-		Assert.assertTrue(visionZoneSize() > 1);
-	}
-	
-	private int visionZoneSize() {
-		int num = 0;
-		for (Vision.Zone[] zi : simulation.vision.zoneGrid) {
-			for (Vision.Zone z : zi) {
-				num += z.agentsInZone.size();
-			}	
-		}
-		return num;
+		TestHelper.verifyWorldNotEmpty(simulation);
 	}
 }

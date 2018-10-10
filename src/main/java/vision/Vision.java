@@ -188,8 +188,16 @@ public class Vision {
 	}
 
 	public static void getDirectionOf(Vector2f vel, Vector2f pos, Vector2f pos2) {
+		float xDirect      = Math.abs(pos2.x - pos.x);
+		float xThroughWall = Constants.WORLD_SIZE_X - xDirect;
+		
+		float yDirect      = Math.abs(pos2.y - pos.y);
+		float yThroughWall = Constants.WORLD_SIZE_Y - yDirect;
+		
 		vel.x = pos2.x - pos.x;
 		vel.y = pos2.y - pos.y;
+		if (xDirect > xThroughWall) vel.x = - vel.x;
+		if (yDirect > yThroughWall) vel.y = - vel.y;
 		if (vel.lengthSquared() > 0) vel.normalize();
 	}
 
