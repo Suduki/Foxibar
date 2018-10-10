@@ -17,7 +17,6 @@ public class RandomWalk extends Action {
 		a.randomWalk();
 		a.move();
 		a.harvestGrass();
-		a.harvestFat();
 	}
 
 }

@@ -14,14 +14,12 @@ public class World {
 	public Terrain terrain;
 	public Grass grass;
 	public CarbonElement blood;
-	public CarbonElement fat;
 	public Wind wind;
 	
 	public World() {
 		terrain = new Terrain();
 		grass = new Grass(terrain);
 		blood = new CarbonElement(1, Constants.Colors.BLOOD, 1, Constants.Blood.DECAY_FACTOR);
-		fat = new CarbonElement(1, Constants.Colors.WHITE, 1, Constants.Blood.DECAY_FACTOR);
 		wind = new Wind();
 		
 		regenerate();
@@ -33,7 +31,6 @@ public class World {
 		
 		grass.grow(timeStep, UPDATE_FREQUENCY);
 		blood.decay(timeStep, UPDATE_FREQUENCY);
-		fat.decay(timeStep, UPDATE_FREQUENCY);
 		wind.stepWind();
 
 	}
@@ -75,12 +72,8 @@ public class World {
 		a[x][y][1] += dirtness*tempColor[1];
 		a[x][y][2] += dirtness*tempColor[2];
 
-		// Find the highest pile of fiber/fat/blood and use that color.
+		// Find the highest pile of fiber/blood and use that color.
 		blood.getColor(x, y, tempColor);
-		a[x][y][0] += tempColor[0];
-		a[x][y][1] += tempColor[1];
-		a[x][y][2] += tempColor[2];
-		fat.getColor(x, y, tempColor);
 		a[x][y][0] += tempColor[0];
 		a[x][y][1] += tempColor[1];
 		a[x][y][2] += tempColor[2];
@@ -89,7 +82,6 @@ public class World {
 	public void reset(boolean b) {
 		grass.regenerate(b);
 		blood.reset();
-		fat.reset();
 	}
 
 	public static float wrapX(float f) {//TODO: Move to util class

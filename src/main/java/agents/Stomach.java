@@ -28,7 +28,6 @@ public class Stomach {
 		pBlood = bloodFunction(-p);
 	}
 	
-	private static float MAX_G = 0.7f;
 	public static void setMAX_G(float mAX_G) {
 		MAX_G = mAX_G;
 	}
@@ -37,10 +36,11 @@ public class Stomach {
 		MAX_B = mAX_B;
 	}
 
+	private static float MAX_G = 0.7f;
 	private float grassFunction(float p2) {
 		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
-	private static float MAX_B = 5f;
+	static float MAX_B = 5f;
 	private float bloodFunction(float p2) {
 		return (float) (a(MAX_B)*p2*p2 + b(MAX_B) * p2 + c(MAX_B));
 	}
@@ -87,7 +87,7 @@ public class Stomach {
 		float totalFullness = fiber + blood;
 		if (totalFullness > DIGEST_AMOUNT ) {
 			
-			fat += pFiber * fiber * DIGEST_AMOUNT / totalFullness;;
+			fat += pFiber * fiber * DIGEST_AMOUNT / totalFullness;
 			fat += pBlood * blood * DIGEST_AMOUNT / totalFullness;
 			
 			fiber -= fiber * DIGEST_AMOUNT / totalFullness;
@@ -118,9 +118,6 @@ public class Stomach {
 		blood = 0;
 	}
 
-	public void addFat(float amount) {
-		fat += amount;
-	}
 	public void addBlood(float amount) {
 		blood += amount;
 	}

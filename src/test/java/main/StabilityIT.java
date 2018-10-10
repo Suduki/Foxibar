@@ -40,7 +40,6 @@ public class StabilityIT {
 	private static void sanityCheck() {
 		float[][] blood = simulation.mWorld.blood.height;
 		float[][] grass = simulation.mWorld.grass.height;
-		float[][] fat = simulation.mWorld.fat.height;
 		
 		for (int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
 			for (int y = 0; y < Constants.WORLD_SIZE_Y; ++y) {
@@ -48,8 +47,6 @@ public class StabilityIT {
 						blood[x][y]>=0 && blood[x][y]<10 && !Float.isNaN(blood[x][y]));
 				Assert.assertTrue("Expected grass height to be positive and not too large, it was " + grass[x][y] + " at x="+x+" y="+y,
 						grass[x][y]>=0 && grass[x][y]<10 && !Float.isNaN(grass[x][y]));
-				Assert.assertTrue("Expected fat height to be positive and not too large, it was " + fat[x][y] + " at x="+x+" y="+y,
-						fat[x][y]>=0 && fat[x][y]<10 && !Float.isNaN(fat[x][y]));
 			}
 		}
 	}

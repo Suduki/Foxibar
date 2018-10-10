@@ -10,7 +10,6 @@ public abstract class Action implements ActionI {
 	
 	public static SeekGrass 		seekGrass 			= new SeekGrass();
 	public static SeekBlood 		seekBlood 			= new SeekBlood();
-	public static SeekFat 			seekFat 			= new SeekFat();
 	public static RandomWalk 		randomWalk 			= new RandomWalk();
 	public static FleeFromStranger 	fleeFromStranger 	= new FleeFromStranger();
 	public static FleeFromFriendler fleeFromFriendler 	= new FleeFromFriendler();
@@ -26,7 +25,6 @@ public abstract class Action implements ActionI {
 		acts = new Action[] {
 				seekGrass,
 				seekBlood,
-				seekFat,
 				randomWalk,
 				fleeFromStranger,
 				fleeFromFriendler,

@@ -243,18 +243,6 @@ public abstract class Agent {
 		Vision.getDirectionOf(vel, pos, a.pos);
 	}
 	
-	public float seekBlood(Vector2f dir) {
-		return world.blood.seekHeight(dir, (int)pos.x, (int)pos.y);
-	}
-	
-	public float seekFat(Vector2f dir) {
-		return world.fat.seekHeight(dir, (int)pos.x, (int)pos.y);
-	}
-	
-	public float seekGrass(Vector2f dir) {
-		return world.grass.seekHeight(dir, (int)pos.x, (int)pos.y);
-	}
-	
 	private final static float TWO_PI = (float)Math.PI * 2;
 	public void randomWalk() {
 		float angle = Constants.RANDOM.nextFloat() * TWO_PI;
@@ -271,10 +259,6 @@ public abstract class Agent {
 	public void harvestGrass() {
 		stomach.addFiber(world.grass.harvest(harvestSkill, (int) pos.x, (int) pos.y));
 	}
-	public void harvestFat() {
-		stomach.addFat(world.fat.harvest(harvestSkill, (int) pos.x, (int) pos.y));
-	}
-
 	protected void grow() {
 		if (size < maxSize) {
 			size += growth;
@@ -295,7 +279,7 @@ public abstract class Agent {
 
 	protected void die() {
 		world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size);
-		world.fat.append((int) pos.x, (int) pos.y, stomach.fat);
+		world.blood.append((int) pos.x, (int) pos.y, stomach.fat / Stomach.MAX_B);
 		world.grass.append((int) pos.x, (int) pos.y, stomach.fiber);
 		//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
 		//				+ ", age=" + age + ", score = " + score);

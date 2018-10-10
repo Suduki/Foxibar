@@ -50,7 +50,6 @@ public class Brainler extends Agent {
 		
 		brain.neural.z[0][NeuralFactors.in.TILE_GRASS] = Action.seekGrass.grassness;
 		brain.neural.z[0][NeuralFactors.in.TILE_BLOOD] = Action.seekBlood.bloodness;
-		brain.neural.z[0][NeuralFactors.in.TILE_FAT] = Action.seekFat.fatness;
 		
 		brain.neural.z[0][NeuralFactors.in.TILE_TERRAIN_HEIGHT] = world.terrain.height[(int) pos.x][(int) pos.y];
 		

@@ -15,7 +15,7 @@ public class SeekGrass extends Action {
 	@Override
 	public boolean determineIfPossible(Agent a) {
 		isPossible = false;
-		grassness = a.seekGrass(dir);
+		grassness = a.world.grass.seekHeight(dir, (int)a.pos.x, (int)a.pos.y);;
 		if (grassness > 0.1f) {
 			isPossible = true;
 		}
@@ -29,6 +29,5 @@ public class SeekGrass extends Action {
 		a.vel.set(dir);
 		a.move();
 		a.harvestGrass();
-		a.harvestFat();
 	}
 }
