@@ -55,7 +55,6 @@ public class VisionTest {
 		simulation.spawnAgent(Constants.WORLD_SIZE_X - 2, Constants.WORLD_SIZE_Y - 2, GRASSLER);
 		
 		simulation.step(timeStep++);
-		simulation.step(timeStep++);
 
 		Agent a = simulation.agentManagers.get(BLOODLING).alive.get(0);
 		Assert.assertTrue(a.pos.x > 5);
@@ -72,7 +71,6 @@ public class VisionTest {
 		simulation.spawnAgent(0, 0, GRASSLER);
 		
 		simulation.step(timeStep++);
-		simulation.step(timeStep++);
 
 		Agent a = simulation.agentManagers.get(GRASSLER).alive.get(0);
 		Assert.assertTrue(a.pos.x > 5);
@@ -80,4 +78,54 @@ public class VisionTest {
 		TestHelper.cleanup(simulation, timeStep);
 		System.out.println("Test Completed");
 	}
+	
+	@Test
+	public void thatAnimalsFindFood() {
+		System.out.println("Testing that " + AGENT_TYPES_NAMES[GRASSLER] + " finds food");
+		TestHelper.verifyWorldEmpty(simulation);
+		
+		int startPosX = 10;
+		int startPosY = 1;
+		
+		int foodPosX = 10;
+		int foodPosY = 0;
+		
+		simulation.mWorld.grass.killAllGrass();
+		simulation.mWorld.grass.append(foodPosX, foodPosY, 10, false);
+		simulation.spawnAgent(startPosX, startPosY, GRASSLER);
+		
+		simulation.step(timeStep++);
+		
+		Agent a = simulation.agentManagers.get(GRASSLER).alive.get(0);
+		Assert.assertTrue("Expecting animal to be at x = " + foodPosX + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.x) == foodPosX);
+		Assert.assertTrue("Expecting animal to be at y = " + foodPosY + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.y) == foodPosY);
+		TestHelper.cleanup(simulation, timeStep);
+		System.out.println("Test Completed");
+	}
+	
+	@Test
+	public void thatAnimalsFindFoodOverEdges() {
+		System.out.println("Testing that " + AGENT_TYPES_NAMES[GRASSLER] + " finds food over edges");
+		TestHelper.verifyWorldEmpty(simulation);
+		
+		int startPosX = 10;
+		int startPosY = 0;
+		
+		int foodPosX = 10;
+		int foodPosY = Constants.WORLD_SIZE_Y - 1;
+		
+		simulation.mWorld.grass.killAllGrass();
+		simulation.mWorld.grass.append(foodPosX, foodPosY, 10, false);
+		simulation.spawnAgent(startPosX, startPosY, GRASSLER);
+		
+		simulation.step(timeStep++);
+		
+		Agent a = simulation.agentManagers.get(GRASSLER).alive.get(0);
+		Assert.assertTrue("Expecting animal to be at x = " + foodPosX + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.x) == foodPosX);
+		Assert.assertTrue("Expecting animal to be at y = " + foodPosY + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.y) == foodPosY);
+		TestHelper.cleanup(simulation, timeStep);
+		System.out.println("Test Completed");
+	}
+	
+	
 }
