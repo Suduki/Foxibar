@@ -156,6 +156,7 @@ public abstract class Agent {
 
 	public void move() {
 		old.set(pos);
+		vel.mul(getSpeed());
 		pos.add(vel);
 		World.wrap(pos, Constants.WORLD_SIZE_V);
 		

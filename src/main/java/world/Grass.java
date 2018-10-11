@@ -13,7 +13,7 @@ public class Grass extends TileElement {
 		height = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
 		toBeUpdated = new boolean[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
 		color = Constants.Colors.GRASS;
-		tree = new Tree(terrain);
+		tree = new Tree(terrain, this);
 		this.terrain = terrain;
 		regenerate(true);
 	}

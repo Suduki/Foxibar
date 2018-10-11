@@ -5,7 +5,7 @@ import world.World;
 
 public class Stomach {
 
-	public static final float MAX_FULLNESS = 100;
+	public static final float MAX_FULLNESS = 50;
 	public static final float FAT_ON_BIRTH = 1;
 	
 	float energyCost;
@@ -36,11 +36,11 @@ public class Stomach {
 		MAX_B = mAX_B;
 	}
 
-	private static float MAX_G = 0.7f;
+	private static float MAX_G = 0.4f;
 	private float grassFunction(float p2) {
 		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
-	static float MAX_B = 5f;
+	static float MAX_B = 3f;
 	private float bloodFunction(float p2) {
 		return (float) (a(MAX_B)*p2*p2 + b(MAX_B) * p2 + c(MAX_B));
 	}
@@ -70,12 +70,11 @@ public class Stomach {
 	}
 
 	private void checkFullness() {
-		float digestAmount = getMass() - MAX_FULLNESS;
-		if (digestAmount > 0) {
-			float total = getMass();
-			fiber -= fiber * digestAmount / MAX_FULLNESS;
-			blood -= blood * digestAmount / MAX_FULLNESS;
-			fat -= fat * digestAmount / MAX_FULLNESS;
+		float total = getMass();
+		if (total > MAX_FULLNESS) { // Stomach is full
+			fiber = fiber * MAX_FULLNESS/total;
+			blood = blood * MAX_FULLNESS/total;
+			fat = fat * MAX_FULLNESS/total;
 		}
 	}
 
@@ -102,7 +101,7 @@ public class Stomach {
 		}
 		
 	}
-	public final static float FAT_TO_ENERGY_FACTOR = 0.01f;
+	public final static float FAT_TO_ENERGY_FACTOR = 0.05f;
 	private void burnFat() {
 		fat -= energyCost*FAT_TO_ENERGY_FACTOR;
 		energyCost = 0;

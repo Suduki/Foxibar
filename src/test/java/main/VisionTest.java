@@ -33,6 +33,7 @@ public class VisionTest {
 
 	@Test
 	public void thatAnimalsMove() {
+		System.out.println("Testing that " + AGENT_TYPES_NAMES[RANDOMLING] + " moves");
 		TestHelper.verifyWorldEmpty(simulation);
 		simulation.spawnAgent(5, 6, RANDOMLING);
 		
@@ -43,10 +44,12 @@ public class VisionTest {
 		Assert.assertNotEquals(a.pos.y, 6);
 		
 		TestHelper.cleanup(simulation, timeStep);
+		System.out.println("Test Completed");
 	}
 	
 	@Test
 	public void thatAnimalsHuntOverEdges() {
+		System.out.println("Testing that " + AGENT_TYPES_NAMES[BLOODLING] + " hunts over edges");
 		TestHelper.verifyWorldEmpty(simulation);
 		simulation.spawnAgent(0, 0, BLOODLING);
 		simulation.spawnAgent(Constants.WORLD_SIZE_X - 2, Constants.WORLD_SIZE_Y - 2, GRASSLER);
@@ -58,10 +61,12 @@ public class VisionTest {
 		Assert.assertTrue(a.pos.x > 5);
 		Assert.assertTrue(a.pos.y > 5);
 		TestHelper.cleanup(simulation, timeStep);
+		System.out.println("Test Completed");
 	}
 	
 	@Test
 	public void thatAnimalsFleeOverEdges() {
+		System.out.println("Testing that " + AGENT_TYPES_NAMES[GRASSLER] + " flees over edges");
 		TestHelper.verifyWorldEmpty(simulation);
 		simulation.spawnAgent(2, 2, BLOODLING);
 		simulation.spawnAgent(0, 0, GRASSLER);
@@ -73,5 +78,6 @@ public class VisionTest {
 		Assert.assertTrue(a.pos.x > 5);
 		Assert.assertTrue(a.pos.y > 5);
 		TestHelper.cleanup(simulation, timeStep);
+		System.out.println("Test Completed");
 	}
 }

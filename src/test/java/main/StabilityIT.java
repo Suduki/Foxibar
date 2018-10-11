@@ -134,7 +134,7 @@ public class StabilityIT {
 	
 	@Test
 	public void testUsageOfEveryAction() {
-		Stomach.setMAX_B(0);
+		Stomach.setMAX_B(0.2f);
 		
 		TestHelper.verifyWorldEmpty(simulation);
 		
@@ -151,7 +151,7 @@ public class StabilityIT {
 		float seekBloodProcAtNoBloodGain = ((float) Action.seekBlood.numCalls * 100) / numCalls;
 		
 		TestHelper.cleanup(simulation, timeStep);
-		Stomach.setMAX_B(50);
+		Stomach.setMAX_B(10);
 		
 		TestHelper.verifyWorldEmpty(simulation);
 		testSurvivability(BRAINLER, 5000, 500);

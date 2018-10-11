@@ -8,25 +8,32 @@ public class Tree {
 	public float[][] height;
 	public float[][] health;
 	public boolean[][] isAlive;
+	public Grass grass;
 	private float spawnRate = 1f; // TODO: Replace with i++
 	private int numTrees = 0;
 	
 	private Terrain terrain;
 	
-	public Tree(Terrain terrain) {
+	public Tree(Terrain terrain, Grass grass) {
 		height = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
 		health = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
 		isAlive = new boolean[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
 		this.terrain = terrain;
+		this.grass = grass;
 	}
 	
 	public void update() {
 		for (int x = 0 ; x < Constants.WORLD_SIZE_V.x; ++x) {
 			for (int y = 0 ; y < Constants.WORLD_SIZE_V.y; ++y) {
 				if (isAlive[x][y]) {
-					height[x][y] += growth;
-					height[x][y] *= 0.996f;
-					health[x][y] -= 1;
+					
+					if (grass.toBeUpdated[x][y]) {
+						health[x][y] -= 100;
+					}
+					else {
+						height[x][y] += growth * terrain.growth[x][y];
+						height[x][y] *= 0.996f;
+					}
 
 					if (health[x][y] < 0) {
 						die(x, y);
