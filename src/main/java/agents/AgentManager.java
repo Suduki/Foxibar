@@ -82,19 +82,6 @@ public class AgentManager<AgentClass extends Agent> {
 			}
 		}
 
-		// Remove all dead agents from loop
-		for (Agent a : toDie) {
-			alive.remove(a);
-			dead.add(a);
-		}
-		toDie.clear();
-
-		// Add all newborn agents to loop
-		for (Agent a : toLive) {
-			alive.add(a);
-			vision.updateAgentZone(a);
-		}
-		toLive.clear();
 	}
 
 
@@ -155,6 +142,22 @@ public class AgentManager<AgentClass extends Agent> {
 
 	public int getNumAgents() {
 		return numAgents;
+	}
+
+	public void synchAliveDead() {
+		// Remove all dead agents from loop
+		for (Agent a : toDie) {
+			alive.remove(a);
+			dead.add(a);
+		}
+		toDie.clear();
+		
+		// Add all newborn agents to loop
+		for (Agent a : toLive) {
+			alive.add(a);
+			vision.updateAgentZone(a);
+		}
+		toLive.clear();
 	}
 
 }

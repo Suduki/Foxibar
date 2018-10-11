@@ -40,6 +40,7 @@ public class Simulation extends MessageHandler {
 		{
 			mWorld.update(timeStep);
 			for (AgentManager<?> aM : agentManagers) {
+				aM.synchAliveDead();
 				aM.moveAll();
 			}
 		}
@@ -58,7 +59,9 @@ public class Simulation extends MessageHandler {
 	public void killAllAgents() {
 		for (AgentManager<?> aM : agentManagers) {
 			aM.killAll = true;
+			aM.synchAliveDead();
 			aM.moveAll();
+			aM.synchAliveDead();
 		}
 	}
 	

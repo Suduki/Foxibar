@@ -256,9 +256,9 @@ public abstract class Agent {
 	}
 
 	protected void die() {
-		world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size);
-		world.blood.append((int) pos.x, (int) pos.y, stomach.fat / Stomach.MAX_B);
-		world.grass.append((int) pos.x, (int) pos.y, stomach.fiber);
+		world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size, false);
+		world.blood.append((int) pos.x, (int) pos.y, stomach.fat / Stomach.getMAX_B(), false);
+		world.grass.append((int) pos.x, (int) pos.y, stomach.fiber, false);
 		//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
 		//				+ ", age=" + age + ", score = " + score);
 

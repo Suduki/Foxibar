@@ -29,10 +29,12 @@ public class Stomach {
 	}
 	
 	public static void setMAX_G(float mAX_G) {
+		System.out.println("Setting MAX_G to " + mAX_G);
 		MAX_G = mAX_G;
 	}
 
 	public static void setMAX_B(float mAX_B) {
+		System.out.println("Setting MAX_B to " + mAX_B);
 		MAX_B = mAX_B;
 	}
 
@@ -40,9 +42,9 @@ public class Stomach {
 	private float grassFunction(float p2) {
 		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
-	static float MAX_B = 3f;
+	private static float MAX_B = 3f;
 	private float bloodFunction(float p2) {
-		return (float) (a(MAX_B)*p2*p2 + b(MAX_B) * p2 + c(MAX_B));
+		return (float) (a(getMAX_B())*p2*p2 + b(getMAX_B()) * p2 + c(getMAX_B()));
 	}
 	
 	private static float a(float max) {
@@ -101,7 +103,7 @@ public class Stomach {
 		}
 		
 	}
-	public final static float FAT_TO_ENERGY_FACTOR = 0.05f;
+	public final static float FAT_TO_ENERGY_FACTOR = 0.02f;
 	private void burnFat() {
 		fat -= energyCost*FAT_TO_ENERGY_FACTOR;
 		energyCost = 0;
@@ -139,6 +141,10 @@ public class Stomach {
 		float b = -2 * c;
 		float a = c / minSpeed;
 		energyCost += a*speed*speed + b*speed + c;
+	}
+
+	public static float getMAX_B() {
+		return MAX_B;
 	}
 
 }

@@ -107,7 +107,7 @@ public class StabilityIT {
 		TestHelper.cleanup(simulation, timeStep);
 	}
 	
-	@Test //TODO: MOVE
+	@Test //TODO: MOVE; not an 
 	public void test4SpeciesTest() {
 		Brainler a = new Brainler(0, null, null);
 		a.inherit(null);
@@ -134,11 +134,13 @@ public class StabilityIT {
 	
 	@Test
 	public void testUsageOfEveryAction() {
-		Stomach.setMAX_B(0.2f);
+		float maxB = Stomach.getMAX_B();
+		
+		Stomach.setMAX_B(maxB/10);
 		
 		TestHelper.verifyWorldEmpty(simulation);
 		
-		testSurvivability(BRAINLER, 5000, 500);
+		testSurvivability(BRAINLER, 2000, 500);
 		
 		float numCalls = 0;
 		numCalls = Action.getTotCalls();
@@ -151,10 +153,11 @@ public class StabilityIT {
 		float seekBloodProcAtNoBloodGain = ((float) Action.seekBlood.numCalls * 100) / numCalls;
 		
 		TestHelper.cleanup(simulation, timeStep);
-		Stomach.setMAX_B(10);
+		
+		Stomach.setMAX_B(maxB*20);
 		
 		TestHelper.verifyWorldEmpty(simulation);
-		testSurvivability(BRAINLER, 5000, 500);
+		testSurvivability(BRAINLER, 2000, 500);
 		
 		numCalls = Action.getTotCalls();
 		
@@ -164,6 +167,9 @@ public class StabilityIT {
 		}
 		float huntStrangerProcAtHighBloodGain = ((float) Action.huntStranger.numCalls * 100) / numCalls;
 		float seekBloodProcAtHighBloodGain = ((float) Action.seekBlood.numCalls * 100) / numCalls;
+		
+		
+		Stomach.setMAX_B(maxB);
 		
 		Assert.assertTrue(huntStrangerProcAtHighBloodGain > huntStrangerProcAtNoBloodGain);
 		Assert.assertTrue(seekBloodProcAtHighBloodGain > seekBloodProcAtNoBloodGain);
@@ -175,9 +181,9 @@ public class StabilityIT {
 	private void testMultipleAgents(int type1, int type2) {
 		System.out.println("Initiating testMultipleAgentTypes");
 		System.out.println("Testing " + AGENT_TYPES_NAMES[type1] + " and " + AGENT_TYPES_NAMES[type2]);
-		int initNumAgents1 = 350;
+		int initNumAgents1 = 500;
 		int initNumAgents2 = 50;
-		testSurvivability(type1, 5000, initNumAgents1);
+		testSurvivability(type1, 1000, initNumAgents1);
 		int maxNumType1 = 0;
 		int maxNumType2 = 0;
 		simulation.spawnRandomAgents(type2, initNumAgents2);
