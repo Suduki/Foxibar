@@ -17,11 +17,11 @@ public class Stomach {
 	private float pBlood;
 	
 	
-	public void inherit(float p, float mutation) {
+	public void inherit(float p) {
 		empty();
 		fat = FAT_ON_BIRTH;
 		
-		this.p = p + Agent.rand() * mutation;
+		this.p = p + Agent.rand() * MUTATION;
 		if (p < -1) p = -1;
 		if (p > 1) p = 1;
 		pFiber = grassFunction(p);
@@ -42,7 +42,7 @@ public class Stomach {
 	private float grassFunction(float p2) {
 		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
-	private static float MAX_B = 3f;
+	private static float MAX_B = 12f;
 	private float bloodFunction(float p2) {
 		return (float) (a(getMAX_B())*p2*p2 + b(getMAX_B()) * p2 + c(getMAX_B()));
 	}
@@ -103,7 +103,7 @@ public class Stomach {
 		}
 		
 	}
-	public final static float FAT_TO_ENERGY_FACTOR = 0.02f;
+	public final static float FAT_TO_ENERGY_FACTOR = 0.05f;
 	private void burnFat() {
 		fat -= energyCost*FAT_TO_ENERGY_FACTOR;
 		energyCost = 0;
@@ -136,6 +136,7 @@ public class Stomach {
 
 	static final float minSpeed = 0.5f;
 	private static final float energyCostAtMaxSpeed = 5f;
+	public static final float MUTATION = 0.2f;
 	public void addRecoverCost(float speed) {
 		float c = energyCostAtMaxSpeed / (-1 + 1/minSpeed);
 		float b = -2 * c;

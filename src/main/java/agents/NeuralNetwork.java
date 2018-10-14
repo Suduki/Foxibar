@@ -9,7 +9,7 @@ import constants.Constants;
 
 public class NeuralNetwork implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public static final int[] LAYER_SIZES = {NeuralFactors.in.NUM_FACTORS, 5, 4, 4, Action.getNumActions() + 1};
+	public static final int[] LAYER_SIZES = {NeuralFactors.in.NUM_FACTORS, 4, Action.getNumActions() + 1};
 	public static final int NUM_LAYERS = LAYER_SIZES.length;
 	public static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 

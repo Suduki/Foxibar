@@ -18,7 +18,7 @@ public class Bloodling extends Agent {
 
 	@Override
 	public void inherit(Agent a) {
-		stomach.inherit(-1, 0);
+		stomach.inherit(-1);
 		if (a != null && !(a instanceof Bloodling)) {
 			System.err.println("inheriting non-Bloodling");
 		}

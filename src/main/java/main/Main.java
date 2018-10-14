@@ -18,7 +18,7 @@ public class Main
 	public static void main(String[] args)
 	{
 		
-		simulation     = new Simulation(new Class[] {Grassler.class, Bloodling.class});
+		simulation     = new Simulation(new Class[] {Brainler.class, Bloodling.class});
 		DisplayHandler displayHandler = new DisplayHandler(simulation);
 		FPSLimiter     fpsLimiter     = new FPSLimiter(Constants.WANTED_FPS);
 		RenderState.activateState(RenderState.RENDER_WORLD_STILL);

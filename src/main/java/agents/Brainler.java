@@ -12,6 +12,15 @@ public class Brainler extends Agent {
 	public Brain brain;
 	
 	public float[] appearanceFactors;
+	public static float APPEARANCE_MUTATION = 0.06f;
+	public final static float[] appearanceFactorsMutation = {
+		Stomach.MUTATION,
+		Stomach.MUTATION,
+		APPEARANCE_MUTATION,
+		APPEARANCE_MUTATION,
+		APPEARANCE_MUTATION,
+		APPEARANCE_MUTATION
+	};
 	public static final int NUM_APPEARANCE_FACTORS = 6;
 	
 	public Brainler(float health, World world, AgentManager<Agent> agentManager) {
@@ -62,7 +71,7 @@ public class Brainler extends Agent {
 	public void inherit(Agent a) {
 		if (a == null) {
 			this.brain.neural.initWeightsRandom();
-			stomach.inherit(rand(), 0);
+			stomach.inherit(rand());
 			inheritAppearanceFactors(null);
 		}
 		else if (!(a instanceof Brainler)) {
@@ -71,35 +80,38 @@ public class Brainler extends Agent {
 		}
 		else {
 			this.brain.inherit(((Brainler)a).brain);
-			stomach.inherit(a.stomach.p, 0.1f);
+			stomach.inherit(a.stomach.p);
 			inheritAppearanceFactors((Brainler)a);
 		}
 	}
 
-	public static float MUTATION = 0.04f;
 	private void inheritAppearanceFactors(Brainler a) {
+		appearanceFactors[0] = -stomach.p;
+		appearanceFactors[1] = stomach.p;
 		if (a == null) {
-			for (int i = 0; i < NUM_APPEARANCE_FACTORS; ++i) {
+			for (int i = 2; i < NUM_APPEARANCE_FACTORS; ++i) {
 				appearanceFactors[i] = Constants.RANDOM.nextFloat();
 			}
 		}
 		else {
-			for (int i = 0; i < NUM_APPEARANCE_FACTORS; ++i) {
-				appearanceFactors[i] = a.appearanceFactors[i] + rand()*MUTATION;
+			for (int i = 2; i < NUM_APPEARANCE_FACTORS; ++i) {
+				appearanceFactors[i] = a.appearanceFactors[i] + rand()*appearanceFactorsMutation[i];
 				if (appearanceFactors[i] > 1) {appearanceFactors[i] = 1;}
 				if (appearanceFactors[i] < 0) {appearanceFactors[i] = 0;}
 			}
 		}
 		for (int i = 0; i < 3; ++i) {
-			color[i] = (float) Math.round(appearanceFactors[i]);
-			secondaryColor[i] = (float) Math.round(appearanceFactors[i+3]);
+			color[i] = (float) Math.round(appearanceFactors[i+3]);
 		}
+		secondaryColor[0] = appearanceFactors[0];
+		secondaryColor[1] = appearanceFactors[1];
+		secondaryColor[2] = 0;
 	}
 	
 	@Override
 	public boolean isCloselyRelatedTo(Agent a) {
 		if (a instanceof Brainler) {
-			return findRelationTo((Brainler) a) < 0.005f;
+			return findRelationTo((Brainler) a) < 1f;
 		}
 		return false;
 	}
@@ -107,9 +119,11 @@ public class Brainler extends Agent {
 	public float findRelationTo(Brainler a) {
 		float relation = 0;
 		for (int i = 0; i < NUM_APPEARANCE_FACTORS; ++i) {
-			float delta = appearanceFactors[i] - a.appearanceFactors[i];
+			float delta = (appearanceFactors[i] - a.appearanceFactors[i])
+					/(appearanceFactorsMutation[i]*appearanceFactors.length);
 			relation += (delta*delta);
 		}
+		
 		return relation;
 	}
 

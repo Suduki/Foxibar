@@ -119,8 +119,14 @@ public class StabilityIT {
 		b.inherit(a);
 		Assert.assertTrue(a.isCloselyRelatedTo(b));
 		
+		boolean relation;
 		for (int gen = 0; gen < 25; gen++) {
 			b.inherit(b);
+			relation = a.isCloselyRelatedTo(b);
+			if (!relation) {
+				System.out.println("Became non-related after " + gen + " generations");
+				break;
+			}
 		}
 		Assert.assertFalse("Expected not related after 25 generations. relation = " + a.findRelationTo(b), a.isCloselyRelatedTo(b));
 	}
@@ -154,7 +160,7 @@ public class StabilityIT {
 		
 		TestHelper.cleanup(simulation, timeStep);
 		
-		Stomach.setMAX_B(maxB*20);
+		Stomach.setMAX_B(maxB*10);
 		
 		TestHelper.verifyWorldEmpty(simulation);
 		testSurvivability(BRAINLER, 2000, 500);
