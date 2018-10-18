@@ -17,7 +17,7 @@ public class SpawnAnimals extends Message {
 
 	private static final int SPAWN_FREQ = 1000;
 	private static int spawnI = 0;
-	private static boolean isActive = true;
+	private static boolean isActive = false;
 	public static void step() {
 		if (!isActive) return;
 		

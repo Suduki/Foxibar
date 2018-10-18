@@ -29,20 +29,24 @@ public class Stomach {
 	}
 	
 	public static void setMAX_G(float mAX_G) {
-		System.out.println("Setting MAX_G to " + mAX_G);
-		MAX_G = mAX_G;
+		if (MAX_G != mAX_G) {
+			System.out.println("Setting MAX_G to " + mAX_G);
+			MAX_G = mAX_G;
+		}
 	}
 
 	public static void setMAX_B(float mAX_B) {
-		System.out.println("Setting MAX_B to " + mAX_B);
-		MAX_B = mAX_B;
+		if (MAX_G != mAX_B) {
+			System.out.println("Setting MAX_B to " + mAX_B);
+			MAX_B = mAX_B;
+		}
 	}
 
-	private static float MAX_G = 0.4f;
+	private static float MAX_G = 0.7f;
 	private float grassFunction(float p2) {
 		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
-	private static float MAX_B = 12f;
+	private static float MAX_B = 1.3f;
 	private float bloodFunction(float p2) {
 		return (float) (a(getMAX_B())*p2*p2 + b(getMAX_B()) * p2 + c(getMAX_B()));
 	}
@@ -146,6 +150,9 @@ public class Stomach {
 
 	public static float getMAX_B() {
 		return MAX_B;
+	}
+	public static float getMAX_G() {
+		return MAX_G;
 	}
 
 }

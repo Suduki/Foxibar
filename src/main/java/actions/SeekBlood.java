@@ -28,6 +28,5 @@ public class SeekBlood extends Action {
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
 		a.vel.set(dir);
 		a.move();
-		a.harvestBlood();
 	}
 }

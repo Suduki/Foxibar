@@ -37,7 +37,7 @@ public class World {
 
 	public void regenerate() {
 		terrain.regenerate();
-		grass.regenerate(false);
+		grass.regenerate(true);
 		wind.regenerate();
 	}
 

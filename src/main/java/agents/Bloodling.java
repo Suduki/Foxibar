@@ -38,6 +38,12 @@ public class Bloodling extends Agent {
 	@Override
 	protected void actionUpdate() {
 		Action action;
+		action = Action.harvestBlood;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
+		}
+		
 		action = Action.seekBlood;
 		if (action.determineIfPossible(this)) {
 			action.commit(this);

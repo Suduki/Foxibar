@@ -1,22 +1,18 @@
 package actions;
 
-import org.joml.Vector2f;
-
 import agents.Agent;
 
-public class SeekGrass extends Action {
-	public Vector2f dir;
+public class HarvestGrass extends Action {
 	public float grassness;
 
-	public SeekGrass() {
-		dir = new Vector2f();
+	public HarvestGrass() {
 	}
 
 	@Override
 	public boolean determineIfPossible(Agent a) {
 		isPossible = false;
-		grassness = a.world.grass.seekHeight(dir, (int)a.pos.x, (int)a.pos.y);;
-		if (grassness > 0.1f) {
+		grassness = a.world.grass.getHeight((int)a.pos.x, (int)a.pos.y);
+		if (grassness > 0.05f) {
 			isPossible = true;
 		}
 		return isPossible;
@@ -26,7 +22,6 @@ public class SeekGrass extends Action {
 	public void commit(Agent a) {
 		numCalls++;
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
-		a.vel.set(dir);
-		a.move();
+		a.harvestGrass();
 	}
 }

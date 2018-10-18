@@ -116,4 +116,8 @@ public abstract class TileElement {
 		}
 		return 0;
 	}
+
+	public float getHeight(int x, int y) {
+		return height[x][y];
+	}
 }

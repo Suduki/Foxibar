@@ -1,5 +1,6 @@
 package main;
 
+import messages.SpawnAnimals;
 import agents.Brainler;
 import actions.Action;
 import agents.Bloodling;
@@ -35,7 +36,7 @@ public class Main
 
 		try
 		{
-//			simulation.spawnRandomAgents(0, 1000);
+			simulation.message(new SpawnAnimals());
 			int timeStep = 0;
 			while (simulation.handleMessages() && displayHandler.renderThreadThread.isAlive())
 			{

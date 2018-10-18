@@ -30,10 +30,11 @@ public class StabilityIT {
 	private static final String[] AGENT_TYPES_NAMES = new String[]{"Randomling", "Bloodling", "Brainler", "Grassler"};
 	
 	private static Integer timeStep = 1;
-
+	
 	@BeforeClass
 	public static void init() {
 		simulation     = new Simulation(new Class[] {Randomling.class, Bloodling.class, Brainler.class, Grassler.class});
+		TestHelper.init();
 		System.out.println("Before class completed");
 	}
 	
@@ -50,6 +51,9 @@ public class StabilityIT {
 			}
 		}
 	}
+	private int maxNumType1;
+
+	private int maxNumType2;
 
 	@Test
 	public void test1WorldPopulated() {
@@ -93,20 +97,110 @@ public class StabilityIT {
 	
 	@Test
 	public void testMultipleAgentRandomlingBloodling() {
-		testMultipleAgents(RANDOMLING, BLOODLING);
-		TestHelper.cleanup(simulation, timeStep);
-	}
-	@Test
-	public void testMultipleAgentBrainlerBloodling() {
-		testMultipleAgents(BRAINLER, BLOODLING);
-		TestHelper.cleanup(simulation, timeStep);
-	}
-	@Test
-	public void testMultipleAgentGrasslerBloodling() {
-		testMultipleAgents(GRASSLER, BLOODLING);
+		int type1 = RANDOMLING;
+		int type2 = BLOODLING;
+		int initNumAgents1 = 500;
+		int initNumAgents2 = 50;
+		System.out.println("Initiating testMultipleAgentTypes");
+		System.out.println("Testing " + AGENT_TYPES_NAMES[type1] + " and " + AGENT_TYPES_NAMES[type2]);
+		testMultipleAgents(type1, type2, initNumAgents1, initNumAgents2);
+		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type1] + " populations size to increase.", maxNumType1 > initNumAgents1);
+		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type2] + " populations size to increase.", maxNumType2 > initNumAgents2);
 		TestHelper.cleanup(simulation, timeStep);
 	}
 	
+	@Test
+	public void testMultipleAgentGrasslerBloodling() {
+		int type1 = GRASSLER;
+		int type2 = BLOODLING;
+		int initNumAgents1 = 500;
+		int initNumAgents2 = 50;
+		System.out.println("Initiating testMultipleAgentTypes");
+		System.out.println("Testing " + AGENT_TYPES_NAMES[type1] + " and " + AGENT_TYPES_NAMES[type2]);
+		testMultipleAgents(type1, type2, initNumAgents1, initNumAgents2);
+		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type1] + " populations size to increase.", maxNumType1 > initNumAgents1);
+		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type2] + " populations size to increase.", maxNumType2 > initNumAgents2);
+		TestHelper.cleanup(simulation, timeStep);
+	}
+	
+	private class StomachRecommendation {
+		public StomachRecommendation(float lowLimit, float highLimit) {
+			this.lowLimit = lowLimit;
+			this.highLimit = highLimit;
+			setMean();
+		}
+		public StomachRecommendation() {}
+		
+		float lowLimit;
+		float highLimit;
+		float mean;
+		
+		void printStuff() {
+			System.out.println("lowLimit="+lowLimit + " highLimit=" + highLimit + " mean=" + mean);
+		}
+		public void setMean() {
+			mean = (lowLimit + highLimit)/2;
+		}
+	}
+	
+	public StomachRecommendation findSuitableGrassP() {
+		float grassP = 0;
+		int numAgents;
+		boolean foundLowG = false;
+		float lowGrassP = 0;
+		do {
+			grassP += 0.1f;
+			Stomach.setMAX_G(grassP);
+			testSurvivability(GRASSLER, 500, 100);
+			numAgents = simulation.getNumAgents(GRASSLER);
+			TestHelper.cleanup(simulation, timeStep);
+			if (!foundLowG && numAgents > 100) {
+				foundLowG = true;
+				lowGrassP = grassP;
+			}
+		} while (numAgents < 3000);
+		TestHelper.cleanup(simulation, timeStep);
+		StomachRecommendation tmp = new StomachRecommendation(lowGrassP, grassP);
+		tmp.printStuff();
+		return tmp;
+	}
+	
+	@Test
+	public void findSuitableBloodP() {
+		StomachRecommendation grassThingP = findSuitableGrassP();
+		StomachRecommendation bloodThingP = new StomachRecommendation();
+		
+		float bloodP = 0.2f;
+		int numGrasslers;
+		boolean foundLowB = false;
+		
+		int type1 = GRASSLER;
+		int type2 = BLOODLING;
+		int initNumAgents1 = 500;
+		int initNumAgents2 = 50;
+		
+		do {
+			bloodP += 0.2f;
+			Stomach.setMAX_G(grassThingP.highLimit);
+			Stomach.setMAX_B(bloodP);
+			testMultipleAgents(type1, type2, initNumAgents1, initNumAgents2);
+			numGrasslers = simulation.getNumAgents(GRASSLER);
+			TestHelper.cleanup(simulation, timeStep);
+			if (!foundLowB && maxNumType2 > 100) {
+				foundLowB = true;
+				bloodThingP.lowLimit = bloodP;
+			}
+			Assert.assertTrue("Did not expect bloodP to be this high",  bloodP < 30);
+		} while (numGrasslers != 0);
+		bloodThingP.highLimit = bloodP;
+		bloodThingP.setMean();
+		
+		grassThingP.printStuff();
+		bloodThingP.printStuff();
+		
+		TestHelper.cleanup(simulation, timeStep);
+	}
+
 	@Test //TODO: MOVE; not an 
 	public void test4SpeciesTest() {
 		Brainler a = new Brainler(0, null, null);
@@ -148,13 +242,7 @@ public class StabilityIT {
 		
 		testSurvivability(BRAINLER, 2000, 500);
 		
-		float numCalls = 0;
-		numCalls = Action.getTotCalls();
-		
-		for (Action act : Action.acts) {
-			float perc = ((float) act.numCalls * 100) / numCalls;
-			System.out.println(act.getClass().getSimpleName() + ": " + perc + "%");
-		}
+		float numCalls = printActions();
 		float huntStrangerProcAtNoBloodGain = ((float) Action.huntStranger.numCalls * 100) / numCalls;
 		float seekBloodProcAtNoBloodGain = ((float) Action.seekBlood.numCalls * 100) / numCalls;
 		
@@ -165,12 +253,9 @@ public class StabilityIT {
 		TestHelper.verifyWorldEmpty(simulation);
 		testSurvivability(BRAINLER, 2000, 500);
 		
-		numCalls = Action.getTotCalls();
+		numCalls = printActions();
 		
-		for (Action act : Action.acts) {
-			float perc = ((float) act.numCalls * 100) / numCalls;
-			System.out.println(act.getClass().getSimpleName() + ": " + perc + "%");
-		}
+		
 		float huntStrangerProcAtHighBloodGain = ((float) Action.huntStranger.numCalls * 100) / numCalls;
 		float seekBloodProcAtHighBloodGain = ((float) Action.seekBlood.numCalls * 100) / numCalls;
 		
@@ -181,17 +266,23 @@ public class StabilityIT {
 		Assert.assertTrue(seekBloodProcAtHighBloodGain > seekBloodProcAtNoBloodGain);
 	}
 
+
 	/////////////
 	// HELPERS //
 	/////////////
-	private void testMultipleAgents(int type1, int type2) {
-		System.out.println("Initiating testMultipleAgentTypes");
-		System.out.println("Testing " + AGENT_TYPES_NAMES[type1] + " and " + AGENT_TYPES_NAMES[type2]);
-		int initNumAgents1 = 500;
-		int initNumAgents2 = 50;
+	private int printActions() {
+		int numCalls = (int) Action.getTotCalls();
+		for (Action act : Action.acts) {
+			float perc = ((float) act.numCalls * 100) / numCalls;
+			System.out.println(act.getClass().getSimpleName() + ": " + perc + "%");
+		}
+		return numCalls;
+	}
+
+	private void testMultipleAgents(int type1, int type2, int initNumAgents1, int initNumAgents2) {
 		testSurvivability(type1, 1000, initNumAgents1);
-		int maxNumType1 = 0;
-		int maxNumType2 = 0;
+		maxNumType1 = 0;
+		maxNumType2 = 0;
 		simulation.spawnRandomAgents(type2, initNumAgents2);
 		int t;
 		for (t = 0; t < 6000; t++) {
@@ -215,13 +306,6 @@ public class StabilityIT {
 		}
 		System.out.println("Max number of " + AGENT_TYPES_NAMES[type1] + ": " + maxNumType1);
 		System.out.println("Max number of " + AGENT_TYPES_NAMES[type2] + ": " + maxNumType2);
-		TestHelper.cleanup(simulation, timeStep);
-		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type1] + " populations size to increase.", maxNumType1 > initNumAgents1);
-		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type2] + " populations size to increase.", maxNumType2 > initNumAgents2);
-		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type1] + " to survive longer.", t > 200);
-		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type2] + " to survive longer.", t > 200);
-		
-		System.out.println("Test case testMultipleAgentTypes completed.");
 	}
 	
 	private void testSurvivability(int agentType, int simTime, int numInit) {

@@ -5,8 +5,18 @@ import org.junit.Assert;
 import simulation.Simulation;
 import vision.Vision;
 import actions.Action;
+import agents.Stomach;
 
 public class TestHelper {
+	
+	public static float originalMaxB;
+	public static float originalMaxG;
+	
+	public static void init() {
+		originalMaxB = Stomach.getMAX_B();
+		originalMaxG = Stomach.getMAX_G();
+	}
+	
 	public static void cleanup(Simulation simulation, Integer timeStep) {
 		Action.reset();
 		
@@ -14,6 +24,9 @@ public class TestHelper {
 		simulation.step(timeStep++);
 		verifyWorldEmpty(simulation);
 		simulation.mWorld.reset(true);
+		
+		Stomach.setMAX_B(originalMaxB);
+		Stomach.setMAX_G(originalMaxG);
 	}
 	
 	public static void verifyWorldEmpty(Simulation simulation) {

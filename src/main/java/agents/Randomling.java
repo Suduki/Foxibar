@@ -6,7 +6,7 @@ import world.World;
 
 public class Randomling extends Agent {
 
-	private float speed = 1f;
+	private static final float speed = 1f;
 	
 	public Randomling(float health, World world, AgentManager<Agent> agentManager) {
 		super(health, world, agentManager);
@@ -40,7 +40,13 @@ public class Randomling extends Agent {
 	@Override
 	protected void actionUpdate() {
 		
-		Action action = Action.randomWalk;
+		Action action = Action.harvestGrass;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
+		}
+		
+		action = Action.randomWalk;
 		if (action.determineIfPossible(this)) {
 			action.commit(this);
 			return;
