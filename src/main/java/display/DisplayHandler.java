@@ -38,46 +38,48 @@ public class DisplayHandler extends MessageHandler {
 			this.mDisplayHandler = pDisplayHandler;
 		}
 		
-		Region createLegacyGui(LegacyRenderer legacyRenderer)
+		RegionI createLegacyGui(LegacyRenderer legacyRenderer)
 		{
-			Region scene = new SceneRegion(legacyRenderer);
+			RegionI scene = new SceneRegion(legacyRenderer);
 
 			ArrayRegion menu = new ArrayRegion(ArrayRegion.Vertical);
-			menu.insertRegion( 0, new Button("Import Brains", ()->legacyRenderer.actionLoadBrains()));
-			menu.insertRegion( 1, new Button("Export Brains", ()->legacyRenderer.actionSaveBrains()));
-			menu.insertRegion( 2, new Button("Regenerate",    ()->legacyRenderer.actionRegenerateWorld()));
-			menu.insertRegion( 3, new Button("Cycle Modes",   ()->legacyRenderer.actionToggleRenderAnimals()));
-			menu.insertRegion( 4, new Button("Kill Animals",  ()->legacyRenderer.actionKillAllAnimals()));
+			menu.insertRegion( 0, new Button("Import Brains",	()->legacyRenderer.actionLoadBrains()));
+			menu.insertRegion( 1, new Button("Export Brains",	()->legacyRenderer.actionSaveBrains()));
+			menu.insertRegion( 2, new Button("Regenerate",		()->legacyRenderer.actionRegenerateWorld()));
+			menu.insertRegion( 3, new Button("Cycle Modes",		()->legacyRenderer.actionToggleRenderAnimals()));
+			menu.insertRegion( 4, new Button("Kill Animals",	()->legacyRenderer.actionKillAllAnimals()));
+			menu.insertRegion( 5, new Button("Spawn Animals",	()->legacyRenderer.actionSpawnAnimals()));
 			
 			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
 			return view;
 		}
 		
-		Region createModernGui(TerrainRenderer terrainRenderer) {
-			Region scene = new SceneRegion(terrainRenderer);
+		RegionI createModernGui(TerrainRenderer terrainRenderer) {
+			RegionI scene = new SceneRegion(terrainRenderer);
 		
 			ArrayRegion menu = new ArrayRegion(ArrayRegion.Vertical);
-			menu.insertRegion( 0, new Button("Simulation On/Off", ()->mSimulate = !mSimulate));
-			menu.insertRegion( 1, new Button(" 1 iter/frame", ()->terrainRenderer.setIterationsPerFrame(1)));
-			menu.insertRegion( 2, new Button(" 5 iter/frame", ()->terrainRenderer.setIterationsPerFrame(5)));
-			menu.insertRegion( 3, new Button("10 iter/frame", ()->terrainRenderer.setIterationsPerFrame(10)));
-			menu.insertRegion( 4, new Button("15 iter/frame", ()->terrainRenderer.setIterationsPerFrame(15)));
-			menu.insertRegion( 5, new Button("20 iter/frame", ()->terrainRenderer.setIterationsPerFrame(20)));
-			menu.insertRegion( 6, new Button("25 iter/frame", ()->terrainRenderer.setIterationsPerFrame(25)));
-			menu.insertRegion( 7, new Button("30 iter/frame", ()->terrainRenderer.setIterationsPerFrame(30)));
-			menu.insertRegion( 8, new Button("35 iter/frame", ()->terrainRenderer.setIterationsPerFrame(35)));
-			menu.insertRegion( 9, new Button("40 iter/frame", ()->terrainRenderer.setIterationsPerFrame(40)));
-			menu.insertRegion(10, new Button("45 iter/frame", ()->terrainRenderer.setIterationsPerFrame(45)));
-			menu.insertRegion(11, new Button("50 iter/frame", ()->terrainRenderer.setIterationsPerFrame(50)));
+			int buttonId = 0;
+			menu.insertRegion(buttonId++, new Button("Simulation On/Off", ()->mSimulate = !mSimulate));
+			menu.insertRegion(buttonId++, new Button(" 1 iter/frame", ()->terrainRenderer.setIterationsPerFrame(1)));
+			menu.insertRegion(buttonId++, new Button(" 5 iter/frame", ()->terrainRenderer.setIterationsPerFrame(5)));
+			menu.insertRegion(buttonId++, new Button("10 iter/frame", ()->terrainRenderer.setIterationsPerFrame(10)));
+			menu.insertRegion(buttonId++, new Button("15 iter/frame", ()->terrainRenderer.setIterationsPerFrame(15)));
+			menu.insertRegion(buttonId++, new Button("20 iter/frame", ()->terrainRenderer.setIterationsPerFrame(20)));
+			menu.insertRegion(buttonId++, new Button("25 iter/frame", ()->terrainRenderer.setIterationsPerFrame(25)));
+			menu.insertRegion(buttonId++, new Button("30 iter/frame", ()->terrainRenderer.setIterationsPerFrame(30)));
+			menu.insertRegion(buttonId++, new Button("35 iter/frame", ()->terrainRenderer.setIterationsPerFrame(35)));
+			menu.insertRegion(buttonId++, new Button("40 iter/frame", ()->terrainRenderer.setIterationsPerFrame(40)));
+			menu.insertRegion(buttonId++, new Button("45 iter/frame", ()->terrainRenderer.setIterationsPerFrame(45)));
+			menu.insertRegion(buttonId++, new Button("50 iter/frame", ()->terrainRenderer.setIterationsPerFrame(50)));
 			
-			menu.insertRegion(12, new Button("Flatness: 0.00", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.0f)));
-			menu.insertRegion(13, new Button("Flatness: 0.25", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.25f)));
-			menu.insertRegion(14, new Button("Flatness: 0.50", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.5f)));
-			menu.insertRegion(15, new Button("Flatness: 0.75", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.75f)));
-			menu.insertRegion(16, new Button("Flatness: 1.00", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(1.0f)));
+			menu.insertRegion(buttonId++, new Button("Flatness: 0.00", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.0f)));
+			menu.insertRegion(buttonId++, new Button("Flatness: 0.25", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.25f)));
+			menu.insertRegion(buttonId++, new Button("Flatness: 0.50", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.5f)));
+			menu.insertRegion(buttonId++, new Button("Flatness: 0.75", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.75f)));
+			menu.insertRegion(buttonId++, new Button("Flatness: 1.00", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(1.0f)));
 			
-			menu.insertRegion(17, new Button("Render Grass", ()->terrainRenderer.setDrawGrass()));
-			menu.insertRegion(18, new Button("Step Grass Quality", ()->terrainRenderer.stepGrassQuality()));
+			menu.insertRegion(buttonId++, new Button("Render Grass", ()->terrainRenderer.setDrawGrass()));
+			menu.insertRegion(buttonId++, new Button("Step Grass Quality", ()->terrainRenderer.stepGrassQuality()));
 			
 			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
 			return view;
@@ -96,11 +98,10 @@ public class DisplayHandler extends MessageHandler {
 			mainMenu.insertRegion(0, toggleButton);
 			
 			TerrainRenderer terrainRenderer = new TerrainRenderer(mWindow);
-			Region modernView = createModernGui(terrainRenderer);
-			Region legacyView = createLegacyGui(new LegacyRenderer(mDisplayHandler, mSimulation));
+			RegionI modernView = createModernGui(terrainRenderer);
+			RegionI legacyView = createLegacyGui(new LegacyRenderer(mDisplayHandler, mSimulation));
 			
-			HorizontalSplitRegion rootRegion = new HorizontalSplitRegion(mainMenu,modernView);
-			
+			HorizontalSplitRegion rootRegion = new HorizontalSplitRegion(mainMenu, legacyView);
 			toggleButton.setCallback(() -> {
 				if (rootRegion.getBottomSubRegion() != modernView) {
 					rootRegion.setBottomSubRegion(modernView);
@@ -108,11 +109,10 @@ public class DisplayHandler extends MessageHandler {
 				else {
 					rootRegion.setBottomSubRegion(legacyView);
 				}
-				
 				rootRegion.updateGeometry();
 			});
 			
-			GuiRoot guiRoot = new GuiRoot(mWindow);
+			GuiRoot guiRoot = new GuiRoot(mWindow, mSimulation);
 			guiRoot.setRootRegion(rootRegion);
 
 			mWindow.makeCurrent();

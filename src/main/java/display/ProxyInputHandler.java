@@ -26,7 +26,7 @@ public class ProxyInputHandler implements InputHandlerI {
 	public void handleMouseEvents(long window, int button, int action, int mods) {
 		for (InputHandlerI handler : mInputHandlers) {
 			handler.handleMouseEvents(window, button, action, mods);
-		}		
+		}
 	}
 
 	@Override

@@ -29,7 +29,6 @@ public class Window {
 	}
 	
 	public boolean handleEvents() {
-
 		if (glfwWindowShouldClose(mWindowId)) {
 			return false;
 		}

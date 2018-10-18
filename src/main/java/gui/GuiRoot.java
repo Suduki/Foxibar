@@ -1,27 +1,31 @@
 package gui;
 
+import constants.Constants;
+import simulation.Simulation;
 import display.InputHandlerI;
 import display.Window;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
-public class GuiRoot implements InputHandlerI, Region {
-	private Window            mWindow              = null;
-	private Region            mRootRegion          = null;
-	private Region            mKeyboardFocusRegion = null;
-	private GuiRenderer       mGuiRenderer         = null;
-	private MouseStateImpl    mMouseState          = null;
-	private KeyboardStateImpl mKeyboardState       = null;
+public class GuiRoot implements InputHandlerI, RegionI {
+	private Window				mWindow					= null;
+	private RegionI				mRootRegion				= null;
+	private RegionI				mKeyboardFocusRegion	= null;
+	private GuiRenderer			mGuiRenderer			= null;
+	private MouseStateImpl		mMouseState				= null;
+	private KeyboardStateImpl	mKeyboardState			= null;
+	private Simulation			mSimulation				= null;
 	
-	public GuiRoot(Window pWindow) {
+	public GuiRoot(Window pWindow, Simulation pSimulation) {
 		mWindow = pWindow;
 		mWindow.setInputHandler(this);
-		mGuiRenderer   = new GuiRenderer();
-		mMouseState    = new MouseStateImpl();
-		mKeyboardState = new KeyboardStateImpl();
+		mGuiRenderer   	= new GuiRenderer();
+		mMouseState    	= new MouseStateImpl();
+		mKeyboardState 	= new KeyboardStateImpl();
+		mSimulation		= pSimulation;
 	}
 		
-	public void setRootRegion(Region pRootRegion) {
+	public void setRootRegion(RegionI pRootRegion) {
 		mRootRegion = pRootRegion;
 		
 		if (mRootRegion != null) {
@@ -48,9 +52,43 @@ public class GuiRoot implements InputHandlerI, Region {
 			if (mKeyboardFocusRegion != null) {
 				mKeyboardFocusRegion.handleKeyboardEvent(mKeyboardState);
 			}
+			handleCommonKeyboardReleaseEvents(action, key);
 		}
 	}
 	
+	private void handleCommonKeyboardReleaseEvents(int action, int key) {
+		if (action == GLFW_RELEASE) {
+			switch (key) {
+
+			case GLFW_KEY_SPACE:
+				System.out.println("KEY_SPACE released, handled in handleCommonKeyboardReleaseEvents");
+				mSimulation.message(new messages.PauseSimulation());
+				break;
+
+			case GLFW_KEY_R:
+//				mSimulation.zoomFactor = 1.0f;
+//				mSimulation.x0 = 0;
+//				mSimulation.y0 = 0;
+				break;
+
+			case GLFW_KEY_2:
+				System.out.println("KEY_2 released, handled in handleCommonKeyboardReleaseEvents");
+				utils.FPSLimiter.mWantedFps /= 2;
+				break;
+
+			case GLFW_KEY_1:
+				System.out.println("KEY_1 released, handled in handleCommonKeyboardReleaseEvents");
+				utils.FPSLimiter.mWantedFps *= 2;
+				break;
+
+			case GLFW_KEY_3:
+				System.out.println("KEY_3 released, handled in handleCommonKeyboardReleaseEvents");
+				utils.FPSLimiter.mWantedFps = Constants.WANTED_FPS;
+				break;
+			}
+		}
+	}
+
 	@Override
 	public void handleMouseEvents(long window, int button, int action, int mods) {
 		if (action == GLFW_PRESS) {
@@ -66,7 +104,7 @@ public class GuiRoot implements InputHandlerI, Region {
 		
 		mRootRegion.handleMouseEvent(MouseEvent.BUTTON, mMouseState);
 		
-		Region candidate = mMouseState.getKeyboardFocusCandidate(); 
+		RegionI candidate = mMouseState.getKeyboardFocusCandidate(); 
 		mMouseState.resetKeyboardFocusCandidate();		
 		if (mKeyboardFocusRegion != candidate) {			
 			if (mKeyboardFocusRegion != null) {
@@ -134,7 +172,7 @@ public class GuiRoot implements InputHandlerI, Region {
 	}
 	
 	@Override
-	public Region getParent() {
+	public RegionI getParent() {
 		return null;
 	}
 	
@@ -153,7 +191,7 @@ public class GuiRoot implements InputHandlerI, Region {
 	@Override public boolean hasKeyboardFocus() {return false;} // TODO Auto-generated method stub
 	@Override public boolean keyboardFocusGranted() {return false;} // TODO Auto-generated method stub
 	@Override public void    keyboardFocusRevoked() {} // TODO Auto-generated method stub
-	@Override public void    setParent(Region pParent) {} // TODO Auto-generated method stub
+	@Override public void    setParent(RegionI pParent) {} // TODO Auto-generated method stub
 
 	@Override
 	public Point minSize() {

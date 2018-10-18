@@ -7,7 +7,7 @@ public class MouseStateImpl implements MouseState {
 	private Point mOldDelta = new Point(0, 0);
 	private int mLatestButtonIndex = -1;
 	private boolean[] mButtonStates = {false, false, false, false, false, false, false, false}; // TODO: Why 8 button states, huh?
-	private Region mKeyboardFocusCandidate = null;
+	private RegionI mKeyboardFocusCandidate = null;
 		
 	/**
 	 * {@inheritDoc}
@@ -15,7 +15,7 @@ public class MouseStateImpl implements MouseState {
 	 * @see #resetKeyboardFocusCandidate()
 	 */
 	@Override
-	public boolean setKeyboardFocusCandidate(Region pCandidateRegion) {
+	public boolean setKeyboardFocusCandidate(RegionI pCandidateRegion) {
 		if (mKeyboardFocusCandidate != null) {
 			return false;
 		}
@@ -111,7 +111,7 @@ public class MouseStateImpl implements MouseState {
 	 * @see #setKeyboardFocusCandidate
 	 * @see #resetKeyboardFocusCandidate
 	 */
-	public Region getKeyboardFocusCandidate() {
+	public RegionI getKeyboardFocusCandidate() {
 		return mKeyboardFocusCandidate;
 	}
 	

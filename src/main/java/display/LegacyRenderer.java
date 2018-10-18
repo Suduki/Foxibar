@@ -15,7 +15,7 @@ import constants.Constants;
 import gui.KeyboardState;
 import gui.MouseEvent;
 import gui.MouseState;
-import gui.Region;
+import gui.RegionI;
 import input.Mouse;
 import main.Main;
 import math.Vector2f;
@@ -36,7 +36,7 @@ public class LegacyRenderer implements gui.SceneRegionRenderer {
 	private Simulation mSimulation;
 	private DisplayHandler mDisplayHandler;
 	private boolean mSimulationPaused = false;
-	Region mRegion;
+	RegionI mRegion;
 	
 	private float[] circleVerticesX;
 	private float[] circleVerticesY;
@@ -68,6 +68,10 @@ public class LegacyRenderer implements gui.SceneRegionRenderer {
 
 public void actionKillAllAnimals() {
 	mSimulation.message(new messages.KillAllAnimals());
+}
+
+public void actionSpawnAnimals() {
+	mSimulation.message(new messages.SpawnAnimals());
 }
 
 public void actionToggleRenderAnimals() {
@@ -425,28 +429,9 @@ public void actionLoadBrains() {
 		return yOffset;
 	}
 
-	private void togglePause() {
-		if ((mSimulationPaused ^= true))
-		{
-			mSimulation.message(new messages.PauseSimulation());
-		}
-		else
-		{
-			mSimulation.message(new messages.UnpauseSimulation());
-		}
-	}
-
 	public void handleKeyboardEvents(int action, int key) {
 		if (action == GLFW_RELEASE) {
 			switch (key) {
-			case GLFW_KEY_ESCAPE:
-				//mWindow2.requestClose();
-				//mWindow.requestClose();
-				break;
-
-			case GLFW_KEY_SPACE:
-				togglePause();
-				break;
 
 			case GLFW_KEY_D:
 				startX++;
@@ -476,27 +461,12 @@ public void actionLoadBrains() {
 				}
 				break;
 
-			case GLFW_KEY_K:
-				mSimulation.message(new messages.KillAllAnimals());
-				break;
-
 			case GLFW_KEY_R:
 				zoomFactor = 1.0f;
 				x0 = 0;
 				y0 = 0;
 				break;
 
-			case GLFW_KEY_2:
-				utils.FPSLimiter.mWantedFps /= 2;
-				break;
-
-			case GLFW_KEY_1:
-				utils.FPSLimiter.mWantedFps *= 2;
-				break;
-
-			case GLFW_KEY_3:
-				utils.FPSLimiter.mWantedFps = Constants.WANTED_FPS;
-				break;
 			}
 		}
 	}
@@ -673,7 +643,7 @@ public void actionLoadBrains() {
 	}
 
 	@Override
-	public void setRegion(Region region) {
+	public void setRegion(RegionI region) {
 		mRegion = region;
 	}
 }

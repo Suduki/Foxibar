@@ -11,10 +11,19 @@ import agents.AgentManager;
 import constants.Constants;
 import messages.MessageHandler;
 import messages.Message;
+import messages.SpawnAnimals;
 
 public class Simulation extends MessageHandler {
 	public World mWorld;
 	private boolean mPaused = false;
+	
+	public boolean isPaused() {
+		return mPaused;
+	}
+
+	public void setPaused(boolean mPaused) {
+		this.mPaused = mPaused;
+	}
 	public Vision vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
 	
 	public ArrayList<AgentManager<?>> agentManagers = new ArrayList<>();
@@ -39,6 +48,7 @@ public class Simulation extends MessageHandler {
 		if (!mPaused)
 		{
 			mWorld.update(timeStep);
+			SpawnAnimals.step();
 			for (AgentManager<?> aM : agentManagers) {
 				aM.synchAliveDead();
 				aM.moveAll();
@@ -51,11 +61,6 @@ public class Simulation extends MessageHandler {
 		return mWorld;
 	}
 	
-	public void setPause(boolean pPaused)
-	{
-		mPaused = pPaused;
-	}
-
 	public void killAllAgents() {
 		for (AgentManager<?> aM : agentManagers) {
 			aM.killAll = true;

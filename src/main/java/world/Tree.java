@@ -1,9 +1,12 @@
 package world;
 
+import java.util.Random;
+
 import constants.Constants;
 
 public class Tree {
 
+	public static final Random RANDOM = new Random();
 	private static final float growth = 0.05f;
 	public float[][] height;
 	public float[][] health;
@@ -41,9 +44,9 @@ public class Tree {
 				}
 			}
 		}
-		if (Constants.RANDOM.nextFloat() < spawnRate/numTrees) {
-			int x = Constants.RANDOM.nextInt(Constants.WORLD_SIZE_V.x);
-			int y = Constants.RANDOM.nextInt(Constants.WORLD_SIZE_V.y);
+		if (RANDOM.nextFloat() < spawnRate/numTrees) {
+			int x = RANDOM.nextInt(Constants.WORLD_SIZE_V.x);
+			int y = RANDOM.nextInt(Constants.WORLD_SIZE_V.y);
 			if (!isAlive[x][y] && !terrain.water[x][y] && !terrain.stone[x][y]) {
 				resurrect(x, y);
 			}

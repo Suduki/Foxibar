@@ -7,7 +7,7 @@ public abstract class SplitRegion extends AbstractRegion {
 	public static final int Vertical   = 0;
 	public static final int Horizontal = 1;
 	
-	protected Region mSubRegions[] = {null, null};
+	protected RegionI mSubRegions[] = {null, null};
 	protected double mDividerPosition = 0.5;
 	protected boolean mMovingDivider = false;
 	protected int mMovingDividerPosition = -1;
@@ -21,7 +21,7 @@ public abstract class SplitRegion extends AbstractRegion {
 		mDirection = pDirection;
 	}
 	
-	public SplitRegion(Region pSubRegion0, Region pSubRegion1, int pDirection) {
+	public SplitRegion(RegionI pSubRegion0, RegionI pSubRegion1, int pDirection) {
 		this(pDirection);
 		mSubRegions[0] = pSubRegion0;
 		mSubRegions[1] = pSubRegion1;
@@ -127,7 +127,7 @@ public abstract class SplitRegion extends AbstractRegion {
 	
 	@Override
 	public boolean handleKeyboardEvent(KeyboardState pEvent) {
-		// TODO Auto-generated method stub
+		System.out.println("SplitRegion Keyboard Event");
 		return false;
 	}
 }

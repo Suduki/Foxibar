@@ -26,14 +26,14 @@ import gpu.VBO;
 import gui.KeyboardState;
 import gui.MouseEvent;
 import gui.MouseState;
-import gui.Region;
+import gui.RegionI;
 import main.Main;
 import world.World;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class TerrainRenderer implements gui.SceneRegionRenderer {
 	// Visualisation.
-	private Region              mRegion           = null;
+	private RegionI              mRegion           = null;
 	private Camera              mCamera           = null;
 	private FlyCameraController mCameraController = null;
 	private Texture             mStrataTexture    = null;
@@ -496,7 +496,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	}
 
 	@Override
-	public void setRegion(Region region) {
+	public void setRegion(RegionI region) {
 		mRegion = region;
 	}
 

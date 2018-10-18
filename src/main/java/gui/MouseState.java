@@ -48,5 +48,5 @@ public interface MouseState {
 	 * @param pCandidateRegion Region that will get keyboard focus.
 	 * @return true if pCandidateRegion was not null and focus was granted. false otherwise.
 	 */
-	public boolean setKeyboardFocusCandidate(Region pCandidateRegion);
+	public boolean setKeyboardFocusCandidate(RegionI pCandidateRegion);
 }

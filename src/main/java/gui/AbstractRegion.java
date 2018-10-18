@@ -1,11 +1,13 @@
 package gui;
 
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import display.Window;
 
-public abstract class AbstractRegion implements Region {
+public abstract class AbstractRegion implements RegionI {
 	protected Point  mPos  = new Point();
 	protected Point  mSize = new Point();
-	protected Region mParentRegion = null;
+	protected RegionI mParentRegion = null;
 	protected boolean mHasKeyboardFocus = false;
 	
 	@Override
@@ -47,10 +49,11 @@ public abstract class AbstractRegion implements Region {
 	 * @param pState  The state of the mouse.
 	 * @param pEvent  The event to be forwarded.
 	 */
-	public void handleMouseEventForRegion(Region pRegion, MouseEvent pEvent, MouseState pState) {
+	public void handleMouseEventForRegion(RegionI pRegion, MouseEvent pEvent, MouseState pState) {
 		if (pRegion != null) {
 			if (pRegion.didMouseEnter(pState)) {
-				pRegion.handleMouseEvent(MouseEvent.ENTER, pState);			
+				pRegion.handleMouseEvent(MouseEvent.ENTER, pState);
+				
 			}
 			else if (pRegion.didMouseLeave(pState)) {
 				pRegion.handleMouseEvent(MouseEvent.LEAVE, pState);
@@ -84,12 +87,12 @@ public abstract class AbstractRegion implements Region {
 	}
 	
 	@Override
-	public void setParent(Region pParent) {
+	public void setParent(RegionI pParent) {
 		mParentRegion = pParent;
 	}
 	
 	@Override
-	public Region getParent() {
+	public RegionI getParent() {
 		return mParentRegion;
 	}
 	
@@ -98,7 +101,7 @@ public abstract class AbstractRegion implements Region {
 		if (mParentRegion != null) {
 			return mParentRegion.getWindow();
 		}
-		
+
 		return null;
 	}
 }

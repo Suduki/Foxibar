@@ -8,7 +8,13 @@ public class PauseSimulation extends Message
 	public String messageName() { return "PauseSimulation"; }
 	
 	public void evaluate(Simulation s) {
+		if (!s.isPaused()) {
 			System.out.println("Pausing simulation.");
-			s.setPause(true);			
+			s.setPaused(true);
+		}
+		else {
+			System.out.println("Unpausing simulation.");
+			s.setPaused(false);
+		}
 	}
 }

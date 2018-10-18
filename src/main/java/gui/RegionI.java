@@ -2,7 +2,7 @@ package gui;
 
 import display.Window;
 
-public interface Region {
+public interface RegionI {
 	public boolean render(GuiRenderer pGuiRenderer);
 	
 	public boolean handleMouseEvent(MouseEvent pEvent, MouseState pMouse);
@@ -22,7 +22,7 @@ public interface Region {
 	
 	public Point minSize();
 	
-	public void setParent(Region pParent);
-	public Region getParent();
+	public void setParent(RegionI pParent);
+	public RegionI getParent();
 	public Window getWindow();
 }

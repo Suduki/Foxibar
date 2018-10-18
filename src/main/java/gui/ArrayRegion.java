@@ -7,16 +7,16 @@ public class ArrayRegion extends AbstractRegion {
 	public static final int Horizontal = 0;
 	public static final int Vertical = 1;
 	
-	private ArrayList<Region> mSubRegions;
+	private ArrayList<RegionI> mSubRegions;
 	private Point mSpacing = new Point(8,8);
 	private int mDirection;
 	
 	public ArrayRegion(int pDirection) {
-		mSubRegions = new ArrayList<Region>();
+		mSubRegions = new ArrayList<RegionI>();
 		mDirection = pDirection;
 	}
 	
-	public void insertRegion(int index, Region region) {
+	public void insertRegion(int index, RegionI region) {
 		region.setParent(this);
 		mSubRegions.add(index, region);
 		updateGeometry();
@@ -47,7 +47,7 @@ public class ArrayRegion extends AbstractRegion {
 			
 			if (mDirection == Horizontal) {
 				int x = mPos.x + mSpacing.x;
-				for (Region r : mSubRegions) {
+				for (RegionI r : mSubRegions) {
 					int w = r.minSize().x;
 					r.updateGeometry(x, mPos.y + mSpacing.y, w, mSize.y - mSpacing.y*2);
 					x += (w + mSpacing.x);
@@ -55,7 +55,7 @@ public class ArrayRegion extends AbstractRegion {
 			}
 			else {
 				int y = mPos.y + mSpacing.y;
-				for (Region r : mSubRegions) {
+				for (RegionI r : mSubRegions) {
 					int h = r.minSize().y;
 					r.updateGeometry(mPos.x + mSpacing.x, y, mSize.x - mSpacing.x*2, h);
 					y += (h + mSpacing.y);
@@ -68,7 +68,7 @@ public class ArrayRegion extends AbstractRegion {
 	public Point minSize() {
 		Point min = new Point(0,0);
 		if (mDirection == Horizontal) {
-			for (Region region : mSubRegions) {
+			for (RegionI region : mSubRegions) {
 				Point size = region.minSize();
 				min.x += size.x + mSpacing.x;
 				min.y = Math.max(min.y, size.y);
@@ -78,7 +78,7 @@ public class ArrayRegion extends AbstractRegion {
 			min.y += mSpacing.y * 2;
 		}
 		else {
-			for (Region region : mSubRegions) {
+			for (RegionI region : mSubRegions) {
 				Point size = region.minSize();
 				min.x = Math.max(min.x, size.x);
 				min.y = size.y + mSpacing.y;
@@ -93,7 +93,7 @@ public class ArrayRegion extends AbstractRegion {
 	
 	@Override
 	public boolean render(GuiRenderer pGuiRenderer) {		
-		for (Region r : mSubRegions) {
+		for (RegionI r : mSubRegions) {
 			r.render(pGuiRenderer);
 		}
 		return false;
@@ -104,7 +104,7 @@ public class ArrayRegion extends AbstractRegion {
 	@Override
 	public boolean handleMouseEvent(MouseEvent pEvent, MouseState pMouse) {
 		if (!handleDividerDragging(pEvent, pMouse)) {
-			for (Region r : mSubRegions) {
+			for (RegionI r : mSubRegions) {
 				handleMouseEventForRegion(r, pEvent, pMouse);
 			}
 		}
