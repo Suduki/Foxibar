@@ -129,7 +129,11 @@ public class StabilityIT {
 			this.highLimit = highLimit;
 			setMean();
 		}
-		public StomachRecommendation() {}
+		public StomachRecommendation() {
+			this.lowLimit = -1;
+			this.highLimit = -1;
+			setMean();
+		}
 		
 		float lowLimit;
 		float highLimit;
@@ -158,7 +162,7 @@ public class StabilityIT {
 				foundLowG = true;
 				lowGrassP = grassP;
 			}
-		} while (numAgents < 3000);
+		} while (numAgents < Constants.WORLD_SIZE/20);
 		TestHelper.cleanup(simulation, timeStep);
 		StomachRecommendation tmp = new StomachRecommendation(lowGrassP, grassP);
 		tmp.printStuff();
@@ -170,23 +174,23 @@ public class StabilityIT {
 		StomachRecommendation grassThingP = findSuitableGrassP();
 		StomachRecommendation bloodThingP = new StomachRecommendation();
 		
-		float bloodP = 0.2f;
+		float bloodP = 0f;
 		int numGrasslers;
 		boolean foundLowB = false;
 		
 		int type1 = GRASSLER;
 		int type2 = BLOODLING;
 		int initNumAgents1 = 500;
-		int initNumAgents2 = 50;
+		int initNumAgents2 = 25;
 		
 		do {
-			bloodP += 0.2f;
+			bloodP += 0.1f;
 			Stomach.setMAX_G(grassThingP.highLimit);
 			Stomach.setMAX_B(bloodP);
 			testMultipleAgents(type1, type2, initNumAgents1, initNumAgents2);
 			numGrasslers = simulation.getNumAgents(GRASSLER);
 			TestHelper.cleanup(simulation, timeStep);
-			if (!foundLowB && maxNumType2 > 100) {
+			if (!foundLowB && maxNumType2 > initNumAgents2 + 5) {
 				foundLowB = true;
 				bloodThingP.lowLimit = bloodP;
 			}
