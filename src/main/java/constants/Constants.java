@@ -24,7 +24,8 @@ public class Constants {
 	public static final int NUM_NEIGHBOURS = 6;
 	
 	public static class SkillSet {
-		public static final float minSpeed = 0.3f;
+		public static final float MIN_SPEED 		= 0.3f;
+		public static final float MIN_TOUGHNESS 	= 0.3f;
 	}
 	
 	public static class Vision{

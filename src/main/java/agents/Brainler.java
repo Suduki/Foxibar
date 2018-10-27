@@ -120,7 +120,7 @@ public class Brainler extends Agent {
 	@Override
 	protected float getSpeed() {
 		float brainOutput = brain.neural.getSpeed();
-		float minSpeed = Constants.SkillSet.minSpeed;
+		float minSpeed = Constants.SkillSet.MIN_SPEED;
 		if (brainOutput < -1) {brainOutput = -1;}
 		else if (brainOutput > 1) {brainOutput = 1;}
 		float speed = (1-minSpeed)/2 * brainOutput + (minSpeed+1)/2;
