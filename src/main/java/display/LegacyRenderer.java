@@ -7,6 +7,8 @@ import static org.lwjgl.opengl.GL20.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hamcrest.core.IsNull;
+
 import agents.Agent;
 import agents.AgentManager;
 import agents.Brainler;
@@ -133,7 +135,13 @@ public void actionLoadBrains() {
 		for (AgentManager<?> manager : Main.simulation.agentManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
 				Agent a = manager.alive.get(i);
-				renderAgent(a);
+				if (a != null) {
+					renderAgent(a);
+				}
+				else {
+					System.err.println("RendererThread sad because the manager.alive list was modified "
+							+ "when trying to render. Should not cause crashes though?");
+				}
 			}
 		}
 		
@@ -146,6 +154,10 @@ public void actionLoadBrains() {
 	
 	private void renderAgent(Agent a) {
 		if (!isWithinView(a)) return;
+		
+		if(a == null || a.pos == null) {
+			System.err.println("Trying to render bad animal.");
+		}
 		
 		float x = World.wrapX(a.pos.x + getXOffset());
 		float y = World.wrapY(a.pos.y + getYOffset());
