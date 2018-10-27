@@ -9,18 +9,13 @@ import vision.Vision;
 
 public class Constants {
 
-	public static final short WORLD_MULTIPLIER = 8;
+	public static final short WORLD_MULTIPLIER_MAIN = 7;
+	public static final short WORLD_MULTIPLIER_TEST = 7;
 	public static final float INIT_ZOOM = 1f;
-	public static final int WORLD_SIZE_X = (int) Math.pow(2, WORLD_MULTIPLIER);
-	public static final int WORLD_SIZE_Y = (int) Math.pow(2, WORLD_MULTIPLIER);
-	public static final int WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
-	public static final Vector2i WORLD_SIZE_V = new Vector2i(WORLD_SIZE_X, WORLD_SIZE_Y);
 	public static final int WANTED_FPS = 30;
 	public static final int PIXELS_Y = 800;
 	public static final int WINDOW_WIDTH = 1080;
 	public static final int PIXELS_X = WINDOW_WIDTH;
-	public static final float PIXELS_PER_NODE_X = ((float)PIXELS_X)/WORLD_SIZE_X;
-	public static final float PIXELS_PER_NODE_Y = ((float)PIXELS_Y)/WORLD_SIZE_Y;
 	public static Random RANDOM = new Random(1);
 	public static final float TILES_PER_ANIMAL = 20;
 	public static final float GROWTH = 0.005f;
@@ -28,10 +23,13 @@ public class Constants {
 	public static final float ZOOM_SPEED = 1.05f;
 	public static final int NUM_NEIGHBOURS = 6;
 	
+	public static class SkillSet {
+		public static final float minSpeed = 0.3f;
+	}
 	
 	public static class Vision{
-		public static final int HEIGHT = 16;
-		public static final int WIDTH = 16;
+		public static final int HEIGHT = 8;
+		public static final int WIDTH =  8;
 		public static final int MAX_DISTANCE_AN_AGENT_CAN_SEE = HEIGHT;
 		
 	}

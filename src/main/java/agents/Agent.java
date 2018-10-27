@@ -158,7 +158,7 @@ public abstract class Agent {
 		old.set(pos);
 		vel.mul(getSpeed());
 		pos.add(vel);
-		World.wrap(pos, Constants.WORLD_SIZE_V);
+		World.wrap(pos);
 		
 		if (pos.x == Float.NaN) {
 			System.err.println("NaN position!!! What did you do!");

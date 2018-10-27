@@ -29,8 +29,8 @@ public class GrassRenderer {
 	
 	void drawGrass(float heightScale) {
 		if (!drawGrass) return;
-		float x0 = -Constants.WORLD_SIZE_X/2.0f;
-		float z0 = -Constants.WORLD_SIZE_Y/2.0f;
+		float x0 = -Main.mSimulation.WORLD_SIZE_X/2.0f;
+		float z0 = -Main.mSimulation.WORLD_SIZE_Y/2.0f;
 		
 		float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
 		float zNudge = 3.0f/9.0f;
@@ -39,9 +39,9 @@ public class GrassRenderer {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_LINES);
-		for (int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
-			for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
-				float height  = Main.simulation.mWorld.grass.height[x][z];
+		for (int x = 0; x < Main.mSimulation.WORLD_SIZE_X; ++x) {
+			for (int z = 0; z < Main.mSimulation.WORLD_SIZE_Y; ++z) {
+				float height  = Main.mSimulation.mWorld.grass.height[x][z];
 				float xScale = (float)(Math.sqrt(3)*0.5);
 				float zScale = 1.5f;
 
@@ -54,8 +54,8 @@ public class GrassRenderer {
 				float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
 
 
-				if (Main.simulation.mWorld.grass.tree.isAlive[x][z]) {
-					renderTreeAt(Main.simulation.mWorld.grass.tree.height[x][z], xpos, zpos, x, z, heightScale);
+				if (Main.mSimulation.mWorld.grass.tree.isAlive[x][z]) {
+					renderTreeAt(Main.mSimulation.mWorld.grass.tree.height[x][z], xpos, zpos, x, z, heightScale);
 				}
 				else {
 					if (height > 0.2f) {
@@ -72,9 +72,9 @@ public class GrassRenderer {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_LINES);
-		for (int z = 0; z < Constants.WORLD_SIZE_Y; ++z) {
-			for (int x = 0; x < Constants.WORLD_SIZE_X; x+=1) {
-				float height  = Main.simulation.mWorld.grass.height[x][z];
+		for (int z = 0; z < Main.mSimulation.WORLD_SIZE_Y; ++z) {
+			for (int x = 0; x < Main.mSimulation.WORLD_SIZE_X; x+=1) {
+				float height  = Main.mSimulation.mWorld.grass.height[x][z];
 				float xScale = (float)(Math.sqrt(3)*0.5);
 				float zScale = 1.5f;
 
@@ -87,8 +87,8 @@ public class GrassRenderer {
 				float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
 
 
-				if (Main.simulation.mWorld.grass.tree.isAlive[x][z]) {
-					renderTreeTopAt(Main.simulation.mWorld.grass.tree.height[x][z], xpos, zpos, x, z, heightScale);
+				if (Main.mSimulation.mWorld.grass.tree.isAlive[x][z]) {
+					renderTreeTopAt(Main.mSimulation.mWorld.grass.tree.height[x][z], xpos, zpos, x, z, heightScale);
 				}
 			}
 		}
@@ -97,8 +97,8 @@ public class GrassRenderer {
 	}
 	
 	void drawAgents(float heightScale) {
-		float x0 = -Constants.WORLD_SIZE_X/2.0f;
-		float z0 = -Constants.WORLD_SIZE_Y/2.0f;
+		float x0 = -Main.mSimulation.WORLD_SIZE_X/2.0f;
+		float z0 = -Main.mSimulation.WORLD_SIZE_Y/2.0f;
 		
 		float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
 		float zNudge = 3.0f/9.0f;
@@ -109,7 +109,7 @@ public class GrassRenderer {
 		
 		float xScale = (float)(Math.sqrt(3)*0.5);
 		float zScale = 1.5f;
-		for (AgentManager<?> manager : Main.simulation.agentManagers) {
+		for (AgentManager<?> manager : Main.mSimulation.agentManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
 				Agent a = manager.alive.get(i);
 				int x = (int) a.pos.x;
@@ -128,7 +128,7 @@ public class GrassRenderer {
 	
 	void renderAgentAt(Agent a, float x, float z, float heightScale) {
 		float[] c = a.secondaryColor;
-		float h = (float)Math.pow(Main.simulation.mWorld.terrain.height[(int)a.pos.x][(int)a.pos.y], 1.5);
+		float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[(int)a.pos.x][(int)a.pos.y], 1.5);
 		h *= heightScale;
 		glColor3f(c[0],c[1],c[2]);
 		glVertex3f(x,h,z);
@@ -137,10 +137,10 @@ public class GrassRenderer {
 
 	private void renderTreeAt(float height, float xPix, float zPix, int x, int z, float heightScale) {
 		float[] c = Constants.Colors.TREE;
-		float y = (float)Math.pow(Main.simulation.mWorld.terrain.height[x][z], 1.5);
+		float y = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);
 		y *= heightScale;
-		float xWind = 1f-2*Main.simulation.mWorld.wind.getWindX(xPix, zPix);
-		float zWind = 1f-2*Main.simulation.mWorld.wind.getWindZ(xPix, zPix);
+		float xWind = 1f-2*Main.mSimulation.mWorld.wind.getWindX(xPix, zPix);
+		float zWind = 1f-2*Main.mSimulation.mWorld.wind.getWindZ(xPix, zPix);
 		
 		int numSplits = 20;
 		numSplits = (int) Math.ceil(numSplits*height);
@@ -151,8 +151,8 @@ public class GrassRenderer {
 			float alphaGrad = 0.1f*((float)i)/numSplits;
 			glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
 			glVertex3f(xPix + drawPos.x,y + drawPos.y,zPix + drawPos.z);
-			force.x = Main.simulation.mWorld.wind.getWindForceAtY(xWind, drawPos.y);
-			force.z = Main.simulation.mWorld.wind.getWindForceAtY(zWind, drawPos.y);
+			force.x = Main.mSimulation.mWorld.wind.getWindForceAtY(xWind, drawPos.y);
+			force.z = Main.mSimulation.mWorld.wind.getWindForceAtY(zWind, drawPos.y);
 			force.y = 50f; // Stiffness, force towards middle TODO: Make a force normal from ground
 			float factor = height / force.length() / numSplits;
 			force.mul(factor);
@@ -164,10 +164,10 @@ public class GrassRenderer {
 
 	private void renderTreeTopAt(float height, float xPix, float zPix, int x, int z, float heightScale) {
 		float[] c = Constants.Colors.TREE;
-		float y = (float)Math.pow(Main.simulation.mWorld.terrain.height[x][z], 1.5);
+		float y = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);
 		y *= heightScale;
-		float xWind = 1f-2*Main.simulation.mWorld.wind.getWindX(xPix, zPix);
-		float zWind = 1f-2*Main.simulation.mWorld.wind.getWindZ(xPix, zPix);
+		float xWind = 1f-2*Main.mSimulation.mWorld.wind.getWindX(xPix, zPix);
+		float zWind = 1f-2*Main.mSimulation.mWorld.wind.getWindZ(xPix, zPix);
 		
 		int numSplits = 4;
 		numSplits = (int) Math.ceil(numSplits*height);
@@ -187,8 +187,8 @@ public class GrassRenderer {
 			else {
 				force.y = 50f; // Stiffness, force towards middle TODO: Make a force normal from ground
 			}
-			force.x = Main.simulation.mWorld.wind.getWindForceAtY(xWind, drawPos.y);
-			force.z = Main.simulation.mWorld.wind.getWindForceAtY(zWind, drawPos.y);
+			force.x = Main.mSimulation.mWorld.wind.getWindForceAtY(xWind, drawPos.y);
+			force.z = Main.mSimulation.mWorld.wind.getWindForceAtY(zWind, drawPos.y);
 			float factor = height / force.length() / numSplits;
 			force.mul(factor);
 			drawPos.add(force);
@@ -201,10 +201,10 @@ public class GrassRenderer {
 
 	private void renderGrassAt(float height, float xPix, float zPix, int x, int z, float heightScale) {
 		float[] c = Constants.Colors.GRASS_STRAW;
-		float y = (float)Math.pow(Main.simulation.mWorld.terrain.height[x][z], 1.5);
+		float y = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);
 		y *= heightScale;
-		float xWind = 1f-2*Main.simulation.mWorld.wind.getWindX(xPix, zPix);
-		float zWind = 1f-2*Main.simulation.mWorld.wind.getWindZ(xPix, zPix);
+		float xWind = 1f-2*Main.mSimulation.mWorld.wind.getWindX(xPix, zPix);
+		float zWind = 1f-2*Main.mSimulation.mWorld.wind.getWindZ(xPix, zPix);
 		
 		int numSplits = grassQuality;
 		numSplits = (int) Math.ceil(numSplits*height);
@@ -215,8 +215,8 @@ public class GrassRenderer {
 			float alphaGrad = 0.4f*((float)i)/numSplits;
 			glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
 			glVertex3f(xPix + drawPos.x,y + drawPos.y,zPix + drawPos.z);
-			force.x = Main.simulation.mWorld.wind.getWindForceAtY(xWind, drawPos.y);
-			force.z = Main.simulation.mWorld.wind.getWindForceAtY(zWind, drawPos.y);
+			force.x = Main.mSimulation.mWorld.wind.getWindForceAtY(xWind, drawPos.y);
+			force.z = Main.mSimulation.mWorld.wind.getWindForceAtY(zWind, drawPos.y);
 			force.y = 4f; // Stiffness, force towards middle TODO: Make a force normal from ground
 			float factor = height / force.length() / numSplits;
 			force.mul(factor);

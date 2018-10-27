@@ -13,8 +13,13 @@ public class DisplayHandler extends MessageHandler {
 	private static RenderThread renderThread;
 	private static simulation.Simulation mSimulation;
 	
+	public static float PIXELS_PER_NODE_X;
+	public static float PIXELS_PER_NODE_Y;
+	
 	public DisplayHandler(simulation.Simulation pSimulation) {
 		mSimulation = pSimulation;
+		PIXELS_PER_NODE_X = ((float)constants.Constants.PIXELS_X)/mSimulation.WORLD_SIZE_X;
+		PIXELS_PER_NODE_Y = ((float)constants.Constants.PIXELS_Y)/mSimulation.WORLD_SIZE_Y;
 		renderThread = new RenderThread(this);
 		renderThreadThread = new Thread(renderThread);
 		renderThreadThread.start();

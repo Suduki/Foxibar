@@ -70,7 +70,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	HexTerrainRenderer			mHexTerrainRenderer    = null;
 	
 	public TerrainRenderer(Window window) {
-		System.out.println("WORLD_SIZE_X = " + Constants.WORLD_SIZE_X + ", WORLD_SIZE_Y = " + Constants.WORLD_SIZE_Y);
+		System.out.println("WORLD_SIZE_X = " + Main.mSimulation.WORLD_SIZE_X + ", WORLD_SIZE_Y = " + Main.mSimulation.WORLD_SIZE_Y);
 		
 		mCamera = new Camera();
 		mCameraController = new FlyCameraController(mCamera);
@@ -82,7 +82,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		initVisualisationShaderPrograms();
 		initVisualisationTextures();
 		
-		mHeightScale = 0.5f*(float)(0.25*Math.sqrt(Constants.WORLD_SIZE));
+		mHeightScale = 0.5f*(float)(0.25*Math.sqrt(Main.mSimulation.WORLD_SIZE));
 		initSimulationShaderPrograms();
 		initSimulationTextures();
 		
@@ -169,12 +169,12 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 				skyboxPath + "back" + fileType);
 	}
 	
-	FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);
+	FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(Main.mSimulation.WORLD_SIZE*4);
 	public void updateColorTexture() {
 		int i = 0;
-		Main.simulation.mWorld.updateColor(LegacyRenderer.terrainColor);
-		for (int x = 0; x < Constants.WORLD_SIZE_V.x; ++x) {
-			for (int y = 0; y < Constants.WORLD_SIZE_V.y; ++y, ++i) {
+		Main.mSimulation.mWorld.updateColor(LegacyRenderer.terrainColor);
+		for (int x = 0; x < Main.mSimulation.WORLD_SIZE_X; ++x) {
+			for (int y = 0; y < Main.mSimulation.WORLD_SIZE_Y; ++y, ++i) {
 
 
 				if (i == 0) {
@@ -196,11 +196,11 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		}
 		
 		if (mColorTexture == null) {
-			mColorTexture = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, colorBuffer);
+			mColorTexture = new Texture(Main.mSimulation.WORLD_SIZE_X, Main.mSimulation.WORLD_SIZE_Y, colorBuffer);
 			mColorTexture.filterNearest();
 		}
 		else {
-			mColorTexture.load(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, colorBuffer);
+			mColorTexture.load(Main.mSimulation.WORLD_SIZE_X, Main.mSimulation.WORLD_SIZE_Y, colorBuffer);
 		}
 	}
 	
@@ -350,9 +350,9 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		glDrawBuffers(mSimDrawBuffers); GpuUtils.GpuErrorCheck();
 		
 		mFluxUpdateProgram.bind();
-		glUniform1f(0, 1.0f/Constants.WORLD_SIZE_X);
+		glUniform1f(0, 1.0f/Main.mSimulation.WORLD_SIZE_X);
 		glUniform1f(3, 0.0032f);
-		glViewport(0, 0, Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
+		glViewport(0, 0, Main.mSimulation.WORLD_SIZE_X, Main.mSimulation.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
 		glDrawArrays(GL_TRIANGLES, 0, 6); GpuUtils.GpuErrorCheck();
 		
 		FBO.unbind();
@@ -369,9 +369,9 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		glDrawBuffers(mSimDrawBuffers); GpuUtils.GpuErrorCheck();
 		
 		mWaterUpdateProgram.bind();
-		glUniform1f(0, 1.0f/Constants.WORLD_SIZE_X);
+		glUniform1f(0, 1.0f/Main.mSimulation.WORLD_SIZE_X);
 		glUniform1f(3, 1.0f/mHeightScale);
-		glViewport(0, 0, Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
+		glViewport(0, 0, Main.mSimulation.WORLD_SIZE_X, Main.mSimulation.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
 		glDrawArrays(GL_TRIANGLES, 0, 6); GpuUtils.GpuErrorCheck();
 		
 		FBO.unbind();
@@ -388,9 +388,9 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		glDrawBuffers(mSimDrawBuffers); GpuUtils.GpuErrorCheck();
 		
 		mSedimentUpdateProgram.bind();
-		//glUniform1f(0, 1.0f/Constants.WORLD_SIZE_X); GpuUtils.GpuErrorCheck();
+		//glUniform1f(0, 1.0f/Simulation.WORLD_SIZE_X); GpuUtils.GpuErrorCheck();
 		//glUniform1f(3, 1.0f/mHeightScale); GpuUtils.GpuErrorCheck();
-		glViewport(0, 0, Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
+		glViewport(0, 0, Main.mSimulation.WORLD_SIZE_X, Main.mSimulation.WORLD_SIZE_Y); GpuUtils.GpuErrorCheck();
 		glDrawArrays(GL_TRIANGLES, 0, 6); GpuUtils.GpuErrorCheck();
 		FBO.unbind();
 		
@@ -411,10 +411,10 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		mBufferSet.setVbo(0, mPositionVbo, 3, 0);
 		mBufferSet.setVbo(1, mTexCoordVbo, 2, 0);
 				
-		final int W = 4*Constants.WORLD_SIZE_X;
-		final int H = 4*Constants.WORLD_SIZE_Y;
-		final float du = 0.5f/Constants.WORLD_SIZE_X;
-		final float dv = 0.5f/Constants.WORLD_SIZE_Y;
+		final int W = 4*Main.mSimulation.WORLD_SIZE_X;
+		final int H = 4*Main.mSimulation.WORLD_SIZE_Y;
+		final float du = 0.5f/Main.mSimulation.WORLD_SIZE_X;
+		final float dv = 0.5f/Main.mSimulation.WORLD_SIZE_Y;
 		final int S = W*H;
 		float[] vertexData   = new float[S*3];
 		float[] texCoordData = new float[S*2];
@@ -462,11 +462,11 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 
 	
 	private void initSimulationTextures() {
-		FloatBuffer heightBuffer = BufferUtils.createFloatBuffer(Constants.WORLD_SIZE*4);
+		FloatBuffer heightBuffer = BufferUtils.createFloatBuffer(Main.mSimulation.WORLD_SIZE*4);
 		int i = 0;
-		for (int x = 0; x < Constants.WORLD_SIZE_V.x; ++x) {
-			for (int y = 0; y < Constants.WORLD_SIZE_V.y; ++y,++i) {
-				float h = (float)Math.pow(Main.simulation.mWorld.terrain.height[y][x], 1.5);
+		for (int x = 0; x < Main.mSimulation.WORLD_SIZE_X; ++x) {
+			for (int y = 0; y < Main.mSimulation.WORLD_SIZE_Y; ++y,++i) {
+				float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[y][x], 1.5);
 				h *= mHeightScale;
 				heightBuffer.put(i*4+0, h);
 				heightBuffer.put(i*4+1, 0);
@@ -474,20 +474,20 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 			}
 		}
 
-		mHeightTexture[0] = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
-		mHeightTexture[1] = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
+		mHeightTexture[0] = new Texture(Main.mSimulation.WORLD_SIZE_X, Main.mSimulation.WORLD_SIZE_Y, heightBuffer);
+		mHeightTexture[1] = new Texture(Main.mSimulation.WORLD_SIZE_X, Main.mSimulation.WORLD_SIZE_Y, heightBuffer);
 		
-		for (i = 0; i < Constants.WORLD_SIZE; ++i) {
+		for (i = 0; i < Main.mSimulation.WORLD_SIZE; ++i) {
 			heightBuffer.put(i*4+0, 0);
 			heightBuffer.put(i*4+1, 0);
 			heightBuffer.put(i*4+2, 0);
 			heightBuffer.put(i*4+3, 0);
 		}
 		
-		mFluxTexture[0]     = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
-		mFluxTexture[1]     = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
-		mVelocityTexture[0] = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
-		mVelocityTexture[1] = new Texture(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, heightBuffer);
+		mFluxTexture[0]     = new Texture(Main.mSimulation.WORLD_SIZE_X, Main.mSimulation.WORLD_SIZE_Y, heightBuffer);
+		mFluxTexture[1]     = new Texture(Main.mSimulation.WORLD_SIZE_X, Main.mSimulation.WORLD_SIZE_Y, heightBuffer);
+		mVelocityTexture[0] = new Texture(Main.mSimulation.WORLD_SIZE_X, Main.mSimulation.WORLD_SIZE_Y, heightBuffer);
+		mVelocityTexture[1] = new Texture(Main.mSimulation.WORLD_SIZE_X, Main.mSimulation.WORLD_SIZE_Y, heightBuffer);
 		
 		mSimulationFbo = new FBO();
 		mSimulationFbo.setColorAttachment(0, mHeightTexture[mDstIndex]);

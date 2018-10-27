@@ -13,6 +13,7 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL20.glUniform1f;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
 import static org.lwjgl.opengl.GL31.glDrawArraysInstanced;
+import main.Main;
 
 import org.joml.Matrix4f;
 
@@ -162,7 +163,7 @@ public class HexTerrainRenderer {
 			}
 		}
 		
-		VertexBuilder builder = new VertexBuilder(3*3*6, (Constants.WORLD_SIZE_X/2)*(Constants.WORLD_SIZE_Y/2)+1);//TODO +1
+		VertexBuilder builder = new VertexBuilder(3*3*6, (Main.mSimulation.WORLD_SIZE_X/2)*(Main.mSimulation.WORLD_SIZE_Y/2)+1);//TODO +1
 		
 		float tc[][] = {
 				{0,0},{ 0, 1},{ 1, 1}, 
@@ -173,8 +174,8 @@ public class HexTerrainRenderer {
 				{0,0},{ 1, 1},{ 1,-1}
 		};
 		
-		float us = 1.0f/(Constants.WORLD_SIZE_X);
-		float vs = 1.0f/(Constants.WORLD_SIZE_Y);
+		float us = 1.0f/(Main.mSimulation.WORLD_SIZE_X);
+		float vs = 1.0f/(Main.mSimulation.WORLD_SIZE_Y);
 		
 		float da = (float)(Math.PI*2.0/6.0);
 		for (int i = 0; i < 6; ++i) {
@@ -202,16 +203,16 @@ public class HexTerrainRenderer {
 			builder.addVertex(x1, 0, z1, xn, 0, zn, us*tc[i*3+1][0], vs*tc[i*3+1][1]);
 		}
 		
-		float du = 2.0f/Constants.WORLD_SIZE_X;
-		float dv = 2.0f/Constants.WORLD_SIZE_Y;
+		float du = 2.0f/Main.mSimulation.WORLD_SIZE_X;
+		float dv = 2.0f/Main.mSimulation.WORLD_SIZE_Y;
 		
-		float x0 = -Constants.WORLD_SIZE_X/2.0f;
-		float z0 = -Constants.WORLD_SIZE_Y/2.0f;
+		float x0 = -Main.mSimulation.WORLD_SIZE_X/2.0f;
+		float z0 = -Main.mSimulation.WORLD_SIZE_Y/2.0f;
 		
 		float xScale = (float)(Math.sqrt(3)*0.5);
 		float zScale = 1.5f;
-		for (int x = 0; x < Constants.WORLD_SIZE_X/2; ++x) {
-			for (int z = 0; z < Constants.WORLD_SIZE_Y/2; ++z) {
+		for (int x = 0; x < Main.mSimulation.WORLD_SIZE_X/2; ++x) {
+			for (int z = 0; z < Main.mSimulation.WORLD_SIZE_Y/2; ++z) {
 				float xPosOffset = (Math.abs(z)%2 == 1) ? xScale : 0.0f;
 				float xTexOffset = (Math.abs(z)%2 == 1) ? du*0.5f : 0.0f;
 //				builder.addInstance(

@@ -17,6 +17,10 @@ public class Simulation extends MessageHandler {
 	public World mWorld;
 	private boolean mPaused = false;
 	
+	public static int WORLD_SIZE;
+	public static int WORLD_SIZE_X;
+	public static int WORLD_SIZE_Y;
+	
 	public boolean isPaused() {
 		return mPaused;
 	}
@@ -24,12 +28,16 @@ public class Simulation extends MessageHandler {
 	public void setPaused(boolean mPaused) {
 		this.mPaused = mPaused;
 	}
-	public Vision vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
+	public Vision vision;
 	
 	public ArrayList<AgentManager<?>> agentManagers = new ArrayList<>();
 	
-	public <T extends Agent> Simulation(Class<T>... classes)
+	public <T extends Agent> Simulation(short worldMultiplier, Class<T>... classes)
 	{
+		WORLD_SIZE_X = (int) Math.pow(2, worldMultiplier);
+		WORLD_SIZE_Y = (int) Math.pow(2, worldMultiplier);
+		WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
+		vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
 		Action.init();
 		mWorld = new World();
 		for (Class<T> clazz : classes) {
@@ -73,8 +81,8 @@ public class Simulation extends MessageHandler {
 	public void spawnRandomAgents(int managerId, int num) {
 		
 		for (int i = 0; i < num; ++i) {
-			int x = Constants.RANDOM.nextInt(Constants.WORLD_SIZE_V.x);
-			int y = Constants.RANDOM.nextInt(Constants.WORLD_SIZE_V.y);
+			int x = Constants.RANDOM.nextInt(WORLD_SIZE_X);
+			int y = Constants.RANDOM.nextInt(WORLD_SIZE_Y);
 			spawnAgent(x, y, managerId);
 		}
 	}

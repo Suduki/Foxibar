@@ -42,11 +42,11 @@ public class Stomach {
 		}
 	}
 
-	private static float MAX_G = 0.7f;
+	private static float MAX_G = 0.75f;
 	private float grassFunction(float p2) {
 		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
 	}
-	private static float MAX_B = 1.3f;
+	private static float MAX_B = 1.1f;
 	private float bloodFunction(float p2) {
 		return (float) (a(getMAX_B())*p2*p2 + b(getMAX_B()) * p2 + c(getMAX_B()));
 	}
@@ -138,13 +138,12 @@ public class Stomach {
 		return (fat / FAT_TO_ENERGY_FACTOR) > birthHungerCost;
 	}
 
-	static final float minSpeed = 0.5f;
 	private static final float energyCostAtMaxSpeed = 5f;
 	public static final float MUTATION = 0.2f;
 	public void addRecoverCost(float speed) {
-		float c = energyCostAtMaxSpeed / (-1 + 1/minSpeed);
+		float c = energyCostAtMaxSpeed / (-1 + 1/Constants.SkillSet.minSpeed);
 		float b = -2 * c;
-		float a = c / minSpeed;
+		float a = c / Constants.SkillSet.minSpeed;
 		energyCost += a*speed*speed + b*speed + c;
 	}
 

@@ -22,7 +22,7 @@ public class SpawnAnimals extends Message {
 		if (!isActive) return;
 		
 		if (spawnI++ % SPAWN_FREQ == 0) {
-			Main.simulation.spawnRandomAgents(0, 50);
+			Main.mSimulation.spawnRandomAgents(0, 50);
 		}
 	}
 }

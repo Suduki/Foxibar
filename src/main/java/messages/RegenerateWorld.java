@@ -16,6 +16,6 @@ public class RegenerateWorld extends Message {
 	public void evaluate(Simulation pSimulation)
 	{
 		// TODO: Make good.
-		Main.simulation.mWorld.regenerate();		
+		Main.mSimulation.mWorld.regenerate();		
 	}
 }

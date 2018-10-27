@@ -2,16 +2,11 @@ package display;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.*;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import org.hamcrest.core.IsNull;
 
 import agents.Agent;
 import agents.AgentManager;
-import agents.Brainler;
 import buttons.Button;
 import constants.Constants;
 import gui.KeyboardState;
@@ -31,10 +26,10 @@ public class LegacyRenderer implements gui.SceneRegionRenderer {
 	static int startY = 0;
 	static int startX = 0;
 	static float zoomFactor = Constants.INIT_ZOOM;
-	static int width = Math.round(Constants.WORLD_SIZE_X/zoomFactor);
-	static int height = Math.round(Constants.WORLD_SIZE_Y/zoomFactor);
+	static int width = Math.round(Main.mSimulation.WORLD_SIZE_X/zoomFactor);
+	static int height = Math.round(Main.mSimulation.WORLD_SIZE_Y/zoomFactor);
 	private static Mouse mouse = new input.Mouse();
-	public static float[][][] terrainColor = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y][3];
+	public static float[][][] terrainColor = new float[Main.mSimulation.WORLD_SIZE_X][Main.mSimulation.WORLD_SIZE_Y][3];
 	private Simulation mSimulation;
 	private DisplayHandler mDisplayHandler;
 	private boolean mSimulationPaused = false;
@@ -126,13 +121,13 @@ public void actionLoadBrains() {
 	
 	private void renderAllAnimals() {
 		
-		width = Math.round(zoomFactor*Constants.WORLD_SIZE_X);
-		height = Math.round(zoomFactor*Constants.WORLD_SIZE_Y);
+		width = Math.round(zoomFactor*Main.mSimulation.WORLD_SIZE_X);
+		height = Math.round(zoomFactor*Main.mSimulation.WORLD_SIZE_Y);
 
 		glBegin(GL_TRIANGLES);
 
 		
-		for (AgentManager<?> manager : Main.simulation.agentManagers) {
+		for (AgentManager<?> manager : Main.mSimulation.agentManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
 				Agent a = manager.alive.get(i);
 				if (a != null) {
@@ -366,8 +361,8 @@ public void actionLoadBrains() {
 	}
 	
 	private void renderTerrain() {
-		width = Math.round(zoomFactor*Constants.WORLD_SIZE_X);
-		height = Math.round(zoomFactor*Constants.WORLD_SIZE_Y);
+		width = Math.round(zoomFactor*Main.mSimulation.WORLD_SIZE_X);
+		height = Math.round(zoomFactor*Main.mSimulation.WORLD_SIZE_Y);
 		
 		int xOffset = getXOffset();
 		int yOffset = getYOffset();
@@ -376,9 +371,9 @@ public void actionLoadBrains() {
 		float pixelsPerNodeY = ((float)Constants.PIXELS_Y)/height;
 
 		glBegin(GL_QUADS);
-		int i = (yOffset + Constants.WORLD_SIZE_X * xOffset) % Constants.WORLD_SIZE; 
+		int i = (yOffset + Main.mSimulation.WORLD_SIZE_X * xOffset) % Main.mSimulation.WORLD_SIZE; 
 		int j = i;
-		Main.simulation.mWorld.updateColor(terrainColor);
+		Main.mSimulation.mWorld.updateColor(terrainColor);
 		for (int x = 0; x < width; ++x, j = (int) World.wrapX(x + xOffset))
 		{
 			i = j;
@@ -403,18 +398,18 @@ public void actionLoadBrains() {
 //		int bestId = -1;
 //		if (RenderState.FOLLOW_BLOODLING && Constants.SpeciesId.BEST_BLOODLING_ID != -1) {
 //			bestId = Constants.SpeciesId.BEST_BLOODLING_ID;
-//			xOffset = (int) (Animal.pool[bestId].oldX + (2f - zoomFactor)*Constants.WORLD_SIZE_X/2);
-//			xOffset =  xOffset % Constants.WORLD_SIZE_X;
+//			xOffset = (int) (Animal.pool[bestId].oldX + (2f - zoomFactor)*Simulation.WORLD_SIZE_X/2);
+//			xOffset =  xOffset % Simulation.WORLD_SIZE_X;
 //		}
 //		else if (RenderState.FOLLOW_GRASSLER && Constants.SpeciesId.BEST_GRASSLER_ID != -1) {
 //			bestId = Constants.SpeciesId.BEST_GRASSLER_ID;
-//			xOffset = (int) (Animal.pool[bestId].oldX + (2f - zoomFactor)*Constants.WORLD_SIZE_X/2);
-//			xOffset =  xOffset % Constants.WORLD_SIZE_X;
+//			xOffset = (int) (Animal.pool[bestId].oldX + (2f - zoomFactor)*Simulation.WORLD_SIZE_X/2);
+//			xOffset =  xOffset % Simulation.WORLD_SIZE_X;
 //		}
 //		else {
-			xOffset = (int) (x0 * Constants.WORLD_SIZE_X);
-			for (;xOffset < 0; xOffset+=Constants.WORLD_SIZE_X);
-			for (;xOffset >= Constants.WORLD_SIZE_X; xOffset-=Constants.WORLD_SIZE_X);
+			xOffset = (int) (x0 * Main.mSimulation.WORLD_SIZE_X);
+			for (;xOffset < 0; xOffset+=Main.mSimulation.WORLD_SIZE_X);
+			for (;xOffset >= Main.mSimulation.WORLD_SIZE_X; xOffset-=Main.mSimulation.WORLD_SIZE_X);
 //		}
 		return xOffset;
 	}
@@ -424,19 +419,19 @@ public void actionLoadBrains() {
 		int bestId = -1;
 //		if (RenderState.FOLLOW_BLOODLING && Constants.SpeciesId.BEST_BLOODLING_ID != -1) {
 //			bestId = Constants.SpeciesId.BEST_BLOODLING_ID;
-//			yOffset = (int) (Animal.pool[bestId].oldY + (2f - zoomFactor)*Constants.WORLD_SIZE_Y/2);
-//			yOffset =  yOffset % Constants.WORLD_SIZE_Y;
+//			yOffset = (int) (Animal.pool[bestId].oldY + (2f - zoomFactor)*Simulation.WORLD_SIZE_Y/2);
+//			yOffset =  yOffset % Simulation.WORLD_SIZE_Y;
 //
 //		}
 //		else if (RenderState.FOLLOW_GRASSLER && Constants.SpeciesId.BEST_GRASSLER_ID != -1) {
 //			bestId = Constants.SpeciesId.BEST_GRASSLER_ID;
-//			yOffset = (int) (Animal.pool[bestId].oldY + (2f - zoomFactor)*Constants.WORLD_SIZE_Y/2);
-//			yOffset =  yOffset % Constants.WORLD_SIZE_Y;
+//			yOffset = (int) (Animal.pool[bestId].oldY + (2f - zoomFactor)*Simulation.WORLD_SIZE_Y/2);
+//			yOffset =  yOffset % Simulation.WORLD_SIZE_Y;
 //		}
 //		else {
-			yOffset = (int) (y0 * Constants.WORLD_SIZE_Y);
-			for (;yOffset < 0; yOffset+=Constants.WORLD_SIZE_Y);
-			for (;yOffset >= Constants.WORLD_SIZE_Y; yOffset-=Constants.WORLD_SIZE_Y);
+			yOffset = (int) (y0 * Main.mSimulation.WORLD_SIZE_Y);
+			for (;yOffset < 0; yOffset+=Main.mSimulation.WORLD_SIZE_Y);
+			for (;yOffset >= Main.mSimulation.WORLD_SIZE_Y; yOffset-=Main.mSimulation.WORLD_SIZE_Y);
 //		}
 		return yOffset;
 	}
@@ -447,7 +442,7 @@ public void actionLoadBrains() {
 
 			case GLFW_KEY_D:
 				startX++;
-				if (startX >= Constants.WORLD_SIZE_Y) {
+				if (startX >= Main.mSimulation.WORLD_SIZE_Y) {
 					startX = 0;
 				}
 				break;
@@ -455,20 +450,20 @@ public void actionLoadBrains() {
 			case GLFW_KEY_W:
 				startY--;
 				if (startY < 0) {
-					startY = Constants.WORLD_SIZE_X-1;
+					startY = Main.mSimulation.WORLD_SIZE_X-1;
 				}
 				break;
 
 			case GLFW_KEY_A:
 				startX--;
 				if (startX < 0) {
-					startX = Constants.WORLD_SIZE_Y-1;
+					startX = Main.mSimulation.WORLD_SIZE_Y-1;
 				}
 				break;
 
 			case GLFW_KEY_S:
 				startY++;
-				if (startY >= Constants.WORLD_SIZE_X) {
+				if (startY >= Main.mSimulation.WORLD_SIZE_X) {
 					startY = 0;
 				}
 				break;
@@ -536,8 +531,8 @@ public void actionLoadBrains() {
 		for (;u < 0; u+=1.0f); for (;u >= 1.0f; u-=1.0f);
 		for (;v < 0; v+=1.0f); for (;v >= 1.0f; v-=1.0f);
 
-		worldPos.x = u*Constants.WORLD_SIZE_X;
-		worldPos.y = v*Constants.WORLD_SIZE_Y;
+		worldPos.x = u*Main.mSimulation.WORLD_SIZE_X;
+		worldPos.y = v*Main.mSimulation.WORLD_SIZE_Y;
 	}
 
 	boolean insideViewport(Vector2f pos)
@@ -568,7 +563,7 @@ public void actionLoadBrains() {
 //
 //				Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
 //
-//				int pos = (int)worldPos.x * Constants.WORLD_SIZE_Y + (int)worldPos.y;
+//				int pos = (int)worldPos.x * Simulation.WORLD_SIZE_Y + (int)worldPos.y;
 //				if (World.animalManager.containsAnimals[pos] == null) {
 //				}
 //			}
@@ -587,7 +582,7 @@ public void actionLoadBrains() {
 
 				worldPosFromViewPos(viewX, viewY);
 
-				Main.simulation.spawnAgent((int) worldPos.x, (int) worldPos.y, managerId);
+				Main.mSimulation.spawnAgent((int) worldPos.x, (int) worldPos.y, managerId);
 			}
 
 			public String messageName() { return "AddAnimal"; }

@@ -1,6 +1,8 @@
-package main;
+package example;
 
 import java.util.ArrayList;
+
+import main.TestHelper;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -33,7 +35,7 @@ public class StabilityIT {
 	
 	@BeforeClass
 	public static void init() {
-		simulation     = new Simulation(new Class[] {Randomling.class, Bloodling.class, Brainler.class, Grassler.class});
+		simulation     = new Simulation(Constants.WORLD_MULTIPLIER_TEST, new Class[] {Randomling.class, Bloodling.class, Brainler.class, Grassler.class});
 		TestHelper.init();
 		System.out.println("Before class completed");
 	}
@@ -42,8 +44,8 @@ public class StabilityIT {
 		float[][] blood = simulation.mWorld.blood.height;
 		float[][] grass = simulation.mWorld.grass.height;
 		
-		for (int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
-			for (int y = 0; y < Constants.WORLD_SIZE_Y; ++y) {
+		for (int x = 0; x < Simulation.WORLD_SIZE_X; ++x) {
+			for (int y = 0; y < Simulation.WORLD_SIZE_Y; ++y) {
 				Assert.assertTrue("Expected blood height to be positive and not too large, it was " + blood[x][y] + " at x="+x+" y="+y,
 						blood[x][y]>=0 && blood[x][y]<10 && !Float.isNaN(blood[x][y]));
 				Assert.assertTrue("Expected grass height to be positive and not too large, it was " + grass[x][y] + " at x="+x+" y="+y,
@@ -162,7 +164,7 @@ public class StabilityIT {
 				foundLowG = true;
 				lowGrassP = grassP;
 			}
-		} while (numAgents < Constants.WORLD_SIZE/20);
+		} while (numAgents < Simulation.WORLD_SIZE/20);
 		TestHelper.cleanup(simulation, timeStep);
 		StomachRecommendation tmp = new StomachRecommendation(lowGrassP, grassP);
 		tmp.printStuff();

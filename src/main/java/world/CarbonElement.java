@@ -3,6 +3,7 @@ package world;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
+import simulation.Simulation;
 import constants.Constants;
 
 public class CarbonElement extends TileElement{
@@ -10,7 +11,7 @@ public class CarbonElement extends TileElement{
 	public float maxHeight, decayFactor;
 	
 	public CarbonElement(float maxHeight, float[] color, float splash, float decayFactor) {
-		this.height = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
+		this.height = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		this.color = color;
 		this.maxHeight = maxHeight;
 		this.decayFactor = decayFactor;
@@ -19,8 +20,8 @@ public class CarbonElement extends TileElement{
 	private static final float TRUE_DECAY = (float) Math.pow(Constants.Blood.DECAY_FACTOR, World.UPDATE_FREQUENCY);
 	public void decay(int timeStep, int updateFrequency) {
 		
-		for(int i = 0; i < Constants.WORLD_SIZE_V.x; i++) {
-			for(int j = 0; j < Constants.WORLD_SIZE_V.y; j++) {
+		for(int i = 0; i < Simulation.WORLD_SIZE_X; i++) {
+			for(int j = 0; j < Simulation.WORLD_SIZE_Y; j++) {
 				
 				if ((i + j + timeStep) % updateFrequency != 0) {
 					continue;

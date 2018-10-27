@@ -6,6 +6,7 @@ import static constants.Constants.Neighbours.*;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
+import simulation.Simulation;
 import agents.Agent;
 import agents.Agent;
 
@@ -85,10 +86,10 @@ public class World {
 	}
 
 	public static float wrapX(float f) {//TODO: Move to util class
-		return wrap(f, Constants.WORLD_SIZE_X);
+		return wrap(f, Simulation.WORLD_SIZE_X);
 	}
 	public static float wrapY(float f) {//TODO: Move to util class
-		return wrap(f, Constants.WORLD_SIZE_Y);
+		return wrap(f, Simulation.WORLD_SIZE_Y);
 	}
 	public static float wrap(float a, int limMax) { //TODO: Move to util class
 		if (Float.isNaN(a)) {
@@ -98,9 +99,9 @@ public class World {
 		return ((a % limMax) + limMax) % limMax;
 	}
 
-	public static void wrap(Vector2f pos, Vector2i limit) {//TODO: Move to util class
-		pos.x = wrap(pos.x, limit.x);
-		pos.y = wrap(pos.y, limit.y);
+	public static void wrap(Vector2f pos) {//TODO: Move to util class
+		pos.x = wrapX(pos.x);
+		pos.y = wrapY(pos.y);
 	}
 	
 	public static int west(int x) {//TODO: Move to util class
