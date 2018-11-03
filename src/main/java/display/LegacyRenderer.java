@@ -487,10 +487,10 @@ public void actionLoadBrains() {
 
 		if (insideViewport(mouse.getPos())) {
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				addAgent(0, 0);
+				addAgent(Main.animalTypeToSpawn, 0);
 			}
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {//TODO: correct pos
-				addAgent(1, 1);
+				addAgent(Main.BLOODLING, 1);
 			}
 		}
 	}
@@ -645,12 +645,15 @@ public void actionLoadBrains() {
 	public boolean handleKeyboardEvent(KeyboardState pKeyboard) {
 		System.out.println("Key[" + pKeyboard.getKeyIndex() + "]: " + pKeyboard.getKeyState());
 		handleKeyboardEvents(pKeyboard.getKeyState() ? GLFW_PRESS : GLFW_RELEASE, pKeyboard.getKeyIndex());
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void setRegion(RegionI region) {
 		mRegion = region;
+	}
+
+	public void actionSpawnWithMouse(int i) {
+		mDisplayHandler.message(new messages.ActionSpawnWithMouse(i));
 	}
 }

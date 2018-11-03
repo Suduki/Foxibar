@@ -48,12 +48,17 @@ public class DisplayHandler extends MessageHandler {
 			RegionI scene = new SceneRegion(legacyRenderer);
 
 			ArrayRegion menu = new ArrayRegion(ArrayRegion.Vertical);
-			menu.insertRegion( 0, new Button("Import Brains",	()->legacyRenderer.actionLoadBrains()));
-			menu.insertRegion( 1, new Button("Export Brains",	()->legacyRenderer.actionSaveBrains()));
-			menu.insertRegion( 2, new Button("Regenerate",		()->legacyRenderer.actionRegenerateWorld()));
-			menu.insertRegion( 3, new Button("Cycle Modes",		()->legacyRenderer.actionToggleRenderAnimals()));
-			menu.insertRegion( 4, new Button("Kill Animals",	()->legacyRenderer.actionKillAllAnimals()));
-			menu.insertRegion( 5, new Button("Spawn Animals",	()->legacyRenderer.actionSpawnAnimals()));
+			int buttonId = 0;
+			menu.insertRegion( buttonId++, new Button("Import Brains",	()->legacyRenderer.actionLoadBrains()));
+			menu.insertRegion( buttonId++, new Button("Export Brains",	()->legacyRenderer.actionSaveBrains()));
+			menu.insertRegion( buttonId++, new Button("Regenerate",		()->legacyRenderer.actionRegenerateWorld()));
+			menu.insertRegion( buttonId++, new Button("Cycle Modes",		()->legacyRenderer.actionToggleRenderAnimals()));
+			menu.insertRegion( buttonId++, new Button("Kill Animals",	()->legacyRenderer.actionKillAllAnimals()));
+			menu.insertRegion( buttonId++, new Button("Continuous Spawn",	()->legacyRenderer.actionSpawnAnimals()));
+			menu.insertRegion( buttonId++, new Button("Spawn Randomlings",	()->legacyRenderer.actionSpawnWithMouse(main.Main.RANDOMLING)));
+			menu.insertRegion( buttonId++, new Button("Spawn Grassler",	()->legacyRenderer.actionSpawnWithMouse(main.Main.GRASSLER)));
+			menu.insertRegion( buttonId++, new Button("Spawn Bloodling",	()->legacyRenderer.actionSpawnWithMouse(main.Main.BLOODLING)));
+			menu.insertRegion( buttonId++, new Button("Spawn Brainler",	()->legacyRenderer.actionSpawnWithMouse(main.Main.BRAINLER)));
 			
 			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
 			return view;
