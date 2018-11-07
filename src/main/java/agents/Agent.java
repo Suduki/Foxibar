@@ -7,6 +7,7 @@ import org.joml.Vector2f;
 import actions.Action;
 import actions.ActionI;
 import constants.Constants;
+import skills.SkillSet;
 import vision.Vision;
 import world.World;
 
@@ -57,6 +58,8 @@ public abstract class Agent {
 	protected AgentManager<? extends Agent> agentManager;
 	public boolean printStuff;
 	
+	protected SkillSet skillSet;
+	
 	public Agent stranger;
 	public Agent friendler;
 
@@ -84,6 +87,8 @@ public abstract class Agent {
 
 		this.world = world;
 		this.agentManager = agentManager;
+		
+		this.skillSet = new SkillSet();
 	}
 
 
@@ -104,7 +109,7 @@ public abstract class Agent {
 	}
 
 	private void makeBaby() {
-		if (isFertile && stomach.canHaveBaby(BIRTH_HUNGER_COST)) {
+		if (isFertile && stomach.canHaveBaby(skillSet.get(SkillSet.MATE_COST))) {
 			mate();
 		}
 	}
@@ -127,7 +132,15 @@ public abstract class Agent {
 		}
 	}
 
-	public abstract void inherit(Agent a);
+	protected void inherit(Agent a) {
+		if (a == null) {
+			skillSet.inheritRandom();
+		}
+		else if (a.getClass() != this.getClass()){
+			System.err.println("inheriting some different class");
+		}
+		stomach.inherit(a.skillSet);
+	}
 
 	private void stepScore(int score) {
 		this.score += score;
@@ -138,7 +151,7 @@ public abstract class Agent {
 
 	private void childCost() {
 		isFertile = false;
-		stomach.energyCost += BIRTH_HUNGER_COST;
+		stomach.energyCost += skillSet.get(SkillSet.MATE_COST);
 		sinceLastBaby = 0;
 
 		// This will cause the mating animals to continue living, which is what we want in the end.
@@ -146,7 +159,9 @@ public abstract class Agent {
 		age = 0;
 	}
 
-	protected abstract float getSpeed() ;
+	protected float getSpeed() {
+		return skillSet.get(SkillSet.SPEED);
+	}
 
 	private void stepFertility() {
 		if (sinceLastBaby++ > timeBetweenBabies) {
@@ -228,7 +243,10 @@ public abstract class Agent {
 		vel.y = (float) Math.sin(angle);
 	}
 
-	protected abstract float getFightSkill();
+	protected float getFightSkill() {
+		return skillSet.get(SkillSet.FIGHT);
+	}
+	
 	protected final float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
 	
 	public void harvestBlood() {
@@ -285,7 +303,7 @@ public abstract class Agent {
 	}
 
 	protected boolean isFertileAndNotHungry() {
-		return isFertile && stomach.canHaveBaby(BIRTH_HUNGER_COST);
+		return isFertile && stomach.canHaveBaby(skillSet.get(SkillSet.MATE_COST));
 	}
 
 	public void reset() {

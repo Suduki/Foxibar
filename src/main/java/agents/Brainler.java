@@ -5,6 +5,7 @@ import org.joml.Vector2f;
 
 import actions.Action;
 import constants.Constants;
+import skills.SkillSet;
 import vision.Vision;
 import world.World;
 
@@ -60,9 +61,9 @@ public class Brainler extends Agent {
 
 	@Override
 	public void inherit(Agent a) {
+		super.inherit(a);
 		if (a == null) {
 			this.brain.neural.initWeightsRandom();
-			stomach.inherit(rand());
 			inheritAppearanceFactors(null);
 		}
 		else if (!(a instanceof Brainler)) {
@@ -71,7 +72,6 @@ public class Brainler extends Agent {
 		}
 		else {
 			this.brain.inherit(((Brainler)a).brain);
-			stomach.inherit(a.stomach.p);
 			inheritAppearanceFactors((Brainler)a);
 		}
 	}
@@ -121,17 +121,10 @@ public class Brainler extends Agent {
 	protected float getSpeed() {
 		float brainOutput = brain.neural.getSpeed();
 		float minSpeed = Constants.SkillSet.MIN_SPEED;
+		float maxSpeed = skillSet.get(SkillSet.SPEED);
 		if (brainOutput < -1) {brainOutput = -1;}
 		else if (brainOutput > 1) {brainOutput = 1;}
-		float speed = (1-minSpeed)/2 * brainOutput + (minSpeed+1)/2;
-//		if (printStuff) {
-//			System.out.println("brainOutput=" + brainOutput + ", speed = " + speed);
-//		}
+		float speed = (maxSpeed-minSpeed)/2 * brainOutput + (minSpeed+maxSpeed)/2;
 		return speed;
-	}
-	
-	@Override
-	protected float getFightSkill() {
-		return 0.5f;
 	}
 }

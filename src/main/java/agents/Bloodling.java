@@ -5,6 +5,7 @@ import java.util.Random;
 import actions.Action;
 import constants.Constants;
 import constants.Constants.Neighbours;
+import skills.SkillSet;
 import vision.Vision;
 import world.World;
 
@@ -17,22 +18,9 @@ public class Bloodling extends Agent {
 	}
 
 	@Override
-	public void inherit(Agent a) {
-		stomach.inherit(-1);
-		if (a != null && !(a instanceof Bloodling)) {
-			System.err.println("inheriting non-Bloodling");
-		}
-	}
-
-	private float speed = 1f;
-	@Override
-	protected float getSpeed() {
-		return speed;
-	}
-
-	@Override
-	protected float getFightSkill() {
-		return 0.5f;
+	protected void inherit(Agent a) {
+		super.inherit(a);
+		skillSet.inherit(SkillSet.BLOODLING_SKILL_SET);
 	}
 	
 	@Override

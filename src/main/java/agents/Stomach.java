@@ -1,5 +1,6 @@
 package agents;
 
+import skills.SkillSet;
 import constants.Constants;
 import world.World;
 
@@ -7,7 +8,7 @@ public class Stomach {
 
 	public static final float MAX_FULLNESS = 50;
 	public static final float FAT_ON_BIRTH = 1;
-	
+
 	float energyCost;
 	public float fiber;
 	public float blood;
@@ -15,53 +16,19 @@ public class Stomach {
 	float p;
 	private float pFiber;
 	private float pBlood;
-	
-	
-	public void inherit(float p) {
-		empty();
-		fat = FAT_ON_BIRTH;
-		
-		this.p = p + Agent.rand() * MUTATION;
-		if (p < -1) p = -1;
-		if (p > 1) p = 1;
-		pFiber = grassFunction(p);
-		pBlood = bloodFunction(-p);
-	}
-	
-	public static void setMAX_G(float mAX_G) {
-		if (MAX_G != mAX_G) {
-			System.out.println("Setting MAX_G to " + mAX_G);
-			MAX_G = mAX_G;
-		}
-	}
 
-	public static void setMAX_B(float mAX_B) {
-		if (MAX_G != mAX_B) {
-			System.out.println("Setting MAX_B to " + mAX_B);
-			MAX_B = mAX_B;
-		}
-	}
 
 	public static float MAX_G = 0.75f;
-	private float grassFunction(float p2) {
-		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
-	}
 	public static float MAX_B = 1.1f;
-	private float bloodFunction(float p2) {
-		return (float) (a(getMAX_B())*p2*p2 + b(getMAX_B()) * p2 + c(getMAX_B()));
+
+	public void inherit(SkillSet skillSet) {
+		empty();
+		fat = FAT_ON_BIRTH;
+		pFiber = skillSet.get(SkillSet.DIGEST_GRASS);
+		pBlood = skillSet.get(SkillSet.DIGEST_BLOOD);
 	}
-	
-	private static float a(float max) {
-		return max/4;
-	}
-	private static float b(float max) {
-		return max/2;
-	}
-	private static float c(float max) {
-		return max/4;
-	}
-	
-	
+
+
 	/**
 	 * Called at the end of round to digest blood/grass and create fat.
 	 * Also burns the fat.
@@ -87,32 +54,20 @@ public class Stomach {
 	/**
 	 * Digests
 	 */
-	private static final float DIGEST_AMOUNT = 1f; //TODO: styr upp konstanter som denna.
 	private void digest() {
 		float totalFullness = fiber + blood;
-		if (totalFullness > DIGEST_AMOUNT ) {
-			
-			fat += pFiber * fiber * DIGEST_AMOUNT / totalFullness;
-			fat += pBlood * blood * DIGEST_AMOUNT / totalFullness;
-			
-			fiber -= fiber * DIGEST_AMOUNT / totalFullness;
-			blood -= blood * DIGEST_AMOUNT / totalFullness;
-			
-		}
-		else {
-			fat += pFiber * fiber;
-			fat += pBlood * blood;
-			fiber = 0;
-			blood = 0;
-		}
-		
+		fat += pFiber * fiber;
+		fat += pBlood * blood;
+		fiber = 0;
+		blood = 0;
+
 	}
 	public final static float FAT_TO_ENERGY_FACTOR = 0.05f;
 	private void burnFat() {
 		fat -= energyCost*FAT_TO_ENERGY_FACTOR;
 		energyCost = 0;
 	}
-	
+
 	public float getMass() {
 		return fat + fiber + blood;
 	}
@@ -154,5 +109,16 @@ public class Stomach {
 		return MAX_G;
 	}
 
+
+	public static void setMAX_G(float mAX_G) {
+		MAX_G = mAX_G;
+		SkillSet.init();
+	}
+
+
+	public static void setMAX_B(float mAX_B) {
+		MAX_B = mAX_B;
+		SkillSet.init();
+	}
 }
 

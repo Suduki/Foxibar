@@ -25,7 +25,9 @@ public class Constants {
 	
 	public static class SkillSet {
 		public static final float MIN_SPEED 		= 0.3f;
+		public static final float MAX_SPEED 		= 1f;
 		public static final float MIN_TOUGHNESS 	= 0.3f;
+		public static final float MAX_TOUGHNESS 	= 1f;
 	}
 	
 	public static class Vision{
