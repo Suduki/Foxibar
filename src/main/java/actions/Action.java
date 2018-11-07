@@ -1,6 +1,8 @@
 package actions;
 
-public abstract class Action implements ActionI {
+import agents.Agent;
+
+public abstract class Action {
 	private static int numActions = 0;
 	
 	public int numCalls;
@@ -18,6 +20,8 @@ public abstract class Action implements ActionI {
 	public static HuntStranger 		huntStranger 		= new HuntStranger();
 	public static HuntFriendler 	huntFriendler		= new HuntFriendler();
 	
+	public abstract boolean determineIfPossible(Agent a);
+	public abstract void commit(Agent a);
 	
 	public static void init() {
 		if (isInitialized()) {

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
-import actions.Action;
-import actions.ActionI;
 import constants.Constants;
 import skills.SkillSet;
 import vision.Vision;
@@ -14,7 +12,6 @@ import world.World;
 public abstract class Agent {
 
 	public static final int MAX_AGE = 3000;
-	public static final float BIRTH_HUNGER_COST = 10/Stomach.FAT_TO_ENERGY_FACTOR;
 	protected static final float REACH = 1;
 
 	public float[] color, secondaryColor;
@@ -63,6 +60,7 @@ public abstract class Agent {
 	public Agent stranger;
 	public Agent friendler;
 
+	@SuppressWarnings("rawtypes")
 	public Agent(float health, World world, AgentManager agentManager) {
 		this.health = health;
 		
@@ -139,7 +137,10 @@ public abstract class Agent {
 		else if (a.getClass() != this.getClass()){
 			System.err.println("inheriting some different class");
 		}
-		stomach.inherit(a.skillSet);
+		else {
+			skillSet.inherit(a.skillSet);
+		}
+		stomach.inherit(skillSet);
 	}
 
 	private void stepScore(int score) {
@@ -275,7 +276,7 @@ public abstract class Agent {
 
 	protected void die() {
 		world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size, true);
-		world.blood.append((int) pos.x, (int) pos.y, stomach.fat / Stomach.getMAX_B(), true);
+		world.blood.append((int) pos.x, (int) pos.y, stomach.fat / Constants.SkillSet.MAX_DIGEST_BLOOD, true);
 		world.grass.append((int) pos.x, (int) pos.y, stomach.fiber, true);
 		//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
 		//				+ ", age=" + age + ", score = " + score);

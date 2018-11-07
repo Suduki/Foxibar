@@ -94,9 +94,8 @@ public class Brainler extends Agent {
 			color[i] = (float) Math.round(appearanceFactors[i]);
 			secondaryColor[i] = (float) Math.round(appearanceFactors[i+3]);
 		}
-		secondaryColor[0] = -stomach.p;
-		secondaryColor[1] = stomach.p;
-		
+		secondaryColor[0] = skillSet.skillsRelative[SkillSet.DIGEST_BLOOD];
+		secondaryColor[1] = skillSet.skillsRelative[SkillSet.DIGEST_GRASS];
 	}
 	
 	@Override

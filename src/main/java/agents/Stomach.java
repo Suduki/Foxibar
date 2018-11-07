@@ -13,13 +13,9 @@ public class Stomach {
 	public float fiber;
 	public float blood;
 	public float fat;
-	float p;
 	private float pFiber;
 	private float pBlood;
 
-
-	public static float MAX_G = 0.75f;
-	public static float MAX_B = 1.1f;
 
 	public void inherit(SkillSet skillSet) {
 		empty();
@@ -100,25 +96,6 @@ public class Stomach {
 		float b = -2 * c;
 		float a = c / Constants.SkillSet.MIN_SPEED;
 		energyCost += a*speed*speed + b*speed + c;
-	}
-
-	public static float getMAX_B() {
-		return MAX_B;
-	}
-	public static float getMAX_G() {
-		return MAX_G;
-	}
-
-
-	public static void setMAX_G(float mAX_G) {
-		MAX_G = mAX_G;
-		SkillSet.init();
-	}
-
-
-	public static void setMAX_B(float mAX_B) {
-		MAX_B = mAX_B;
-		SkillSet.init();
 	}
 }
 

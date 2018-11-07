@@ -20,6 +20,7 @@ import agents.Randomling;
 import agents.Stomach;
 import constants.Constants;
 import simulation.Simulation;
+import skills.SkillSet;
 import vision.Vision;
 
 public class StabilityIT {
@@ -36,7 +37,6 @@ public class StabilityIT {
 	@BeforeClass
 	public static void init() {
 		simulation     = new Simulation(Constants.WORLD_MULTIPLIER_TEST, new Class[] {Randomling.class, Bloodling.class, Brainler.class, Grassler.class});
-		TestHelper.init();
 		System.out.println("Before class completed");
 	}
 	
@@ -156,7 +156,7 @@ public class StabilityIT {
 		float lowGrassP = 0;
 		do {
 			grassP += 0.1f;
-			Stomach.setMAX_G(grassP);
+			SkillSet.changeSkillMax(SkillSet.DIGEST_GRASS, grassP);
 			testSurvivability(GRASSLER, 500, 100);
 			numAgents = simulation.getNumAgents(GRASSLER);
 			TestHelper.cleanup(simulation, timeStep);
@@ -187,8 +187,8 @@ public class StabilityIT {
 		
 		do {
 			bloodP += 0.1f;
-			Stomach.setMAX_G(grassThingP.highLimit);
-			Stomach.setMAX_B(bloodP);
+			SkillSet.changeSkillMax(SkillSet.DIGEST_GRASS, grassThingP.highLimit);
+			SkillSet.changeSkillMax(SkillSet.DIGEST_BLOOD, bloodP);
 			testMultipleAgents(type1, type2, initNumAgents1, initNumAgents2);
 			numGrasslers = simulation.getNumAgents(GRASSLER);
 			TestHelper.cleanup(simulation, timeStep);
@@ -240,9 +240,9 @@ public class StabilityIT {
 	
 	@Test
 	public void testUsageOfEveryAction() {
-		float maxB = Stomach.getMAX_B();
+		float maxB = Constants.SkillSet.MAX_DIGEST_BLOOD;
 		
-		Stomach.setMAX_B(maxB/10);
+		SkillSet.changeSkillMax(SkillSet.DIGEST_BLOOD, 0);
 		
 		TestHelper.verifyWorldEmpty(simulation);
 		
@@ -254,7 +254,7 @@ public class StabilityIT {
 		
 		TestHelper.cleanup(simulation, timeStep);
 		
-		Stomach.setMAX_B(maxB*10);
+		SkillSet.changeSkillMax(SkillSet.DIGEST_BLOOD, Constants.SkillSet.MAX_DIGEST_BLOOD * 20);
 		
 		TestHelper.verifyWorldEmpty(simulation);
 		testSurvivability(BRAINLER, 2000, 500);
@@ -266,7 +266,6 @@ public class StabilityIT {
 		float seekBloodProcAtHighBloodGain = ((float) Action.seekBlood.numCalls * 100) / numCalls;
 		
 		
-		Stomach.setMAX_B(maxB);
 		
 		Assert.assertTrue(huntStrangerProcAtHighBloodGain > huntStrangerProcAtNoBloodGain);
 		Assert.assertTrue(seekBloodProcAtHighBloodGain > seekBloodProcAtNoBloodGain);

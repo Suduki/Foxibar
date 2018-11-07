@@ -28,11 +28,17 @@ public class Constants {
 		public static final float MAX_SPEED 		= 1f;
 		public static final float MIN_TOUGHNESS 	= 0.3f;
 		public static final float MAX_TOUGHNESS 	= 1f;
+		public static final float MIN_MATE_COST 	= 100f;
+		public static final float MAX_MATE_COST 	= 400f;
+
+		public static float MAX_DIGEST_GRASS = 3f;
+		public static float MAX_DIGEST_BLOOD = 20;
+		
 	}
 	
 	public static class Vision{
-		public static final int HEIGHT = 8;
-		public static final int WIDTH =  8;
+		public static final int HEIGHT = 4;
+		public static final int WIDTH =  4;
 		public static final int MAX_DISTANCE_AN_AGENT_CAN_SEE = HEIGHT;
 		
 	}

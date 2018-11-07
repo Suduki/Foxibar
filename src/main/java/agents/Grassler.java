@@ -17,7 +17,6 @@ public class Grassler extends Agent {
 	@Override
 	protected void inherit(Agent a) {
 		super.inherit(a);
-		skillSet.inherit(SkillSet.GRASSLER_SKILL_SET);
 	}
 
 	@Override

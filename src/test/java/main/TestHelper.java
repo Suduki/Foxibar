@@ -3,19 +3,13 @@ package main;
 import org.junit.Assert;
 
 import simulation.Simulation;
+import skills.SkillSet;
 import vision.Vision;
 import actions.Action;
 import agents.Stomach;
+import constants.Constants;
 
 public class TestHelper {
-	
-	public static float originalMaxB;
-	public static float originalMaxG;
-	
-	public static void init() {
-		originalMaxB = Stomach.getMAX_B();
-		originalMaxG = Stomach.getMAX_G();
-	}
 	
 	public static void cleanup(Simulation simulation, Integer timeStep) {
 		Action.reset();
@@ -25,8 +19,8 @@ public class TestHelper {
 		verifyWorldEmpty(simulation);
 		simulation.mWorld.reset(true);
 		
-		Stomach.setMAX_B(originalMaxB);
-		Stomach.setMAX_G(originalMaxG);
+		SkillSet.changeSkillMax(SkillSet.DIGEST_BLOOD, Constants.SkillSet.MAX_DIGEST_BLOOD);
+		SkillSet.changeSkillMax(SkillSet.DIGEST_GRASS, Constants.SkillSet.MAX_DIGEST_GRASS);
 	}
 	
 	public static void verifyWorldEmpty(Simulation simulation) {

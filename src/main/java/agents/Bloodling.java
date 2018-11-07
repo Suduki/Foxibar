@@ -20,7 +20,6 @@ public class Bloodling extends Agent {
 	@Override
 	protected void inherit(Agent a) {
 		super.inherit(a);
-		skillSet.inherit(SkillSet.BLOODLING_SKILL_SET);
 	}
 	
 	@Override
