@@ -1,6 +1,5 @@
 package agents;
 
-import skills.SkillSet;
 import actions.Action;
 import constants.Constants;
 import world.World;
@@ -17,7 +16,6 @@ public class Randomling extends Agent {
 	@Override
 	protected void inherit(Agent a) {
 		super.inherit(a);
-		skillSet.inherit(SkillSet.RANDOMLING_SKILL_SET);
 	}
 
 	@Override

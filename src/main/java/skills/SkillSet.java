@@ -22,10 +22,6 @@ public class SkillSet {
 	public float[] skillsRelative;
 	public float[] skillsActual;
 
-	public static SkillSet BLOODLING_SKILL_SET;
-	public static SkillSet GRASSLER_SKILL_SET;
-	public static SkillSet RANDOMLING_SKILL_SET;
-
 	public SkillSet() {
 		super();
 		this.skillsRelative = new float[NUM_SKILLS];
@@ -42,7 +38,7 @@ public class SkillSet {
 	public static void init() {
 		if (RANGES == null) {
 			System.out.println("Initializing " + SkillSet.class.getSimpleName());
-		} // Was already initialized.
+		}
 
 		RANGES = new float[NUM_SKILLS][];
 		RANGES[FIGHT] 			= new float[] {0, 1};
@@ -51,16 +47,6 @@ public class SkillSet {
 		RANGES[DIGEST_BLOOD] 	= new float[] {0, MAX_DIGEST_BLOOD};
 		RANGES[DIGEST_GRASS] 	= new float[] {0, MAX_DIGEST_GRASS};
 		RANGES[MATE_COST] 		= new float[] {MAX_MATE_COST, MIN_MATE_COST};
-
-		BLOODLING_SKILL_SET = new SkillSet(new float[]{
-				1f, 1f, 1f, 1f, 0, 1f
-		});
-		GRASSLER_SKILL_SET = new SkillSet(new float[]{
-				0, 0.5f, 0, 0, 1f, 1f
-		});
-		RANDOMLING_SKILL_SET = new SkillSet(new float[]{
-				0, 0, 0, 0, 1f, 1f
-		});
 	}
 
 

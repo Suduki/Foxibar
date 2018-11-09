@@ -54,29 +54,20 @@ public class SkillSetTest {
 	
 	@Test
 	public void shouldSetProperRanges() {
-		SkillSet skillSet = SkillSet.BLOODLING_SKILL_SET;
-		
-		for (int i = 0; i < SkillSet.NUM_SKILLS; ++i) {
-			if (SkillSet.RANGES[i][0] < SkillSet.RANGES[i][1]) {
-				Assert.assertTrue(skillSet.skillsActual[i] >= SkillSet.RANGES[i][0]);
-				Assert.assertTrue(skillSet.skillsActual[i] <= SkillSet.RANGES[i][1]);
-			}
-			else {
-				Assert.assertTrue(skillSet.skillsActual[i] <= SkillSet.RANGES[i][0]);
-				Assert.assertTrue(skillSet.skillsActual[i] >= SkillSet.RANGES[i][1]);
-			}
-		}
-		
+		SkillSet skillSet = new SkillSet();
+		for (int numTries = 0; numTries < 50; ++numTries) {
+			
 		skillSet.inheritRandom();
 		
-		for (int i = 0 ; i < SkillSet.NUM_SKILLS; ++i) {
-			if (SkillSet.RANGES[i][0] < SkillSet.RANGES[i][1]) {
-				Assert.assertTrue(skillSet.skillsActual[i] >= SkillSet.RANGES[i][0]);
-				Assert.assertTrue(skillSet.skillsActual[i] <= SkillSet.RANGES[i][1]);
-			}
-			else {
-				Assert.assertTrue(skillSet.skillsActual[i] <= SkillSet.RANGES[i][0]);
-				Assert.assertTrue(skillSet.skillsActual[i] >= SkillSet.RANGES[i][1]);
+			for (int i = 0; i < SkillSet.NUM_SKILLS; ++i) {
+				if (SkillSet.RANGES[i][0] < SkillSet.RANGES[i][1]) {
+					Assert.assertTrue(skillSet.skillsActual[i] >= SkillSet.RANGES[i][0]);
+					Assert.assertTrue(skillSet.skillsActual[i] <= SkillSet.RANGES[i][1]);
+				}
+				else {
+					Assert.assertTrue(skillSet.skillsActual[i] <= SkillSet.RANGES[i][0]);
+					Assert.assertTrue(skillSet.skillsActual[i] >= SkillSet.RANGES[i][1]);
+				}
 			}
 		}
 	}
