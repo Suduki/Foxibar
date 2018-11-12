@@ -70,7 +70,6 @@ public abstract class Agent {
 
 		maxAge = MAX_AGE; //TODO: move these constants
 		healPower = 0.01f;
-		maxHealth = 100;
 
 		size = 1;
 		growth = 0.01f;
@@ -140,7 +139,13 @@ public abstract class Agent {
 		else {
 			skillSet.inherit(a.skillSet);
 		}
+		fixAppearance();
+	}
+	
+	protected void fixAppearance() {
 		stomach.inherit(skillSet);
+		maxHealth = 100*skillSet.skillsRelative[SkillSet.TOUGHNESS];
+		size = skillSet.skillsRelative[SkillSet.FIGHT]*10+skillSet.skillsRelative[SkillSet.TOUGHNESS]*10;
 	}
 
 	private void stepScore(int score) {
@@ -267,7 +272,7 @@ public abstract class Agent {
 
 	protected void heal() {
 		if (health < maxHealth) {
-			health += healPower;
+			health += maxHealth*0.0001f;
 			if (health > maxHealth) {
 				health = maxHealth;
 			}

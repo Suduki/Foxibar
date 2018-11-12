@@ -96,6 +96,7 @@ public class Brainler extends Agent {
 		}
 		secondaryColor[0] = skillSet.skillsRelative[SkillSet.DIGEST_BLOOD];
 		secondaryColor[1] = skillSet.skillsRelative[SkillSet.DIGEST_GRASS];
+		secondaryColor[2] = 0;
 	}
 	
 	@Override
