@@ -7,6 +7,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 
 import simulation.Simulation;
+import vision.Vision;
 import agents.Agent;
 import agents.Agent;
 
@@ -16,12 +17,14 @@ public class World {
 	public Grass grass;
 	public CarbonElement blood;
 	public Wind wind;
+	public Vision vision;
 	
-	public World() {
+	public World(Vision vision) {
 		terrain = new Terrain();
 		grass = new Grass(terrain);
 		blood = new CarbonElement(1, Constants.Colors.BLOOD, 1, Constants.Blood.DECAY_FACTOR);
 		wind = new Wind();
+		this.vision = vision;
 		
 		regenerate();
 	}
@@ -45,13 +48,27 @@ public class World {
 	private static float[] tempColor = new float[3];
 	
 	public void updateColor(float[][][] terrainColor) {
+		boolean useVisionColors = false;
 		for (int x = 0; x < terrainColor.length; ++x) {
 			for (int y = 0; y < terrainColor.length; ++y) {
-				updateColor(terrainColor, x, y);
+				if (useVisionColors) {
+					visionColor(terrainColor, x, y);
+				}
+				else {
+					updateColor(terrainColor, x, y);
+				}
 			}
 		}
 		
 	}
+	
+	public void visionColor(float[][][] a, int x, int y) {
+		float[] color = vision.getColorAt(x, y);
+		a[x][y][0] = color[0];
+		a[x][y][1] = color[1];
+		a[x][y][2] = color[2];
+	}
+	
 	public void updateColor(float[][][] a, int x, int y) {
 		float grassness, dirtness;
 

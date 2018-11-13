@@ -41,7 +41,7 @@ public class Simulation extends MessageHandler {
 		vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
 		Action.init();
 		SkillSet.init();
-		mWorld = new World();
+		mWorld = new World(vision);
 		for (Class<T> clazz : classes) {
 			agentManagers.add(new AgentManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));
 		}

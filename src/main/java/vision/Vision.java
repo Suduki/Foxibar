@@ -209,4 +209,10 @@ public class Vision {
 		if (vel.lengthSquared() > 0) vel.normalize();
 	}
 
+	public float[] getColorAt(int x, int y) {
+		int zx = getZoneXFromPosX(x);
+		int zy = getZoneYFromPosY(y);
+		return zoneGrid[zx][zy].color;
+	}
+
 }
