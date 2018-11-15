@@ -25,18 +25,15 @@ public class LegacyRenderer implements gui.SceneRegionRenderer {
 	static final int PIXELS_Y = Constants.PIXELS_Y;
 	static int startY = 0;
 	static int startX = 0;
-	static float zoomFactor = Constants.INIT_ZOOM;
-	static int width = Math.round(Main.mSimulation.WORLD_SIZE_X/zoomFactor);
-	static int height = Math.round(Main.mSimulation.WORLD_SIZE_Y/zoomFactor);
+	public static float zoomFactor = Constants.INIT_ZOOM;
+	static int width = Math.round(Simulation.WORLD_SIZE_X/zoomFactor);
+	static int height = Math.round(Simulation.WORLD_SIZE_Y/zoomFactor);
 	private static Mouse mouse = new input.Mouse();
-	public static float[][][] terrainColor = new float[Main.mSimulation.WORLD_SIZE_X][Main.mSimulation.WORLD_SIZE_Y][3];
+	public static float[][][] terrainColor = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y][3];
 	private Simulation mSimulation;
 	private DisplayHandler mDisplayHandler;
-	private boolean mSimulationPaused = false;
 	RegionI mRegion;
 	
-	private float[] circleVerticesX;
-	private float[] circleVerticesY;
 	List<Button> mButtons;
 	static float x0 = 0;
 	static float y0 = 0;
@@ -249,44 +246,6 @@ public void actionLoadBrains() {
 		glVertex2f(screenPositionX+2 + sizeX, screenPositionY-1 - sizeY);
 		glVertex2f(screenPositionX-2 - sizeX, screenPositionY-1 - sizeY);
 		
-	}
-	
-	private void renderCircle(float[] color, float radius, float screenPositionX, float screenPositionY) {
-		glEnd();
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//		glBlendFunc(GL_ONE, GL_ONE);
-		glBegin(GL_TRIANGLES);
-		glColor4f(color[0], color[1], color[2], 0.3f);
-
-		if (circleVerticesX == null) {
-			initCircle();
-		}
-		for (int i = 0; i < circleVerticesX.length; i++) {
-			glVertex2f(screenPositionX, screenPositionY);
-			glVertex2f(circleVerticesX[i]*radius + screenPositionX, circleVerticesY[i]*radius + screenPositionY);
-			if (i+1 < circleVerticesX.length) {
-				glVertex2f(circleVerticesX[i+1]*radius + screenPositionX, circleVerticesY[i+1]*radius + screenPositionY);
-			}
-			else {
-				glVertex2f(circleVerticesX[0]*radius + screenPositionX, circleVerticesY[0]*radius + screenPositionY);
-			}
-		}
-		glEnd();
-		glDisable(GL_BLEND);
-		glBegin(GL_TRIANGLES);
-	}
-	
-	private void initCircle() {
-		int numVertices = 20;
-		circleVerticesX = new float[numVertices];
-		circleVerticesY = new float[numVertices];
-		float angle = 0;
-		for (int i = 0; i < numVertices; ++i) {
-			angle += Math.PI*2 /numVertices;
-			circleVerticesX[i] = (float)Math.cos(angle);
-			circleVerticesY[i] = (float)Math.sin(angle);
-		}
 	}
 	
 	private void renderThreePartsOfAnimal(float[] colorBackground, float[] colorAnimal,

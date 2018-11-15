@@ -62,6 +62,12 @@ public class Constants {
 		public static final float[] TREE = new float[]{0.5f, 0.2f, 0.1f};
 		public static final float[] FIBER = new float[]{0.5f, 0.2f, 0.1f};
 		public static final float[] TREE_TOP = new float[]{0.4f, 0.8f, 0f};
+		
+		public static class DesignYourAnimal {
+			public static final float[] BACKGROUND = new float[]{0.843f, 0.392f, 0.392f};
+			public static final float[] MIDDLE = new float[]{0.843f, 0.62f, 0.392f};
+		}
+		
 	}
 
 	public static class Neighbours {

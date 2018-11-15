@@ -43,6 +43,17 @@ public class DisplayHandler extends MessageHandler {
 			this.mDisplayHandler = pDisplayHandler;
 		}
 		
+		RegionI createDesignAnimalGui(DesignAnimalRenderer renderer) {
+			RegionI scene = new SceneRegion(renderer);
+			
+			ArrayRegion menu = new ArrayRegion(ArrayRegion.Vertical);
+			int buttonId = 0;
+			menu.insertRegion( buttonId++, new Button("Increase Blood",	()->renderer.actionIncrease(0)));
+			
+			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
+			return view;
+		}
+		
 		RegionI createLegacyGui(LegacyRenderer legacyRenderer)
 		{
 			RegionI scene = new SceneRegion(legacyRenderer);
@@ -104,22 +115,32 @@ public class DisplayHandler extends MessageHandler {
 			Font.defaultFont();
 
 			ArrayRegion mainMenu = new ArrayRegion(ArrayRegion.Horizontal);
-			Button toggleButton  = new Button("Toggle View ( 2D <-> 3D )");
-			mainMenu.insertRegion(0, toggleButton);
+			Button legacyButton  = new Button("2D");
+			Button modernButton  = new Button("3D");
+			Button designAnimalButton  = new Button("DesignAnimal");
+			
+			int buttonId = 0;
+			mainMenu.insertRegion(buttonId++, legacyButton);
+			mainMenu.insertRegion(buttonId++, modernButton);
+			mainMenu.insertRegion(buttonId++, designAnimalButton);
 			
 			TerrainRenderer terrainRenderer = new TerrainRenderer(mWindow);
+			
 			RegionI modernView = createModernGui(terrainRenderer);
 			RegionI legacyView = createLegacyGui(new LegacyRenderer(mDisplayHandler, mSimulation));
+			RegionI designAnimalView = createDesignAnimalGui(new DesignAnimalRenderer(mDisplayHandler, mSimulation));
 			
 			HorizontalSplitRegion rootRegion = new HorizontalSplitRegion(mainMenu, legacyView);
-			toggleButton.setCallback(() -> {
-				if (rootRegion.getBottomSubRegion() != modernView) {
-					rootRegion.setBottomSubRegion(modernView);
-				}
-				else {
-					rootRegion.setBottomSubRegion(legacyView);
-				}
-				rootRegion.updateGeometry();
+			
+			legacyButton.setCallback(() -> {
+				rootRegion.setBottomSubRegion(legacyView);
+			});
+			modernButton.setCallback(() -> {
+				rootRegion.setBottomSubRegion(modernView);
+			});
+			designAnimalButton.setCallback(() -> {
+				rootRegion.setBottomSubRegion(designAnimalView);
+				System.out.println("setCallback designAnimalView");
 			});
 			
 			GuiRoot guiRoot = new GuiRoot(mWindow, mSimulation);
