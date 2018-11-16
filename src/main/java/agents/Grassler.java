@@ -2,7 +2,7 @@ package agents;
 
 import actions.Action;
 import constants.Constants;
-import skills.SkillSet;
+import talents.Talents;
 import vision.Vision;
 import world.World;
 

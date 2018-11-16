@@ -265,13 +265,13 @@ public void actionLoadBrains() {
 			factorRight = 1f;
 		}
 		
-		float scale = 0.7f;
+		float topBarMajority = 0.7f;
 		
-		renderLeftTriangle(colorAnimal, sizeX*factorLeft*scale, 
-				sizeY*factorLeft*scale, screenPositionX, screenPositionY);
-		renderRightTriangle(colorAnimal, sizeX*factorRight*scale, 
-				sizeY*factorRight*scale, screenPositionX, screenPositionY);
-		renderTopBar(colorAnimal, sizeX, sizeY, screenPositionX, screenPositionY, scale*sizeY, factorTop);
+		renderLeftTriangle(colorAnimal, sizeX*factorLeft*topBarMajority, 
+				sizeY*factorLeft*topBarMajority, screenPositionX, screenPositionY);
+		renderRightTriangle(colorAnimal, sizeX*factorRight*topBarMajority, 
+				sizeY*factorRight*topBarMajority, screenPositionX, screenPositionY);
+		renderTopBar(colorAnimal, sizeX, sizeY, screenPositionX, screenPositionY, topBarMajority*sizeY, factorTop);
 	}
 	
 	private void renderTopBar(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY, float height, float factor) {

@@ -3,7 +3,7 @@ package main;
 import org.junit.Assert;
 
 import simulation.Simulation;
-import skills.SkillSet;
+import talents.Talents;
 import vision.Vision;
 import actions.Action;
 import agents.Stomach;
@@ -19,8 +19,8 @@ public class TestHelper {
 		verifyWorldEmpty(simulation);
 		simulation.mWorld.reset(true);
 		
-		SkillSet.changeSkillMax(SkillSet.DIGEST_BLOOD, Constants.SkillSet.MAX_DIGEST_BLOOD);
-		SkillSet.changeSkillMax(SkillSet.DIGEST_GRASS, Constants.SkillSet.MAX_DIGEST_GRASS);
+		Talents.changeTalentMax(Talents.DIGEST_BLOOD, Constants.SkillSet.MAX_DIGEST_BLOOD);
+		Talents.changeTalentMax(Talents.DIGEST_GRASS, Constants.SkillSet.MAX_DIGEST_GRASS);
 	}
 	
 	public static void verifyWorldEmpty(Simulation simulation) {

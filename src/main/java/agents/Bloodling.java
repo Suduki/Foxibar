@@ -5,7 +5,7 @@ import java.util.Random;
 import actions.Action;
 import constants.Constants;
 import constants.Constants.Neighbours;
-import skills.SkillSet;
+import talents.Talents;
 import vision.Vision;
 import world.World;
 

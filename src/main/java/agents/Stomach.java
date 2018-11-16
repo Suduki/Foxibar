@@ -1,6 +1,6 @@
 package agents;
 
-import skills.SkillSet;
+import talents.Talents;
 import constants.Constants;
 import world.World;
 
@@ -17,11 +17,11 @@ public class Stomach {
 	private float pBlood;
 
 
-	public void inherit(SkillSet skillSet) {
+	public void inherit(Talents skillSet) {
 		empty();
 		fat = FAT_ON_BIRTH;
-		pFiber = skillSet.get(SkillSet.DIGEST_GRASS);
-		pBlood = skillSet.get(SkillSet.DIGEST_BLOOD);
+		pFiber = skillSet.get(Talents.DIGEST_GRASS);
+		pBlood = skillSet.get(Talents.DIGEST_BLOOD);
 	}
 
 

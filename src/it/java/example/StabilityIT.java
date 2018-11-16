@@ -28,7 +28,7 @@ import agents.Randomling;
 import agents.Stomach;
 import constants.Constants;
 import simulation.Simulation;
-import skills.SkillSet;
+import talents.Talents;
 import vision.Vision;
 
 public class StabilityIT {
@@ -140,7 +140,7 @@ public class StabilityIT {
 		float lowGrassP = 0;
 		do {
 			grassP += 0.1f;
-			SkillSet.changeSkillMax(SkillSet.DIGEST_GRASS, grassP);
+			Talents.changeTalentMax(Talents.DIGEST_GRASS, grassP);
 			testSurvivability(GRASSLER, 500, 100);
 			numAgents = simulation.getNumAgents(GRASSLER);
 			TestHelper.cleanup(simulation, timeStep);
@@ -175,8 +175,8 @@ public class StabilityIT {
 
 			do {
 				bloodP *= 2;
-				SkillSet.changeSkillMax(SkillSet.DIGEST_GRASS, grassThingP.highLimit);
-				SkillSet.changeSkillMax(SkillSet.DIGEST_BLOOD, bloodP);
+				Talents.changeTalentMax(Talents.DIGEST_GRASS, grassThingP.highLimit);
+				Talents.changeTalentMax(Talents.DIGEST_BLOOD, bloodP);
 				testMultipleAgents(type1, type2, initNumAgents1, initNumAgents2);
 				numGrasslers = simulation.getNumAgents(GRASSLER);
 				if (!foundLowB && maxNumType2 > initNumAgents2 + 5) {
@@ -240,7 +240,7 @@ public class StabilityIT {
 	public void testUsageOfEveryAction() {
 		float maxB = Constants.SkillSet.MAX_DIGEST_BLOOD;
 
-		SkillSet.changeSkillMax(SkillSet.DIGEST_BLOOD, 0);
+		Talents.changeTalentMax(Talents.DIGEST_BLOOD, 0);
 
 		TestHelper.verifyWorldEmpty(simulation);
 
@@ -252,7 +252,7 @@ public class StabilityIT {
 
 		TestHelper.cleanup(simulation, timeStep);
 
-		SkillSet.changeSkillMax(SkillSet.DIGEST_BLOOD, Constants.SkillSet.MAX_DIGEST_BLOOD * 20);
+		Talents.changeTalentMax(Talents.DIGEST_BLOOD, Constants.SkillSet.MAX_DIGEST_BLOOD * 20);
 
 		TestHelper.verifyWorldEmpty(simulation);
 		testSurvivability(BRAINLER, 2000, 500);

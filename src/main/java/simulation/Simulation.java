@@ -12,7 +12,7 @@ import constants.Constants;
 import messages.MessageHandler;
 import messages.Message;
 import messages.SpawnAnimals;
-import skills.SkillSet;
+import talents.Talents;
 
 public class Simulation extends MessageHandler {
 	public World mWorld;
@@ -40,7 +40,7 @@ public class Simulation extends MessageHandler {
 		WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
 		vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
 		Action.init();
-		SkillSet.init();
+		Talents.init();
 		mWorld = new World(vision);
 		for (Class<T> clazz : classes) {
 			agentManagers.add(new AgentManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));

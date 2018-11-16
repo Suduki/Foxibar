@@ -24,11 +24,11 @@ public class Constants {
 	public static final int NUM_NEIGHBOURS = 6;
 	
 	public static class SkillSet {
-		public static final float MIN_SPEED 		= 0.3f;
+		public static final float MIN_SPEED 		= 0.1f;
 		public static final float MAX_SPEED 		= 1f;
-		public static final float MIN_TOUGHNESS 	= 0.3f;
+		public static final float MIN_TOUGHNESS 	= 0.05f;
 		public static final float MAX_TOUGHNESS 	= 1f;
-		public static final float MIN_MATE_COST 	= 100f;
+		public static final float MIN_MATE_COST 	= 50f;
 		public static final float MAX_MATE_COST 	= 400f;
 
 		public static float MAX_DIGEST_GRASS = 3.8f;
@@ -64,8 +64,13 @@ public class Constants {
 		public static final float[] TREE_TOP = new float[]{0.4f, 0.8f, 0f};
 		
 		public static class DesignYourAnimal {
-			public static final float[] BACKGROUND = new float[]{0.843f, 0.392f, 0.392f};
-			public static final float[] MIDDLE = new float[]{0.843f, 0.62f, 0.392f};
+			public static final float mainColorDominance = 0.7f;
+			public static final float secondaryColorDominance = 0.3f;
+			public static final float mean = (mainColorDominance + secondaryColorDominance) / 2;
+			public static final float[] OUTER = new float[]{mainColorDominance, secondaryColorDominance, secondaryColorDominance};
+			public static final float[] INNER= new float[]{0.941f, 0.839f, 0.27f};
+			public static final float[] MIDDLE = new float[]{0.843f, 0.545f, 0.392f};
+			public static final float[] BUTTON = new float[]{0.8f, 0.8f, 0.8f};
 		}
 		
 	}

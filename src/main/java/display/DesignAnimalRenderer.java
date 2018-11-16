@@ -1,5 +1,9 @@
 package display;
 
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
@@ -34,59 +38,22 @@ import gui.MouseEvent;
 import gui.MouseState;
 import gui.RegionI;
 import simulation.Simulation;
-import skills.SkillSet;
+import talents.SkillsRenderCircle;
+import talents.Talents;
 
 public class DesignAnimalRenderer implements gui.SceneRegionRenderer {
 	
-
-	private float[] circleVerticesX;
-	private float[] circleVerticesY;
 	private RegionI mRegion;
+	SkillsRenderCircle skillsRenderCircle;
 	
 	public DesignAnimalRenderer(DisplayHandler mDisplayHandler, Simulation mSimulation) {
-	}
-
-	private void renderCircle(float[] color, float radius, float screenPositionX, float screenPositionY, int numVertices, float alpha) {
-//		glEnd();
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//		glBlendFunc(GL_ONE, GL_ONE);
-		glBegin(GL_TRIANGLES);
-		glColor4f(color[0], color[1], color[2], alpha);
-
-		if (circleVerticesX == null) {
-			initCircle(numVertices);
-		}
-		for (int i = 0; i < circleVerticesX.length; i++) {
-			glVertex2f(screenPositionX, screenPositionY);
-			glVertex2f(circleVerticesX[i]*radius + screenPositionX, circleVerticesY[i]*radius + screenPositionY);
-			if (i+1 < circleVerticesX.length) {
-				glVertex2f(circleVerticesX[i+1]*radius + screenPositionX, circleVerticesY[i+1]*radius + screenPositionY);
-			}
-			else {
-				glVertex2f(circleVerticesX[0]*radius + screenPositionX, circleVerticesY[0]*radius + screenPositionY);
-			}
-		}
-		glEnd();
-		glDisable(GL_BLEND);
-//		glBegin(GL_TRIANGLES);
-	}
-	
-	private void initCircle(int numVertices) {
-		circleVerticesX = new float[numVertices];
-		circleVerticesY = new float[numVertices];
-		float angle = 0;
-		for (int i = 0; i < numVertices; ++i) {
-			angle += Math.PI*2 /numVertices;
-			circleVerticesX[i] = (float)Math.cos(angle);
-			circleVerticesY[i] = (float)Math.sin(angle);
-		}
+		skillsRenderCircle = new SkillsRenderCircle(200, 100);
 	}
 
 	@Override
 	public void render(int pViewportWidth, int pViewportHeight) {
-		renderCircle(Constants.Colors.DesignYourAnimal.BACKGROUND, 200, 250, 250, SkillSet.NUM_SKILLS, 1f);
-		renderCircle(Constants.Colors.DesignYourAnimal.MIDDLE, 50, 250, 250, SkillSet.NUM_SKILLS, 1f);
+		skillsRenderCircle.update(pViewportWidth/2, pViewportHeight/2);
+		skillsRenderCircle.render();
 	}
 	
 	@Override
@@ -95,9 +62,25 @@ public class DesignAnimalRenderer implements gui.SceneRegionRenderer {
 	}
 
 	@Override
-	public boolean handleMouseEvent(MouseEvent pEvent, MouseState pState) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean handleMouseEvent(MouseEvent pEvent, MouseState pMouse) {
+		if (pEvent == MouseEvent.BUTTON) {
+			int button = pMouse.getButtonIndex();
+			int action = pMouse.getButtonState(button) ? GLFW_PRESS : GLFW_RELEASE;
+			handleMouseClick(0, button, action, 0);
+			
+		}
+		else if (pEvent == MouseEvent.MOTION) {
+			handleMouseMotion(0, pMouse.getPos().x - mRegion.getPos().x, pMouse.getPos().y - mRegion.getPos().y);
+		}
+		
+		return true;
+	}
+
+	private void handleMouseMotion(int i, int j, int k) {
+		
+	}
+
+	private void handleMouseClick(int i, int button, int action, int j) {
 	}
 
 	@Override

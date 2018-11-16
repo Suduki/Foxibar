@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 
 import constants.Constants;
-import skills.SkillSet;
+import talents.Talents;
 import vision.Vision;
 import world.World;
 
@@ -55,7 +55,7 @@ public abstract class Agent {
 	protected AgentManager<? extends Agent> agentManager;
 	public boolean printStuff;
 	
-	protected SkillSet skillSet;
+	protected Talents skillSet;
 	
 	public Agent stranger;
 	public Agent friendler;
@@ -85,7 +85,7 @@ public abstract class Agent {
 		this.world = world;
 		this.agentManager = agentManager;
 		
-		this.skillSet = new SkillSet();
+		this.skillSet = new Talents();
 	}
 
 
@@ -106,7 +106,7 @@ public abstract class Agent {
 	}
 
 	private void makeBaby() {
-		if (isFertile && stomach.canHaveBaby(skillSet.get(SkillSet.MATE_COST))) {
+		if (isFertile && stomach.canHaveBaby(skillSet.get(Talents.MATE_COST))) {
 			mate();
 		}
 	}
@@ -144,8 +144,8 @@ public abstract class Agent {
 	
 	protected void fixAppearance() {
 		stomach.inherit(skillSet);
-		maxHealth = 100*skillSet.skillsRelative[SkillSet.TOUGHNESS];
-		size = skillSet.skillsRelative[SkillSet.FIGHT]*10+skillSet.skillsRelative[SkillSet.TOUGHNESS]*10;
+		maxHealth = 100*skillSet.talentsRelative[Talents.TOUGHNESS];
+		size = skillSet.talentsRelative[Talents.FIGHT]*10+skillSet.talentsRelative[Talents.TOUGHNESS]*10;
 	}
 
 	private void stepScore(int score) {
@@ -157,7 +157,7 @@ public abstract class Agent {
 
 	private void childCost() {
 		isFertile = false;
-		stomach.energyCost += skillSet.get(SkillSet.MATE_COST);
+		stomach.energyCost += skillSet.get(Talents.MATE_COST);
 		sinceLastBaby = 0;
 
 		// This will cause the mating animals to continue living, which is what we want in the end.
@@ -166,7 +166,7 @@ public abstract class Agent {
 	}
 
 	protected float getSpeed() {
-		return skillSet.get(SkillSet.SPEED);
+		return skillSet.get(Talents.SPEED);
 	}
 
 	private void stepFertility() {
@@ -250,7 +250,7 @@ public abstract class Agent {
 	}
 
 	protected float getFightSkill() {
-		return skillSet.get(SkillSet.FIGHT);
+		return skillSet.get(Talents.FIGHT);
 	}
 	
 	protected final float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
@@ -309,7 +309,7 @@ public abstract class Agent {
 	}
 
 	protected boolean isFertileAndNotHungry() {
-		return isFertile && stomach.canHaveBaby(skillSet.get(SkillSet.MATE_COST));
+		return isFertile && stomach.canHaveBaby(skillSet.get(Talents.MATE_COST));
 	}
 
 	public void reset() {

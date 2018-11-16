@@ -6,17 +6,17 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import skills.SkillSet;
+import talents.Talents;
 
 public class SkillSetTest {
 	@Before
 	public void before() {
-		SkillSet.init();
+		Talents.init();
 	}
 	
 	@Test
 	public void shouldNormalizeSkillVectorAfterInheritRandom() {
-		SkillSet skillSet = new SkillSet();
+		Talents skillSet = new Talents();
 		
 		skillSet.inheritRandom();
 		
@@ -26,8 +26,8 @@ public class SkillSetTest {
 	
 	@Test
 	public void shouldNormalizeSkillVectorAfterMultipleInherits() {
-		SkillSet ancestorSS = new SkillSet();
-		SkillSet inheritedSkillSet = new SkillSet();
+		Talents ancestorSS = new Talents();
+		Talents inheritedSkillSet = new Talents();
 		
 		ancestorSS.inheritRandom();
 		inheritedSkillSet.inherit(ancestorSS);
@@ -41,32 +41,32 @@ public class SkillSetTest {
 	
 	@Test
 	public void shouldMutateAfterInherit() {
-		SkillSet ancestorSS = new SkillSet();
-		SkillSet inheritedSkillSet = new SkillSet();
+		Talents ancestorSS = new Talents();
+		Talents inheritedSkillSet = new Talents();
 		
 		ancestorSS.inheritRandom();
 		inheritedSkillSet.inherit(ancestorSS);
 		
-		for (int i = 0 ; i < SkillSet.NUM_SKILLS; ++i) {
-			Assert.assertTrue(inheritedSkillSet.skillsRelative[i] != ancestorSS.skillsRelative[i]);
+		for (int i = 0 ; i < Talents.NUM_TALENTS; ++i) {
+			Assert.assertTrue(inheritedSkillSet.talentsRelative[i] != ancestorSS.talentsRelative[i]);
 		}
 	}
 	
 	@Test
 	public void shouldSetProperRanges() {
-		SkillSet skillSet = new SkillSet();
+		Talents skillSet = new Talents();
 		for (int numTries = 0; numTries < 50; ++numTries) {
 			
 		skillSet.inheritRandom();
 		
-			for (int i = 0; i < SkillSet.NUM_SKILLS; ++i) {
-				if (SkillSet.RANGES[i][0] < SkillSet.RANGES[i][1]) {
-					Assert.assertTrue(skillSet.skillsActual[i] >= SkillSet.RANGES[i][0]);
-					Assert.assertTrue(skillSet.skillsActual[i] <= SkillSet.RANGES[i][1]);
+			for (int i = 0; i < Talents.NUM_TALENTS; ++i) {
+				if (Talents.RANGES[i][0] < Talents.RANGES[i][1]) {
+					Assert.assertTrue(skillSet.talentsActual[i] >= Talents.RANGES[i][0]);
+					Assert.assertTrue(skillSet.talentsActual[i] <= Talents.RANGES[i][1]);
 				}
 				else {
-					Assert.assertTrue(skillSet.skillsActual[i] <= SkillSet.RANGES[i][0]);
-					Assert.assertTrue(skillSet.skillsActual[i] >= SkillSet.RANGES[i][1]);
+					Assert.assertTrue(skillSet.talentsActual[i] <= Talents.RANGES[i][0]);
+					Assert.assertTrue(skillSet.talentsActual[i] >= Talents.RANGES[i][1]);
 				}
 			}
 		}
@@ -74,14 +74,14 @@ public class SkillSetTest {
 	
 	@Test
 	public void shouldNormalizeZero() {
-		SkillSet skillSet = new SkillSet();
-		for (int i = 0 ; i < SkillSet.NUM_SKILLS; ++i) {
-			skillSet.skillsRelative[i] = 0;
+		Talents skillSet = new Talents();
+		for (int i = 0 ; i < Talents.NUM_TALENTS; ++i) {
+			skillSet.talentsRelative[i] = 0;
 		}
 		skillSet.normalize();
 		
-		for (int i = 0 ; i < SkillSet.NUM_SKILLS; ++i) {
-			Assert.assertTrue(skillSet.skillsActual[i] != Float.NaN);
+		for (int i = 0 ; i < Talents.NUM_TALENTS; ++i) {
+			Assert.assertTrue(skillSet.talentsActual[i] != Float.NaN);
 		}
 	}
 	
