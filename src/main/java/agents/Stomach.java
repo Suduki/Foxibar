@@ -86,7 +86,7 @@ public class Stomach {
 	}
 
 	public boolean canHaveBaby(float birthHungerCost) {
-		return (fat / FAT_TO_ENERGY_FACTOR) > birthHungerCost;
+		return (fat / FAT_TO_ENERGY_FACTOR) > (birthHungerCost*2);
 	}
 
 	private static final float energyCostAtMaxSpeed = 5f;

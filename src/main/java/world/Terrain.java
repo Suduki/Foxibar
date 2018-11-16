@@ -57,11 +57,11 @@ public class Terrain {
 				water[x][y] = false;
 				stone[x][y] = false;
 
+				if (growth[x][y] > STONE_LIMIT) {
+					stone[x][y] = true;
+				}
 				if (height[x][y] < WATER_LIMIT) {
 					water[x][y] = true;
-				}
-				if (height[x][y] > STONE_LIMIT) {
-					stone[x][y] = true;
 				}
 			}
 		}
