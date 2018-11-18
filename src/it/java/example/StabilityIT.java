@@ -130,7 +130,7 @@ public class StabilityIT {
 			testSurvivability(GRASSLER, 500, 100);
 			numAgents = simulation.getNumAgents(GRASSLER);
 			TestHelper.cleanup(simulation, timeStep);
-			if (!foundLowG && numAgents > 110) {
+			if (!foundLowG && numAgents > 10) {
 				foundLowG = true;
 				lowGrassP = grassP;
 			}
