@@ -1,5 +1,6 @@
 package world;
 
+import simulation.Simulation;
 import constants.Constants;
 
 public class Grass extends TileElement {
@@ -10,17 +11,17 @@ public class Grass extends TileElement {
 	private Terrain terrain;
 
 	public Grass(Terrain terrain) {
-		height = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
-		toBeUpdated = new boolean[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
+		height = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
+		toBeUpdated = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		color = Constants.Colors.GRASS;
-		tree = new Tree(terrain);
+		tree = new Tree(terrain, this);
 		this.terrain = terrain;
 		regenerate(true);
 	}
 
 	public void grow(int timeStep, int updateFrequency) {
-		for(int i = 0; i < Constants.WORLD_SIZE_V.x; i++) {
-			for(int j = 0; j < Constants.WORLD_SIZE_V.y; j++) {
+		for(int i = 0; i < Simulation.WORLD_SIZE_X; i++) {
+			for(int j = 0; j < Simulation.WORLD_SIZE_Y; j++) {
 				if ((i + j + timeStep) % updateFrequency != 0) {
 					continue;
 				}
@@ -38,8 +39,8 @@ public class Grass extends TileElement {
 
 	public void regenerate(boolean fullyGrown) {
 		tree.killAll();
-		for (int x = 0; x < Constants.WORLD_SIZE_V.x; ++x) {
-			for (int y = 0; y < Constants.WORLD_SIZE_V.y; ++y) {
+		for (int x = 0; x < Simulation.WORLD_SIZE_X; ++x) {
+			for (int y = 0; y < Simulation.WORLD_SIZE_Y; ++y) {
 				if (terrain.stone[x][y] || terrain.water[x][y]) {
 					toBeUpdated[x][y] = false;
 					continue;
@@ -58,8 +59,8 @@ public class Grass extends TileElement {
 
 	public void killAllGrass() {
 		tree.killAll();
-		for (int x = 0; x < Constants.WORLD_SIZE_V.x; ++x) {
-			for (int y = 0; y < Constants.WORLD_SIZE_V.y; ++y) {
+		for (int x = 0; x < Simulation.WORLD_SIZE_X; ++x) {
+			for (int y = 0; y < Simulation.WORLD_SIZE_Y; ++y) {
 				
 				if (terrain.stone[x][y] || terrain.water[x][y]) {
 					toBeUpdated[x][y] = false;
@@ -87,8 +88,8 @@ public class Grass extends TileElement {
 
 	public double getTotalHeight() {
 		double heightTot = 0;
-		for (int x = 0; x < Constants.WORLD_SIZE_V.x; ++x) {
-			for (int y = 0; y < Constants.WORLD_SIZE_V.y; ++y) {
+		for (int x = 0; x < Simulation.WORLD_SIZE_X; ++x) {
+			for (int y = 0; y < Simulation.WORLD_SIZE_Y; ++y) {
 				heightTot += height[x][y];
 			}
 		}

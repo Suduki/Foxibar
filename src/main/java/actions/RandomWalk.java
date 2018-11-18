@@ -16,8 +16,6 @@ public class RandomWalk extends Action {
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
 		a.randomWalk();
 		a.move();
-		a.harvestGrass();
-		a.harvestFat();
 	}
 
 }

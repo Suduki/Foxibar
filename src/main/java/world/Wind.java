@@ -4,13 +4,14 @@ import noise.Noise;
 
 import org.joml.Vector3f;
 
+import simulation.Simulation;
 import constants.Constants;
 
 public class Wind {
 
 	public Wind() {
-		windX = new float[Constants.WORLD_SIZE_X][Constants.WORLD_SIZE_Y];
-		windZ = new float[Constants.WORLD_SIZE_X][Constants.WORLD_SIZE_Y];
+		windX = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
+		windZ = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 	}
 
 	public float[][] windX;
@@ -40,10 +41,10 @@ public class Wind {
 	}
 
 	public float getWindX(float posX, float posY) {
-		return windX[wrap(posX + windXOffset.x, Constants.WORLD_SIZE_X)][wrap(posY + windXOffset.y, Constants.WORLD_SIZE_Y)];
+		return windX[wrap(posX + windXOffset.x, Simulation.WORLD_SIZE_X)][wrap(posY + windXOffset.y, Simulation.WORLD_SIZE_Y)];
 	}
 	public float getWindZ(float posX, float posY) {
-		return windZ[wrap(posX + windZOffset.x, Constants.WORLD_SIZE_X)][wrap(posY + windZOffset.y, Constants.WORLD_SIZE_Y)];
+		return windZ[wrap(posX + windZOffset.x, Simulation.WORLD_SIZE_X)][wrap(posY + windZOffset.y, Simulation.WORLD_SIZE_Y)];
 	}
 	
 	public float getWindForceAtY(float windAtPos, float y) {
@@ -55,7 +56,7 @@ public class Wind {
 		return  ((((int)val % max) + max) % max);
 	}
 	public void regenerate() {
-		windX = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.5f);
-		windZ = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.5f);		
+		windX = Noise.generate(Simulation.WORLD_SIZE_X, Simulation.WORLD_SIZE_Y, 0.5f);
+		windZ = Noise.generate(Simulation.WORLD_SIZE_X, Simulation.WORLD_SIZE_Y, 0.5f);		
 	}
 }

@@ -15,7 +15,7 @@ public class SeekBlood extends Action {
 	@Override
 	public boolean determineIfPossible(Agent a) {
 		isPossible = false;
-		bloodness = a.seekBlood(dir);
+		bloodness = a.world.blood.seekHeight(dir, (int)a.pos.x, (int)a.pos.y);;
 		if (bloodness > 0.05f) {
 			isPossible = true;
 		}
@@ -28,7 +28,5 @@ public class SeekBlood extends Action {
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
 		a.vel.set(dir);
 		a.move();
-		a.harvestBlood();
-		a.harvestFat();
 	}
 }

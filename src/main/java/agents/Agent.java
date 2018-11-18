@@ -4,16 +4,14 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
-import actions.Action;
-import actions.ActionI;
 import constants.Constants;
+import talents.Talents;
 import vision.Vision;
 import world.World;
 
 public abstract class Agent {
 
 	public static final int MAX_AGE = 3000;
-	public static final float BIRTH_HUNGER_COST = 10/Stomach.FAT_TO_ENERGY_FACTOR;
 	protected static final float REACH = 1;
 
 	public float[] color, secondaryColor;
@@ -48,8 +46,6 @@ public abstract class Agent {
 	protected ArrayList<Agent> children;
 	Agent parent;
 
-	float recover;
-
 	public Stomach stomach;
 	private int timeBetweenBabies = 80;
 
@@ -57,12 +53,14 @@ public abstract class Agent {
 
 	public World world;
 	protected AgentManager<? extends Agent> agentManager;
-	public boolean moved;
 	public boolean printStuff;
+	
+	protected Talents talents;
 	
 	public Agent stranger;
 	public Agent friendler;
 
+	@SuppressWarnings("rawtypes")
 	public Agent(float health, World world, AgentManager agentManager) {
 		this.health = health;
 		
@@ -72,7 +70,6 @@ public abstract class Agent {
 
 		maxAge = MAX_AGE; //TODO: move these constants
 		healPower = 0.01f;
-		maxHealth = 100;
 
 		size = 1;
 		growth = 0.01f;
@@ -87,6 +84,8 @@ public abstract class Agent {
 
 		this.world = world;
 		this.agentManager = agentManager;
+		
+		this.talents = new Talents();
 	}
 
 
@@ -95,43 +94,23 @@ public abstract class Agent {
 	 * @return whether the animal is alive or not.
 	 */
 	public boolean stepAgent() {
-		moved = false;
 		if (!isAlive) {
 			System.err.println("Trying to step a dead agent.");
 			return false;
 		}
-		if (timeToMove()) {
-			moved = true;
-			actionUpdate();
-			makeBaby();
-		}
-		
+		actionUpdate();
+		makeBaby();
 		internalOrgansUpdate();
 
 		return isAlive;
 	}
 
 	private void makeBaby() {
-		if (isFertile && stomach.canHaveBaby(BIRTH_HUNGER_COST)) {
+		if (isFertile && stomach.canHaveBaby(talents.get(Talents.MATE_COST))) {
 			mate();
 		}
 	}
 
-
-	/**
-	 * Step recover. This is to enable different speeds for different agents.
-	 * @return
-	 */
-	private boolean timeToMove() {
-		float speed = getSpeed();
-		recover += speed;
-		stomach.addRecoverCost(speed);
-		if (recover < 1f) {
-			return false;
-		}
-		recover--;
-		return true;
-	}
 	private void checkHealth() {
 		if (health < 0) {
 			die();
@@ -150,7 +129,27 @@ public abstract class Agent {
 		}
 	}
 
-	public abstract void inherit(Agent a);
+	protected void inherit(Agent a) {
+		if (a == null) {
+			if (Talents.typeToSpawn != null) {
+				talents.inherit(Talents.typeToSpawn);
+			}
+			talents.inheritRandom();
+		}
+		else if (a.getClass() != this.getClass()){
+			System.err.println("inheriting some different class");
+		}
+		else {
+			talents.inherit(a.talents);
+		}
+		fixAppearance();
+	}
+	
+	protected void fixAppearance() {
+		stomach.inherit(talents);
+		maxHealth = 100*talents.talentsRelative[Talents.TOUGHNESS];
+		size = talents.talentsRelative[Talents.FIGHT]*10+talents.talentsRelative[Talents.TOUGHNESS]*10;
+	}
 
 	private void stepScore(int score) {
 		this.score += score;
@@ -161,7 +160,7 @@ public abstract class Agent {
 
 	private void childCost() {
 		isFertile = false;
-		stomach.energyCost += BIRTH_HUNGER_COST;
+		stomach.energyCost += talents.get(Talents.MATE_COST);
 		sinceLastBaby = 0;
 
 		// This will cause the mating animals to continue living, which is what we want in the end.
@@ -169,7 +168,9 @@ public abstract class Agent {
 		age = 0;
 	}
 
-	protected abstract float getSpeed() ;
+	protected float getSpeed() {
+		return talents.get(Talents.SPEED);
+	}
 
 	private void stepFertility() {
 		if (sinceLastBaby++ > timeBetweenBabies) {
@@ -179,8 +180,9 @@ public abstract class Agent {
 
 	public void move() {
 		old.set(pos);
+		vel.mul(getSpeed());
 		pos.add(vel);
-		World.wrap(pos, Constants.WORLD_SIZE_V);
+		World.wrap(pos);
 		
 		if (pos.x == Float.NaN) {
 			System.err.println("NaN position!!! What did you do!");
@@ -243,18 +245,6 @@ public abstract class Agent {
 		Vision.getDirectionOf(vel, pos, a.pos);
 	}
 	
-	public float seekBlood(Vector2f dir) {
-		return world.blood.seekHeight(dir, (int)pos.x, (int)pos.y);
-	}
-	
-	public float seekFat(Vector2f dir) {
-		return world.fat.seekHeight(dir, (int)pos.x, (int)pos.y);
-	}
-	
-	public float seekGrass(Vector2f dir) {
-		return world.grass.seekHeight(dir, (int)pos.x, (int)pos.y);
-	}
-	
 	private final static float TWO_PI = (float)Math.PI * 2;
 	public void randomWalk() {
 		float angle = Constants.RANDOM.nextFloat() * TWO_PI;
@@ -262,7 +252,10 @@ public abstract class Agent {
 		vel.y = (float) Math.sin(angle);
 	}
 
-	protected abstract float getFightSkill();
+	protected float getFightSkill() {
+		return talents.get(Talents.FIGHT);
+	}
+	
 	protected final float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
 	
 	public void harvestBlood() {
@@ -271,10 +264,6 @@ public abstract class Agent {
 	public void harvestGrass() {
 		stomach.addFiber(world.grass.harvest(harvestSkill, (int) pos.x, (int) pos.y));
 	}
-	public void harvestFat() {
-		stomach.addFat(world.fat.harvest(harvestSkill, (int) pos.x, (int) pos.y));
-	}
-
 	protected void grow() {
 		if (size < maxSize) {
 			size += growth;
@@ -286,7 +275,7 @@ public abstract class Agent {
 
 	protected void heal() {
 		if (health < maxHealth) {
-			health += healPower;
+			health += maxHealth*0.0001f;
 			if (health > maxHealth) {
 				health = maxHealth;
 			}
@@ -294,9 +283,9 @@ public abstract class Agent {
 	}
 
 	protected void die() {
-		world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size);
-		world.fat.append((int) pos.x, (int) pos.y, stomach.fat);
-		world.grass.append((int) pos.x, (int) pos.y, stomach.fiber);
+		world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size, true);
+		world.blood.append((int) pos.x, (int) pos.y, stomach.fat / Constants.Talents.MAX_DIGEST_BLOOD, true);
+		world.grass.append((int) pos.x, (int) pos.y, stomach.fiber, true);
 		//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
 		//				+ ", age=" + age + ", score = " + score);
 
@@ -323,7 +312,7 @@ public abstract class Agent {
 	}
 
 	protected boolean isFertileAndNotHungry() {
-		return isFertile && stomach.canHaveBaby(BIRTH_HUNGER_COST);
+		return isFertile && stomach.canHaveBaby(talents.get(Talents.MATE_COST));
 	}
 
 	public void reset() {
@@ -332,7 +321,6 @@ public abstract class Agent {
 		trueAge = 0;
 		score = 0;
 		sinceLastBaby = 0;
-		recover = 0f;
 		health = 0.1f;
 		incarnation++;
 	}

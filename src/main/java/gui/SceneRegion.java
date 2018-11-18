@@ -1,7 +1,8 @@
 package gui;
 
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.opengl.GL11.*;
-
 import gpu.GpuUtils;
 
 public class SceneRegion extends AbstractRegion {

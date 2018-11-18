@@ -3,7 +3,7 @@ package gui;
 import static org.lwjgl.opengl.GL11.*;
 
 // TODO: Figure out why 'implements Region' is needed when it is already stated further up the hierarchy. Probably some abstract base weirdness.
-public class VerticalSplitRegion extends SplitRegion implements Region { 
+public class VerticalSplitRegion extends SplitRegion implements RegionI { 
 	public static final int LeftIndex  = 0;
 	public static final int RightIndex = 1;
 	
@@ -11,25 +11,25 @@ public class VerticalSplitRegion extends SplitRegion implements Region {
 		super(Vertical);
 	}
 	
-	public VerticalSplitRegion(Region pLeftRegion, Region pRightRegion) {
+	public VerticalSplitRegion(RegionI pLeftRegion, RegionI pRightRegion) {
 		super(pLeftRegion, pRightRegion, Vertical);
 	}
 	
-	public Region getLeftSubRegion() {
+	public RegionI getLeftSubRegion() {
 		return mSubRegions[LeftIndex];
 	}
 	
-	public Region getRightSubRegion() {
+	public RegionI getRightSubRegion() {
 		return mSubRegions[RightIndex];
 	}
 	
-	public void setLeftSubRegion(Region subRegion) {
+	public void setLeftSubRegion(RegionI subRegion) {
 		mSubRegions[LeftIndex] = subRegion;
 		subRegion.setParent(this);
 		updateGeometry();
 	}
 	
-	public void setRightSubRegion(Region subRegion) {
+	public void setRightSubRegion(RegionI subRegion) {
 		mSubRegions[RightIndex] = subRegion;
 		subRegion.setParent(this);
 		updateGeometry();

@@ -36,8 +36,7 @@ class OrbitCameraController implements InputHandlerI {
 	}
 	
 	@Override
-	public void handleKeyboardEvents(int action, int key) {
-	}
+	public void handleKeyboardEvents(int action, int key) {}
 
 	@Override
 	public void handleMouseEvents(long window, int button, int action, int mods) {

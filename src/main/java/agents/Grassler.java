@@ -2,6 +2,7 @@ package agents;
 
 import actions.Action;
 import constants.Constants;
+import talents.Talents;
 import vision.Vision;
 import world.World;
 
@@ -12,34 +13,21 @@ public class Grassler extends Agent {
 		color = Constants.Colors.BLACK;
 		secondaryColor = Constants.Colors.WHITE;
 	}
-
+	
 	@Override
-	public void inherit(Agent a) {
-		stomach.inherit(1, 0);
-		if (a == null) {
-		}
-		else if (!(a instanceof Grassler)) {
-			System.err.println("Trying to inherit a non-Randomling.");
-			return;
-		}
-		else {
-		}		
-	}
-
-	private float speed = 0.6f;
-	@Override
-	protected float getSpeed() {
-		return speed;
-	}
-
-	@Override
-	protected float getFightSkill() {
-		return 0f;
+	protected void inherit(Agent a) {
+		super.inherit(a);
 	}
 
 	@Override
 	protected void actionUpdate() {
 		Action action = Action.fleeFromStranger;
+		if (action.determineIfPossible(this)) {
+			action.commit(this);
+			return;
+		}
+		
+		action = Action.harvestGrass;
 		if (action.determineIfPossible(this)) {
 			action.commit(this);
 			return;

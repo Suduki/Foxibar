@@ -1,6 +1,8 @@
 package actions;
 
-public abstract class Action implements ActionI {
+import agents.Agent;
+
+public abstract class Action {
 	private static int numActions = 0;
 	
 	public int numCalls;
@@ -10,13 +12,16 @@ public abstract class Action implements ActionI {
 	
 	public static SeekGrass 		seekGrass 			= new SeekGrass();
 	public static SeekBlood 		seekBlood 			= new SeekBlood();
-	public static SeekFat 			seekFat 			= new SeekFat();
+	public static HarvestGrass 		harvestGrass 		= new HarvestGrass();
+	public static HarvestBlood 		harvestBlood 		= new HarvestBlood();
 	public static RandomWalk 		randomWalk 			= new RandomWalk();
 	public static FleeFromStranger 	fleeFromStranger 	= new FleeFromStranger();
 	public static FleeFromFriendler fleeFromFriendler 	= new FleeFromFriendler();
 	public static HuntStranger 		huntStranger 		= new HuntStranger();
 	public static HuntFriendler 	huntFriendler		= new HuntFriendler();
 	
+	public abstract boolean determineIfPossible(Agent a);
+	public abstract void commit(Agent a);
 	
 	public static void init() {
 		if (isInitialized()) {
@@ -26,7 +31,8 @@ public abstract class Action implements ActionI {
 		acts = new Action[] {
 				seekGrass,
 				seekBlood,
-				seekFat,
+				harvestGrass,
+				harvestBlood,
 				randomWalk,
 				fleeFromStranger,
 				fleeFromFriendler,

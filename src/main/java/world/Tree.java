@@ -1,32 +1,43 @@
 package world;
 
+import java.util.Random;
+
+import simulation.Simulation;
 import constants.Constants;
 
 public class Tree {
 
+	public static final Random RANDOM = new Random();
 	private static final float growth = 0.05f;
 	public float[][] height;
 	public float[][] health;
 	public boolean[][] isAlive;
+	public Grass grass;
 	private float spawnRate = 1f; // TODO: Replace with i++
 	private int numTrees = 0;
 	
 	private Terrain terrain;
 	
-	public Tree(Terrain terrain) {
-		height = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
-		health = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
-		isAlive = new boolean[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
+	public Tree(Terrain terrain, Grass grass) {
+		height = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
+		health = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
+		isAlive = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		this.terrain = terrain;
+		this.grass = grass;
 	}
 	
 	public void update() {
-		for (int x = 0 ; x < Constants.WORLD_SIZE_V.x; ++x) {
-			for (int y = 0 ; y < Constants.WORLD_SIZE_V.y; ++y) {
+		for (int x = 0 ; x < Simulation.WORLD_SIZE_X; ++x) {
+			for (int y = 0 ; y < Simulation.WORLD_SIZE_Y; ++y) {
 				if (isAlive[x][y]) {
-					height[x][y] += growth;
-					height[x][y] *= 0.996f;
-					health[x][y] -= 1;
+					
+					if (grass.toBeUpdated[x][y]) {
+						health[x][y] -= 100;
+					}
+					else {
+						height[x][y] += growth * terrain.growth[x][y];
+						height[x][y] *= 0.996f;
+					}
 
 					if (health[x][y] < 0) {
 						die(x, y);
@@ -34,9 +45,9 @@ public class Tree {
 				}
 			}
 		}
-		if (Constants.RANDOM.nextFloat() < spawnRate/numTrees) {
-			int x = Constants.RANDOM.nextInt(Constants.WORLD_SIZE_V.x);
-			int y = Constants.RANDOM.nextInt(Constants.WORLD_SIZE_V.y);
+		if (RANDOM.nextFloat() < spawnRate/numTrees) {
+			int x = RANDOM.nextInt(Simulation.WORLD_SIZE_X);
+			int y = RANDOM.nextInt(Simulation.WORLD_SIZE_Y);
 			if (!isAlive[x][y] && !terrain.water[x][y] && !terrain.stone[x][y]) {
 				resurrect(x, y);
 			}
@@ -61,8 +72,8 @@ public class Tree {
 
 	public void killAll() {
 
-		for (int x = 0 ; x < Constants.WORLD_SIZE_V.x; ++x) {
-			for (int y = 0 ; y < Constants.WORLD_SIZE_V.y; ++y) {
+		for (int x = 0 ; x < Simulation.WORLD_SIZE_X; ++x) {
+			for (int y = 0 ; y < Simulation.WORLD_SIZE_Y; ++y) {
 				die(x, y);
 			}
 		}

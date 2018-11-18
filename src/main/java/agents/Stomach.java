@@ -1,61 +1,30 @@
 package agents;
 
+import talents.Talents;
 import constants.Constants;
 import world.World;
 
 public class Stomach {
 
-	public static final float MAX_FULLNESS = 100;
+	public static final float MAX_FULLNESS = 50;
 	public static final float FAT_ON_BIRTH = 1;
-	
+
 	float energyCost;
 	public float fiber;
 	public float blood;
 	public float fat;
-	float p;
 	private float pFiber;
 	private float pBlood;
-	
-	
-	public void inherit(float p, float mutation) {
+
+
+	public void inherit(Talents skillSet) {
 		empty();
 		fat = FAT_ON_BIRTH;
-		
-		this.p = p + Agent.rand() * mutation;
-		if (p < -1) p = -1;
-		if (p > 1) p = 1;
-		pFiber = grassFunction(p);
-		pBlood = bloodFunction(-p);
-	}
-	
-	private static float MAX_G = 0.7f;
-	public static void setMAX_G(float mAX_G) {
-		MAX_G = mAX_G;
+		pFiber = skillSet.get(Talents.DIGEST_GRASS);
+		pBlood = skillSet.get(Talents.DIGEST_BLOOD);
 	}
 
-	public static void setMAX_B(float mAX_B) {
-		MAX_B = mAX_B;
-	}
 
-	private float grassFunction(float p2) {
-		return (float) (a(MAX_G)*p2*p2 + b(MAX_G) * p2 + c(MAX_G));
-	}
-	private static float MAX_B = 5f;
-	private float bloodFunction(float p2) {
-		return (float) (a(MAX_B)*p2*p2 + b(MAX_B) * p2 + c(MAX_B));
-	}
-	
-	private static float a(float max) {
-		return max/4;
-	}
-	private static float b(float max) {
-		return max/2;
-	}
-	private static float c(float max) {
-		return max/4;
-	}
-	
-	
 	/**
 	 * Called at the end of round to digest blood/grass and create fat.
 	 * Also burns the fat.
@@ -70,44 +39,31 @@ public class Stomach {
 	}
 
 	private void checkFullness() {
-		float digestAmount = getMass() - MAX_FULLNESS;
-		if (digestAmount > 0) {
-			float total = getMass();
-			fiber -= fiber * digestAmount / MAX_FULLNESS;
-			blood -= blood * digestAmount / MAX_FULLNESS;
-			fat -= fat * digestAmount / MAX_FULLNESS;
+		float total = getMass();
+		if (total > MAX_FULLNESS) { // Stomach is full
+			fiber = fiber * MAX_FULLNESS/total;
+			blood = blood * MAX_FULLNESS/total;
+			fat = fat * MAX_FULLNESS/total;
 		}
 	}
 
 	/**
 	 * Digests
 	 */
-	private static final float DIGEST_AMOUNT = 1f; //TODO: styr upp konstanter som denna.
 	private void digest() {
 		float totalFullness = fiber + blood;
-		if (totalFullness > DIGEST_AMOUNT ) {
-			
-			fat += pFiber * fiber * DIGEST_AMOUNT / totalFullness;;
-			fat += pBlood * blood * DIGEST_AMOUNT / totalFullness;
-			
-			fiber -= fiber * DIGEST_AMOUNT / totalFullness;
-			blood -= blood * DIGEST_AMOUNT / totalFullness;
-			
-		}
-		else {
-			fat += pFiber * fiber;
-			fat += pBlood * blood;
-			fiber = 0;
-			blood = 0;
-		}
-		
+		fat += pFiber * fiber;
+		fat += pBlood * blood;
+		fiber = 0;
+		blood = 0;
+
 	}
-	public final static float FAT_TO_ENERGY_FACTOR = 0.01f;
+	public final static float FAT_TO_ENERGY_FACTOR = 0.05f;
 	private void burnFat() {
 		fat -= energyCost*FAT_TO_ENERGY_FACTOR;
 		energyCost = 0;
 	}
-	
+
 	public float getMass() {
 		return fat + fiber + blood;
 	}
@@ -118,9 +74,6 @@ public class Stomach {
 		blood = 0;
 	}
 
-	public void addFat(float amount) {
-		fat += amount;
-	}
 	public void addBlood(float amount) {
 		blood += amount;
 	}
@@ -133,17 +86,16 @@ public class Stomach {
 	}
 
 	public boolean canHaveBaby(float birthHungerCost) {
-		return (fat / FAT_TO_ENERGY_FACTOR) > birthHungerCost;
+		return (fat / FAT_TO_ENERGY_FACTOR) > (birthHungerCost*2);
 	}
 
-	static final float minSpeed = 0.5f;
 	private static final float energyCostAtMaxSpeed = 5f;
+	public static final float MUTATION = 0.2f;
 	public void addRecoverCost(float speed) {
-		float c = energyCostAtMaxSpeed / (-1 + 1/minSpeed);
+		float c = energyCostAtMaxSpeed / (-1 + 1/Constants.Talents.MIN_SPEED);
 		float b = -2 * c;
-		float a = c / minSpeed;
+		float a = c / Constants.Talents.MIN_SPEED;
 		energyCost += a*speed*speed + b*speed + c;
 	}
-
 }
 

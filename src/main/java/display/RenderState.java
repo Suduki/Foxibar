@@ -33,7 +33,7 @@ public class RenderState {
 		RENDER_DIRT = true;
 		RENDER_HUNGER = true;
 		RENDER_AGE = true;
-		RENDER_HEALTH = true;
+		RENDER_HEALTH = false;
 		renderState = state;
 		switch (state) {
 			case RENDER_WORLD_STILL:

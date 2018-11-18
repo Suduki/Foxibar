@@ -5,6 +5,7 @@ import org.joml.Vector2f;
 
 import actions.Action;
 import constants.Constants;
+import talents.Talents;
 import vision.Vision;
 import world.World;
 
@@ -50,7 +51,6 @@ public class Brainler extends Agent {
 		
 		brain.neural.z[0][NeuralFactors.in.TILE_GRASS] = Action.seekGrass.grassness;
 		brain.neural.z[0][NeuralFactors.in.TILE_BLOOD] = Action.seekBlood.bloodness;
-		brain.neural.z[0][NeuralFactors.in.TILE_FAT] = Action.seekFat.fatness;
 		
 		brain.neural.z[0][NeuralFactors.in.TILE_TERRAIN_HEIGHT] = world.terrain.height[(int) pos.x][(int) pos.y];
 		
@@ -61,9 +61,9 @@ public class Brainler extends Agent {
 
 	@Override
 	public void inherit(Agent a) {
+		super.inherit(a);
 		if (a == null) {
 			this.brain.neural.initWeightsRandom();
-			stomach.inherit(rand(), 0);
 			inheritAppearanceFactors(null);
 		}
 		else if (!(a instanceof Brainler)) {
@@ -72,7 +72,6 @@ public class Brainler extends Agent {
 		}
 		else {
 			this.brain.inherit(((Brainler)a).brain);
-			stomach.inherit(a.stomach.p, 0.1f);
 			inheritAppearanceFactors((Brainler)a);
 		}
 	}
@@ -95,6 +94,9 @@ public class Brainler extends Agent {
 			color[i] = (float) Math.round(appearanceFactors[i]);
 			secondaryColor[i] = (float) Math.round(appearanceFactors[i+3]);
 		}
+		secondaryColor[0] = talents.talentsRelative[Talents.DIGEST_BLOOD];
+		secondaryColor[1] = talents.talentsRelative[Talents.DIGEST_GRASS];
+		secondaryColor[2] = 0;
 	}
 	
 	@Override
@@ -118,18 +120,11 @@ public class Brainler extends Agent {
 	@Override
 	protected float getSpeed() {
 		float brainOutput = brain.neural.getSpeed();
-		float minSpeed = Stomach.minSpeed;
+		float minSpeed = Constants.Talents.MIN_SPEED;
+		float maxSpeed = talents.get(Talents.SPEED);
 		if (brainOutput < -1) {brainOutput = -1;}
 		else if (brainOutput > 1) {brainOutput = 1;}
-		float speed = (1-minSpeed)/2 * brainOutput + (minSpeed+1)/2;
-//		if (printStuff) {
-//			System.out.println("brainOutput=" + brainOutput + ", speed = " + speed);
-//		}
+		float speed = (maxSpeed-minSpeed)/2 * brainOutput + (minSpeed+maxSpeed)/2;
 		return speed;
-	}
-	
-	@Override
-	protected float getFightSkill() {
-		return 0.5f;
 	}
 }

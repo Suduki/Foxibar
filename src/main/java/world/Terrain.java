@@ -1,9 +1,6 @@
 package world;
 
-import org.joml.Vector2f;
-import org.joml.Vector2i;
-import org.joml.Vector3f;
-
+import simulation.Simulation;
 import noise.Noise;
 import constants.Constants;
 import display.RenderState;
@@ -19,12 +16,12 @@ public class Terrain {
 	public boolean stone[][];
 	
 	public Terrain() {
-		height = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
-		growth = new float[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
+		height = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
+		growth = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		
-		grass = new boolean[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
-		water = new boolean[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
-		stone = new boolean[Constants.WORLD_SIZE_V.x][Constants.WORLD_SIZE_V.y];
+		grass = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
+		water = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
+		stone = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 	}
 	
 	public  float[] getColor(int x, int y, float[] color) {
@@ -52,29 +49,27 @@ public class Terrain {
 	}
 
 	public void regenerate() {
-		float[][] noise = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.6f);
+		float[][] noise = Noise.generate(Simulation.WORLD_SIZE_X, Simulation.WORLD_SIZE_Y, 0.6f);
 		analyzeNoise(noise);
-		int i = 0;
-		for(int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
-			for(int y = 0; y < Constants.WORLD_SIZE_Y; ++y, ++i) {
+		for(int x = 0; x < Simulation.WORLD_SIZE_X; ++x) {
+			for(int y = 0; y < Simulation.WORLD_SIZE_Y; ++y) {
 				height[x][y] = (float) noise[x][y];
 				water[x][y] = false;
 				stone[x][y] = false;
 
+				if (growth[x][y] > STONE_LIMIT) {
+					stone[x][y] = true;
+				}
 				if (height[x][y] < WATER_LIMIT) {
 					water[x][y] = true;
-				}
-				if (height[x][y] > STONE_LIMIT) {
-					stone[x][y] = true;
 				}
 			}
 		}
 		
-		noise = Noise.generate(Constants.WORLD_SIZE_X, Constants.WORLD_SIZE_Y, 0.5f);
+		noise = Noise.generate(Simulation.WORLD_SIZE_X, Simulation.WORLD_SIZE_Y, 0.5f);
 		analyzeNoise(noise);
-		i = 0;
-		for(int x = 0; x < Constants.WORLD_SIZE_X; ++x) {
-			for(int y = 0; y < Constants.WORLD_SIZE_Y; ++y, ++i) {
+		for(int x = 0; x < Simulation.WORLD_SIZE_X; ++x) {
+			for(int y = 0; y < Simulation.WORLD_SIZE_Y; ++y) {
 				growth[x][y] = (float) noise[x][y];
 			}
 		}

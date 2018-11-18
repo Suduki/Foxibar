@@ -6,6 +6,8 @@ import static constants.Constants.Neighbours.*;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
+import simulation.Simulation;
+import vision.Vision;
 import agents.Agent;
 import agents.Agent;
 
@@ -14,15 +16,15 @@ public class World {
 	public Terrain terrain;
 	public Grass grass;
 	public CarbonElement blood;
-	public CarbonElement fat;
 	public Wind wind;
+	public Vision vision;
 	
-	public World() {
+	public World(Vision vision) {
 		terrain = new Terrain();
 		grass = new Grass(terrain);
 		blood = new CarbonElement(1, Constants.Colors.BLOOD, 1, Constants.Blood.DECAY_FACTOR);
-		fat = new CarbonElement(1, Constants.Colors.WHITE, 1, Constants.Blood.DECAY_FACTOR);
 		wind = new Wind();
+		this.vision = vision;
 		
 		regenerate();
 	}
@@ -33,27 +35,40 @@ public class World {
 		
 		grass.grow(timeStep, UPDATE_FREQUENCY);
 		blood.decay(timeStep, UPDATE_FREQUENCY);
-		fat.decay(timeStep, UPDATE_FREQUENCY);
 		wind.stepWind();
 
 	}
 
 	public void regenerate() {
 		terrain.regenerate();
-		grass.regenerate(false);
+		grass.regenerate(true);
 		wind.regenerate();
 	}
 
 	private static float[] tempColor = new float[3];
 	
 	public void updateColor(float[][][] terrainColor) {
+		boolean useVisionColors = false;
 		for (int x = 0; x < terrainColor.length; ++x) {
 			for (int y = 0; y < terrainColor.length; ++y) {
-				updateColor(terrainColor, x, y);
+				if (useVisionColors) {
+					visionColor(terrainColor, x, y);
+				}
+				else {
+					updateColor(terrainColor, x, y);
+				}
 			}
 		}
 		
 	}
+	
+	public void visionColor(float[][][] a, int x, int y) {
+		float[] color = vision.getColorAt(x, y);
+		a[x][y][0] = color[0];
+		a[x][y][1] = color[1];
+		a[x][y][2] = color[2];
+	}
+	
 	public void updateColor(float[][][] a, int x, int y) {
 		float grassness, dirtness;
 
@@ -75,12 +90,8 @@ public class World {
 		a[x][y][1] += dirtness*tempColor[1];
 		a[x][y][2] += dirtness*tempColor[2];
 
-		// Find the highest pile of fiber/fat/blood and use that color.
+		// Find the highest pile of fiber/blood and use that color.
 		blood.getColor(x, y, tempColor);
-		a[x][y][0] += tempColor[0];
-		a[x][y][1] += tempColor[1];
-		a[x][y][2] += tempColor[2];
-		fat.getColor(x, y, tempColor);
 		a[x][y][0] += tempColor[0];
 		a[x][y][1] += tempColor[1];
 		a[x][y][2] += tempColor[2];
@@ -89,14 +100,13 @@ public class World {
 	public void reset(boolean b) {
 		grass.regenerate(b);
 		blood.reset();
-		fat.reset();
 	}
 
 	public static float wrapX(float f) {//TODO: Move to util class
-		return wrap(f, Constants.WORLD_SIZE_X);
+		return wrap(f, Simulation.WORLD_SIZE_X);
 	}
 	public static float wrapY(float f) {//TODO: Move to util class
-		return wrap(f, Constants.WORLD_SIZE_Y);
+		return wrap(f, Simulation.WORLD_SIZE_Y);
 	}
 	public static float wrap(float a, int limMax) { //TODO: Move to util class
 		if (Float.isNaN(a)) {
@@ -106,9 +116,9 @@ public class World {
 		return ((a % limMax) + limMax) % limMax;
 	}
 
-	public static void wrap(Vector2f pos, Vector2i limit) {//TODO: Move to util class
-		pos.x = wrap(pos.x, limit.x);
-		pos.y = wrap(pos.y, limit.y);
+	public static void wrap(Vector2f pos) {//TODO: Move to util class
+		pos.x = wrapX(pos.x);
+		pos.y = wrapY(pos.y);
 	}
 	
 	public static int west(int x) {//TODO: Move to util class

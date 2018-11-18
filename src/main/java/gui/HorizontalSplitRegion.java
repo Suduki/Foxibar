@@ -2,7 +2,7 @@ package gui;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class HorizontalSplitRegion extends SplitRegion implements Region{
+public class HorizontalSplitRegion extends SplitRegion implements RegionI{
 	public static final int TopIndex  = 0;
 	public static final int BottomIndex = 1;
 
@@ -10,25 +10,25 @@ public class HorizontalSplitRegion extends SplitRegion implements Region{
 		super(Horizontal);
 	}
 	
-	public HorizontalSplitRegion(Region pTopRegion, Region pBottomRegion) {
+	public HorizontalSplitRegion(RegionI pTopRegion, RegionI pBottomRegion) {
 		super(pTopRegion, pBottomRegion, Horizontal);
 	}
 	
-	public Region getTopSubRegion() {
+	public RegionI getTopSubRegion() {
 		return mSubRegions[TopIndex];
 	}
 	
-	public Region getBottomSubRegion() {
+	public RegionI getBottomSubRegion() {
 		return mSubRegions[BottomIndex];
 	}
 	
-	public void setTopSubRegion(Region subRegion) {
+	public void setTopSubRegion(RegionI subRegion) {
 		mSubRegions[TopIndex] = subRegion;
 		subRegion.setParent(this);
 		updateGeometry();
 	}
 	
-	public void setBottomSubRegion(Region subRegion) {
+	public void setBottomSubRegion(RegionI subRegion) {
 		mSubRegions[BottomIndex] = subRegion;
 		subRegion.setParent(this);
 		updateGeometry();

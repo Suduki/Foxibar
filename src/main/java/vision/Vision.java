@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
+import simulation.Simulation;
 import agents.Agent;
 import constants.Constants;
 
@@ -15,8 +16,12 @@ public class Vision {
 	public final Vector2i zones;
 	
 	public Vision(int zoneHeight, int zoneWidth) {
+		System.out.println("Initializing Vision with Height = " + zoneHeight + " Width = " + zoneHeight);
+		System.out.println("WORLD_SIZE_X = " + Simulation.WORLD_SIZE_X + " WORLD_SIZE_Y = " + Simulation.WORLD_SIZE_Y);
+		if (zoneHeight < 4) zoneHeight = 4;
+		if (zoneWidth < 4) zoneWidth = 4;
 		this.zoneSize = new Vector2i(zoneHeight, zoneWidth);
-		zones = new Vector2i(Constants.WORLD_SIZE_X/zoneWidth, Constants.WORLD_SIZE_Y/zoneHeight);
+		zones = new Vector2i(Simulation.WORLD_SIZE_X/zoneWidth, Simulation.WORLD_SIZE_Y/zoneHeight);
 		
 		zoneGrid = new Zone[zones.x][zones.y];
 		for (int i = 0; i < zones.x; ++i) {
@@ -105,10 +110,10 @@ public class Vision {
 
 	public static float calculateCircularDistance(float posXFrom, float posYFrom, float posXTo, float posYTo) {
 		float xDirect      = Math.abs(posXFrom - posXTo);
-		float xThroughWall = Constants.WORLD_SIZE_X - xDirect;
+		float xThroughWall = Simulation.WORLD_SIZE_X - xDirect;
 		
 		float yDirect      = Math.abs(posYFrom - posYTo);
-		float yThroughWall = Constants.WORLD_SIZE_Y - yDirect;
+		float yThroughWall = Simulation.WORLD_SIZE_Y - yDirect;
 		
 		return (float) Math.sqrt(Math.min(xDirect, xThroughWall)*Math.min(xDirect, xThroughWall) +
 				Math.min(yDirect, yThroughWall)*Math.min(yDirect, yThroughWall));
@@ -163,6 +168,9 @@ public class Vision {
 		if(!zoneGrid[zoneX][zoneY].agentsInZone.add(id)) {
 			System.err.println("Trying to add agent to vision zone, but failed.");
 		}
+//		for (int i = 0; i < 3; ++i) {
+//			id.color[i] = zoneGrid[zoneX][zoneY].color[i];
+//		}
 //		System.out.println("num after add: " + zoneGrid[zoneX][zoneY].agentsInZone.size());
 	}
 	private void removeAgentFromZone(Agent id, int zoneX, int zoneY) {
@@ -188,9 +196,23 @@ public class Vision {
 	}
 
 	public static void getDirectionOf(Vector2f vel, Vector2f pos, Vector2f pos2) {
+		float xDirect      = Math.abs(pos2.x - pos.x);
+		float xThroughWall = Simulation.WORLD_SIZE_X - xDirect;
+		
+		float yDirect      = Math.abs(pos2.y - pos.y);
+		float yThroughWall = Simulation.WORLD_SIZE_Y - yDirect;
+		
 		vel.x = pos2.x - pos.x;
 		vel.y = pos2.y - pos.y;
+		if (xDirect > xThroughWall) vel.x = - vel.x;
+		if (yDirect > yThroughWall) vel.y = - vel.y;
 		if (vel.lengthSquared() > 0) vel.normalize();
+	}
+
+	public float[] getColorAt(int x, int y) {
+		int zx = getZoneXFromPosX(x);
+		int zy = getZoneYFromPosY(y);
+		return zoneGrid[zx][zy].color;
 	}
 
 }

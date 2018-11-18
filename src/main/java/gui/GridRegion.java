@@ -6,17 +6,17 @@ public class GridRegion extends AbstractRegion {
 	private int mNumVerticalRegions = 1;
 	private int mOuterOffset = 10;
 	private int mInnerOffset = 10;
-	private Region[][] mRegions = null;
+	private RegionI[][] mRegions = null;
 	
 	public GridRegion(int pNumHorizontalRegions, int pNumVerticalRegions) {
 		mNumHorizontalRegions = Math.max(1, pNumHorizontalRegions);
 		mNumVerticalRegions   = Math.max(1,  pNumVerticalRegions);
-		mRegions = new Region[mNumHorizontalRegions][mNumVerticalRegions];
+		mRegions = new RegionI[mNumHorizontalRegions][mNumVerticalRegions];
 		
 		// TODO: Should this really be initialized?
 		for (int x = 0; x < mNumHorizontalRegions; ++x) {
 			for (int y = 0; y < mNumVerticalRegions; ++y) {
-				Region region = new DummyRegion();
+				RegionI region = new DummyRegion();
 				region.setParent(this);
 				mRegions[x][y] = region;
 			}
@@ -29,9 +29,9 @@ public class GridRegion extends AbstractRegion {
 		updateGeometry(mPos.x, mPos.y, mSize.x, mSize.y);
 	}
 	
-	public void setRegion(int pX, int pY, Region pRegion) {
+	public void setRegion(int pX, int pY, RegionI pRegion) {
 		if (pX >= 0 && pX < mNumHorizontalRegions && pY >= 0 && pY < mNumVerticalRegions) {
-			Region oldRegion = mRegions[pX][pY];
+			RegionI oldRegion = mRegions[pX][pY];
 			mRegions[pX][pY] = pRegion;
 			
 			if (pRegion != null) {
@@ -56,7 +56,7 @@ public class GridRegion extends AbstractRegion {
 		
 		for (int x = 0; x < mNumHorizontalRegions; ++x) {
 			for (int y = 0; y < mNumVerticalRegions; ++y) {
-				Region region = mRegions[x][y];
+				RegionI region = mRegions[x][y];
 				if (region != null) {
 					int posX = mPos.x + mOuterOffset + x*(mInnerOffset+width);
 					int posY = mPos.y + mOuterOffset + y*(mInnerOffset+height);
@@ -70,7 +70,7 @@ public class GridRegion extends AbstractRegion {
 	public boolean render(GuiRenderer pGuiRenderer) {
 		for (int x = 0; x < mNumHorizontalRegions; ++x) {
 			for (int y = 0; y < mNumVerticalRegions; ++y) {
-				Region region = mRegions[x][y];
+				RegionI region = mRegions[x][y];
 				if (region != null) {
 					region.render(pGuiRenderer);
 				}
@@ -79,7 +79,7 @@ public class GridRegion extends AbstractRegion {
 		return true;
 	}
 	
-	Point getRegionIndex(Region pRegion) {
+	Point getRegionIndex(RegionI pRegion) {
 		if (pRegion != null) {
 			for (int x = 0; x < mNumHorizontalRegions; ++x) {
 				for (int y = 0; y < mNumVerticalRegions; ++y) {
@@ -93,7 +93,7 @@ public class GridRegion extends AbstractRegion {
 		return null;
 	}
 
-	public void handleMouseEventForRegion(Region pRegion, MouseEvent pEvent, MouseState pMouse) {
+	public void handleMouseEventForRegion(RegionI pRegion, MouseEvent pEvent, MouseState pMouse) {
 		if (pRegion.didMouseEnter(pMouse)) {
 			pRegion.handleMouseEvent(MouseEvent.ENTER, pMouse);			
 		}
@@ -110,7 +110,7 @@ public class GridRegion extends AbstractRegion {
 	public boolean handleMouseEvent(MouseEvent pEvent, MouseState pMouse) {
 		for (int x = 0; x < mNumHorizontalRegions; ++x) {
 			for (int y = 0; y < mNumVerticalRegions; ++y) {
-				Region region = mRegions[x][y];
+				RegionI region = mRegions[x][y];
 				if (region != null) {
 					handleMouseEventForRegion(region, pEvent, pMouse);
 				}
