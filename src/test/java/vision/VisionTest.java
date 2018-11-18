@@ -105,7 +105,7 @@ public class VisionTest {
 		System.out.println("Test Completed");
 	}
 	
-//	@Test
+	@Test //TODO Currently not working, this is a bug!
 	public void thatAnimalsFindFoodOverEdges() {
 		System.out.println("Testing that " + AGENT_TYPES_NAMES[GRASSLER] + " finds food over edges");
 		TestHelper.verifyWorldEmpty(simulation);

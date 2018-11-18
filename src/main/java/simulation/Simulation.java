@@ -9,6 +9,7 @@ import actions.Action;
 import agents.Agent;
 import agents.AgentManager;
 import constants.Constants;
+import main.StomachRecommendation;
 import messages.MessageHandler;
 import messages.Message;
 import messages.SpawnAnimals;
@@ -35,6 +36,7 @@ public class Simulation extends MessageHandler {
 	
 	public <T extends Agent> Simulation(short worldMultiplier, Class<T>... classes)
 	{
+		loadStomachRecommendation();
 		WORLD_SIZE_X = (int) Math.pow(2, worldMultiplier);
 		WORLD_SIZE_Y = (int) Math.pow(2, worldMultiplier);
 		WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
@@ -48,6 +50,19 @@ public class Simulation extends MessageHandler {
 		this.message(new messages.DummyMessage());
 	}
 	
+	private void loadStomachRecommendation() {
+		StomachRecommendation recommendation = StomachRecommendation.load(StomachRecommendation.bloodFile); 
+		if (recommendation != null) {
+			Constants.Talents.MAX_DIGEST_BLOOD = recommendation.mean;
+			System.out.println("Found Blood file, will use that for the simulation");
+		}
+		recommendation = StomachRecommendation.load(StomachRecommendation.grassFile); 
+		if (recommendation != null) {
+			Constants.Talents.MAX_DIGEST_GRASS = recommendation.mean;
+			System.out.println("Found Grass file, will use that for the simulation");
+		}
+	}
+
 	protected void evaluateMessage(Message pMessage)
 	{
 		pMessage.evaluate(this);

@@ -1,7 +1,5 @@
 package skills;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

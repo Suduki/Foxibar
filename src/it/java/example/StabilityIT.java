@@ -106,20 +106,6 @@ public class StabilityIT {
 	}
 
 	@Test
-	public void testMultipleAgentRandomlingBloodling() {
-		int type1 = RANDOMLING;
-		int type2 = BLOODLING;
-		int initNumAgents1 = 500;
-		int initNumAgents2 = 50;
-		System.out.println("Initiating testMultipleAgentTypes");
-		System.out.println("Testing " + AGENT_TYPES_NAMES[type1] + " and " + AGENT_TYPES_NAMES[type2]);
-		testMultipleAgents(type1, type2, initNumAgents1, initNumAgents2);
-		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type1] + " populations size to increase.", maxNumType1 > initNumAgents1);
-		Assert.assertTrue("Expected " + AGENT_TYPES_NAMES[type2] + " populations size to increase.", maxNumType2 > initNumAgents2);
-		TestHelper.cleanup(simulation, timeStep);
-	}
-
-	@Test
 	public void testMultipleAgentGrasslerBloodling() {
 		int type1 = GRASSLER;
 		int type2 = BLOODLING;
@@ -157,50 +143,38 @@ public class StabilityIT {
 
 	@Test
 	public void findSuitableBloodP() {
-		try {
-			StomachRecommendation grassThingP = findSuitableGrassP();
-			FileOutputStream f = new FileOutputStream("grassRecommendation.ser");
-			ObjectOutputStream o = new ObjectOutputStream(f);
-			o.writeObject(grassThingP);
-			StomachRecommendation bloodThingP = new StomachRecommendation();
+		StomachRecommendation grassThingP = findSuitableGrassP();
+		grassThingP.save(StomachRecommendation.grassFile);
 
-			float bloodP = 0.1f;
-			int numGrasslers;
-			boolean foundLowB = false;
+		StomachRecommendation bloodThingP = new StomachRecommendation();
 
-			int type1 = GRASSLER;
-			int type2 = BLOODLING;
-			int initNumAgents1 = 500;
-			int initNumAgents2 = 25;
+		float bloodP = 0.1f;
+		int numGrasslers;
+		boolean foundLowB = false;
 
-			do {
-				bloodP *= 2;
-				Talents.changeTalentMax(Talents.DIGEST_GRASS, grassThingP.highLimit);
-				Talents.changeTalentMax(Talents.DIGEST_BLOOD, bloodP);
-				testMultipleAgents(type1, type2, initNumAgents1, initNumAgents2);
-				numGrasslers = simulation.getNumAgents(GRASSLER);
-				if (!foundLowB && maxNumType2 > initNumAgents2 + 5) {
-					foundLowB = true;
-					bloodThingP.lowLimit = bloodP;
-				}
-			} while (numGrasslers != 0);
-			bloodThingP.highLimit = bloodP;
-			bloodThingP.setMean();
+		int type1 = GRASSLER;
+		int type2 = BLOODLING;
+		int initNumAgents1 = 500;
+		int initNumAgents2 = 25;
 
-			grassThingP.printStuff();
-			bloodThingP.printStuff();
-			f = new FileOutputStream(new File("bloodRecommendation.ser"));
-			o = new ObjectOutputStream(f);
-			o.writeObject(grassThingP);
+		do {
+			bloodP *= 2;
+			Talents.changeTalentMax(Talents.DIGEST_GRASS, grassThingP.highLimit);
+			Talents.changeTalentMax(Talents.DIGEST_BLOOD, bloodP);
+			testMultipleAgents(type1, type2, initNumAgents1, initNumAgents2);
+			numGrasslers = simulation.getNumAgents(GRASSLER);
+			if (!foundLowB && maxNumType2 > initNumAgents2 + 5) {
+				foundLowB = true;
+				bloodThingP.lowLimit = bloodP;
+			}
+		} while (numGrasslers != 0);
+		bloodThingP.highLimit = bloodP;
+		bloodThingP.setMean();
 
+		grassThingP.printStuff();
+		bloodThingP.printStuff();
 
-		} catch (FileNotFoundException e) {
-			Assert.assertTrue("Could not save to file. ",false);
-			e.printStackTrace();
-		} catch (IOException e) {
-			Assert.assertTrue("Could not save to file. ",false);
-			e.printStackTrace();
-		}
+		bloodThingP.save(StomachRecommendation.bloodFile);
 
 		TestHelper.cleanup(simulation, timeStep);
 	}
