@@ -9,7 +9,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import main.StomachRecommendation;
 import main.TestHelper;
 
 import org.junit.After;
@@ -28,6 +27,7 @@ import agents.Randomling;
 import agents.Stomach;
 import constants.Constants;
 import simulation.Simulation;
+import talents.StomachRecommendation;
 import talents.Talents;
 import vision.Vision;
 

@@ -9,10 +9,10 @@ import actions.Action;
 import agents.Agent;
 import agents.AgentManager;
 import constants.Constants;
-import main.StomachRecommendation;
 import messages.MessageHandler;
 import messages.Message;
 import messages.SpawnAnimals;
+import talents.StomachRecommendation;
 import talents.Talents;
 
 public class Simulation extends MessageHandler {
