@@ -29,9 +29,11 @@ import static org.lwjgl.opengl.GL11.glOrtho;
 import static org.lwjgl.opengl.GL11.glPopMatrix;
 import static org.lwjgl.opengl.GL11.glPushMatrix;
 import static org.lwjgl.opengl.GL11.glVertex2f;
+import input.Mouse;
 
 import javax.swing.text.html.HTMLDocument.HTMLReader.SpecialAction;
 
+import main.Main;
 import constants.Constants;
 import gui.KeyboardState;
 import gui.MouseEvent;
@@ -46,13 +48,21 @@ public class DesignAnimalRenderer implements gui.SceneRegionRenderer {
 	private RegionI mRegion;
 	SkillsRenderCircle skillsRenderCircle;
 	
+	private int mViewportWidth, mViewportHeight;
+	
+	Talents talents;
+	
 	public DesignAnimalRenderer(DisplayHandler mDisplayHandler, Simulation mSimulation) {
-		skillsRenderCircle = new SkillsRenderCircle(200, 100);
+		talents = new Talents();
+		talents.inheritRandom();
+		skillsRenderCircle = new SkillsRenderCircle(200, 100, talents);
 	}
 
 	@Override
 	public void render(int pViewportWidth, int pViewportHeight) {
-		skillsRenderCircle.update(pViewportWidth/2, pViewportHeight/2);
+		mViewportWidth = pViewportWidth;
+		mViewportHeight = pViewportHeight;
+		skillsRenderCircle.update(pViewportWidth / 2, pViewportHeight / 2);
 		skillsRenderCircle.render();
 	}
 	
@@ -63,33 +73,27 @@ public class DesignAnimalRenderer implements gui.SceneRegionRenderer {
 
 	@Override
 	public boolean handleMouseEvent(MouseEvent pEvent, MouseState pMouse) {
-		if (pEvent == MouseEvent.BUTTON) {
-			int button = pMouse.getButtonIndex();
-			int action = pMouse.getButtonState(button) ? GLFW_PRESS : GLFW_RELEASE;
-			handleMouseClick(0, button, action, 0);
-			
-		}
-		else if (pEvent == MouseEvent.MOTION) {
-			handleMouseMotion(0, pMouse.getPos().x - mRegion.getPos().x, pMouse.getPos().y - mRegion.getPos().y);
-		}
-		
 		return true;
-	}
-
-	private void handleMouseMotion(int i, int j, int k) {
-		
-	}
-
-	private void handleMouseClick(int i, int button, int action, int j) {
 	}
 
 	@Override
 	public boolean handleKeyboardEvent(KeyboardState pEvent) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
-	public Object actionIncrease(int i) {
-		return null;
+	public void actionIncrease(int i) {
+		talents.talentsRelative[i] += 0.2f;
+		talents.normalizeAndCalculateActuals();
+	}
+	
+	public void actionSave() {
+		Main.animalTypeToSpawn = Main.BRAINLER;
+		Talents.typeToSpawn = talents;
+		Talents.mutation = 0;
+	}
+	
+	public void actionReset() {
+		Talents.typeToSpawn = null;
+		Talents.mutation = 0;
 	}
 }

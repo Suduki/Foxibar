@@ -94,8 +94,8 @@ public class Brainler extends Agent {
 			color[i] = (float) Math.round(appearanceFactors[i]);
 			secondaryColor[i] = (float) Math.round(appearanceFactors[i+3]);
 		}
-		secondaryColor[0] = skillSet.talentsRelative[Talents.DIGEST_BLOOD];
-		secondaryColor[1] = skillSet.talentsRelative[Talents.DIGEST_GRASS];
+		secondaryColor[0] = talents.talentsRelative[Talents.DIGEST_BLOOD];
+		secondaryColor[1] = talents.talentsRelative[Talents.DIGEST_GRASS];
 		secondaryColor[2] = 0;
 	}
 	
@@ -120,8 +120,8 @@ public class Brainler extends Agent {
 	@Override
 	protected float getSpeed() {
 		float brainOutput = brain.neural.getSpeed();
-		float minSpeed = Constants.SkillSet.MIN_SPEED;
-		float maxSpeed = skillSet.get(Talents.SPEED);
+		float minSpeed = Constants.Talents.MIN_SPEED;
+		float maxSpeed = talents.get(Talents.SPEED);
 		if (brainOutput < -1) {brainOutput = -1;}
 		else if (brainOutput > 1) {brainOutput = 1;}
 		float speed = (maxSpeed-minSpeed)/2 * brainOutput + (minSpeed+maxSpeed)/2;

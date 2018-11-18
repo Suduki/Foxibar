@@ -16,13 +16,13 @@ import static org.lwjgl.opengl.GL11.glVertex2f;
 import org.joml.Vector2f;
 
 public class Circle {
-	Vector2f position = new Vector2f();
+	public Vector2f position = new Vector2f();
 	
 	private float[] circleVerticesX;
 	private float[] circleVerticesY;
 	private final float[] color;
 	
-	private float radius;
+	public float radius;
 	
 	public Circle(int numVertices, float radius, float[] color) {
 		initCircle(numVertices);
@@ -136,6 +136,8 @@ public class Circle {
 		glDisable(GL_BLEND);
 	}
 
-	
+	public boolean isInside(float x, float y) {
+		return position.distance(x, y) <= radius;
+	}
 	
 }

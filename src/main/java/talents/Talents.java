@@ -3,7 +3,7 @@ package talents;
 import constants.Constants;
 import agents.Agent;
 import agents.Stomach;
-import static constants.Constants.SkillSet.*;
+import static constants.Constants.Talents.*;
 
 public class Talents {
 
@@ -15,9 +15,10 @@ public class Talents {
 	public static final int DIGEST_GRASS 	= NUM_TALENTS++;
 	public static final int MATE_COST 		= NUM_TALENTS++;
 
-	public static final float MUTATION = 0.1f;
+	public static float mutation = Constants.Talents.MUTATION;
 
 	public static float[][] RANGES;
+	public static Talents typeToSpawn;
 
 	public float[] talentsRelative;
 	public float[] talentsActual;
@@ -59,7 +60,7 @@ public class Talents {
 
 	public void inherit(Talents ancestor) {
 		for (int i = 0; i < NUM_TALENTS; ++i) {
-			talentsRelative[i] = ancestor.talentsRelative[i] + rand(MUTATION);
+			talentsRelative[i] = ancestor.talentsRelative[i] + rand(mutation);
 			if (talentsRelative[i] < 0) talentsRelative[i] = 0;
 		}
 		normalizeAndCalculateActuals();

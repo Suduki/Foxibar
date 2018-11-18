@@ -48,7 +48,14 @@ public class DisplayHandler extends MessageHandler {
 			
 			ArrayRegion menu = new ArrayRegion(ArrayRegion.Vertical);
 			int buttonId = 0;
-			menu.insertRegion( buttonId++, new Button("Increase Blood",	()->renderer.actionIncrease(0)));
+			menu.insertRegion( buttonId++, new Button("Damage",			()->renderer.actionIncrease(0)));
+			menu.insertRegion( buttonId++, new Button("Speed",			()->renderer.actionIncrease(1)));
+			menu.insertRegion( buttonId++, new Button("Toughness",		()->renderer.actionIncrease(2)));
+			menu.insertRegion( buttonId++, new Button("Digest Blood",	()->renderer.actionIncrease(3)));
+			menu.insertRegion( buttonId++, new Button("Digest Grass",	()->renderer.actionIncrease(4)));
+			menu.insertRegion( buttonId++, new Button("Fertility",		()->renderer.actionIncrease(5)));
+			menu.insertRegion( buttonId++, new Button("Save",		()->renderer.actionSave()));
+			menu.insertRegion( buttonId++, new Button("Reset",		()->renderer.actionSave()));
 			
 			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
 			return view;

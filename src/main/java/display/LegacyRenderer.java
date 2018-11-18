@@ -159,59 +159,18 @@ public void actionLoadBrains() {
 		float screenPositionX = x * pixelsPerNodeX + pixelsPerNodeX/2;
 		float screenPositionY = y * pixelsPerNodeY + pixelsPerNodeY/2;
 		if (a != null && shouldThisAnimalBePrinted(a)) {
-//					if (World.animalManager.pool[id].species.speciesId == Constants.SpeciesId.GRASSLER) {
-//						renderTriangle(World.animalManager.pool[id].color, World.animalManager.pool[id].size*pixelsPerNodeX, 
-//								World.animalManager.pool[id].size*pixelsPerNodeY, screenPositionX, screenPositionY);
-//						continue;
-//					}
 			float ageFactor = 1f - ((float)a.age)/(a.maxAge);
 			float hungerFactor = a.stomach.getRelativeFullness();
 			float healthFactor = a.health;
 			float size = 0.5f * a.size + 0.5f;
-//					if (RenderState.DRAW_VISION_CIRCLE) {
-//						if (RenderState.FOLLOW_BLOODLING && id == World.animalManager.species[0].) {
-//							renderCircle(id.primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
-//						}
-//						else if (RenderState.FOLLOW_GRASSLER && id == Constants.SpeciesId.BEST_GRASSLER_ID) {
-//							renderCircle(World.animalManager.pool[id].primaryColor, Constants.MAX_DISTANCE_AN_ANIMAL_CAN_SEE*pixelsPerNodeX, screenPositionX, screenPositionY);
-//						}
-//					}
 			if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER && RenderState.RENDER_HEALTH) {
-//						if (Constants.BEST_ID == id) {
 				renderThreePartsOfAnimal(a.secondaryColor, a.color, 
 						ageFactor, healthFactor, hungerFactor, 
 						size*pixelsPerNodeX, 
 						size*pixelsPerNodeY, screenPositionX, screenPositionY);
-//							renderThreePartsOfAnimal(id.secondaryColor, id.mainColor, 
-//									ageFactor, healthFactor, hungerFactor, 
-//									id.size*pixelsPerNodeX, 
-//									id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
-////						}
-////						else {
-////							renderTriangle(id.secondaryColor, id.size*pixelsPerNodeX, 
-////									id.size*pixelsPerNodeY, screenPositionX, screenPositionY);
-////						}
-			}
-			else if (RenderState.RENDER_AGE && RenderState.RENDER_HUNGER) {
-				renderTwoPartsOfAnimal(a.secondaryColor, a.color, 
-						ageFactor, hungerFactor, 
-						size*pixelsPerNodeX, 
-						size*pixelsPerNodeY, screenPositionX, screenPositionY);
-			}
-			else if (RenderState.RENDER_AGE) {
-				renderPartOfAnimal(a.secondaryColor, a.color, ageFactor, 
-						size*pixelsPerNodeX, 
-						size*pixelsPerNodeY, screenPositionX, screenPositionY);
-				
-			}
-			else if (RenderState.RENDER_HUNGER) {
-				renderPartOfAnimal(a.secondaryColor, a.color, hungerFactor, 
-						size*pixelsPerNodeX, 
-						size*pixelsPerNodeY, screenPositionX, screenPositionY);
 			}
 			else {
-				renderTriangle(a.color, size*pixelsPerNodeX, 
-						size*pixelsPerNodeY, screenPositionX, screenPositionY);
+				renderTriangle(a.color, a.secondaryColor, size*pixelsPerNodeX, size*pixelsPerNodeY, screenPositionX, screenPositionY);
 			}
 		}
 	}
@@ -228,6 +187,18 @@ public void actionLoadBrains() {
 			renderTriangle(colorAnimal, sizeX*factor, 
 					sizeY*factor, screenPositionX, screenPositionY);
 		}
+	}
+	
+	
+	private void renderTriangle(float[] color, float[] secColor, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
+		
+		glColor3f(secColor[0], secColor[1], secColor[2]);
+		glVertex2f(screenPositionX, screenPositionY);
+		
+		glColor3f(color[0], color[1], color[2]);
+		glVertex2f(screenPositionX + sizeX, screenPositionY - sizeY);
+		glVertex2f(screenPositionX - sizeX, screenPositionY - sizeY);
+		
 	}
 	
 	private void renderTriangle(float[] color, float sizeX, float sizeY, float screenPositionX, float screenPositionY) {
@@ -538,7 +509,6 @@ public void actionLoadBrains() {
 			public void evaluate(simulation.Simulation simulation) {
 				float viewX = eventmouse.getX()/Constants.PIXELS_X;
 				float viewY = eventmouse.getY()/Constants.PIXELS_Y;
-
 				worldPosFromViewPos(viewX, viewY);
 
 				Main.mSimulation.spawnAgent((int) worldPos.x, (int) worldPos.y, managerId);
@@ -546,19 +516,6 @@ public void actionLoadBrains() {
 
 			public String messageName() { return "AddAnimal"; }
 		});								
-	}
-
-	private static void drawString(int x, int y, String text)
-	{
-		glEnable(GL_TEXTURE_2D);
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR);
-		glColor3f(1f, 1f, 1f);
-		//	font.drawString(new Float(x), new Float(y), text, new Color(1f, 1f, 1f));
-
-		glDisable(GL_BLEND);
-
 	}
 
 	public static void renderTexture(Texture texture,

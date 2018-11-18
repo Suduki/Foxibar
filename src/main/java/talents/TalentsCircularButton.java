@@ -11,13 +11,11 @@ public class TalentsCircularButton {
 	Circle circle;
 	private float distanceBetweenHomeAndGoal;
 	private int talentId;
-	private Talents talents;
 	
 	public TalentsCircularButton(int talentId, Talents talents) {
 		home = new Vector2f();
 		goal = new Vector2f();
 		circle = new Circle(20, 15, Constants.Colors.DesignYourAnimal.BUTTON);
-		this.talents = talents;
 		this.talentId = talentId;
 	}
 

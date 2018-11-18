@@ -238,7 +238,7 @@ public class StabilityIT {
 
 	@Test
 	public void testUsageOfEveryAction() {
-		float maxB = Constants.SkillSet.MAX_DIGEST_BLOOD;
+		float maxB = Constants.Talents.MAX_DIGEST_BLOOD;
 
 		Talents.changeTalentMax(Talents.DIGEST_BLOOD, 0);
 
@@ -252,7 +252,7 @@ public class StabilityIT {
 
 		TestHelper.cleanup(simulation, timeStep);
 
-		Talents.changeTalentMax(Talents.DIGEST_BLOOD, Constants.SkillSet.MAX_DIGEST_BLOOD * 20);
+		Talents.changeTalentMax(Talents.DIGEST_BLOOD, Constants.Talents.MAX_DIGEST_BLOOD * 20);
 
 		TestHelper.verifyWorldEmpty(simulation);
 		testSurvivability(BRAINLER, 2000, 500);

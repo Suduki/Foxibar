@@ -92,9 +92,9 @@ public class Stomach {
 	private static final float energyCostAtMaxSpeed = 5f;
 	public static final float MUTATION = 0.2f;
 	public void addRecoverCost(float speed) {
-		float c = energyCostAtMaxSpeed / (-1 + 1/Constants.SkillSet.MIN_SPEED);
+		float c = energyCostAtMaxSpeed / (-1 + 1/Constants.Talents.MIN_SPEED);
 		float b = -2 * c;
-		float a = c / Constants.SkillSet.MIN_SPEED;
+		float a = c / Constants.Talents.MIN_SPEED;
 		energyCost += a*speed*speed + b*speed + c;
 	}
 }

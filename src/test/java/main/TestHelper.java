@@ -19,8 +19,8 @@ public class TestHelper {
 		verifyWorldEmpty(simulation);
 		simulation.mWorld.reset(true);
 		
-		Talents.changeTalentMax(Talents.DIGEST_BLOOD, Constants.SkillSet.MAX_DIGEST_BLOOD);
-		Talents.changeTalentMax(Talents.DIGEST_GRASS, Constants.SkillSet.MAX_DIGEST_GRASS);
+		Talents.changeTalentMax(Talents.DIGEST_BLOOD, Constants.Talents.MAX_DIGEST_BLOOD);
+		Talents.changeTalentMax(Talents.DIGEST_GRASS, Constants.Talents.MAX_DIGEST_GRASS);
 	}
 	
 	public static void verifyWorldEmpty(Simulation simulation) {

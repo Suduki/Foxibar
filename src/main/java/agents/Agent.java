@@ -55,7 +55,7 @@ public abstract class Agent {
 	protected AgentManager<? extends Agent> agentManager;
 	public boolean printStuff;
 	
-	protected Talents skillSet;
+	protected Talents talents;
 	
 	public Agent stranger;
 	public Agent friendler;
@@ -85,7 +85,7 @@ public abstract class Agent {
 		this.world = world;
 		this.agentManager = agentManager;
 		
-		this.skillSet = new Talents();
+		this.talents = new Talents();
 	}
 
 
@@ -106,7 +106,7 @@ public abstract class Agent {
 	}
 
 	private void makeBaby() {
-		if (isFertile && stomach.canHaveBaby(skillSet.get(Talents.MATE_COST))) {
+		if (isFertile && stomach.canHaveBaby(talents.get(Talents.MATE_COST))) {
 			mate();
 		}
 	}
@@ -131,21 +131,24 @@ public abstract class Agent {
 
 	protected void inherit(Agent a) {
 		if (a == null) {
-			skillSet.inheritRandom();
+			if (Talents.typeToSpawn != null) {
+				talents.inherit(Talents.typeToSpawn);
+			}
+			talents.inheritRandom();
 		}
 		else if (a.getClass() != this.getClass()){
 			System.err.println("inheriting some different class");
 		}
 		else {
-			skillSet.inherit(a.skillSet);
+			talents.inherit(a.talents);
 		}
 		fixAppearance();
 	}
 	
 	protected void fixAppearance() {
-		stomach.inherit(skillSet);
-		maxHealth = 100*skillSet.talentsRelative[Talents.TOUGHNESS];
-		size = skillSet.talentsRelative[Talents.FIGHT]*10+skillSet.talentsRelative[Talents.TOUGHNESS]*10;
+		stomach.inherit(talents);
+		maxHealth = 100*talents.talentsRelative[Talents.TOUGHNESS];
+		size = talents.talentsRelative[Talents.FIGHT]*10+talents.talentsRelative[Talents.TOUGHNESS]*10;
 	}
 
 	private void stepScore(int score) {
@@ -157,7 +160,7 @@ public abstract class Agent {
 
 	private void childCost() {
 		isFertile = false;
-		stomach.energyCost += skillSet.get(Talents.MATE_COST);
+		stomach.energyCost += talents.get(Talents.MATE_COST);
 		sinceLastBaby = 0;
 
 		// This will cause the mating animals to continue living, which is what we want in the end.
@@ -166,7 +169,7 @@ public abstract class Agent {
 	}
 
 	protected float getSpeed() {
-		return skillSet.get(Talents.SPEED);
+		return talents.get(Talents.SPEED);
 	}
 
 	private void stepFertility() {
@@ -250,7 +253,7 @@ public abstract class Agent {
 	}
 
 	protected float getFightSkill() {
-		return skillSet.get(Talents.FIGHT);
+		return talents.get(Talents.FIGHT);
 	}
 	
 	protected final float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
@@ -281,7 +284,7 @@ public abstract class Agent {
 
 	protected void die() {
 		world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size, true);
-		world.blood.append((int) pos.x, (int) pos.y, stomach.fat / Constants.SkillSet.MAX_DIGEST_BLOOD, true);
+		world.blood.append((int) pos.x, (int) pos.y, stomach.fat / Constants.Talents.MAX_DIGEST_BLOOD, true);
 		world.grass.append((int) pos.x, (int) pos.y, stomach.fiber, true);
 		//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
 		//				+ ", age=" + age + ", score = " + score);
@@ -309,7 +312,7 @@ public abstract class Agent {
 	}
 
 	protected boolean isFertileAndNotHungry() {
-		return isFertile && stomach.canHaveBaby(skillSet.get(Talents.MATE_COST));
+		return isFertile && stomach.canHaveBaby(talents.get(Talents.MATE_COST));
 	}
 
 	public void reset() {
