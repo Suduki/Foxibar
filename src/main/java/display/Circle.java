@@ -54,16 +54,16 @@ public class Circle {
 		return circleVerticesX[i]*radius + position.x;
 	}
 	
-	public float getScaledXAt(int i, float[] scales) {
-		return circleVerticesX[i]*radius * (scales[i]/2 + 1f/2) + position.x;
+	public float getScaledXAt(int i, float scales) {
+		return circleVerticesX[i]*radius * (scales/2 + 1f/2) + position.x;
 	}
 	
 	public float getYAt(int i) {
 		return circleVerticesY[i]*radius + position.y;
 	}
 	
-	public float getScaledYAt(int i, float[] scales) {
-		return circleVerticesY[i]*radius* (scales[i]/2 + 1f/2) + position.y;
+	public float getScaledYAt(int i, float scales) {
+		return circleVerticesY[i]*radius* (scales/2 + 1f/2) + position.y;
 	}
 	
 	public void renderCircle(float alpha, float[] scales) {
@@ -74,12 +74,12 @@ public class Circle {
 
 		for (int i = 0; i < circleVerticesX.length; i++) {
 			glVertex2f(position.x, position.y);
-			glVertex2f(getScaledXAt(i, scales), getScaledYAt(i, scales));
+			glVertex2f(getScaledXAt(i, scales[i]), getScaledYAt(i, scales[i]));
 			if (i+1 < circleVerticesX.length) {
-				glVertex2f(getScaledXAt(i+1, scales), getScaledYAt(i+1, scales));
+				glVertex2f(getScaledXAt(i+1, scales[i+1]), getScaledYAt(i+1, scales[i+1]));
 			}
 			else {
-				glVertex2f(getScaledXAt(0, scales), getScaledYAt(0, scales));
+				glVertex2f(getScaledXAt(0, scales[0]), getScaledYAt(0, scales[0]));
 			}
 		}
 		glEnd();
@@ -102,7 +102,7 @@ public class Circle {
 		position.set(x, y);
 	}
 	
-	public void drawLinesAround() {
+	public void drawBorder() {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_LINES);
@@ -130,7 +130,7 @@ public class Circle {
 
 		for (int i = 0; i < circleVerticesX.length; i++) {
 			glVertex2f(position.x, position.y);
-			glVertex2f(getScaledXAt(i, scales), getScaledYAt(i, scales));
+			glVertex2f(getScaledXAt(i, scales[i]), getScaledYAt(i, scales[i]));
 		}
 		glEnd();
 		glDisable(GL_BLEND);
@@ -139,5 +139,4 @@ public class Circle {
 	public boolean isInside(float x, float y) {
 		return position.distance(x, y) <= radius;
 	}
-	
 }

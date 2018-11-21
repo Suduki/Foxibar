@@ -67,6 +67,12 @@ public class Text {
 		}
 	}
 	
+	public void drawCentered(float x, float y, float size) {
+		float sizeX = size*mWidth;
+		float sizeY = size*mHeight;
+		draw(x - sizeX/2, y - sizeY/2, size);
+	}
+	
 	private void drawDiagnostics(float x, float y, float size) {
 		float width = getWidth(size);
 		float height = getHeight(size);

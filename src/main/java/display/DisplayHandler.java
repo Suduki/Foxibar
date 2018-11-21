@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL11;
 import gui.*;
 import messages.Message;
 import messages.MessageHandler;
+import talents.Talents;
 
 public class DisplayHandler extends MessageHandler {
 	public Thread renderThreadThread;
@@ -48,7 +49,8 @@ public class DisplayHandler extends MessageHandler {
 			
 			ArrayRegion menu = new ArrayRegion(ArrayRegion.Vertical);
 			int buttonId = 0;
-			menu.insertRegion( buttonId++, new Button("Damage",			()->renderer.actionIncrease(0)));
+			int talentId = 0;
+			menu.insertRegion( buttonId++, new Button(Talents.names[talentId],			()->renderer.actionIncrease(0)));
 			menu.insertRegion( buttonId++, new Button("Speed",			()->renderer.actionIncrease(1)));
 			menu.insertRegion( buttonId++, new Button("Toughness",		()->renderer.actionIncrease(2)));
 			menu.insertRegion( buttonId++, new Button("Digest Blood",	()->renderer.actionIncrease(3)));

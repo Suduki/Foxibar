@@ -11,8 +11,8 @@ import world.World;
 
 public class Bloodling extends Agent {
 	
-	public Bloodling(float health, World world, AgentManager agentManager) {
-		super(health, world, agentManager);
+	public Bloodling(World world, AgentManager agentManager) {
+		super(world, agentManager);
 		color = Constants.Colors.WHITE;
 		secondaryColor = Constants.Colors.RED;
 	}

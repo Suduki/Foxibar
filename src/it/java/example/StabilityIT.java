@@ -109,8 +109,8 @@ public class StabilityIT {
 	public void testMultipleAgentGrasslerBloodling() {
 		int type1 = GRASSLER;
 		int type2 = BLOODLING;
-		int initNumAgents1 = 500;
-		int initNumAgents2 = 50;
+		int initNumAgents1 = simulation.WORLD_SIZE/50;
+		int initNumAgents2 = 25;
 		System.out.println("Initiating testMultipleAgentTypes");
 		System.out.println("Testing " + AGENT_TYPES_NAMES[type1] + " and " + AGENT_TYPES_NAMES[type2]);
 		testMultipleAgents(type1, type2, initNumAgents1, initNumAgents2);
@@ -181,9 +181,9 @@ public class StabilityIT {
 
 	@Test //TODO: MOVE; not an 
 	public void test4SpeciesTest() {
-		Brainler a = new Brainler(0, null, null);
+		Brainler a = new Brainler(null, null);
 		a.inherit(null);
-		Brainler b = new Brainler(0, null, null);
+		Brainler b = new Brainler(null, null);
 
 		b.inherit(null);
 		Assert.assertFalse(a.isCloselyRelatedTo(b));

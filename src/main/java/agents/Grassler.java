@@ -8,8 +8,8 @@ import world.World;
 
 public class Grassler extends Agent {
 
-	public Grassler(float health, World world, AgentManager<Agent> agentManager) {
-		super(health, world, agentManager);
+	public Grassler(World world, AgentManager<Agent> agentManager) {
+		super(world, agentManager);
 		color = Constants.Colors.BLACK;
 		secondaryColor = Constants.Colors.WHITE;
 	}

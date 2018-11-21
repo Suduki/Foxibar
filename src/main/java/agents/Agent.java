@@ -55,15 +55,13 @@ public abstract class Agent {
 	protected AgentManager<? extends Agent> agentManager;
 	public boolean printStuff;
 	
-	protected Talents talents;
+	public Talents talents;
 	
 	public Agent stranger;
 	public Agent friendler;
 
 	@SuppressWarnings("rawtypes")
-	public Agent(float health, World world, AgentManager agentManager) {
-		this.health = health;
-		
+	public Agent(World world, AgentManager agentManager) {
 		pos = new Vector2f();
 		old = new Vector2f();
 		vel = new Vector2f();
@@ -131,9 +129,6 @@ public abstract class Agent {
 
 	protected void inherit(Agent a) {
 		if (a == null) {
-			if (Talents.typeToSpawn != null) {
-				talents.inherit(Talents.typeToSpawn);
-			}
 			talents.inheritRandom();
 		}
 		else if (a.getClass() != this.getClass()){

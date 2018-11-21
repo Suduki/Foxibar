@@ -475,32 +475,13 @@ public void actionLoadBrains() {
 
 		if (insideViewport(mouse.getPos())) {
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				addAgent(0, 0);
+				addAgent(Main.animalTypeToSpawn, 0);
 			}
 			if (mouse.buttonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-				addAgent(1, 1);
+				addAgent(Main.BLOODLING, 1);
 			}
 		}
 	}
-
-//	private void addGrassling(Species species) {
-//		mSimulation.message( new messages.Message() {
-//			Mouse eventmouse = new Mouse(mouse);
-//			@Override
-//			public void evaluate(simulation.Simulation simulation) {
-//				float viewX = eventmouse.getX()/Constants.PIXELS_X;
-//				float viewY = eventmouse.getY()/Constants.PIXELS_Y;
-//
-//				Vector2f worldPos = worldPosFromViewPos(viewX, viewY);
-//
-//				int pos = (int)worldPos.x * Simulation.WORLD_SIZE_Y + (int)worldPos.y;
-//				if (World.animalManager.containsAnimals[pos] == null) {
-//				}
-//			}
-//
-//			public String messageName() { return "AddAnimal"; }
-//		});								
-//	}
 	private Vector2f worldPos = new Vector2f(0, 0);
 	private void addAgent(int managerId, int speciesId) {
 		mSimulation.message( new messages.Message() {
