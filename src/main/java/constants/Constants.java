@@ -26,14 +26,14 @@ public class Constants {
 	public static class Talents {
 		public static final float MIN_SPEED 		= 0.1f;
 		public static final float MAX_SPEED 		= 1f;
-		public static final float MIN_TOUGHNESS 	= 0.05f;
+		public static final float MIN_TOUGHNESS 	= 0.01f;
 		public static final float MAX_TOUGHNESS 	= 1f;
 		public static final float MIN_MATE_COST 	= 50f;
 		public static final float MAX_MATE_COST 	= 400f;
 		public static final float MUTATION = 0.1f;
 
-		public static float MAX_DIGEST_GRASS = 3.8f;
-		public static float MAX_DIGEST_BLOOD = 20;
+		public static float MAX_DIGEST_GRASS;
+		public static float MAX_DIGEST_BLOOD;
 		
 	}
 	

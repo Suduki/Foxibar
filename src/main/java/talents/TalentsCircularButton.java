@@ -22,7 +22,7 @@ public class TalentsCircularButton {
 	public void render(float x, float y) {
 		circle.setPos(x, y);
 		circle.renderCircle(1f);
-		circle.drawLinesAround();
+		circle.drawBorder();
 	}
 	
 	public void update(float mousePosX, float mousePosY, Talents talents) {

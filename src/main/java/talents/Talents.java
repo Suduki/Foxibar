@@ -15,10 +15,18 @@ public class Talents {
 	public static final int DIGEST_GRASS 	= NUM_TALENTS++;
 	public static final int MATE_COST 		= NUM_TALENTS++;
 
-	public static float mutation = Constants.Talents.MUTATION;
+	public static final String[] names = {
+			"Damage",
+			"Speed",
+			"Toughness",
+			"Digest Blood",
+			"Digest Grass",
+			"Fertility"
+	};
+	
+	public float mutation;
 
 	public static float[][] RANGES;
-	public static Talents typeToSpawn;
 
 	public float[] talentsRelative;
 	public float[] talentsActual;
@@ -52,6 +60,7 @@ public class Talents {
 
 
 	public void inheritRandom() {
+		mutation = Constants.Talents.MUTATION;
 		for (int i = 0; i < NUM_TALENTS; ++i) {
 			talentsRelative[i] = randPositive(1f);
 		}
@@ -59,6 +68,7 @@ public class Talents {
 	}
 
 	public void inherit(Talents ancestor) {
+		mutation = ancestor.mutation;
 		for (int i = 0; i < NUM_TALENTS; ++i) {
 			talentsRelative[i] = ancestor.talentsRelative[i] + rand(mutation);
 			if (talentsRelative[i] < 0) talentsRelative[i] = 0;

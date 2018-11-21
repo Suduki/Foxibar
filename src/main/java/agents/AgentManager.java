@@ -27,25 +27,25 @@ public class AgentManager<AgentClass extends Agent> {
 		
 		if (clazz == Randomling.class) {
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-				pool[id] = (AgentClass) new Randomling(0, world, (AgentManager<Agent>) this); //TODO behövs id?
+				pool[id] = (AgentClass) new Randomling(world, (AgentManager<Agent>) this); //TODO behövs id?
 				dead.add(pool[id]);
 			}
 		}
 		else if (clazz == Brainler.class) {
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-				pool[id] = (AgentClass) new Brainler(0, world, (AgentManager<Agent>) this);
+				pool[id] = (AgentClass) new Brainler(world, (AgentManager<Agent>) this);
 				dead.add(pool[id]);
 			}
 		}
 		else if (clazz == Bloodling.class) {
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-				pool[id] = (AgentClass) new Bloodling(0, world, (AgentManager<Agent>) this);
+				pool[id] = (AgentClass) new Bloodling(world, (AgentManager<Agent>) this);
 				dead.add(pool[id]);
 			}
 		}
 		else if (clazz == Grassler.class) {
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-				pool[id] = (AgentClass) new Grassler(0, world, (AgentManager<Agent>) this);
+				pool[id] = (AgentClass) new Grassler(world, (AgentManager<Agent>) this);
 				dead.add(pool[id]);
 			}
 		}

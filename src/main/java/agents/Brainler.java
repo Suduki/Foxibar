@@ -15,8 +15,8 @@ public class Brainler extends Agent {
 	public float[] appearanceFactors;
 	public static final int NUM_APPEARANCE_FACTORS = 6;
 	
-	public Brainler(float health, World world, AgentManager<Agent> agentManager) {
-		super(health, world, agentManager);
+	public Brainler(World world, AgentManager<Agent> agentManager) {
+		super(world, agentManager);
 		this.brain = new Brain(false);
 		this.color = new float[3];
 		this.secondaryColor = new float[3];
@@ -58,13 +58,16 @@ public class Brainler extends Agent {
 		
 		return brain.neural.neuralMagic(Action.acts);
 	}
+	
+	public static Brainler brainlerCreatedByUser;
 
 	@Override
 	public void inherit(Agent a) {
-		super.inherit(a);
 		if (a == null) {
 			this.brain.neural.initWeightsRandom();
-			inheritAppearanceFactors(null);
+			if (brainlerCreatedByUser != null) {
+				a = brainlerCreatedByUser;
+			}
 		}
 		else if (!(a instanceof Brainler)) {
 			System.err.println("Trying to inherit a non-animal.");
@@ -72,24 +75,33 @@ public class Brainler extends Agent {
 		}
 		else {
 			this.brain.inherit(((Brainler)a).brain);
-			inheritAppearanceFactors((Brainler)a);
 		}
+		
+		super.inherit(a);
+		
+		inheritAppearanceFactors((Brainler)a);
 	}
 
-	public static float MUTATION = 0.04f;
-	private void inheritAppearanceFactors(Brainler a) {
+	public float appearanceMutation;
+	public void inheritAppearanceFactors(Brainler a) {
 		if (a == null) {
+			appearanceMutation = 0.04f;
 			for (int i = 0; i < NUM_APPEARANCE_FACTORS; ++i) {
 				appearanceFactors[i] = Constants.RANDOM.nextFloat();
 			}
 		}
 		else {
 			for (int i = 0; i < NUM_APPEARANCE_FACTORS; ++i) {
-				appearanceFactors[i] = a.appearanceFactors[i] + rand()*MUTATION;
+				appearanceMutation = a.appearanceMutation;
+				appearanceFactors[i] = a.appearanceFactors[i] + rand()*appearanceMutation;
 				if (appearanceFactors[i] > 1) {appearanceFactors[i] = 1;}
 				if (appearanceFactors[i] < 0) {appearanceFactors[i] = 0;}
 			}
 		}
+		updateColors();
+	}
+	
+	public void updateColors() {
 		for (int i = 0; i < 3; ++i) {
 			color[i] = (float) Math.round(appearanceFactors[i]);
 			secondaryColor[i] = (float) Math.round(appearanceFactors[i+3]);
