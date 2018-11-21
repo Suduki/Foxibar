@@ -57,7 +57,7 @@ public class DisplayHandler extends MessageHandler {
 			menu.insertRegion( buttonId++, new Button("Digest Grass",	()->renderer.actionIncrease(4)));
 			menu.insertRegion( buttonId++, new Button("Fertility",		()->renderer.actionIncrease(5)));
 			menu.insertRegion( buttonId++, new Button("Save",		()->renderer.actionSave()));
-			menu.insertRegion( buttonId++, new Button("Reset",		()->renderer.actionSave()));
+			menu.insertRegion( buttonId++, new Button("Reset",		()->renderer.actionReset()));
 			
 			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
 			return view;
