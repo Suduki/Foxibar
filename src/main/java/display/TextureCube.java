@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
@@ -18,10 +20,20 @@ import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL42.*;
 
 
-public class TextureCube
+public class TextureCube implements FrameUpdatable
 {
 	private int mTextureId;
 	private int mSize = 0;
+	private boolean mNeedsFrameUpdate = false;
+	
+	private class FaceData
+	{
+		public ByteBuffer bytes;
+		public int width;
+		public int height;
+	}
+	
+	private TreeMap<Integer, FaceData> mFaceData;
 	
 	public int id() {
 		return mTextureId;
@@ -38,8 +50,9 @@ public class TextureCube
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR); GpuUtils.GpuErrorCheck();
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT); GpuUtils.GpuErrorCheck();
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT); GpuUtils.GpuErrorCheck();
+		
+		mFaceData = new TreeMap<Integer, FaceData>();
 	}
-	
 	
 	public void loadFacesFromFile(
 			String pRightFilename,
@@ -48,16 +61,38 @@ public class TextureCube
 			String pBottomFilename,
 			String pBackFilename,
 			String pFrontFilename
-			) {
-		loadFaceFromFile(GL_TEXTURE_CUBE_MAP_POSITIVE_X, pRightFilename);
-		loadFaceFromFile(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, pLeftFilename);
-		loadFaceFromFile(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, pTopFilename);
-		loadFaceFromFile(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, pBottomFilename);
-		loadFaceFromFile(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, pBackFilename);
-		loadFaceFromFile(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, pFrontFilename);		
+			)
+	{
+		loadFaceFromFile(GL_TEXTURE_CUBE_MAP_POSITIVE_X, pRightFilename,  false);
+		loadFaceFromFile(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, pLeftFilename,   false);
+		loadFaceFromFile(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, pTopFilename,    false);
+		loadFaceFromFile(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, pBottomFilename, false);
+		loadFaceFromFile(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, pBackFilename,   false);
+		loadFaceFromFile(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, pFrontFilename,  false);		
 	}
 	
-	public void loadFaceFromFile(int pFaceGL, String pFilename)
+	public void loadFacesFromFileAsync(
+			String pRightFilename,
+			String pLeftFilename,
+			String pTopFilename,
+			String pBottomFilename,
+			String pBackFilename,
+			String pFrontFilename
+			)
+	{	
+		mNeedsFrameUpdate = true;
+		
+		new Thread(() -> {
+			loadFaceFromFile(GL_TEXTURE_CUBE_MAP_POSITIVE_X, pRightFilename,  true);
+			loadFaceFromFile(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, pLeftFilename,   true);
+			loadFaceFromFile(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, pTopFilename,    true);
+			loadFaceFromFile(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, pBottomFilename, true);
+			loadFaceFromFile(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, pBackFilename,   true);
+			loadFaceFromFile(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, pFrontFilename,  true);		
+		}).start();
+	}
+	
+	public void loadFaceFromFile(int pFaceGL, String pFilename, boolean async)
 	{
 		try
 		{
@@ -65,10 +100,19 @@ public class TextureCube
 				
 			System.out.println(pFilename + ": " + image.getWidth() + "x" + image.getHeight() + ", type: " + Util.bufferedImageTypeString(image));
 			ByteBuffer imageData = Util.convertImageData(image);
-			loadFace(pFaceGL, image.getWidth(), image.getHeight(), imageData);
+			
+			if (async)
+			{
+				setFaceData(imageData, image.getWidth(), image.getHeight(), pFaceGL);
+			}
+			else
+			{
+				loadFace(pFaceGL, image.getWidth(), image.getHeight(), imageData);
+			}
 		}
 		catch (IOException e)
 		{
+			setFaceData(null, 0, 0, pFaceGL);
 			System.out.println("Failed to read file " + pFilename);
 		}				
 	}	
@@ -84,13 +128,6 @@ public class TextureCube
 		unbind(0);
 	}
 	
-	/*
-	public void load(int pWidth, int pHeight, FloatBuffer pPixels) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, pWidth, pHeight, 0, GL_RGBA, GL_FLOAT, pPixels); GpuUtils.GpuErrorCheck();
-	}
-	*/
-
-	
 	public void bind(int unit) {
 		glActiveTexture(GL_TEXTURE0 + unit); GpuUtils.GpuErrorCheck();
 		glBindTexture(GL_TEXTURE_CUBE_MAP, mTextureId); GpuUtils.GpuErrorCheck();
@@ -101,5 +138,42 @@ public class TextureCube
 		glActiveTexture(GL_TEXTURE0 + unit); GpuUtils.GpuErrorCheck();
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0); GpuUtils.GpuErrorCheck();
 		glActiveTexture(GL_TEXTURE0); GpuUtils.GpuErrorCheck();
+	}
+
+	@Override
+	public boolean frameUpdate() {
+		if (mFaceData.size() == 6)
+		{
+			System.out.println("Time to update cube texture!");
+			for (Map.Entry<Integer, FaceData> entry : mFaceData.entrySet())
+			{
+				int faceGL = entry.getKey();
+				FaceData fd = entry.getValue();
+				
+				loadFace(faceGL, fd.width, fd.height, fd.bytes);
+			}
+			
+			mNeedsFrameUpdate = false;
+			mFaceData.clear();
+			
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean frameUpdateNeeded() {
+		return mNeedsFrameUpdate;
+	}
+	
+	private void setFaceData(ByteBuffer buffer, int width, int height, int glFace)
+	{
+		FaceData fd = new FaceData();
+		fd.bytes = buffer;
+		fd.width = width;
+		fd.height = height;
+		
+		System.out.println("setFaceData(..., " + width + ", " + height + ", " + glFace + ")");
+		mFaceData.put(glFace, fd);
 	}
 }

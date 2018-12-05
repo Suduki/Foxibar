@@ -6,7 +6,9 @@ import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL31.*;
 
 import java.nio.FloatBuffer;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import org.joml.Matrix4f;
 import org.joml.Matrix3f;
@@ -33,7 +35,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class TerrainRenderer implements gui.SceneRegionRenderer {
 	// Visualisation.
-	private RegionI              mRegion           = null;
+	private RegionI              mRegion          = null;
 	private Camera              mCamera           = null;
 	private FlyCameraController mCameraController = null;
 	private Texture             mStrataTexture    = null;
@@ -50,8 +52,9 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private int                 mNumIndices       = 0;
 	private Program             mTerrainProgram   = null;
 	private Program             mWaterProgram     = null;
-	private Program             mSkyboxProgram     = null;
+	private Program             mSkyboxProgram    = null;
 	private GrassRenderer		mGrassRenderer    = null;
+	private Set<FrameUpdatable> mUpdatables       = null;
 	
 	// Simulation.
 	private boolean             mSimulateOnRender      = false;
@@ -77,6 +80,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		
 		mHexTerrainRenderer = new HexTerrainRenderer();
 		mGrassRenderer = new GrassRenderer();
+		mUpdatables = new HashSet<FrameUpdatable>();
 		
 		initVertexArrays();
 		initVisualisationShaderPrograms();
@@ -158,9 +162,12 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		mTestTexture   = Texture.fromFile("pics/GuiDefault.png");
 		mTestTexture.filterNearest();
 		mSkyboxTexture = new TextureCube();
+		
+		mUpdatables.add(mSkyboxTexture);
+		
 		String skyboxPath = "pics/skybox_cool/";
 		String fileType = ".jpg";
-		mSkyboxTexture.loadFacesFromFile(
+		mSkyboxTexture.loadFacesFromFileAsync(
 				skyboxPath + "right" + fileType,
 				skyboxPath + "left" + fileType,
 				skyboxPath + "top" + fileType,
@@ -291,9 +298,25 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	
 	@Override // SceneRegionRenderer
 	public void render(int pViewportWidth, int pViewportHeight) {
-		if (mSimulateOnRender) {
+		if (mSimulateOnRender)
+		{
 			simulate();
 		}
+		
+		if (mUpdatables.size() > 0)
+		{
+			Set<FrameUpdatable> nextFrame = new HashSet<FrameUpdatable>();
+			for (FrameUpdatable updatable : mUpdatables)
+			{
+				if (updatable.frameUpdate())
+				{
+					nextFrame.add(updatable);
+				}
+			}
+			
+			mUpdatables = nextFrame;
+		}
+		
 		mCamera.setAspectRatio(pViewportWidth/(float)pViewportHeight);
 		mCameraController.update();
 		
