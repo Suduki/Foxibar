@@ -95,7 +95,7 @@ public class Simulation extends MessageHandler {
 		}
 	}
 	
-	public void spawnRandomAgents(int managerId, int num) {
+	public void spawnAgentsAtRandomPosition(int managerId, int num) {
 		
 		for (int i = 0; i < num; ++i) {
 			int x = Constants.RANDOM.nextInt(WORLD_SIZE_X);

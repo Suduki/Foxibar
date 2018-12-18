@@ -11,7 +11,7 @@ import world.World;
 
 public abstract class Agent {
 
-	public static final int MAX_AGE = 3000;
+	public static final int MAX_AGE = 200;
 	protected static final float REACH = 1;
 
 	public float[] color, secondaryColor;
@@ -73,8 +73,8 @@ public abstract class Agent {
 		growth = 0.01f;
 		maxSize = 1;
 
-		this.nearbyAgents = new Agent[Constants.NUM_NEIGHBOURS];
-		this.nearbyAgentsDistance = new float[Constants.NUM_NEIGHBOURS];
+		this.nearbyAgents = new Agent[Constants.Vision.NUM_NEIGHBOURS];
+		this.nearbyAgentsDistance = new float[Constants.Vision.NUM_NEIGHBOURS];
 		children = new ArrayList<>();
 		stomach = new Stomach();
 
@@ -157,10 +157,6 @@ public abstract class Agent {
 		isFertile = false;
 		stomach.energyCost += talents.get(Talents.MATE_COST);
 		sinceLastBaby = 0;
-
-		// This will cause the mating animals to continue living, which is what we want in the end.
-		// A bit unconventional and forced.
-		age = 0;
 	}
 
 	protected float getSpeed() {
