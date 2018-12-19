@@ -6,6 +6,7 @@ public class HarvestGrass extends Action {
 	public float grassness;
 
 	public HarvestGrass() {
+		super();
 	}
 
 	@Override
@@ -20,7 +21,7 @@ public class HarvestGrass extends Action {
 
 	@Override
 	public void commit(Agent a) {
-		numCalls++;
+		numCommits++;
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
 		a.harvestGrass();
 	}

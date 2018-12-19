@@ -22,13 +22,13 @@ public class Randomling extends Agent {
 	protected void actionUpdate() {
 		
 		Action action = Action.harvestGrass;
-		if (action.determineIfPossible(this)) {
+		if (action.isPossible) {
 			action.commit(this);
 			return;
 		}
 		
 		action = Action.randomWalk;
-		if (action.determineIfPossible(this)) {
+		if (action.isPossible) {
 			action.commit(this);
 			return;
 		}

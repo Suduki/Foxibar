@@ -21,26 +21,27 @@ public class Grassler extends Agent {
 
 	@Override
 	protected void actionUpdate() {
+		
 		Action action = Action.fleeFromStranger;
-		if (action.determineIfPossible(this)) {
+		if (action.isPossible) {
 			action.commit(this);
 			return;
 		}
 		
 		action = Action.harvestGrass;
-		if (action.determineIfPossible(this)) {
+		if (action.isPossible) {
 			action.commit(this);
 			return;
 		}
 		
 		action = Action.seekGrass;
-		if (action.determineIfPossible(this)) {
+		if (action.isPossible) {
 			action.commit(this);
 			return;
 		}
 		
 		action = Action.randomWalk;
-		if (action.determineIfPossible(this)) {
+		if (action.isPossible) {
 			action.commit(this);
 			return;
 		}

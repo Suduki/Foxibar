@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
+import actions.Action;
 import constants.Constants;
 import talents.Talents;
 import vision.Vision;
@@ -96,12 +97,18 @@ public abstract class Agent {
 			System.err.println("Trying to step a dead agent.");
 			return false;
 		}
+		think();
 		actionUpdate();
 		makeBaby();
 		internalOrgansUpdate();
 
 		return isAlive;
 	}
+
+	private void think() {
+		Action.determineIfPossibleAllActions(this);
+	}
+
 
 	private void makeBaby() {
 		if (isFertile && stomach.canHaveBaby(talents.get(Talents.MATE_COST))) {
