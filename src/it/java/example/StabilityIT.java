@@ -224,6 +224,8 @@ public class StabilityIT {
 
 	@Test
 	public void testUsageOfEveryAction() {
+		
+		System.out.println("testUsageOfEveryAction");
 
 		float maxB = Constants.Talents.MAX_DIGEST_BLOOD;
 
@@ -269,7 +271,9 @@ public class StabilityIT {
 			for (int i = 0; i < actionPercentages.length; ++i) {
 				actionPercentages[i] += calculateCallPercentage(numCalls, Action.acts[i]) / numSimulationIterations;
 			}
+			System.out.print(".");
 		}
+		System.out.println(" Done.");
 
 	}
 
