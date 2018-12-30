@@ -1,6 +1,7 @@
 package display;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_LINES;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
@@ -103,10 +104,6 @@ public class GrassRenderer {
 		float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
 		float zNudge = 3.0f/9.0f;
 		
-		glLineWidth(10);
-		glBegin(GL_LINES);
-		glColor3f(0,0,0);
-		
 		float xScale = (float)(Math.sqrt(3)*0.5);
 		float zScale = 1.5f;
 		for (AgentManager<?> manager : Main.mSimulation.agentManagers) {
@@ -122,19 +119,82 @@ public class GrassRenderer {
 				renderAgentAt(a, xpos, zpos, heightScale);
 			}
 		}
-		glEnd();
-		glLineWidth(1);
 	}
+
+	float scale = 0.7f;
+	float[] xVertices = {-scale, -scale, scale, scale};
+	float[] zVertices = {-scale, scale, scale, -scale};
 	
 	void renderAgentAt(Agent a, float x, float z, float heightScale) {
-		float[] c = a.secondaryColor;
+		glLineWidth(10);
+		glBegin(GL_TRIANGLES);
+		glColor3f(0,0,0);
+
+		float[] c2 = a.secondaryColor;
+		float[] c = a.color;
 		float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[(int)a.pos.x][(int)a.pos.y], 1.5);
 		h *= heightScale;
 		glColor3f(c[0],c[1],c[2]);
-		glVertex3f(x,h,z);
-		glVertex3f(x,h+1,z);
+		
+		float sizeScale = 0.7f;
+		float size = sizeScale + (1f - sizeScale) * a.size;
+		
+		float height = size * 3;
+		float width = size / 2;
+		
+		// Render Side
+		for (int i = 0; i < 4; ++i) {
+			if (i == 3) {
+				glColor3f(c2[0],c2[1],c2[2]);
+				glVertex3f(x + width * xVertices[0],h + height, z + width * zVertices[0]);
+				glVertex3f(x + width * xVertices[i],h + height, z + width * zVertices[i]);
+				glColor3f(c[0],c[1],c[2]);
+				glVertex3f(x,h,z);
+			}
+			else {
+				glColor3f(c2[0],c2[1],c2[2]);
+				glVertex3f(x + width * xVertices[i+1], h + height, z + width * zVertices[i+1]);
+				glVertex3f(x + width * xVertices[i], h + height, z + width * zVertices[i]);
+				glColor3f(c[0],c[1],c[2]);
+				glVertex3f(x,h,z);
+			}
+		}
+		
+		// Render Top
+		glColor3f(c2[0],c2[1],c2[2]);
+		glVertex3f(x + width * xVertices[2], h + height, z + width * zVertices[2]);
+		glVertex3f(x + width * xVertices[0], h + height, z + width * zVertices[0]);
+		glVertex3f(x + width * xVertices[1], h + height, z + width * zVertices[1]);
+		
+		glVertex3f(x + width * xVertices[0], h + height, z + width * zVertices[0]);
+		glVertex3f(x + width * xVertices[2], h + height, z + width * zVertices[2]);
+		glVertex3f(x + width * xVertices[3], h + height, z + width * zVertices[3]);
+		glEnd();
+		
+		
+		glLineWidth(1);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_LINES);
+		glColor3f(0,0,0); 
+		
+		// Render Side
+		for (int i = 0; i < 4; ++i) {
+			glVertex3f(x,h,z);
+			glVertex3f(x + width * xVertices[i], h + height, z + width * zVertices[i]);
+			
+			
+			glVertex3f(x + width * xVertices[i], h + height, z + width * zVertices[i]);
+			if (i == 3) {
+				glVertex3f(x + width * xVertices[0], h + height, z + width * zVertices[0]);
+			}
+			else {
+				glVertex3f(x + width * xVertices[i+1], h + height, z + width * zVertices[i+1]);
+			}
+		}
+		glEnd();
 	}
-
+	
 	private void renderTreeAt(float height, float xPix, float zPix, int x, int z, float heightScale) {
 		float[] c = Constants.Colors.TREE;
 		float y = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);
@@ -159,9 +219,8 @@ public class GrassRenderer {
 			drawPos.add(force);
 			glVertex3f(xPix + drawPos.x,y + drawPos.y,zPix + drawPos.z);
 		}
-		
 	}
-
+	
 	private void renderTreeTopAt(float height, float xPix, float zPix, int x, int z, float heightScale) {
 		float[] c = Constants.Colors.TREE;
 		float y = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);
