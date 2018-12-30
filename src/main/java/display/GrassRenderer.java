@@ -28,10 +28,14 @@ import main.Main;
 public class GrassRenderer {
 	private boolean drawGrass = true;
 	private int grassQuality = 3;
+	
+	public GrassRenderer() {
+		super();
+		initCircle();
+	}
 
 	void drawGrass(float heightScale) {
 		if (!drawGrass) return;
-		initCircle();
 		float x0 = -Main.mSimulation.WORLD_SIZE_X/2.0f;
 		float z0 = -Main.mSimulation.WORLD_SIZE_Y/2.0f;
 
@@ -94,7 +98,6 @@ public class GrassRenderer {
 	}
 
 	void drawAgents(float heightScale) {
-		initCircle();
 		float x0 = -Main.mSimulation.WORLD_SIZE_X/2.0f;
 		float z0 = -Main.mSimulation.WORLD_SIZE_Y/2.0f;
 
@@ -292,10 +295,6 @@ public class GrassRenderer {
 				glVertex3f(oldMiddleX, nextY, oldMiddleZ);
 				glVertex3f(xPix+treeVerticesX[i+1], nextY, zPix+treeVerticesZ[i+1]);
 			}
-//			glVertex3f(xPix+treeVerticesX[0], nextY, zPix+treeVerticesZ[0]);
-//			glVertex3f(xPix+treeVerticesX[1], nextY, zPix+treeVerticesZ[1]);
-//			glVertex3f(xPix+treeVerticesX[2], nextY, zPix+treeVerticesZ[2]);
-//			glVertex3f(xPix+treeVerticesX[3], nextY, zPix+treeVerticesZ[3]);
 			
 			currentY = nextY;
 			oldMiddleX = nextMiddleX;
