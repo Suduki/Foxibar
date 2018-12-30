@@ -89,19 +89,19 @@ public class StabilityIT {
 	@Test
 	public void test2Survivability() {
 		System.out.println("Initiating testSurvivability");
-		testSurvivability(RANDOMLING, 5000, 1000, true);
+		testSurvivability(RANDOMLING, 5000, 100, false, true);
 		TestHelper.verifyWorldNotEmpty(simulation);
 		TestHelper.cleanup(simulation, timeStep);
 
-		testSurvivability(BLOODLING, 5000, 1000, true);
+		testSurvivability(BLOODLING, 5000, 100, false, true);
 		TestHelper.verifyWorldEmpty(simulation);
 		TestHelper.cleanup(simulation, timeStep);
 
-		testSurvivability(BRAINLER, 5000, 1000, true);
+		testSurvivability(BRAINLER, 5000, 100, false, true);
 		TestHelper.verifyWorldNotEmpty(simulation);
 		TestHelper.cleanup(simulation, timeStep);
 
-		testSurvivability(GRASSLER, 5000, 1000, true);
+		testSurvivability(GRASSLER, 5000, 100, false, true);
 		TestHelper.verifyWorldNotEmpty(simulation);
 		TestHelper.cleanup(simulation, timeStep);
 
@@ -115,12 +115,12 @@ public class StabilityIT {
 		float lowGrassP = 0;
 
 		int numInitGrasslers = 100;
-		testSurvivability(GRASSLER, 500, numInitGrasslers, true);
+		testSurvivability(GRASSLER, 500, numInitGrasslers, false, true);
 		System.out.println("Running multiple simulations to determine proper grass digestion value.");
 		do {
 			grassP += 0.2f;
 			Talents.changeTalentMax(Talents.DIGEST_GRASS, grassP);
-			testSurvivability(GRASSLER, 500, numInitGrasslers, false);
+			testSurvivability(GRASSLER, 500, numInitGrasslers, false, false);
 			numAgents = simulation.getNumAgents(GRASSLER);
 			TestHelper.cleanup(simulation, timeStep);
 			if (!foundLowG && numAgents > numInitGrasslers + 5) {
@@ -153,7 +153,7 @@ public class StabilityIT {
 		int initNumAgents2 = 25;
 
 		Talents.changeTalentMax(Talents.DIGEST_GRASS, grassThingP.mean);
-		testSurvivability(type1, 500, initNumAgents1, true); // Get the first agent type balanced
+		testSurvivability(type1, 500, initNumAgents1, false, true); // Get the first agent type balanced
 
 		System.out.println("Running multiple simulations to determine proper blood digestion value.");
 		do {
@@ -265,7 +265,7 @@ public class StabilityIT {
 	private void runSeveralIterationsAndTrackActions(int numSimulationIterations, float[] actionPercentages) {
 		for (int simulationIteration = 0; simulationIteration < numSimulationIterations; simulationIteration++) {
 			TestHelper.cleanup(simulation, timeStep);
-			testSurvivability(BRAINLER, 2000, 500, false);
+			testSurvivability(BRAINLER, 2000, 500, true, false);
 
 			float numCalls = Action.getTotCalls();
 			for (int i = 0; i < actionPercentages.length; ++i) {
@@ -335,19 +335,18 @@ public class StabilityIT {
 
 	}
 
-	private void testSurvivability(int agentType, int simTime, int numInit, boolean printStuff) {
+	private void testSurvivability(int agentType, int simTime, int numInit, boolean continuousSpawn, boolean printStuff) {
 		if (printStuff)
 			System.out.println("Testing survivability of " + AGENT_TYPES_NAMES[agentType]);
 
 		simulation.spawnAgentsAtRandomPosition(agentType, numInit);
 		int t;
 		for (t = 0; t < simTime; t++) {
-			simulation.step(timeStep++);
-			if (simulation.agentManagers.get(agentType).numAgents == 0) {
-				if (printStuff)
-					System.out.println(AGENT_TYPES_NAMES[agentType] + "Died after " + t);
-				break;
+			int numActiveAgents = simulation.getNumAgents(agentType);
+			if (continuousSpawn && numActiveAgents < numInit) {
+				simulation.spawnAgentsAtRandomPosition(agentType, numInit - numActiveAgents);
 			}
+			simulation.step(timeStep++);
 		}
 		if (printStuff)
 			System.out.println(AGENT_TYPES_NAMES[agentType] + " Survivability test completed after " + t
