@@ -9,13 +9,14 @@ public class SeekBlood extends Action {
 	public float bloodness;
 
 	public SeekBlood() {
+		super();
 		dir = new Vector2f();
 	}
 
 	@Override
 	public boolean determineIfPossible(Agent a) {
 		isPossible = false;
-		bloodness = a.world.blood.seekHeight(dir, (int)a.pos.x, (int)a.pos.y);;
+		bloodness = a.world.blood.seekHeight(dir, (int)a.pos.x, (int)a.pos.y);
 		if (bloodness > 0.05f) {
 			isPossible = true;
 		}
@@ -24,7 +25,7 @@ public class SeekBlood extends Action {
 
 	@Override
 	public void commit(Agent a) {
-		numCalls++;
+		numCommits++;
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
 		a.vel.set(dir);
 		a.move();

@@ -51,7 +51,7 @@ public class Main {
 	private static void dump() {
 		for (Action act : Action.acts) {
 			System.out.println(act.getClass().getSimpleName() + " "
-					+ act.numCalls);
+					+ act.numCommits);
 		}
 	}
 

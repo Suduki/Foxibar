@@ -5,10 +5,15 @@ import agents.Agent;
 public abstract class Action {
 	private static int numActions = 0;
 	
-	public int numCalls;
+	public int numCommits;
+	public int numPossible;
+	
+	public int id;
+	public static int nextId = 0;
 	
 	public boolean isPossible;
 	public static Action[] acts;
+	
 	
 	public static SeekGrass 		seekGrass 			= new SeekGrass();
 	public static SeekBlood 		seekBlood 			= new SeekBlood();
@@ -22,6 +27,10 @@ public abstract class Action {
 	
 	public abstract boolean determineIfPossible(Agent a);
 	public abstract void commit(Agent a);
+	
+	public Action() {
+		id = nextId++;
+	}
 	
 	public static void init() {
 		if (isInitialized()) {
@@ -41,6 +50,13 @@ public abstract class Action {
 			};
 		numActions = acts.length;
 	}
+	
+	public static void determineIfPossibleAllActions(Agent a) {
+		for (int i = 0; i < Action.getNumActions(); ++i) {
+			acts[i].determineIfPossible(a);
+			acts[i].numPossible += acts[i].isPossible ? 1 : 0;
+		}
+	}
 
 	public static int getNumActions() {
 		init();
@@ -53,14 +69,15 @@ public abstract class Action {
 
 	public static void reset() {
 		for (Action act : Action.acts) {
-			act.numCalls = 0;
-		}		
+			act.numCommits = 0;
+			act.numPossible = 0;
+		}
 	}
 
 	public static float getTotCalls() {
 		float tot = 0;
 		for (Action act : Action.acts) {
-			tot += act.numCalls;
+			tot += act.numCommits;
 		}
 		return tot;
 	}

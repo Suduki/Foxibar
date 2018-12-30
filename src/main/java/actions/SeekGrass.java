@@ -9,6 +9,7 @@ public class SeekGrass extends Action {
 	public float grassness;
 
 	public SeekGrass() {
+		super();
 		dir = new Vector2f();
 	}
 
@@ -24,7 +25,7 @@ public class SeekGrass extends Action {
 
 	@Override
 	public void commit(Agent a) {
-		numCalls++;
+		numCommits++;
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
 		a.vel.set(dir);
 		a.move();

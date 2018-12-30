@@ -24,33 +24,34 @@ public class Bloodling extends Agent {
 	
 	@Override
 	protected void actionUpdate() {
+		
 		Action action;
 		action = Action.harvestBlood;
-		if (action.determineIfPossible(this)) {
+		if (action.isPossible) {
 			action.commit(this);
 			return;
 		}
 		
 		action = Action.seekBlood;
-		if (action.determineIfPossible(this)) {
+		if (action.isPossible) {
 			action.commit(this);
 			return;
 		}
 		
 		action = Action.huntStranger;
-		if (action.determineIfPossible(this)) {
+		if (action.isPossible) {
 			action.commit(this);
 			return;
 		}
 		
 		action = Action.fleeFromFriendler;
-		if (action.determineIfPossible(this)) {
+		if (action.isPossible) {
 			action.commit(this);
 			return;
 		}
 		
 		action = Action.randomWalk;
-		if (action.determineIfPossible(this)) {
+		if (action.isPossible) {
 			action.commit(this);
 			return;
 		}

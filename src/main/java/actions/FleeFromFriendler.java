@@ -4,6 +4,10 @@ import agents.Agent;
 
 public class FleeFromFriendler extends Action {
 
+	public FleeFromFriendler() {
+		super();
+	}
+	
 	@Override
 	public boolean determineIfPossible(Agent a) {
 		isPossible = (a.friendler != null);
@@ -12,7 +16,7 @@ public class FleeFromFriendler extends Action {
 
 	@Override
 	public void commit(Agent a) {
-		numCalls++;
+		numCommits++;
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
 		
 		a.turnAwayFrom(a.friendler);

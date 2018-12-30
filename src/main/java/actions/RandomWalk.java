@@ -3,6 +3,10 @@ package actions;
 import agents.Agent;
 
 public class RandomWalk extends Action {
+	
+	public RandomWalk() {
+		super();
+	}
 
 	@Override
 	public boolean determineIfPossible(Agent a) {
@@ -12,7 +16,7 @@ public class RandomWalk extends Action {
 
 	@Override
 	public void commit(Agent a) {
-		numCalls++;
+		numCommits++;
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
 		a.randomWalk();
 		a.move();

@@ -25,36 +25,36 @@ public class Brainler extends Agent {
 	
 	@Override
 	protected void actionUpdate() {
-		int action = think();
+		int action = updateBrainInputs();
 		Action.acts[action].commit(this);
 	}
 	
-	private int think() {
-		for (int i = 0; i < Action.getNumActions(); ++i) {
-			Action act = Action.acts[i];
-			act.determineIfPossible(this);
-		}
+	private int updateBrainInputs() {
+		
+		float[] brainInputVector = brain.neural.z[0];
 		
 		if (stranger != null) {
-			brain.neural.z[0][NeuralFactors.in.STRANGER] = 1f / (1f + Vision.calculateCircularDistance(pos, stranger.pos));
+			brainInputVector[NeuralFactors.in.STRANGER] = 1f - (1f / (1f + Vision.calculateCircularDistance(pos, stranger.pos)));
 		}
 		else {
-			brain.neural.z[0][NeuralFactors.in.STRANGER] = -1f;
+			brainInputVector[NeuralFactors.in.STRANGER] = -1f;
 		}
 		
 		if (friendler != null) {
-			brain.neural.z[0][NeuralFactors.in.FRIENDLER] = 1f / (1f + Vision.calculateCircularDistance(pos, friendler.pos));
+			brainInputVector[NeuralFactors.in.FRIENDLER] = 1f - (1f / (1f + Vision.calculateCircularDistance(pos, friendler.pos)));
 		}
 		else {
-			brain.neural.z[0][NeuralFactors.in.FRIENDLER] = -1f;
+			brainInputVector[NeuralFactors.in.FRIENDLER] = -1f;
 		}
 		
-		brain.neural.z[0][NeuralFactors.in.TILE_GRASS] = Action.seekGrass.grassness;
-		brain.neural.z[0][NeuralFactors.in.TILE_BLOOD] = Action.seekBlood.bloodness;
+		brainInputVector[NeuralFactors.in.TILE_GRASS] = Action.harvestGrass.grassness;
+		brainInputVector[NeuralFactors.in.TILE_BLOOD] = Action.harvestBlood.bloodness;
+		brainInputVector[NeuralFactors.in.SEEK_GRASS] = Action.seekGrass.grassness;
+		brainInputVector[NeuralFactors.in.SEEK_BLOOD] = Action.seekBlood.bloodness;
 		
-		brain.neural.z[0][NeuralFactors.in.TILE_TERRAIN_HEIGHT] = world.terrain.height[(int) pos.x][(int) pos.y];
+		brainInputVector[NeuralFactors.in.TILE_TERRAIN_HEIGHT] = world.terrain.height[(int) pos.x][(int) pos.y];
 		
-		brain.neural.z[0][NeuralFactors.in.HUNGER] = stomach.getRelativeFullness();
+		brainInputVector[NeuralFactors.in.HUNGER] = stomach.getRelativeFullness();
 		
 		return brain.neural.neuralMagic(Action.acts);
 	}

@@ -9,7 +9,7 @@ import vision.Vision;
 
 public class Constants {
 
-	public static final short WORLD_MULTIPLIER_MAIN = 8;
+	public static final short WORLD_MULTIPLIER_MAIN = 7;
 	public static final short WORLD_MULTIPLIER_TEST = 7;
 	public static final float INIT_ZOOM = 1f;
 	public static final int WANTED_FPS = 30;
@@ -21,7 +21,6 @@ public class Constants {
 	public static final float GROWTH = 0.005f;
 	public static final int MAX_NUM_ANIMALS = 20000;
 	public static final float ZOOM_SPEED = 1.05f;
-	public static final int NUM_NEIGHBOURS = 6;
 	
 	public static class Talents {
 		public static final float MIN_SPEED 		= 0.1f;
@@ -41,6 +40,7 @@ public class Constants {
 		public static final int HEIGHT = 8;
 		public static final int WIDTH =  8;
 		public static final int MAX_DISTANCE_AN_AGENT_CAN_SEE = HEIGHT;
+		public static final int NUM_NEIGHBOURS = 6;
 		
 	}
 	
