@@ -98,9 +98,7 @@ public class NeuralNetwork implements Serializable {
 		}
 	}
 
-	private static int asdf = 0;
 	public int neuralMagic(final Action[] actions) {
-		asdf++;
 		evaluateNeuralNetwork();
 		float bestVal = Float.NEGATIVE_INFINITY;
 		int selection = -1;
@@ -109,10 +107,6 @@ public class NeuralNetwork implements Serializable {
 				bestVal = z[LAYER_SIZES.length-1][i];
 				selection = i;
 			}
-		}
-		if (selection == -1) {
-			System.err.println("selection=-1 should never be the case. "
-					+ bestVal + "  " + asdf + "  ");
 		}
 		return selection;
 	}
@@ -139,7 +133,7 @@ public class NeuralNetwork implements Serializable {
 
 	public void inherit(NeuralNetwork neuralMom) {
 		bestDirection = 0;
-		float evolution = 0.1f;
+		float evolution = 0.01f;
 		copy(neuralMom, evolution);
 	}
 

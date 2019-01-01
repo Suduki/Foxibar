@@ -37,8 +37,8 @@ public class Constants {
 	}
 	
 	public static class Vision{
-		public static final int HEIGHT = 8;
-		public static final int WIDTH =  8;
+		public static final int HEIGHT = 4;
+		public static final int WIDTH =  4;
 		public static final int MAX_DISTANCE_AN_AGENT_CAN_SEE = HEIGHT;
 		public static final int NUM_NEIGHBOURS = 6;
 		

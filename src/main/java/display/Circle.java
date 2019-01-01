@@ -87,7 +87,7 @@ public class Circle {
 	}
 	
 	
-	private void initCircle(int numVertices) {
+	public void initCircle(int numVertices) {
 		circleVerticesX = new float[numVertices];
 		circleVerticesY = new float[numVertices];
 		float angle = 0;
