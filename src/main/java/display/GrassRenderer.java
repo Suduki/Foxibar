@@ -276,7 +276,6 @@ public class GrassRenderer {
 				glVertex3f(xPix+treeVerticesX[i+1], currentY, zPix+treeVerticesZ[i+1]);
 				glVertex3f(nextMiddleX, currentY, nextMiddleZ);
 				glVertex3f(nextMiddleX, currentY, nextMiddleZ);
-//				glVertex3f(1000, currentY, nextMiddleZ);
 				glVertex3f(xPix+treeVerticesX[i], currentY, zPix+treeVerticesZ[i]);
 			}
 			
