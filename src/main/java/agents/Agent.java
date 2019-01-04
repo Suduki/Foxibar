@@ -179,8 +179,9 @@ public abstract class Agent {
 	public void move() {
 		old.set(pos);
 		vel.mul(getSpeed());
-		pos.add(vel);
-		World.wrap(pos);
+		vel.add(pos);
+		World.wrap(vel);
+		pos.set(vel);
 		
 		if (pos.x == Float.NaN) {
 			System.err.println("NaN position!!! What did you do!");
