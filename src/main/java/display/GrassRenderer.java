@@ -27,8 +27,8 @@ import main.Main;
 
 public class GrassRenderer {
 	private boolean drawGrass = true;
-	private int grassQuality = 2;
-	
+	private int grassQuality = 1;
+
 	public GrassRenderer() {
 		super();
 		initCircle();
@@ -116,7 +116,7 @@ public class GrassRenderer {
 				float xPosOffset = (hexZ%2 == 1) ? xScale : 0.0f;
 				float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
 				float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
-				
+
 				float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);
 				renderAgentAt(a, h, xpos, zpos, heightScale);
 			}
@@ -125,9 +125,13 @@ public class GrassRenderer {
 
 	float scale = 0.7f;
 	int numTreeCircularVertices = 6;
-	
+	int numGrassCircularVertices = 3;
+
 	float[] xVertices;
 	float[] zVertices;
+	
+	float[] grassVerticesX;
+	float[] grassVerticesZ;
 
 	float[] treeVerticesX = new float[numTreeCircularVertices+1];
 	float[] treeVerticesZ = new float[numTreeCircularVertices+1];
@@ -137,6 +141,9 @@ public class GrassRenderer {
 		
 		xVertices = new float[numTreeCircularVertices+1];
 		zVertices = new float[numTreeCircularVertices+1];
+		grassVerticesX = new float[numGrassCircularVertices+1];
+		grassVerticesZ = new float[numGrassCircularVertices+1];
+
 		float angle = 0;
 		for (int i = 0; i < numTreeCircularVertices; ++i) {
 			angle += Math.PI*2 /numTreeCircularVertices;
@@ -145,8 +152,17 @@ public class GrassRenderer {
 		}
 		xVertices[numTreeCircularVertices] = xVertices[0];
 		zVertices[numTreeCircularVertices] = zVertices[0];
+		
+		angle = 0;
+		for (int i = 0; i < numGrassCircularVertices; ++i) {
+			angle += Math.PI*2 /numGrassCircularVertices;
+			grassVerticesX[i] = (float)Math.cos(angle);
+			grassVerticesZ[i] = (float)Math.sin(angle);
+		}
+		grassVerticesX[numGrassCircularVertices] = grassVerticesX[0];
+		grassVerticesZ[numGrassCircularVertices] = grassVerticesZ[0];
 	}
-	
+
 	void renderAgentAt(Agent a, float h, float x, float z, float heightScale) {
 
 		float[] c2 = a.secondaryColor;
@@ -161,7 +177,7 @@ public class GrassRenderer {
 
 		glBegin(GL_TRIANGLES);
 		glColor3f(c[0],c[1],c[2]);
-		
+
 		// Render Side
 		for (int i = 0; i < xVertices.length-1; ++i) {
 			glColor3f(c2[0],c2[1],c2[2]);
@@ -211,20 +227,20 @@ public class GrassRenderer {
 		if (height < 1f) {
 			treeTrunkWidth = scale / 2;
 		}
-		
+
 		for (int i = 0; i < treeVerticesX.length; ++i) {
 			treeVerticesX[i] = treeTrunkWidth * xVertices[i];
 			treeVerticesZ[i] = treeTrunkWidth * zVertices[i];
 		}
-		
-		
+
+
 		for (int i = 0; i < treeVerticesX.length-1; ++i) {
 			glVertex3f(xPix + treeVerticesX[i+1], y+treeTrunkHeight+0.1f, zPix + treeVerticesZ[i+1]);
 			glVertex3f(xPix + treeVerticesX[i+1], y, zPix + treeVerticesZ[i+1]);
 			glVertex3f(xPix + treeVerticesX[i], y, zPix + treeVerticesZ[i]);
 			glVertex3f(xPix + treeVerticesX[i], y+treeTrunkHeight+0.1f, zPix + treeVerticesZ[i]);
 		}
-		
+
 		renderTreeTop(height, xPix, zPix, y, treeTrunkHeight);
 	}
 
@@ -235,21 +251,21 @@ public class GrassRenderer {
 		glColor3f(c[0],c[1],c[2]);
 		float xWind = 1f-2*Main.mSimulation.mWorld.wind.getWindX(xPix, zPix);
 		float zWind = 1f-2*Main.mSimulation.mWorld.wind.getWindZ(xPix, zPix);
-		
+
 		int numSplits = (int) height + 2;
 		float treeTopHeightFactor = 2;
 		float widthScale = 1f;
 		float treeTopWidthFactor = 0.5f * (widthScale  + (1f - widthScale) * treeTrunkHeight);
-		
+
 		float currentY = y+treeTrunkHeight-treeTrunkHeight * treeTopHeightFactor / numSplits;
-		
-		
+
+
 		Vector3f drawPos = new Vector3f();
 		Vector3f force = new Vector3f();
-		
+
 		float oldMiddleX = xPix;
 		float oldMiddleZ = zPix;
-		
+
 		for (int h = 0; h < numSplits; ++h) {
 			force.x = Main.mSimulation.mWorld.wind.getWindForceAtY(xWind, drawPos.y);
 			force.z = Main.mSimulation.mWorld.wind.getWindForceAtY(zWind, drawPos.y);
@@ -257,11 +273,11 @@ public class GrassRenderer {
 			float factor = height / force.length() / numSplits;
 			force.mul(factor);
 			drawPos.add(force);
-			
+
 			float colorGrad = 0.5f+(0.5f*((float)h+1f)/numSplits);
 			float alphaGrad = 0.2f*((float)h)/numSplits;
-				glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
-			
+			glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
+
 			for (int i = 0; i < treeVerticesX.length; ++i) {
 				treeVerticesX[i] = drawPos.x + treeTopWidthFactor * xVertices[i] * (h * (numSplits - h))/numSplits;
 				treeVerticesZ[i] = drawPos.z + treeTopWidthFactor * zVertices[i] * (h * (numSplits - h))/numSplits;
@@ -269,17 +285,17 @@ public class GrassRenderer {
 			float nextY = currentY + treeTrunkHeight * treeTopHeightFactor / numSplits;
 			float nextMiddleX = xPix+drawPos.x;
 			float nextMiddleZ = zPix+drawPos.z;
-			
+
 			renderTreeTopBottom(xPix, zPix, currentY, nextMiddleX, nextMiddleZ);
 			renderTreeTopTop(xPix, zPix, oldMiddleX, oldMiddleZ, nextY);
 			renderTreeTopSide(xPix, zPix, currentY, nextY);
-			
+
 			currentY = nextY;
 			oldMiddleX = nextMiddleX;
 			oldMiddleZ = nextMiddleZ;
 		}
-		
-		
+
+
 	}
 
 	private void renderTreeTopBottom(float xPix, float zPix, float currentY, float nextMiddleX, float nextMiddleZ) {
@@ -320,22 +336,31 @@ public class GrassRenderer {
 		numSplits = (int) Math.ceil(numSplits*height);
 		Vector3f drawPos = new Vector3f();
 		Vector3f force = new Vector3f();
-		
+
 		float nextX = xPix;
 		float nextY = y;
 		float nextZ = zPix;
-		
-		
+
+		float currentX = nextX;
+		float currentY = nextY;
+		float currentZ = nextZ;
+
 		for (int i = 0; i < numSplits; ++i) {
-			float colorGrad = 1f - (0.5f*((float)i+1f)/numSplits);
-			float alphaGrad = 0.4f*((float)i)/numSplits;
-			float currentHalfWidth = (0.2f * (numSplits - i)) / numSplits;
-			float nextHalfWidth = (0.2f * (numSplits - (i+1))) / numSplits;
+			float colorGrad = getColorGrad(numSplits, i);
+			float alphaGrad = getAlphaGrad(numSplits, i);
+			float nextColorGrad = getColorGrad(numSplits, i+1);
+			float nextAlphaGrad = getAlphaGrad(numSplits, i+1);
 			
-			float currentX = nextX;
-			float currentY = nextY;
-			float currentZ = nextZ;
+			float grassWidth = 0.03f;
 			
+			
+			float currentHalfWidth = (grassWidth * (numSplits - i)) / numSplits;
+			float nextHalfWidth = (grassWidth * (numSplits - (i+1))) / numSplits;
+
+			currentX = nextX;
+			currentY = nextY;
+			currentZ = nextZ;
+
 			force.x = Main.mSimulation.mWorld.wind.getWindForceAtY(xWind, drawPos.y);
 			force.z = Main.mSimulation.mWorld.wind.getWindForceAtY(zWind, drawPos.y);
 			force.y = 4f; // Stiffness, force towards middle TODO: Make a force normal from ground
@@ -345,17 +370,26 @@ public class GrassRenderer {
 			nextX = xPix + drawPos.x;
 			nextY = y + drawPos.y;
 			nextZ = zPix + drawPos.z;
-			
-			glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
-			
-			for (int circleVertice = 0; circleVertice < treeVerticesX.length-1; ++circleVertice) {
-				glVertex3f(currentX + currentHalfWidth * treeVerticesX[circleVertice+1], currentY, currentZ + currentHalfWidth * treeVerticesZ[circleVertice+1]);
-				glVertex3f(currentX + currentHalfWidth * treeVerticesX[circleVertice], currentY, currentZ + currentHalfWidth * treeVerticesZ[circleVertice]);
-				glVertex3f(nextX + nextHalfWidth * treeVerticesX[circleVertice], nextY, nextZ + nextHalfWidth * treeVerticesZ[circleVertice]);
-				glVertex3f(nextX + nextHalfWidth * treeVerticesX[circleVertice+1], nextY, nextZ + nextHalfWidth * treeVerticesZ[circleVertice+1]);
+
+			for (int circleVertice = 0; circleVertice < grassVerticesX.length-1; ++circleVertice) {
+				glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
+				glVertex3f(currentX + currentHalfWidth * grassVerticesX[circleVertice+1], currentY, currentZ + currentHalfWidth * grassVerticesZ[circleVertice+1]);
+				glVertex3f(currentX + currentHalfWidth * grassVerticesX[circleVertice], currentY, currentZ + currentHalfWidth * grassVerticesZ[circleVertice]);
+				
+				glColor4f(c[0]*nextColorGrad,c[1]*nextColorGrad,c[2]*nextColorGrad, 1f - nextAlphaGrad);
+				glVertex3f(nextX + nextHalfWidth * grassVerticesX[circleVertice], nextY, nextZ + nextHalfWidth * grassVerticesZ[circleVertice]);
+				glVertex3f(nextX + nextHalfWidth * grassVerticesX[circleVertice+1], nextY, nextZ + nextHalfWidth * grassVerticesZ[circleVertice+1]);
 			}
 		}
 
+	}
+
+	private float getAlphaGrad(int numSplits, int i) {
+		return 0.4f*((float)i)/numSplits;
+	}
+
+	private float getColorGrad(int numSplits, int i) {
+		return 1f - (0.2f*((float)i+1f)/numSplits);
 	}
 
 	public void setDrawGrass() {
