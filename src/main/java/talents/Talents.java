@@ -121,6 +121,10 @@ public class Talents {
 	public float get(int talentId) {
 		return talentsActual[talentId];
 	}
+	
+	public float getRelative(int talentId) {
+		return talentsRelative[talentId];
+	}
 
 	public static void changeTalentMax(int talentId, float value) {
 		RANGES[talentId][1] = value;
@@ -146,4 +150,5 @@ public class Talents {
 			}
 		}
 	}
+
 }

@@ -130,7 +130,7 @@ public class StabilityIT {
 				System.out.println(" Found low limit.");
 			}
 			System.out.print(".");
-		} while (numAgents < Simulation.WORLD_SIZE / 20);
+		} while (numAgents < Simulation.WORLD_SIZE / 40);
 		System.out.println(" Done.");
 		TestHelper.cleanup(simulation, timeStep);
 		StomachRecommendation tmp = new StomachRecommendation(lowGrassP, grassP);
