@@ -529,4 +529,8 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	public void stepGrassQuality() {
 		mGrassRenderer.stepGrassQuality();
 	}
+
+	public void resetGrass() {
+		Main.mSimulation.resetWorld(false);
+	}
 }

@@ -12,6 +12,8 @@ public class Tree {
 	public float[][] height;
 	public float[][] health;
 	public boolean[][] isAlive;
+	public boolean[][] isDamaged;
+	
 	public Grass grass;
 	private float spawnRate = 1f; // TODO: Replace with i++
 	private int numTrees = 0;
@@ -22,6 +24,7 @@ public class Tree {
 		height = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		health = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		isAlive = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
+		isDamaged = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		this.terrain = terrain;
 		this.grass = grass;
 	}
@@ -32,9 +35,11 @@ public class Tree {
 				if (isAlive[x][y]) {
 					
 					if (grass.toBeUpdated[x][y]) {
+						isDamaged[x][y] = true;
 						health[x][y] -= 100;
 					}
 					else {
+						isDamaged[x][y] = false;
 						height[x][y] += growth * terrain.growth[x][y];
 						height[x][y] *= 0.996f;
 					}

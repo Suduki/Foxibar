@@ -88,7 +88,8 @@ public class GrassRenderer {
 
 
 				if (Main.mSimulation.mWorld.grass.tree.isAlive[x][z]) {
-					renderTreeAt(Main.mSimulation.mWorld.grass.tree.height[x][z], xpos, zpos, x, z, heightScale);
+					boolean renderTreeTop = !Main.mSimulation.mWorld.grass.tree.isDamaged[x][z];
+					renderTreeAt(Main.mSimulation.mWorld.grass.tree.height[x][z], xpos, zpos, x, z, heightScale, renderTreeTop);
 				}
 			}
 		}
@@ -172,8 +173,8 @@ public class GrassRenderer {
 		float sizeScale = 0.7f;
 		float size = sizeScale + (1f - sizeScale) * a.size;
 
-		float height = size * 3;
-		float width = size / 2;
+		float height = size;
+		float width = size / 6;
 
 		glBegin(GL_TRIANGLES);
 		glColor3f(c[0],c[1],c[2]);
@@ -215,7 +216,7 @@ public class GrassRenderer {
 		glEnd();
 	}
 
-	private void renderTreeAt(float height, float xPix, float zPix, int x, int z, float heightScale) {
+	private void renderTreeAt(float height, float xPix, float zPix, int x, int z, float heightScale, boolean renderTreeTop) {
 		float[] c = Constants.Colors.TREE;
 		glColor3f(c[0],c[1],c[2]);
 		float y = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);
@@ -234,14 +235,21 @@ public class GrassRenderer {
 		}
 
 
-		for (int i = 0; i < treeVerticesX.length-1; ++i) {
-			glVertex3f(xPix + treeVerticesX[i+1], y+treeTrunkHeight+0.1f, zPix + treeVerticesZ[i+1]);
-			glVertex3f(xPix + treeVerticesX[i+1], y, zPix + treeVerticesZ[i+1]);
-			glVertex3f(xPix + treeVerticesX[i], y, zPix + treeVerticesZ[i]);
-			glVertex3f(xPix + treeVerticesX[i], y+treeTrunkHeight+0.1f, zPix + treeVerticesZ[i]);
+		renderTreeTrunk(xPix, zPix, y, treeTrunkHeight);
+
+		if (renderTreeTop) {
+			renderTreeTop(height, xPix, zPix, y, treeTrunkHeight);			
 		}
 
-		renderTreeTop(height, xPix, zPix, y, treeTrunkHeight);
+	}
+
+	private void renderTreeTrunk(float xPix, float zPix, float y, float treeTrunkHeight) {
+		for (int i = 0; i < treeVerticesX.length-1; ++i) {
+			glVertex3f(xPix, y+treeTrunkHeight*2+0.1f, zPix);
+			glVertex3f(xPix + treeVerticesX[i+1], y, zPix + treeVerticesZ[i+1]);
+			glVertex3f(xPix + treeVerticesX[i], y, zPix + treeVerticesZ[i]);
+			glVertex3f(xPix, y+treeTrunkHeight*2+0.1f, zPix);
+		}
 	}
 
 	private void renderTreeTop(float height, float xPix, float zPix, float y,
@@ -252,7 +260,7 @@ public class GrassRenderer {
 		float xWind = 1f-2*Main.mSimulation.mWorld.wind.getWindX(xPix, zPix);
 		float zWind = 1f-2*Main.mSimulation.mWorld.wind.getWindZ(xPix, zPix);
 
-		int numSplits = (int) height + 2;
+		float numSplits = height + 2;
 		float treeTopHeightFactor = 2;
 		float widthScale = 1f;
 		float treeTopWidthFactor = 0.5f * (widthScale  + (1f - widthScale) * treeTrunkHeight);
@@ -327,13 +335,13 @@ public class GrassRenderer {
 
 	private void renderGrassAt(float height, float xPix, float zPix, int x, int z, float heightScale) {
 		float[] c = Constants.Colors.GRASS_STRAW;
-		float y = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);
-		y *= heightScale;
+		float y = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5) * heightScale;
+		
 		float xWind = 1f-2*Main.mSimulation.mWorld.wind.getWindX(xPix, zPix);
 		float zWind = 1f-2*Main.mSimulation.mWorld.wind.getWindZ(xPix, zPix);
 
-		int numSplits = grassQuality + 1;
-		numSplits = (int) Math.ceil(numSplits*height);
+		int numSplits = (int) Math.ceil((grassQuality + 1)*height);
+		
 		Vector3f drawPos = new Vector3f();
 		Vector3f force = new Vector3f();
 
