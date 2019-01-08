@@ -52,10 +52,10 @@ public class TalentSpider {
 		glColor4f(textColor[0], textColor[1], textColor[2], 1f);
 		for (int i = 0; i < Talents.NUM_TALENTS; ++i) {
 			buttons[i].render(middleCircle.getScaledXAt(i, brainler.talents.talentsRelative[i]), 
-					middleCircle.getScaledYAt(i, brainler.talents.talentsRelative[i]));
+					middleCircle.getScaledZAt(i, brainler.talents.talentsRelative[i]));
 			
 			float textsX = outerCircle.getScaledXAt(i, 1.6f);
-			float textsY = outerCircle.getScaledYAt(i, 1.3f);
+			float textsY = outerCircle.getScaledZAt(i, 1.3f);
 			texts[i].drawCentered(textsX, textsY, innerCircle.radius / 5);
 		}
 		

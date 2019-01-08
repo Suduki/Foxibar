@@ -18,6 +18,9 @@ import org.lwjgl.BufferUtils;
 import agents.Agent;
 import agents.Brainler;
 import constants.Constants;
+import display.hex.AgentRenderer;
+import display.hex.GrassRenderer;
+import display.hex.HexTerrainRenderer;
 import gpu.VAO;
 import gpu.FBO;
 import gpu.GpuE;
@@ -54,6 +57,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 	private Program             mWaterProgram     = null;
 	private Program             mSkyboxProgram    = null;
 	private GrassRenderer		mGrassRenderer    = null;
+	private AgentRenderer		mAgentRenderer    = null;
 	private Set<FrameUpdatable> mUpdatables       = null;
 	
 	// Simulation.
@@ -80,6 +84,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		
 		mHexTerrainRenderer = new HexTerrainRenderer();
 		mGrassRenderer = new GrassRenderer();
+		mAgentRenderer = new AgentRenderer();
 		mUpdatables = new HashSet<FrameUpdatable>();
 		
 		initVertexArrays();
@@ -342,7 +347,7 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		m = new Matrix4f();
 		glLoadMatrixf(new Matrix4f(mCamera.getViewMatrix()).mul(m.translate(17, 0, 33)).get(matrixBuffer)); GpuUtils.GpuErrorCheck();
 		
-		mGrassRenderer.drawAgents(mHeightScale);
+		mAgentRenderer.drawAgents(mHeightScale);
 		mGrassRenderer.drawGrass(mHeightScale);
 		
 		glMatrixMode(GL_PROJECTION);

@@ -14,12 +14,13 @@ import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 public class Circle {
-	public Vector2f position = new Vector2f();
+	public Vector3f position = new Vector3f();
 	
-	private float[] circleVerticesX;
-	private float[] circleVerticesY;
+	public float[] xVertices;
+	public float[] zVertices;
 	private final float[] color;
 	
 	public float radius;
@@ -36,10 +37,10 @@ public class Circle {
 		glBegin(GL_TRIANGLES);
 		glColor4f(color[0], color[1], color[2], alpha);
 
-		for (int i = 0; i < circleVerticesX.length; i++) {
-			glVertex2f(position.x, position.y);
+		for (int i = 0; i < xVertices.length; i++) {
+			glVertex2f(position.x, position.z);
 			glVertex2f(getXAt(i), getYAt(i));
-			if (i+1 < circleVerticesX.length) {
+			if (i+1 < xVertices.length) {
 				glVertex2f(getXAt(i+1), getYAt(i+1));
 			}
 			else {
@@ -51,19 +52,19 @@ public class Circle {
 	}
 	
 	public float getXAt(int i) {
-		return circleVerticesX[i]*radius + position.x;
+		return xVertices[i]*radius + position.x;
 	}
 	
 	public float getScaledXAt(int i, float scales) {
-		return circleVerticesX[i]*radius * (scales/2 + 1f/2) + position.x;
+		return xVertices[i]*radius * (scales/2 + 1f/2) + position.x;
 	}
 	
 	public float getYAt(int i) {
-		return circleVerticesY[i]*radius + position.y;
+		return zVertices[i]*radius + position.z;
 	}
 	
-	public float getScaledYAt(int i, float scales) {
-		return circleVerticesY[i]*radius* (scales/2 + 1f/2) + position.y;
+	public float getScaledZAt(int i, float scales) {
+		return zVertices[i]*radius* (scales/2 + 1f/2) + position.z;
 	}
 	
 	public void renderCircle(float alpha, float[] scales) {
@@ -72,14 +73,14 @@ public class Circle {
 		glBegin(GL_TRIANGLES);
 		glColor4f(color[0], color[1], color[2], alpha);
 
-		for (int i = 0; i < circleVerticesX.length; i++) {
-			glVertex2f(position.x, position.y);
-			glVertex2f(getScaledXAt(i, scales[i]), getScaledYAt(i, scales[i]));
-			if (i+1 < circleVerticesX.length) {
-				glVertex2f(getScaledXAt(i+1, scales[i+1]), getScaledYAt(i+1, scales[i+1]));
+		for (int i = 0; i < xVertices.length; i++) {
+			glVertex2f(position.x, position.z);
+			glVertex2f(getScaledXAt(i, scales[i]), getScaledZAt(i, scales[i]));
+			if (i+1 < xVertices.length) {
+				glVertex2f(getScaledXAt(i+1, scales[i+1]), getScaledZAt(i+1, scales[i+1]));
 			}
 			else {
-				glVertex2f(getScaledXAt(0, scales[0]), getScaledYAt(0, scales[0]));
+				glVertex2f(getScaledXAt(0, scales[0]), getScaledZAt(0, scales[0]));
 			}
 		}
 		glEnd();
@@ -88,18 +89,18 @@ public class Circle {
 	
 	
 	private void initCircle(int numVertices) {
-		circleVerticesX = new float[numVertices];
-		circleVerticesY = new float[numVertices];
+		xVertices = new float[numVertices];
+		zVertices = new float[numVertices];
 		float angle = 0;
 		for (int i = 0; i < numVertices; ++i) {
 			angle += Math.PI*2 /numVertices;
-			circleVerticesX[i] = (float)Math.cos(angle);
-			circleVerticesY[i] = (float)Math.sin(angle);
+			xVertices[i] = (float)Math.cos(angle);
+			zVertices[i] = (float)Math.sin(angle);
 		}
 	}
 
-	public void setPos(float x, float y) {
-		position.set(x, y);
+	public void setPos(float x, float z) {
+		position.set(x, 0, z);
 	}
 	
 	public void drawBorder() {
@@ -108,9 +109,9 @@ public class Circle {
 		glBegin(GL_LINES);
 		glColor4f(0, 0, 0, 1);
 		
-		for (int i = 0; i < circleVerticesX.length; i++) {
+		for (int i = 0; i < xVertices.length; i++) {
 			glVertex2f(getXAt(i), getYAt(i));
-			if (i+1 < circleVerticesX.length) {
+			if (i+1 < xVertices.length) {
 				glVertex2f(getXAt(i+1), getYAt(i+1));
 			}
 			else {
@@ -128,15 +129,15 @@ public class Circle {
 		glBegin(GL_LINES);
 		glColor4f(0, 0, 0, 1);
 
-		for (int i = 0; i < circleVerticesX.length; i++) {
-			glVertex2f(position.x, position.y);
-			glVertex2f(getScaledXAt(i, scales[i]), getScaledYAt(i, scales[i]));
+		for (int i = 0; i < xVertices.length; i++) {
+			glVertex2f(position.x, position.z);
+			glVertex2f(getScaledXAt(i, scales[i]), getScaledZAt(i, scales[i]));
 		}
 		glEnd();
 		glDisable(GL_BLEND);
 	}
 
-	public boolean isInside(float x, float y) {
-		return position.distance(x, y) <= radius;
+	public boolean isInside(float x, float z) {
+		return position.distance(x, 0, z) <= radius;
 	}
 }
