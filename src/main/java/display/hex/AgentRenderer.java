@@ -47,8 +47,8 @@ public class AgentRenderer {
 				int z = (int) a.pos.y;
 				int hexX = x/2;
 				int hexZ = z/2; 
-				float xPosOffset = (hexZ%2 == 1) ? xScale : 0.0f;
-				float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
+				
+				float xpos = x0 + hexX*2*xScale + ((x%2 == 0) ? -xNudge : xNudge);
 				float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
 
 				float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);

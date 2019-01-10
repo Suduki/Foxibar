@@ -34,7 +34,7 @@ public class Tree {
 			for (int y = 0 ; y < Simulation.WORLD_SIZE_Y; ++y) {
 				if (isAlive[x][y]) {
 					
-					if (grass.toBeUpdated[x][y]) {
+					if (grass.growing[x][y]) {
 						isDamaged[x][y] = true;
 						health[x][y] -= 100;
 					}
@@ -53,7 +53,7 @@ public class Tree {
 		if (RANDOM.nextFloat() < spawnRate/numTrees) {
 			int x = RANDOM.nextInt(Simulation.WORLD_SIZE_X);
 			int y = RANDOM.nextInt(Simulation.WORLD_SIZE_Y);
-			if (!isAlive[x][y] && !terrain.water[x][y] && !terrain.stone[x][y]) {
+			if (!isAlive[x][y] && !terrain.water[x][y] && !terrain.stone[x][y] && !grass.growing[x][y]) {
 				resurrect(x, y);
 			}
 		}

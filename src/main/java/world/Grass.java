@@ -5,14 +5,14 @@ import constants.Constants;
 
 public class Grass extends TileElement {
 
-	public boolean[][] toBeUpdated;
+	public boolean[][] growing;
 	
 	public Tree tree;
 	private Terrain terrain;
 
 	public Grass(Terrain terrain) {
 		height = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
-		toBeUpdated = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
+		growing = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		color = Constants.Colors.GRASS;
 		tree = new Tree(terrain, this);
 		this.terrain = terrain;
@@ -25,10 +25,10 @@ public class Grass extends TileElement {
 				if ((i + j + timeStep) % updateFrequency != 0) {
 					continue;
 				}
-				if (toBeUpdated[i][j]) {
+				if (growing[i][j]) {
 					height[i][j] += Constants.GROWTH * terrain.growth[i][j] * updateFrequency;
 					if (height[i][j] > terrain.growth[i][j]) {
-						toBeUpdated[i][j] = false;
+						growing[i][j] = false;
 						height[i][j] = terrain.growth[i][j];
 					}
 				}
@@ -36,22 +36,28 @@ public class Grass extends TileElement {
 		}
 		tree.update();
 	}
+	
+	public float getHealth(int x, int y) {
+		if (!growing[x][y]) return 1f;
+		
+		return height[x][y] / terrain.growth[x][y];
+	}
 
-	public void regenerate(boolean fullyGrown) {
+	public void regenerate(boolean isFullyGrown) {
 		tree.killAll();
 		for (int x = 0; x < Simulation.WORLD_SIZE_X; ++x) {
 			for (int y = 0; y < Simulation.WORLD_SIZE_Y; ++y) {
 				if (terrain.stone[x][y] || terrain.water[x][y]) {
-					toBeUpdated[x][y] = false;
+					growing[x][y] = false;
 					continue;
 				}
-				if (fullyGrown) {
+				if (isFullyGrown) {
 					this.height[x][y] = terrain.growth[x][y];
-					toBeUpdated[x][y] = false;
+					growing[x][y] = false;
 				}
 				else {
 					this.height[x][y] = 0;
-					toBeUpdated[x][y] = true;
+					growing[x][y] = true;
 				}
 			}
 		}
@@ -63,11 +69,11 @@ public class Grass extends TileElement {
 			for (int y = 0; y < Simulation.WORLD_SIZE_Y; ++y) {
 				
 				if (terrain.stone[x][y] || terrain.water[x][y]) {
-					toBeUpdated[x][y] = false;
+					growing[x][y] = false;
 				}
 				else {
 					this.height[x][y] = 0f;
-					toBeUpdated[x][y] = true;
+					growing[x][y] = true;
 				}
 			}
 		}
@@ -82,7 +88,7 @@ public class Grass extends TileElement {
 		if (height[x][y] < 0) {
 			height[x][y] = 0;
 		}
-		toBeUpdated[x][y] = true;
+		growing[x][y] = true;
 		return old - height[x][y];
 	}
 

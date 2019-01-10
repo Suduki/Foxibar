@@ -11,7 +11,6 @@ public class Terrain {
 	public float[][] height;
 	public float[][] growth;
 	
-	public boolean grass[][];
 	public boolean water[][];
 	public boolean stone[][];
 	
@@ -19,7 +18,6 @@ public class Terrain {
 		height = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		growth = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		
-		grass = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		water = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		stone = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 	}

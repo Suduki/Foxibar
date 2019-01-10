@@ -60,15 +60,12 @@ public class GrassRenderer {
 				int hexX = x/2;
 				int hexZ = z/2; 
 
-				float xPosOffset = (hexZ%2 == 1) ? xScale : 0.0f;
-
-				float xpos = x0 + hexX*2*xScale + xPosOffset + ((x%2 == 0) ? -xNudge : xNudge);
+				float xpos = x0 + hexX*2*xScale + ((x%2 == 0) ? -xNudge : xNudge);
 				float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
 
 
 				if (Main.mSimulation.mWorld.grass.tree.isAlive[x][z]) {
-					boolean renderTreeTop = !Main.mSimulation.mWorld.grass.tree.isDamaged[x][z];
-					mTreeRenderer.renderTreeAt(Main.mSimulation.mWorld.grass.tree.height[x][z], xpos, zpos, x, z, heightScale, renderTreeTop);
+					mTreeRenderer.renderTreeAt(Main.mSimulation.mWorld.grass.tree.height[x][z], xpos, zpos, x, z, heightScale);
 				}
 				else {
 					if (height > 0.2f) {
@@ -109,8 +106,8 @@ public class GrassRenderer {
 			float grassWidth = 0.03f;
 			
 			
-			float currentHalfWidth = (grassWidth * (numSplits - i)) / numSplits;
-			float nextHalfWidth = (grassWidth * (numSplits - (i+1))) / numSplits;
+			float currentRadius = (grassWidth * (numSplits - i)) / numSplits;
+			float nextRadius = (grassWidth * (numSplits - (i+1))) / numSplits;
 
 			currentX = nextX;
 			currentY = nextY;
@@ -126,17 +123,26 @@ public class GrassRenderer {
 			nextY = y + drawPos.y;
 			nextZ = zPix + drawPos.z;
 
-			for (int circleVertice = 0; circleVertice < circle.xVertices.length-1; ++circleVertice) {
-				glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
-				glVertex3f(currentX + currentHalfWidth * circle.xVertices[circleVertice+1], currentY, currentZ + currentHalfWidth * circle.zVertices[circleVertice+1]);
-				glVertex3f(currentX + currentHalfWidth * circle.xVertices[circleVertice], currentY, currentZ + currentHalfWidth * circle.zVertices[circleVertice]);
-				
-				glColor4f(c[0]*nextColorGrad,c[1]*nextColorGrad,c[2]*nextColorGrad, 1f - nextAlphaGrad);
-				glVertex3f(nextX + nextHalfWidth * circle.xVertices[circleVertice], nextY, nextZ + nextHalfWidth * circle.zVertices[circleVertice]);
-				glVertex3f(nextX + nextHalfWidth * circle.xVertices[circleVertice+1], nextY, nextZ + nextHalfWidth * circle.zVertices[circleVertice+1]);
+			int circleVertice;
+			for (circleVertice = 0; circleVertice < circle.xVertices.length-1; ++circleVertice) {
+				renderLayerAt(c, nextX, nextY, nextZ, currentX, currentY, currentZ, colorGrad, alphaGrad, nextColorGrad,
+						nextAlphaGrad, currentRadius, nextRadius, circleVertice, circleVertice + 1);
 			}
+			renderLayerAt(c, nextX, nextY, nextZ, currentX, currentY, currentZ, colorGrad, alphaGrad, nextColorGrad,
+					nextAlphaGrad, currentRadius, nextRadius, circleVertice, 0);
 		}
+	}
 
+	private void renderLayerAt(float[] c, float nextX, float nextY, float nextZ, float currentX, float currentY,
+			float currentZ, float colorGrad, float alphaGrad, float nextColorGrad, float nextAlphaGrad,
+			float currentRadius, float nextRadius, int circleVertice, int nextCircleVertice) {
+		glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
+		glVertex3f(currentX + currentRadius * circle.xVertices[nextCircleVertice], currentY, currentZ + currentRadius * circle.zVertices[nextCircleVertice]);
+		glVertex3f(currentX + currentRadius * circle.xVertices[circleVertice], currentY, currentZ + currentRadius * circle.zVertices[circleVertice]);
+		
+		glColor4f(c[0]*nextColorGrad,c[1]*nextColorGrad,c[2]*nextColorGrad, 1f - nextAlphaGrad);
+		glVertex3f(nextX + nextRadius * circle.xVertices[circleVertice], nextY, nextZ + nextRadius * circle.zVertices[circleVertice]);
+		glVertex3f(nextX + nextRadius * circle.xVertices[nextCircleVertice], nextY, nextZ + nextRadius * circle.zVertices[nextCircleVertice]);
 	}
 
 	private float getAlphaGrad(int numSplits, int i) {

@@ -4,6 +4,7 @@ import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
+import constants.Constants;
 import gui.*;
 import messages.Message;
 import messages.MessageHandler;
@@ -113,7 +114,7 @@ public class DisplayHandler extends MessageHandler {
 		public void run() {
 			System.out.println("Render thread started.");
 			
-			mWindow = new Window(1920, 1080, "Foxibar");
+			mWindow = new Window(Constants.PIXELS_X, Constants.PIXELS_Y, "Foxibar");
 			initOpenGL();
 			
 			Font.defaultFont();
