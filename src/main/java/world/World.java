@@ -75,6 +75,13 @@ public class World {
 		a[x][y][0] = 0f;
 		a[x][y][1] = 0f;
 		a[x][y][2] = 0f;
+		
+		if (grass.tree.isAlive[x][y]) {
+			a[x][y][0] = Constants.Colors.TREE[0];
+			a[x][y][1] = Constants.Colors.TREE[1];
+			a[x][y][2] = Constants.Colors.TREE[2];
+			return;
+		}
 
 		grassness = grass.height[x][y];
 //		if (!grass.toBeUpdated[pos]) {
