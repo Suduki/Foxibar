@@ -56,7 +56,7 @@ public class Circle {
 	}
 	
 	public float getScaledXAt(int i, float scales) {
-		return xVertices[i]*radius * (scales/2 + 1f/2) + position.x;
+		return xVertices[i]*radius * scales + position.x;
 	}
 	
 	public float getYAt(int i) {
@@ -64,7 +64,7 @@ public class Circle {
 	}
 	
 	public float getScaledZAt(int i, float scales) {
-		return zVertices[i]*radius* (scales/2 + 1f/2) + position.z;
+		return zVertices[i]*radius * scales + position.z;
 	}
 	
 	public void renderCircle(float alpha, float[] scales) {

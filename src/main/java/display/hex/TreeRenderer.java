@@ -24,8 +24,8 @@ public class TreeRenderer {
 		y *= heightScale;
 
 		float scale = 0.3f;
-		float treeTrunkHeight = scale * (0.5f + (1f-0.5f)*height);
-		float treeTrunkWidth = scale;
+		float treeTrunkHeight = 2* scale * (0.5f + (1f-0.5f)*height);
+		float treeTrunkWidth = scale / 2;
 		if (height < 1f) {
 			treeTrunkWidth = scale / 2;
 		}
@@ -33,10 +33,12 @@ public class TreeRenderer {
 		renderTreeTrunk(treeTrunkHeight, xPix, zPix, y, treeTrunkWidth);
 		
 
-		float yStart = treeTrunkHeight;
+		float yStart = treeTrunkHeight/4;
 		float health = Main.mSimulation.mWorld.grass.getHealth(x, z);
 		if (health > 0.2f) {
-			renderTreeTop(height, xPix, zPix, y, treeTrunkHeight, yStart, health);			
+			float treeTopHeight = height * (health*0.3f + 0.7f) * scale /2;
+			float treeTopWidth = height * health * scale /8;
+			renderTreeTop(treeTopHeight, treeTopWidth, xPix, zPix, y, yStart);			
 		}
 
 	}
@@ -51,7 +53,7 @@ public class TreeRenderer {
 		float xWind = 1f-2*Main.mSimulation.mWorld.wind.getWindX(xPix, zPix);
 		float zWind = 1f-2*Main.mSimulation.mWorld.wind.getWindZ(xPix, zPix);
 
-		int numSplits = (int) height+2;
+		int numSplits = (int)height+2;
 		
 		drawPos.set(0);
 		force.set(0);
@@ -67,15 +69,15 @@ public class TreeRenderer {
 		for (int i = 0; i < numSplits; ++i) {
 			float currentHalfWidth = (width * (numSplits - i)) / numSplits;
 			float nextHalfWidth = (width * (numSplits - (i+1))) / numSplits;
-
+			
 			currentX = nextX;
 			currentY = nextY;
 			currentZ = nextZ;
 
 			force.x = Main.mSimulation.mWorld.wind.getWindForceAtY(xWind, drawPos.y);
 			force.z = Main.mSimulation.mWorld.wind.getWindForceAtY(zWind, drawPos.y);
-			force.y = 40f; // Stiffness, force towards middle TODO: Make a force normal from ground
-			float factor = 2 * height / force.length() / numSplits;
+			force.y = 10f; // Stiffness, force towards middle TODO: Make a force normal from ground
+			float factor = height / force.length() / numSplits;
 			force.mul(factor);
 			drawPos.add(force);
 			nextX = xPix + drawPos.x;
@@ -97,15 +99,14 @@ public class TreeRenderer {
 		}
 	}
 
-	private void renderTreeTop(float height, float xPix, float zPix, float y,
-			float treeTrunkHeight, float yStart, float health) {
+	private void renderTreeTop(float height, float width, float xPix, float zPix, float y, float yStart) {
 		float[] c = Constants.Colors.TREE_TOP;
 		glColor3f(c[0],c[1],c[2]);
 		
 		float xWind = 1f-2*Main.mSimulation.mWorld.wind.getWindX(xPix, zPix);
 		float zWind = 1f-2*Main.mSimulation.mWorld.wind.getWindZ(xPix, zPix);
 
-		int numSplits = Integer.max((int)((height) * health), 2);
+		float numSplits = Float.max(height*10, 2f);
 		float treeTopHeightFactor = 2;
 
 		float currentY = y + yStart;
@@ -116,12 +117,11 @@ public class TreeRenderer {
 
 		float oldMiddleX = xPix;
 		float oldMiddleZ = zPix;
-
 		for (int h = 0; h < numSplits; ++h) {
 			force.x = Main.mSimulation.mWorld.wind.getWindForceAtY(xWind, drawPos.y + yStart);
 			force.z = Main.mSimulation.mWorld.wind.getWindForceAtY(zWind, drawPos.y + yStart);
-			force.y = 40f; // Stiffness, force towards middle TODO: Make a force normal from ground
-			float factor = height * health / force.length() / numSplits;
+			force.y = 2f; // Stiffness, force towards middle TODO: Make a force normal from ground
+			float factor = height / force.length() / numSplits;
 			force.mul(factor);
 			drawPos.add(force);
 
@@ -129,8 +129,8 @@ public class TreeRenderer {
 			float alphaGrad = 0.2f*((float)h)/numSplits;
 			glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
 			
-			float radius = ((float) (h * (numSplits - 1 - h)))/(numSplits-1) * health;
-			float nextY = currentY + treeTrunkHeight * health * treeTopHeightFactor / numSplits;
+			float radius = width * ((float) (h * (numSplits - h)))/(numSplits);
+			float nextY = currentY + height * treeTopHeightFactor / numSplits;
 			float nextMiddleX = xPix+drawPos.x;
 			float nextMiddleZ = zPix+drawPos.z;
 

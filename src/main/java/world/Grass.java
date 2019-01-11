@@ -39,6 +39,7 @@ public class Grass extends TileElement {
 	
 	public float getHealth(int x, int y) {
 		if (!growing[x][y]) return 1f;
+		if (height[x][y] < 0) System.err.println("Grass height is negative.");
 		
 		return height[x][y] / terrain.growth[x][y];
 	}
