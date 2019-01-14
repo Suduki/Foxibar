@@ -79,30 +79,30 @@ public class AgentRenderer {
 	private void renderTop(float h, float x, float z, float height, float width, float[] c2) {
 		glColor3f(c2[0],c2[1],c2[2]);
 		int i;
-		for (i = 0; i < circle.xVertices.length-1; ++i) {
-			glVertex3f(x + width * circle.xVertices[i], h + height, z + width * circle.zVertices[i]);
+		for (i = 0; i < circle.vertices.length-1; ++i) {
+			glVertex3f(x + width * circle.vertices[i].x, h + height, z + width * circle.vertices[i].z);
 			glVertex3f(x, h + height, z);
-			glVertex3f(x + width * circle.xVertices[i+1], h + height, z + width * circle.zVertices[i+1]);
+			glVertex3f(x + width * circle.vertices[i+1].x, h + height, z + width * circle.vertices[i+1].z);
 		}
 		
-		glVertex3f(x + width * circle.xVertices[i], h + height, z + width * circle.zVertices[i]);
+		glVertex3f(x + width * circle.vertices[i].x, h + height, z + width * circle.vertices[i].z);
 		glVertex3f(x, h + height, z);
-		glVertex3f(x + width * circle.xVertices[0], h + height, z + width * circle.zVertices[0]);
+		glVertex3f(x + width * circle.vertices[0].x, h + height, z + width * circle.vertices[0].z);
 	}
 
 	private void renderSide(float h, float x, float z, float[] c2, float[] c, float height, float width) {
 		int i;
-		for (i = 0; i < circle.xVertices.length-1; ++i) {
+		for (i = 0; i < circle.vertices.length-1; ++i) {
 			glColor3f(c2[0], c2[1], c2[2]);
-			glVertex3f(x + width * circle.xVertices[i], h + height, z + width * circle.zVertices[i]);
-			glVertex3f(x + width * circle.xVertices[i+1], h + height, z + width * circle.zVertices[i+1]);
+			glVertex3f(x + width * circle.vertices[i].x, h + height, z + width * circle.vertices[i].z);
+			glVertex3f(x + width * circle.vertices[i+1].x, h + height, z + width * circle.vertices[i+1].z);
 			glColor3f(c[0], c[1], c[2]);
 			glVertex3f(x,h,z);
 		}
 		
 		glColor3f(c2[0], c2[1], c2[2]);
-		glVertex3f(x + width * circle.xVertices[i], h + height, z + width * circle.zVertices[i]);
-		glVertex3f(x + width * circle.xVertices[0], h + height, z + width * circle.zVertices[0]);
+		glVertex3f(x + width * circle.vertices[i].x, h + height, z + width * circle.vertices[i].z);
+		glVertex3f(x + width * circle.vertices[0].x, h + height, z + width * circle.vertices[0].z);
 		glColor3f(c[0], c[1], c[2]);
 		glVertex3f(x,h,z);
 	}

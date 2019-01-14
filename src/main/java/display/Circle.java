@@ -19,8 +19,8 @@ import org.joml.Vector3f;
 public class Circle {
 	public Vector3f position = new Vector3f();
 	
-	public float[] xVertices;
-	public float[] zVertices;
+	public Vector3f[] vertices;
+	
 	private final float[] color;
 	
 	public float radius;
@@ -37,10 +37,10 @@ public class Circle {
 		glBegin(GL_TRIANGLES);
 		glColor4f(color[0], color[1], color[2], alpha);
 
-		for (int i = 0; i < xVertices.length; i++) {
+		for (int i = 0; i < vertices.length; i++) {
 			glVertex2f(position.x, position.z);
 			glVertex2f(getXAt(i), getYAt(i));
-			if (i+1 < xVertices.length) {
+			if (i+1 < vertices.length) {
 				glVertex2f(getXAt(i+1), getYAt(i+1));
 			}
 			else {
@@ -52,19 +52,19 @@ public class Circle {
 	}
 	
 	public float getXAt(int i) {
-		return xVertices[i]*radius + position.x;
+		return vertices[i].x*radius + position.x;
 	}
 	
 	public float getScaledXAt(int i, float scales) {
-		return xVertices[i]*radius * scales + position.x;
+		return vertices[i].x*radius * scales + position.x;
 	}
 	
 	public float getYAt(int i) {
-		return zVertices[i]*radius + position.z;
+		return vertices[i].z*radius + position.z;
 	}
 	
 	public float getScaledZAt(int i, float scales) {
-		return zVertices[i]*radius * scales + position.z;
+		return vertices[i].z*radius * scales + position.z;
 	}
 	
 	public void renderCircle(float alpha, float[] scales) {
@@ -73,10 +73,10 @@ public class Circle {
 		glBegin(GL_TRIANGLES);
 		glColor4f(color[0], color[1], color[2], alpha);
 
-		for (int i = 0; i < xVertices.length; i++) {
+		for (int i = 0; i < vertices.length; i++) {
 			glVertex2f(position.x, position.z);
 			glVertex2f(getScaledXAt(i, scales[i]), getScaledZAt(i, scales[i]));
-			if (i+1 < xVertices.length) {
+			if (i+1 < vertices.length) {
 				glVertex2f(getScaledXAt(i+1, scales[i+1]), getScaledZAt(i+1, scales[i+1]));
 			}
 			else {
@@ -89,13 +89,12 @@ public class Circle {
 	
 	
 	private void initCircle(int numVertices) {
-		xVertices = new float[numVertices];
-		zVertices = new float[numVertices];
+		vertices = new Vector3f[numVertices];
 		float angle = 0;
 		for (int i = 0; i < numVertices; ++i) {
 			angle += Math.PI*2 /numVertices;
-			xVertices[i] = (float)Math.cos(angle);
-			zVertices[i] = (float)Math.sin(angle);
+			
+			vertices[i] = new Vector3f((float)Math.cos(angle), 0f, (float)Math.sin(angle));
 		}
 	}
 
@@ -109,9 +108,9 @@ public class Circle {
 		glBegin(GL_LINES);
 		glColor4f(0, 0, 0, 1);
 		
-		for (int i = 0; i < xVertices.length; i++) {
+		for (int i = 0; i < vertices.length; i++) {
 			glVertex2f(getXAt(i), getYAt(i));
-			if (i+1 < xVertices.length) {
+			if (i+1 < vertices.length) {
 				glVertex2f(getXAt(i+1), getYAt(i+1));
 			}
 			else {
@@ -129,7 +128,7 @@ public class Circle {
 		glBegin(GL_LINES);
 		glColor4f(0, 0, 0, 1);
 
-		for (int i = 0; i < xVertices.length; i++) {
+		for (int i = 0; i < vertices.length; i++) {
 			glVertex2f(position.x, position.z);
 			glVertex2f(getScaledXAt(i, scales[i]), getScaledZAt(i, scales[i]));
 		}

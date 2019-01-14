@@ -85,17 +85,17 @@ public class TreeRenderer {
 			nextZ = zPix + drawPos.z;
 
 			int circleVertice;
-			for (circleVertice = 0; circleVertice < circle.xVertices.length-1; ++circleVertice) {
-				glVertex3f(currentX + currentHalfWidth * circle.xVertices[circleVertice+1], currentY, currentZ + currentHalfWidth * circle.zVertices[circleVertice+1]);
-				glVertex3f(currentX + currentHalfWidth * circle.xVertices[circleVertice], currentY, currentZ + currentHalfWidth * circle.zVertices[circleVertice]);
-				glVertex3f(nextX + nextHalfWidth * circle.xVertices[circleVertice], nextY, nextZ + nextHalfWidth * circle.zVertices[circleVertice]);
-				glVertex3f(nextX + nextHalfWidth * circle.xVertices[circleVertice+1], nextY, nextZ + nextHalfWidth * circle.zVertices[circleVertice+1]);
+			for (circleVertice = 0; circleVertice < circle.vertices.length-1; ++circleVertice) {
+				glVertex3f(currentX + currentHalfWidth * circle.vertices[circleVertice+1].x, currentY, currentZ + currentHalfWidth * circle.vertices[circleVertice+1].z);
+				glVertex3f(currentX + currentHalfWidth * circle.vertices[circleVertice].x, currentY, currentZ + currentHalfWidth * circle.vertices[circleVertice].z);
+				glVertex3f(nextX + nextHalfWidth * circle.vertices[circleVertice].x, nextY, nextZ + nextHalfWidth * circle.vertices[circleVertice].z);
+				glVertex3f(nextX + nextHalfWidth * circle.vertices[circleVertice+1].x, nextY, nextZ + nextHalfWidth * circle.vertices[circleVertice+1].z);
 			}
 			
-			glVertex3f(currentX + currentHalfWidth * circle.xVertices[0], currentY, currentZ + currentHalfWidth * circle.zVertices[0]);
-			glVertex3f(currentX + currentHalfWidth * circle.xVertices[circleVertice], currentY, currentZ + currentHalfWidth * circle.zVertices[circleVertice]);
-			glVertex3f(nextX + nextHalfWidth * circle.xVertices[circleVertice], nextY, nextZ + nextHalfWidth * circle.zVertices[circleVertice]);
-			glVertex3f(nextX + nextHalfWidth * circle.xVertices[0], nextY, nextZ + nextHalfWidth * circle.zVertices[0]);
+			glVertex3f(currentX + currentHalfWidth * circle.vertices[0].x, currentY, currentZ + currentHalfWidth * circle.vertices[0].z);
+			glVertex3f(currentX + currentHalfWidth * circle.vertices[circleVertice].x, currentY, currentZ + currentHalfWidth * circle.vertices[circleVertice].z);
+			glVertex3f(nextX + nextHalfWidth * circle.vertices[circleVertice].x, nextY, nextZ + nextHalfWidth * circle.vertices[circleVertice].z);
+			glVertex3f(nextX + nextHalfWidth * circle.vertices[0].x, nextY, nextZ + nextHalfWidth * circle.vertices[0].z);
 		}
 	}
 
@@ -146,7 +146,7 @@ public class TreeRenderer {
 
 	private void renderTreeTopBottom(float currentY, float nextMiddleX, float nextMiddleZ, float radius) {
 		int i;
-		for (i = 0; i < circle.xVertices.length-1; ++i) {
+		for (i = 0; i < circle.vertices.length-1; ++i) {
 			glVertex3f(nextMiddleX + circle.getScaledXAt(i+1, radius), currentY, nextMiddleZ + circle.getScaledZAt(i+1, radius));
 			glVertex3f(nextMiddleX, currentY, nextMiddleZ);
 			glVertex3f(nextMiddleX, currentY, nextMiddleZ);
@@ -160,7 +160,7 @@ public class TreeRenderer {
 
 	private void renderTreeTopTop(float oldMiddleX, float oldMiddleZ, float nextY, float radius) {
 		int i;
-		for (i = 0; i < circle.xVertices.length-1; ++i) {
+		for (i = 0; i < circle.vertices.length-1; ++i) {
 			glVertex3f(oldMiddleX + circle.getScaledXAt(i, radius), nextY, oldMiddleZ + circle.getScaledZAt(i, radius));
 			glVertex3f(oldMiddleX, nextY, oldMiddleZ);
 			glVertex3f(oldMiddleX, nextY, oldMiddleZ);
@@ -174,7 +174,7 @@ public class TreeRenderer {
 
 	private void renderTreeTopSide(float oldMiddleX, float oldMiddleZ, float currentY, float nextY, float radius) {
 		int i;
-		for (i = 0; i < circle.xVertices.length-1; ++i) {
+		for (i = 0; i < circle.vertices.length-1; ++i) {
 			glVertex3f(oldMiddleX + circle.getScaledXAt(i+1, radius), currentY, oldMiddleZ + circle.getScaledZAt(i+1, radius));
 			glVertex3f(oldMiddleX + circle.getScaledXAt(i, radius), currentY, oldMiddleZ + circle.getScaledZAt(i, radius));
 			glVertex3f(oldMiddleX + circle.getScaledXAt(i, radius), nextY, oldMiddleZ + circle.getScaledZAt(i, radius));
