@@ -178,9 +178,11 @@ public abstract class Agent {
 
 	public void move() {
 		old.set(pos);
+		
 		vel.mul(getSpeed());
 		vel.add(pos);
 		World.wrap(vel);
+		
 		pos.set(vel);
 		
 		if (pos.x == Float.NaN) {
@@ -255,14 +257,8 @@ public abstract class Agent {
 		return talents.get(Talents.FIGHT);
 	}
 	
-	protected final float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
+	public final float harvestSkill = 0.2f;//TODO: Kan en p användas här? Nä?
 	
-	public void harvestBlood() {
-		stomach.addBlood(world.blood.harvest(harvestSkill, (int) pos.x, (int) pos.y));
-	}
-	public void harvestGrass() {
-		stomach.addFiber(world.grass.harvest(harvestSkill, (int) pos.x, (int) pos.y));
-	}
 	protected void grow() {
 		if (size < maxSize) {
 			size += growth;

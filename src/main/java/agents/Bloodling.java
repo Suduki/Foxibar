@@ -32,12 +32,6 @@ public class Bloodling extends Agent {
 			return;
 		}
 		
-		action = Action.seekBlood;
-		if (action.isPossible) {
-			action.commit(this);
-			return;
-		}
-		
 		action = Action.huntStranger;
 		if (action.isPossible) {
 			action.commit(this);

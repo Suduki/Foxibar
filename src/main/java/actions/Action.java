@@ -1,70 +1,56 @@
 package actions;
 
+import java.util.ArrayList;
+
+import world.World;
 import agents.Agent;
 
 public abstract class Action {
-	private static int numActions = 0;
-	
+	public static int numActions = 0;
+
 	public int numCommits;
 	public int numPossible;
-	
+
 	public int id;
 	public static int nextId = 0;
-	
+
 	public boolean isPossible;
-	public static Action[] acts;
-	
-	
-	public static SeekGrass 		seekGrass 			= new SeekGrass();
-	public static SeekBlood 		seekBlood 			= new SeekBlood();
-	public static HarvestGrass 		harvestGrass 		= new HarvestGrass();
-	public static HarvestBlood 		harvestBlood 		= new HarvestBlood();
-	public static RandomWalk 		randomWalk 			= new RandomWalk();
-	public static FleeFromStranger 	fleeFromStranger 	= new FleeFromStranger();
-	public static FleeFromFriendler fleeFromFriendler 	= new FleeFromFriendler();
-	public static HuntStranger 		huntStranger 		= new HuntStranger();
-	public static HuntFriendler 	huntFriendler		= new HuntFriendler();
-	
+	public static ArrayList<Action> acts = new ArrayList<>();
+
+	public static HarvestGrass 		harvestGrass;
+	public static HarvestBlood 		harvestBlood;
+	public static RandomWalk 		randomWalk;
+	public static FleeFromStranger 	fleeFromStranger;
+	public static FleeFromFriendler fleeFromFriendler;
+	public static HuntStranger 		huntStranger;
+	public static HuntFriendler 	huntFriendler;
+
 	public abstract boolean determineIfPossible(Agent a);
 	public abstract void commit(Agent a);
-	
+
 	public Action() {
 		id = nextId++;
-	}
-	
-	public static void init() {
-		if (isInitialized()) {
-			return;
-		}
-		System.out.println("init Actions");
-		acts = new Action[] {
-				seekGrass,
-				seekBlood,
-				harvestGrass,
-				harvestBlood,
-				randomWalk,
-				fleeFromStranger,
-				fleeFromFriendler,
-				huntStranger,
-				huntFriendler
-			};
-		numActions = acts.length;
-	}
-	
-	public static void determineIfPossibleAllActions(Agent a) {
-		for (int i = 0; i < Action.getNumActions(); ++i) {
-			acts[i].determineIfPossible(a);
-			acts[i].numPossible += acts[i].isPossible ? 1 : 0;
-		}
+		acts.add(this);
 	}
 
-	public static int getNumActions() {
-		init();
-		return numActions;
+	public static void init(World world) {
+		System.out.println("init Actions");
+		harvestGrass 		= new HarvestGrass(world);
+		harvestBlood 		= new HarvestBlood(world);
+		randomWalk 			= new RandomWalk();
+		fleeFromStranger 	= new FleeFromStranger();
+		fleeFromFriendler 	= new FleeFromFriendler();
+		huntStranger 		= new HuntStranger();
+		huntFriendler		= new HuntFriendler();
+		
+		numActions = acts.size();
 	}
-	
-	private static boolean isInitialized() {
-		return numActions != 0;
+
+	public static void determineIfPossibleAllActions(Agent a) {
+		for (Action act : acts) {
+			act.determineIfPossible(a);
+			act.numPossible += act.isPossible ? 1 : 0;
+		}
 	}
 
 	public static void reset() {
@@ -80,5 +66,9 @@ public abstract class Action {
 			tot += act.numCommits;
 		}
 		return tot;
+	}
+	
+	public static void commit(int action, Agent agent) {
+		acts.get(action).commit(agent);
 	}
 }

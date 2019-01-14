@@ -75,6 +75,7 @@ public class AgentManager<AgentClass extends Agent> {
 				printStuff = false;
 				vision.updateNearestNeighbours(a);
 				if (a.stepAgent()) {
+					// All is well
 				}
 				else {
 					someoneDied(a, true);

@@ -41,13 +41,12 @@ public class Simulation extends MessageHandler {
 		WORLD_SIZE_Y = (int) Math.pow(2, worldMultiplier);
 		WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
 		vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
-		Action.init();
-		Talents.init();
 		mWorld = new World(vision);
+		Action.init(mWorld);
+		Talents.init();
 		for (Class<T> clazz : classes) {
 			agentManagers.add(new AgentManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));
 		}
-		this.message(new messages.DummyMessage());
 	}
 	
 	private void loadStomachRecommendation() {
