@@ -26,7 +26,7 @@ public class Brainler extends Agent {
 	@Override
 	protected void actionUpdate() {
 		int action = updateBrainInputs();
-		Action.acts[action].commit(this);
+		Action.commit(action, this);
 	}
 	
 	private int updateBrainInputs() {
@@ -47,10 +47,8 @@ public class Brainler extends Agent {
 			brainInputVector[NeuralFactors.in.FRIENDLER] = -1f;
 		}
 		
-		brainInputVector[NeuralFactors.in.TILE_GRASS] = Action.harvestGrass.grassness;
-		brainInputVector[NeuralFactors.in.TILE_BLOOD] = Action.harvestBlood.bloodness;
-		brainInputVector[NeuralFactors.in.SEEK_GRASS] = Action.seekGrass.grassness;
-		brainInputVector[NeuralFactors.in.SEEK_BLOOD] = Action.seekBlood.bloodness;
+		brainInputVector[NeuralFactors.in.TILE_GRASS] = Action.harvestGrass.heightNearby;
+		brainInputVector[NeuralFactors.in.TILE_BLOOD] = Action.harvestBlood.heightNearby;
 		
 		brainInputVector[NeuralFactors.in.TILE_TERRAIN_HEIGHT] = world.terrain.height[(int) pos.x][(int) pos.y];
 		

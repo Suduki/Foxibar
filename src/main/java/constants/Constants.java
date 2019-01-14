@@ -13,7 +13,7 @@ public class Constants {
 	public static final short WORLD_MULTIPLIER_TEST = 7;
 	public static final float INIT_ZOOM = 1f;
 	public static final int WANTED_FPS = 30;
-	public static final int PIXELS_Y = 800/2;
+	public static final int PIXELS_Y = 800;
 	public static final int WINDOW_WIDTH = 1080;
 	public static final int PIXELS_X = WINDOW_WIDTH;
 	public static Random RANDOM = new Random(1);
@@ -88,7 +88,7 @@ public class Constants {
 	public static class Blood {
 		public static final float SPLASH = 1f;
 		public static final float ADDITION_ON_DEATH = 1f;
-		public static final float DECAY_FACTOR = 0.999f;
+		public static final float DECAY_FACTOR = 0.99f;
 		public static final float DECAY_FACTOR_WATER = 0.9f;
 		public static final float DECAY_FACTOR_STONE = 0.9f;
 		public static final float DEATH_FROM_HUNGER_FACTOR = 1f;

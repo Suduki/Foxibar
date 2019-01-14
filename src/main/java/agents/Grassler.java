@@ -34,12 +34,6 @@ public class Grassler extends Agent {
 			return;
 		}
 		
-		action = Action.seekGrass;
-		if (action.isPossible) {
-			action.commit(this);
-			return;
-		}
-		
 		action = Action.randomWalk;
 		if (action.isPossible) {
 			action.commit(this);

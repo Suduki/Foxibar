@@ -106,7 +106,7 @@ public class World {
 
 	public void reset(boolean b) {
 		grass.regenerate(b);
-		blood.reset();
+		blood.reset(b);
 	}
 
 	public static float wrapX(float f) {//TODO: Move to util class
