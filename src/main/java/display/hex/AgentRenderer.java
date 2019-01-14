@@ -15,6 +15,7 @@ import static org.lwjgl.opengl.GL11.glVertex3f;
 
 import agents.Agent;
 import agents.AgentManager;
+import constants.Constants;
 import display.Circle;
 import main.Main;
 import simulation.Simulation;
@@ -71,6 +72,7 @@ public class AgentRenderer {
 		float width = size / 6;
 
 		renderSide(h, x, z, c2, c, height, width);
+		renderSide(h, x, z, Constants.Colors.BLACK, Constants.Colors.BLACK, height * a.health, width);
 		renderTop(h, x, z, height, width, c2);
 	}
 
@@ -91,17 +93,17 @@ public class AgentRenderer {
 	private void renderSide(float h, float x, float z, float[] c2, float[] c, float height, float width) {
 		int i;
 		for (i = 0; i < circle.xVertices.length-1; ++i) {
-			glColor3f(c2[0],c2[1],c2[2]);
+			glColor3f(c2[0], c2[1], c2[2]);
 			glVertex3f(x + width * circle.xVertices[i], h + height, z + width * circle.zVertices[i]);
 			glVertex3f(x + width * circle.xVertices[i+1], h + height, z + width * circle.zVertices[i+1]);
-			glColor3f(c[0],c[1],c[2]);
+			glColor3f(c[0], c[1], c[2]);
 			glVertex3f(x,h,z);
 		}
 		
-		glColor3f(c2[0],c2[1],c2[2]);
+		glColor3f(c2[0], c2[1], c2[2]);
 		glVertex3f(x + width * circle.xVertices[i], h + height, z + width * circle.zVertices[i]);
 		glVertex3f(x + width * circle.xVertices[0], h + height, z + width * circle.zVertices[0]);
-		glColor3f(c[0],c[1],c[2]);
+		glColor3f(c[0], c[1], c[2]);
 		glVertex3f(x,h,z);
 	}
 }

@@ -5,6 +5,8 @@ import static org.lwjgl.opengl.GL11.*;
 
 import java.util.List;
 
+import org.joml.Vector2f;
+
 import agents.Agent;
 import agents.AgentManager;
 import buttons.Button;
@@ -15,7 +17,6 @@ import gui.MouseState;
 import gui.RegionI;
 import input.Mouse;
 import main.Main;
-import math.Vector2f;
 import simulation.Simulation;
 import world.World;
 

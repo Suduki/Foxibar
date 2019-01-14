@@ -1,8 +1,10 @@
 package buttons;
 
-import math.Vector2f;
 import messages.Message;
 import messages.MessageHandler;
+
+import org.joml.Vector2f;
+
 import display.Texture;
 
 public class Button {

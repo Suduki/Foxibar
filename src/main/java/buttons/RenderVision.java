@@ -1,8 +1,9 @@
 package buttons;
 
 
+import org.joml.Vector2f;
+
 import display.RenderState;
-import math.Vector2f;
 
 public class RenderVision extends Button {
 

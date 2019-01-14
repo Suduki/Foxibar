@@ -1,6 +1,6 @@
 package input;
 
-import math.Vector2f;
+import org.joml.Vector2f;
 
 public class Mouse {
 	
