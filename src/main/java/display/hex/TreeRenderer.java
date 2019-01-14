@@ -4,6 +4,7 @@ import static org.lwjgl.opengl.GL11.glColor3f;
 import static org.lwjgl.opengl.GL11.glColor4f;
 import static org.lwjgl.opengl.GL11.glVertex3f;
 
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import constants.Constants;
@@ -12,10 +13,12 @@ import main.Main;
 
 public class TreeRenderer {
 	Circle circle;
+	Circle nextCircle;
 	
 	public TreeRenderer() {
 		super();
 		this.circle = new Circle(6, 1, null);
+		this.nextCircle = new Circle(6, 1, null);
 	}
 	
 
@@ -23,7 +26,7 @@ public class TreeRenderer {
 		float y = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);
 		y *= heightScale;
 
-		float scale = 0.3f;
+		float scale = 0.2f;
 		float treeTrunkHeight = 2* scale * (0.5f + (1f-0.5f)*height);
 		float treeTrunkWidth = scale / 2;
 		if (height < 1f) {
@@ -33,11 +36,11 @@ public class TreeRenderer {
 		renderTreeTrunk(treeTrunkHeight, xPix, zPix, y, treeTrunkWidth);
 		
 
-		float yStart = treeTrunkHeight/4;
+		float yStart = treeTrunkHeight/6;
 		float health = Main.mSimulation.mWorld.grass.getHealth(x, z);
-		if (health > 0.2f) {
-			float treeTopHeight = height * (health*0.3f + 0.7f) * scale /2;
-			float treeTopWidth = height * health * scale /8;
+		if (health > 0.05f) {
+			float treeTopHeight = height * (health*0.3f + 0.7f) * scale /2 + 0.2f;
+			float treeTopWidth = height * health * scale /15 + 0.2f;
 			renderTreeTop(treeTopHeight, treeTopWidth, xPix, zPix, y, yStart);			
 		}
 
@@ -111,79 +114,97 @@ public class TreeRenderer {
 
 		float currentY = y + yStart;
 
-
 		Vector3f drawPos = new Vector3f();
+		Vector3f nextDrawPos = new Vector3f();
 		Vector3f force = new Vector3f();
+		Vector3f nextForce = new Vector3f(); 
 
-		float oldMiddleX = xPix;
-		float oldMiddleZ = zPix;
+		Vector3f oldMiddle = new Vector3f(xPix, 0, zPix);
+		Vector3f nextMiddle = new Vector3f();
+		
+		float nextY = 0;
+		float radius = 800;
+		
 		for (int h = 0; h < numSplits; ++h) {
-			force.x = Main.mSimulation.mWorld.wind.getWindForceAtY(xWind, drawPos.y + yStart);
-			force.z = Main.mSimulation.mWorld.wind.getWindForceAtY(zWind, drawPos.y + yStart);
-			force.y = 2f; // Stiffness, force towards middle TODO: Make a force normal from ground
-			float factor = height / force.length() / numSplits;
-			force.mul(factor);
-			drawPos.add(force);
-
-			float colorGrad = 0.5f+(0.5f*((float)h+1f)/numSplits);
-			float alphaGrad = 0.2f*((float)h)/numSplits;
-			glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
+			nextForce.x = Main.mSimulation.mWorld.wind.getWindForceAtY(xWind, nextY);
+			nextForce.z = Main.mSimulation.mWorld.wind.getWindForceAtY(zWind, nextY);
+			nextForce.y = 5f; // Stiffness, force towards middle TODO: Make a force normal from ground
 			
-			float radius = width * ((float) (h * (numSplits - h)))/(numSplits);
-			float nextY = currentY + height * treeTopHeightFactor / numSplits;
-			float nextMiddleX = xPix+drawPos.x;
-			float nextMiddleZ = zPix+drawPos.z;
+			float factor = height / nextForce.length() / numSplits;
+			nextForce.mul(factor);
+			nextDrawPos.add(force);
 
-			renderTreeTopBottom(currentY, oldMiddleX, oldMiddleZ, radius);
-			renderTreeTopTop(oldMiddleX, oldMiddleZ, nextY, radius);
-			renderTreeTopSide(oldMiddleX, oldMiddleZ, currentY, nextY, radius);
+			float nextRadius = width * ((float) ((h-1) * ((int)numSplits - (h))))/(numSplits);
+			nextY = currentY + height * treeTopHeightFactor / numSplits;
+			
+			nextMiddle.set(xPix+drawPos.x, nextY, zPix+drawPos.z);
+
+
+			Vector3f[] vertices = circle.rotateTowards(drawPos, radius);
+			Vector3f[] nextVertices = nextCircle.rotateTowards(nextDrawPos, nextRadius);
+			
+			int i;
+			
+			float tempY;
+			
+			for (i = 0; i < circle.vertices.length-1; ++i) {
+				tempY = oldMiddle.y + vertices[i].y;
+				setColorBasedOnHeight(c, tempY - (y + yStart));
+				glVertex3f(oldMiddle.x + vertices[i].x, tempY, oldMiddle.z + vertices[i].z);
+				
+				tempY = nextMiddle.y + nextVertices[i].y;
+				setColorBasedOnHeight(c, tempY - (y + yStart));
+				glVertex3f(nextMiddle.x + nextVertices[i].x, tempY, nextMiddle.z + nextVertices[i].z);
+				
+				tempY = nextMiddle.y + nextVertices[i+1].y;
+				setColorBasedOnHeight(c, tempY - (y + yStart));
+				glVertex3f(nextMiddle.x + nextVertices[i+1].x, nextMiddle.y + nextVertices[i+1].y, nextMiddle.z + nextVertices[i+1].z);
+				
+				
+				tempY = oldMiddle.y + vertices[i+1].y;
+				setColorBasedOnHeight(c, tempY - (y + yStart));
+				glVertex3f(oldMiddle.x + vertices[i+1].x, tempY, oldMiddle.z + vertices[i+1].z);
+			}
+			
+			tempY = oldMiddle.y + vertices[i].y;
+			setColorBasedOnHeight(c, tempY - (y + yStart));
+			glVertex3f(oldMiddle.x + vertices[i].x, tempY, oldMiddle.z + vertices[i].z);
+			
+			tempY = nextMiddle.y + nextVertices[i].y;
+			setColorBasedOnHeight(c, tempY - (y + yStart));
+			glVertex3f(nextMiddle.x + nextVertices[i].x, tempY, nextMiddle.z + nextVertices[i].z);
+			
+			tempY = nextMiddle.y + nextVertices[0].y;
+			setColorBasedOnHeight(c, tempY - (y + yStart));
+			glVertex3f(nextMiddle.x + nextVertices[0].x, nextMiddle.y + nextVertices[0].y, nextMiddle.z + nextVertices[0].z);
+			
+			
+			tempY = oldMiddle.y + vertices[0].y;
+			setColorBasedOnHeight(c, tempY - (y + yStart));
+			glVertex3f(oldMiddle.x + vertices[0].x, tempY, oldMiddle.z + vertices[0].z);
+			
+			circle.resetCircle();
+			nextCircle.resetCircle();
 
 			currentY = nextY;
-			oldMiddleX = nextMiddleX;
-			oldMiddleZ = nextMiddleZ;
+			radius = nextRadius;
+			oldMiddle.set(nextMiddle);
+			force.set(nextForce);
+			drawPos.set(nextDrawPos);
 		}
 	}
 
-	private void renderTreeTopBottom(float currentY, float nextMiddleX, float nextMiddleZ, float radius) {
-		int i;
-		for (i = 0; i < circle.vertices.length-1; ++i) {
-			glVertex3f(nextMiddleX + circle.getScaledXAt(i+1, radius), currentY, nextMiddleZ + circle.getScaledZAt(i+1, radius));
-			glVertex3f(nextMiddleX, currentY, nextMiddleZ);
-			glVertex3f(nextMiddleX, currentY, nextMiddleZ);
-			glVertex3f(nextMiddleX + circle.getScaledXAt(i, radius), currentY, nextMiddleZ + circle.getScaledZAt(i, radius));
-		}
-		glVertex3f(nextMiddleX + circle.getScaledXAt(0, radius), currentY, nextMiddleZ + circle.getScaledZAt(0, radius));
-		glVertex3f(nextMiddleX, currentY, nextMiddleZ);
-		glVertex3f(nextMiddleX, currentY, nextMiddleZ);
-		glVertex3f(nextMiddleX + circle.getScaledXAt(i, radius), currentY, nextMiddleZ + circle.getScaledZAt(i, radius));
-	}
 
-	private void renderTreeTopTop(float oldMiddleX, float oldMiddleZ, float nextY, float radius) {
-		int i;
-		for (i = 0; i < circle.vertices.length-1; ++i) {
-			glVertex3f(oldMiddleX + circle.getScaledXAt(i, radius), nextY, oldMiddleZ + circle.getScaledZAt(i, radius));
-			glVertex3f(oldMiddleX, nextY, oldMiddleZ);
-			glVertex3f(oldMiddleX, nextY, oldMiddleZ);
-			glVertex3f(oldMiddleX + circle.getScaledXAt(i+1, radius), nextY, oldMiddleZ + circle.getScaledZAt(i+1, radius));
-		}
-		glVertex3f(oldMiddleX + circle.getScaledXAt(i, radius), nextY, oldMiddleZ + circle.getScaledZAt(i, radius));
-		glVertex3f(oldMiddleX, nextY, oldMiddleZ);
-		glVertex3f(oldMiddleX, nextY, oldMiddleZ);
-		glVertex3f(oldMiddleX + circle.getScaledXAt(0, radius), nextY, oldMiddleZ + circle.getScaledZAt(0, radius));
+	private float getColorGrad(float y) {
+		
+		return Float.min(y*0.5f, 1);
 	}
-
-	private void renderTreeTopSide(float oldMiddleX, float oldMiddleZ, float currentY, float nextY, float radius) {
-		int i;
-		for (i = 0; i < circle.vertices.length-1; ++i) {
-			glVertex3f(oldMiddleX + circle.getScaledXAt(i+1, radius), currentY, oldMiddleZ + circle.getScaledZAt(i+1, radius));
-			glVertex3f(oldMiddleX + circle.getScaledXAt(i, radius), currentY, oldMiddleZ + circle.getScaledZAt(i, radius));
-			glVertex3f(oldMiddleX + circle.getScaledXAt(i, radius), nextY, oldMiddleZ + circle.getScaledZAt(i, radius));
-			glVertex3f(oldMiddleX + circle.getScaledXAt(i+1, radius), nextY, oldMiddleZ + circle.getScaledZAt(i+1, radius));
-		}
-		glVertex3f(oldMiddleX + circle.getScaledXAt(0, radius), currentY, oldMiddleZ + circle.getScaledZAt(0, radius));
-		glVertex3f(oldMiddleX + circle.getScaledXAt(i, radius), currentY, oldMiddleZ + circle.getScaledZAt(i, radius));
-		glVertex3f(oldMiddleX + circle.getScaledXAt(i, radius), nextY, oldMiddleZ + circle.getScaledZAt(i, radius));
-		glVertex3f(oldMiddleX + circle.getScaledXAt(0, radius), nextY, oldMiddleZ + circle.getScaledZAt(0, radius));
+	
+	private float getAlphaGrad(float y) {
+		return 0.05f;
 	}
-
+	
+	private void setColorBasedOnHeight(float[] c, float y) {
+		glColor4f(c[0] * getColorGrad(y), c[1] * getColorGrad(y), c[2] * getColorGrad(y), 1f - getAlphaGrad(y));
+	}
 }

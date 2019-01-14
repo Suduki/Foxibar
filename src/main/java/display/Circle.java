@@ -13,11 +13,12 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 
-import org.joml.Vector2f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class Circle {
 	public Vector3f position = new Vector3f();
+	public Vector3f originalTilt = new Vector3f(0, 1f, 0);
 	
 	public Vector3f[] vertices;
 	
@@ -26,7 +27,11 @@ public class Circle {
 	public float radius;
 	
 	public Circle(int numVertices, float radius, float[] color) {
-		initCircle(numVertices);
+		vertices = new Vector3f[numVertices];
+		for (int i = 0; i < vertices.length; ++i) {
+			vertices[i] = new Vector3f();
+		}
+		resetCircle();
 		this.radius = radius;
 		this.color = color;
 	}
@@ -87,14 +92,12 @@ public class Circle {
 		glDisable(GL_BLEND);
 	}
 	
-	
-	private void initCircle(int numVertices) {
-		vertices = new Vector3f[numVertices];
+	public void resetCircle() {
 		float angle = 0;
-		for (int i = 0; i < numVertices; ++i) {
-			angle += Math.PI*2 /numVertices;
+		for (int i = 0; i < vertices.length; ++i) {
+			angle += Math.PI*2 / vertices.length;
 			
-			vertices[i] = new Vector3f((float)Math.cos(angle), 0f, (float)Math.sin(angle));
+			vertices[i].set((float)Math.cos(angle), 0f, (float)Math.sin(angle));
 		}
 	}
 
@@ -138,5 +141,15 @@ public class Circle {
 
 	public boolean isInside(float x, float z) {
 		return position.distance(x, 0, z) <= radius;
+	}
+
+	public Vector3f[] rotateTowards(Vector3f dir, float radius) {
+		for (int i = 0; i < vertices.length; ++i) {
+			Quaternionf quat = originalTilt.rotationTo(dir, new Quaternionf());
+			vertices[i].rotate(quat);
+			vertices[i].mul(radius);
+		}
+		
+		return vertices;
 	}
 }

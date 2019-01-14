@@ -72,7 +72,6 @@ public class AgentRenderer {
 		float width = size / 6;
 
 		renderSide(h, x, z, c2, c, height, width);
-		renderSide(h, x, z, Constants.Colors.BLACK, Constants.Colors.BLACK, height * a.health, width);
 		renderTop(h, x, z, height, width, c2);
 	}
 
