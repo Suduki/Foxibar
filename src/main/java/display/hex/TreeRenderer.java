@@ -88,21 +88,15 @@ public class TreeRenderer {
 			nextZ = zPix + drawPos.z;
 
 			int circleVertice;
-			for (circleVertice = 0; circleVertice < circle.vertices.length-1; ++circleVertice) {
+			for (circleVertice = 0; circleVertice < circle.vertices.length; ++circleVertice) {
 				setColorBasedOnHeight(c, currentY - y + 0.5f * height, height, 0f);
-				glVertex3f(currentX + currentHalfWidth * circle.vertices[circleVertice+1].x, currentY, currentZ + currentHalfWidth * circle.vertices[circleVertice+1].z);
-				glVertex3f(currentX + currentHalfWidth * circle.vertices[circleVertice].x, currentY, currentZ + currentHalfWidth * circle.vertices[circleVertice].z);
+				glVertex3f(currentX + circle.getScaledXAt(circleVertice+1, currentHalfWidth), currentY, currentZ + circle.getScaledZAt(circleVertice+1, currentHalfWidth));
+				glVertex3f(currentX + circle.getScaledXAt(circleVertice, currentHalfWidth), currentY, currentZ + circle.getScaledZAt(circleVertice, currentHalfWidth));
+				
 				setColorBasedOnHeight(c, nextY - y + 0.5f * height, height, 0f);
-				glVertex3f(nextX + nextHalfWidth * circle.vertices[circleVertice].x, nextY, nextZ + nextHalfWidth * circle.vertices[circleVertice].z);
-				glVertex3f(nextX + nextHalfWidth * circle.vertices[circleVertice+1].x, nextY, nextZ + nextHalfWidth * circle.vertices[circleVertice+1].z);
+				glVertex3f(nextX + circle.getScaledXAt(circleVertice, nextHalfWidth), nextY, nextZ + circle.getScaledZAt(circleVertice, nextHalfWidth));
+				glVertex3f(nextX + circle.getScaledXAt(circleVertice+1, nextHalfWidth), nextY, nextZ + circle.getScaledZAt(circleVertice+1, nextHalfWidth));
 			}
-			
-			setColorBasedOnHeight(c, currentY - y + 0.5f * height, height, 0f);
-			glVertex3f(currentX + currentHalfWidth * circle.vertices[0].x, currentY, currentZ + currentHalfWidth * circle.vertices[0].z);
-			glVertex3f(currentX + currentHalfWidth * circle.vertices[circleVertice].x, currentY, currentZ + currentHalfWidth * circle.vertices[circleVertice].z);
-			setColorBasedOnHeight(c, nextY - y + 0.5f * height, height, 0f);
-			glVertex3f(nextX + nextHalfWidth * circle.vertices[circleVertice].x, nextY, nextZ + nextHalfWidth * circle.vertices[circleVertice].z);
-			glVertex3f(nextX + nextHalfWidth * circle.vertices[0].x, nextY, nextZ + nextHalfWidth * circle.vertices[0].z);
 		}
 	}
 

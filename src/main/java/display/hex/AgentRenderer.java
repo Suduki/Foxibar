@@ -21,53 +21,77 @@ import constants.Constants;
 import display.Circle;
 import main.Main;
 import simulation.Simulation;
+import world.World;
 
 public class AgentRenderer {
 	
 	Circle circle;
 	Vector3f renderAt;
+	Vector3f animalLowerPos;
+	Vector3f animalUpperPos;
+	
+	private final float x0 = -Simulation.WORLD_SIZE_X/2.0f;
+	private final float z0 = -Simulation.WORLD_SIZE_Y/2.0f;
+	
+	private final float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
+	private final float zNudge = 3.0f/9.0f;
+	
+	private final float xScale = (float)(Math.sqrt(3)*0.5);
+	private final float zScale = 1.5f;
 	
 	public AgentRenderer() {
 		super();
 		this.circle = new Circle(6, 1, null);
 		renderAt = new Vector3f();
+		animalLowerPos = new Vector3f();
+		animalUpperPos = new Vector3f();
 	}
 	
 	public void drawAgents(float heightScale) {
-		float x0 = -Simulation.WORLD_SIZE_X/2.0f;
-		float z0 = -Simulation.WORLD_SIZE_Y/2.0f;
-
-		float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
-		float zNudge = 3.0f/9.0f;
-
-		float xScale = (float)(Math.sqrt(3)*0.5);
-		float zScale = 1.5f;
 		
 		glBegin(GL_TRIANGLES);
 		for (AgentManager<?> manager : Main.mSimulation.agentManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
 				Agent a = manager.alive.get(i);
 				if (a == null) break;
-				
-				int x = (int) a.pos.x;
-				int z = (int) a.pos.y;
-				
-				int hexX = x/2;
-				int hexZ = z/2; 
-				
-				float xpos = x0 + hexX*2*xScale + ((x%2 == 0) ? -xNudge : xNudge);
-				float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
 
-				float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);
+				float x = (int) a.pos.x;
+				float z = (int) a.pos.y;
+
+				findPixelPosition(animalLowerPos, x, z, heightScale);
+				if (animalLowerPos.x > Simulation.WORLD_SIZE_X - 1 || animalLowerPos.z > Simulation.WORLD_SIZE_Y - 1) {
+					renderAt.set(animalLowerPos);
+				}
+				else {
+					findPixelPosition(animalUpperPos, (int) World.wrapX(x+1f), (int) World.wrapY(z+1f), heightScale);
+					
+					animalLowerPos.mul(1f - (a.pos.x - x), 0.5f, 1f - (a.pos.y - z));
+					animalUpperPos.mul((a.pos.x - x), 0.5f, (a.pos.y - z));
+					
+					renderAt.set(animalLowerPos);
+					renderAt.add(animalUpperPos);
+				}
 				
-				renderAt.set(xpos, h*heightScale, zpos);
-				
+
 				renderAgentAt(a);
 			}
 		}
 		glEnd();
 	}
 	
+	private void findPixelPosition(Vector3f vec, float x, float z, float heightScale) {
+		
+		int hexX = (int) (x/2);
+		int hexZ = (int) (z/2); 
+		
+		float xpos = x0 + hexX*2*xScale + ((x%2 == 0) ? -xNudge : xNudge);
+		float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
+
+		float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[(int) x][(int) z], 1.5);
+		
+		vec.set(xpos, h*heightScale, zpos);
+	}
+
 	void renderAgentAt(Agent a) {
 
 		float[] c2 = a.secondaryColor;
