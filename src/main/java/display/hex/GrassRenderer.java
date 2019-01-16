@@ -124,25 +124,16 @@ public class GrassRenderer {
 			nextZ = zPix + drawPos.z;
 
 			int circleVertice;
-			for (circleVertice = 0; circleVertice < circle.vertices.length-1; ++circleVertice) {
-				renderLayerAt(c, nextX, nextY, nextZ, currentX, currentY, currentZ, colorGrad, alphaGrad, nextColorGrad,
-						nextAlphaGrad, currentRadius, nextRadius, circleVertice, circleVertice + 1);
+			for (circleVertice = 0; circleVertice < circle.vertices.length; ++circleVertice) {
+				glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
+				glVertex3f(currentX + circle.getScaledXAt(circleVertice+1, currentRadius), currentY, currentZ + circle.getScaledZAt(circleVertice+1, currentRadius));
+				glVertex3f(currentX + circle.getScaledXAt(circleVertice, currentRadius), currentY, currentZ + circle.getScaledZAt(circleVertice, currentRadius));
+				
+				glColor4f(c[0]*nextColorGrad,c[1]*nextColorGrad,c[2]*nextColorGrad, 1f - nextAlphaGrad);
+				glVertex3f(nextX + circle.getScaledXAt(circleVertice, nextRadius), nextY, nextZ + circle.getScaledZAt(circleVertice, nextRadius));
+				glVertex3f(nextX + circle.getScaledXAt(circleVertice+1, nextRadius), nextY, nextZ + circle.getScaledZAt(circleVertice+1, nextRadius));
 			}
-			renderLayerAt(c, nextX, nextY, nextZ, currentX, currentY, currentZ, colorGrad, alphaGrad, nextColorGrad,
-					nextAlphaGrad, currentRadius, nextRadius, circleVertice, 0);
 		}
-	}
-
-	private void renderLayerAt(float[] c, float nextX, float nextY, float nextZ, float currentX, float currentY,
-			float currentZ, float colorGrad, float alphaGrad, float nextColorGrad, float nextAlphaGrad,
-			float currentRadius, float nextRadius, int circleVertice, int nextCircleVertice) {
-		glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
-		glVertex3f(currentX + currentRadius * circle.vertices[nextCircleVertice].x, currentY, currentZ + currentRadius * circle.vertices[nextCircleVertice].z);
-		glVertex3f(currentX + currentRadius * circle.vertices[circleVertice].x, currentY, currentZ + currentRadius * circle.vertices[circleVertice].z);
-		
-		glColor4f(c[0]*nextColorGrad,c[1]*nextColorGrad,c[2]*nextColorGrad, 1f - nextAlphaGrad);
-		glVertex3f(nextX + nextRadius * circle.vertices[circleVertice].x, nextY, nextZ + nextRadius * circle.vertices[circleVertice].z);
-		glVertex3f(nextX + nextRadius * circle.vertices[nextCircleVertice].x, nextY, nextZ + nextRadius * circle.vertices[nextCircleVertice].z);
 	}
 
 	private float getAlphaGrad(int numSplits, int i) {

@@ -13,6 +13,8 @@ import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glLineWidth;
 import static org.lwjgl.opengl.GL11.glVertex3f;
 
+import org.joml.Vector3f;
+
 import agents.Agent;
 import agents.AgentManager;
 import constants.Constants;
@@ -23,10 +25,12 @@ import simulation.Simulation;
 public class AgentRenderer {
 	
 	Circle circle;
+	Vector3f renderAt;
 	
 	public AgentRenderer() {
 		super();
 		this.circle = new Circle(6, 1, null);
+		renderAt = new Vector3f();
 	}
 	
 	public void drawAgents(float heightScale) {
@@ -44,8 +48,10 @@ public class AgentRenderer {
 			for (int i = 0; i < manager.alive.size(); ++i) {
 				Agent a = manager.alive.get(i);
 				if (a == null) break;
+				
 				int x = (int) a.pos.x;
 				int z = (int) a.pos.y;
+				
 				int hexX = x/2;
 				int hexZ = z/2; 
 				
@@ -53,17 +59,19 @@ public class AgentRenderer {
 				float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
 
 				float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);
-				renderAgentAt(a, h, xpos, zpos, heightScale);
+				
+				renderAt.set(xpos, h*heightScale, zpos);
+				
+				renderAgentAt(a);
 			}
 		}
 		glEnd();
 	}
 	
-	void renderAgentAt(Agent a, float h, float x, float z, float heightScale) {
+	void renderAgentAt(Agent a) {
 
 		float[] c2 = a.secondaryColor;
 		float[] c = a.color;
-		h *= heightScale;
 
 		float sizeScale = 0.7f;
 		float size = sizeScale + (1f - sizeScale) * a.size;
@@ -71,38 +79,26 @@ public class AgentRenderer {
 		float height = size;
 		float width = size / 6;
 
-		renderSide(h, x, z, c2, c, height, width);
-		renderTop(h, x, z, height, width, c2);
+		renderSide(c2, c, height, width);
+		renderTop(height, width, c2);
 	}
 
-	private void renderTop(float h, float x, float z, float height, float width, float[] c2) {
+	private void renderTop(float height, float width, float[] c2) {
 		glColor3f(c2[0],c2[1],c2[2]);
-		int i;
-		for (i = 0; i < circle.vertices.length-1; ++i) {
-			glVertex3f(x + width * circle.vertices[i].x, h + height, z + width * circle.vertices[i].z);
-			glVertex3f(x, h + height, z);
-			glVertex3f(x + width * circle.vertices[i+1].x, h + height, z + width * circle.vertices[i+1].z);
+		for (int i = 0; i < circle.vertices.length; ++i) {
+			glVertex3f(renderAt.x + circle.getScaledXAt(i, width), renderAt.y + height, renderAt.z + circle.getScaledZAt(i, width));
+			glVertex3f(renderAt.x, renderAt.y + height, renderAt.z);
+			glVertex3f(renderAt.x + circle.getScaledXAt(i+1, width), renderAt.y + height, renderAt.z + circle.getScaledZAt(i+1, width));
 		}
-		
-		glVertex3f(x + width * circle.vertices[i].x, h + height, z + width * circle.vertices[i].z);
-		glVertex3f(x, h + height, z);
-		glVertex3f(x + width * circle.vertices[0].x, h + height, z + width * circle.vertices[0].z);
 	}
 
-	private void renderSide(float h, float x, float z, float[] c2, float[] c, float height, float width) {
-		int i;
-		for (i = 0; i < circle.vertices.length-1; ++i) {
+	private void renderSide(float[] c2, float[] c, float height, float width) {
+		for (int i = 0; i < circle.vertices.length; ++i) {
 			glColor3f(c2[0], c2[1], c2[2]);
-			glVertex3f(x + width * circle.vertices[i].x, h + height, z + width * circle.vertices[i].z);
-			glVertex3f(x + width * circle.vertices[i+1].x, h + height, z + width * circle.vertices[i+1].z);
+			glVertex3f(renderAt.x + circle.getScaledXAt(i, width), renderAt.y + height, renderAt.z + circle.getScaledZAt(i, width));
+			glVertex3f(renderAt.x + circle.getScaledXAt(i+1, width), renderAt.y + height, renderAt.z + circle.getScaledZAt(i+1, width));
 			glColor3f(c[0], c[1], c[2]);
-			glVertex3f(x,h,z);
+			glVertex3f(renderAt.x, renderAt.y, renderAt.z);
 		}
-		
-		glColor3f(c2[0], c2[1], c2[2]);
-		glVertex3f(x + width * circle.vertices[i].x, h + height, z + width * circle.vertices[i].z);
-		glVertex3f(x + width * circle.vertices[0].x, h + height, z + width * circle.vertices[0].z);
-		glColor3f(c[0], c[1], c[2]);
-		glVertex3f(x,h,z);
 	}
 }

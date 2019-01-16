@@ -57,20 +57,30 @@ public class Circle {
 	}
 	
 	public float getXAt(int i) {
+		i = i % vertices.length;
 		return vertices[i].x*radius + position.x;
 	}
 	
 	public float getScaledXAt(int i, float scales) {
+		i = i % vertices.length;
 		return vertices[i].x*radius * scales + position.x;
 	}
 	
-	public float getYAt(int i) {
-		return vertices[i].z*radius + position.z;
+	public float getScaledYAt(int i, float scales) {
+		i = i % vertices.length;
+		return vertices[i].y*radius * scales + position.y;
 	}
 	
 	public float getScaledZAt(int i, float scales) {
+		i = i % vertices.length;
 		return vertices[i].z*radius * scales + position.z;
 	}
+	
+	public float getYAt(int i) {
+		i = i % vertices.length;
+		return vertices[i].z*radius + position.z;
+	}
+	
 	
 	public void renderCircle(float alpha, float[] scales) {
 		glEnable(GL_BLEND);
@@ -143,13 +153,10 @@ public class Circle {
 		return position.distance(x, 0, z) <= radius;
 	}
 
-	public Vector3f[] rotateTowards(Vector3f dir, float radius) {
+	public void rotateTowards(Vector3f dir) {
 		for (int i = 0; i < vertices.length; ++i) {
 			Quaternionf quat = originalTilt.rotationTo(dir, new Quaternionf());
 			vertices[i].rotate(quat);
-			vertices[i].mul(radius);
 		}
-		
-		return vertices;
 	}
 }

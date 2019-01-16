@@ -143,48 +143,31 @@ public class TreeRenderer {
 			
 			nextMiddle.set(xPix+nextDrawPos.x, nextY, zPix+nextDrawPos.z);
 
-			Vector3f[] vertices = circle.rotateTowards(drawPos, radius);
-			Vector3f[] nextVertices = nextCircle.rotateTowards(nextDrawPos, nextRadius);
+			circle.rotateTowards(drawPos);
+			nextCircle.rotateTowards(nextDrawPos);
 			
 			int i;
 			
 			float tempY;
 			
-			for (i = 0; i < circle.vertices.length-1; ++i) {
-				tempY = oldMiddle.y + vertices[i].y;
+			for (i = 0; i < circle.vertices.length; ++i) {
+				tempY = oldMiddle.y + circle.getScaledYAt(i, radius);
 				setColorBasedOnHeight(c, tempY - (y + yStart), height, 0.05f);
-				glVertex3f(oldMiddle.x + vertices[i].x, tempY, oldMiddle.z + vertices[i].z);
+				glVertex3f(oldMiddle.x + circle.getScaledXAt(i, radius), tempY, oldMiddle.z + circle.getScaledZAt(i, radius));
 				
-				tempY = nextMiddle.y + nextVertices[i].y;
+				tempY = nextMiddle.y + nextCircle.getScaledYAt(i, nextRadius);
 				setColorBasedOnHeight(c, tempY - (y + yStart), height, 0.05f);
-				glVertex3f(nextMiddle.x + nextVertices[i].x, tempY, nextMiddle.z + nextVertices[i].z);
+				glVertex3f(nextMiddle.x + nextCircle.getScaledXAt(i, nextRadius), tempY, nextMiddle.z + nextCircle.getScaledZAt(i, nextRadius));
 				
-				tempY = nextMiddle.y + nextVertices[i+1].y;
+				tempY = nextMiddle.y + nextCircle.getScaledYAt(i+1, nextRadius);
 				setColorBasedOnHeight(c, tempY - (y + yStart), height, 0.05f);
-				glVertex3f(nextMiddle.x + nextVertices[i+1].x, nextMiddle.y + nextVertices[i+1].y, nextMiddle.z + nextVertices[i+1].z);
+				glVertex3f(nextMiddle.x + nextCircle.getScaledXAt(i+1, nextRadius), tempY, nextMiddle.z + nextCircle.getScaledZAt(i+1, nextRadius));
 				
 				
-				tempY = oldMiddle.y + vertices[i+1].y;
+				tempY = oldMiddle.y + circle.getScaledYAt(i+1, radius);
 				setColorBasedOnHeight(c, tempY - (y + yStart), height, 0.05f);
-				glVertex3f(oldMiddle.x + vertices[i+1].x, tempY, oldMiddle.z + vertices[i+1].z);
+				glVertex3f(oldMiddle.x + circle.getScaledXAt(i+1, radius), tempY, oldMiddle.z + circle.getScaledZAt(i+1, radius));
 			}
-			
-			tempY = oldMiddle.y + vertices[i].y;
-			setColorBasedOnHeight(c, tempY - (y + yStart), height, 0.05f);
-			glVertex3f(oldMiddle.x + vertices[i].x, tempY, oldMiddle.z + vertices[i].z);
-			
-			tempY = nextMiddle.y + nextVertices[i].y;
-			setColorBasedOnHeight(c, tempY - (y + yStart), height, 0.05f);
-			glVertex3f(nextMiddle.x + nextVertices[i].x, tempY, nextMiddle.z + nextVertices[i].z);
-			
-			tempY = nextMiddle.y + nextVertices[0].y;
-			setColorBasedOnHeight(c, tempY - (y + yStart), height, 0.05f);
-			glVertex3f(nextMiddle.x + nextVertices[0].x, nextMiddle.y + nextVertices[0].y, nextMiddle.z + nextVertices[0].z);
-			
-			
-			tempY = oldMiddle.y + vertices[0].y;
-			setColorBasedOnHeight(c, tempY - (y + yStart), height, 0.05f);
-			glVertex3f(oldMiddle.x + vertices[0].x, tempY, oldMiddle.z + vertices[0].z);
 			
 			circle.resetCircle();
 			nextCircle.resetCircle();
