@@ -55,18 +55,23 @@ public class AgentRenderer {
 				Agent a = manager.alive.get(i);
 				if (a == null) break;
 
-				float x = (int) a.pos.x;
-				float z = (int) a.pos.y;
 
-				findPixelPosition(animalLowerPos, x, z, heightScale);
-				if (animalLowerPos.x > Simulation.WORLD_SIZE_X - 1 || animalLowerPos.z > Simulation.WORLD_SIZE_Y - 1) {
-					renderAt.set(animalLowerPos);
+				float xLow = a.pos.x - 0.5f;
+				float zLow = a.pos.y - 0.5f;
+				
+				float xHigh = a.pos.x + 0.5f;
+				float zHigh = a.pos.y + 0.5f;
+				
+				if (xHigh >= Simulation.WORLD_SIZE_X || xLow < 0 || zHigh >= Simulation.WORLD_SIZE_Y || zLow < 0) {
+					findPixelPosition(renderAt, a.pos.x, a.pos.y, heightScale);
 				}
 				else {
-					findPixelPosition(animalUpperPos, (int) World.wrapX(x+1f), (int) World.wrapY(z+1f), heightScale);
 					
-					animalLowerPos.mul(1f - (a.pos.x - x), 0.5f, 1f - (a.pos.y - z));
-					animalUpperPos.mul((a.pos.x - x), 0.5f, (a.pos.y - z));
+					findPixelPosition(animalLowerPos, World.wrapX(xLow), World.wrapY(zLow), heightScale);
+					findPixelPosition(animalUpperPos, World.wrapX(xHigh), World.wrapY(zHigh), heightScale);
+					
+					animalLowerPos.mul((1f - (a.pos.x % 1f)), 0.5f, (1f - (a.pos.y % 1f)));
+					animalUpperPos.mul((a.pos.x % 1f), 0.5f, (a.pos.y % 1f));
 					
 					renderAt.set(animalLowerPos);
 					renderAt.add(animalUpperPos);
@@ -81,11 +86,11 @@ public class AgentRenderer {
 	
 	private void findPixelPosition(Vector3f vec, float x, float z, float heightScale) {
 		
-		int hexX = (int) (x/2);
-		int hexZ = (int) (z/2); 
+		float hexX = (int)x/2;
+		float hexZ = (int)z/2; 
 		
-		float xpos = x0 + hexX*2*xScale + ((x%2 == 0) ? -xNudge : xNudge);
-		float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
+		float xpos = x0 + hexX*2*xScale + ((((int)x)%2 == 0) ? -xNudge : xNudge);
+		float zpos = z0 + hexZ*zScale + ((((int)z)%2 == 0) ? -zNudge : zNudge);
 
 		float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[(int) x][(int) z], 1.5);
 		

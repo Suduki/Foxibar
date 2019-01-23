@@ -26,17 +26,15 @@ import constants.Constants;
 import display.Circle;
 import main.Main;
 
-public class GrassRenderer {
+public class GrassRenderer extends TubeRenderer {
 	private boolean drawGrass = true;
 	private int grassQuality = 1;
 	
-	private Circle circle;
 	private TreeRenderer mTreeRenderer = null;
 
 	public GrassRenderer() {
-		super();
+		super(Constants.Colors.GRASS_STRAW, Constants.Colors.GRASS, 3, true, 4, false, false);
 		
-		circle = new Circle(3, 1, null);
 		mTreeRenderer = new TreeRenderer();
 	}
 
@@ -78,62 +76,10 @@ public class GrassRenderer {
 	}
 
 	private void renderGrassAt(float height, float xPix, float zPix, int x, int z, float heightScale) {
-		float[] c = Constants.Colors.GRASS_STRAW;
 		float y = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5) * heightScale;
 		
-		float xWind = 1f-2*Main.mSimulation.mWorld.wind.getWindX(xPix, zPix);
-		float zWind = 1f-2*Main.mSimulation.mWorld.wind.getWindZ(xPix, zPix);
-
-		int numSplits = (int) Math.ceil((grassQuality + 1)*height);
-		
-		Vector3f drawPos = new Vector3f();
-		Vector3f force = new Vector3f();
-
-		float nextX = xPix;
-		float nextY = y;
-		float nextZ = zPix;
-
-		float currentX = nextX;
-		float currentY = nextY;
-		float currentZ = nextZ;
-
-		for (int i = 0; i < numSplits; ++i) {
-			float colorGrad = getColorGrad(numSplits, i);
-			float alphaGrad = getAlphaGrad(numSplits, i);
-			float nextColorGrad = getColorGrad(numSplits, i+1);
-			float nextAlphaGrad = getAlphaGrad(numSplits, i+1);
-			
-			float grassWidth = 0.03f;
-			
-			
-			float currentRadius = (grassWidth * (numSplits - i)) / numSplits;
-			float nextRadius = (grassWidth * (numSplits - (i+1))) / numSplits;
-
-			currentX = nextX;
-			currentY = nextY;
-			currentZ = nextZ;
-
-			force.x = Main.mSimulation.mWorld.wind.getWindForceAtY(xWind, drawPos.y);
-			force.z = Main.mSimulation.mWorld.wind.getWindForceAtY(zWind, drawPos.y);
-			force.y = 4f; // Stiffness, force towards middle TODO: Make a force normal from ground
-			float factor = height / force.length() / numSplits;
-			force.mul(factor);
-			drawPos.add(force);
-			nextX = xPix + drawPos.x;
-			nextY = y + drawPos.y;
-			nextZ = zPix + drawPos.z;
-
-			int circleVertice;
-			for (circleVertice = 0; circleVertice < circle.vertices.length; ++circleVertice) {
-				glColor4f(c[0]*colorGrad,c[1]*colorGrad,c[2]*colorGrad, 1f - alphaGrad);
-				glVertex3f(currentX + circle.getScaledXAt(circleVertice+1, currentRadius), currentY, currentZ + circle.getScaledZAt(circleVertice+1, currentRadius));
-				glVertex3f(currentX + circle.getScaledXAt(circleVertice, currentRadius), currentY, currentZ + circle.getScaledZAt(circleVertice, currentRadius));
-				
-				glColor4f(c[0]*nextColorGrad,c[1]*nextColorGrad,c[2]*nextColorGrad, 1f - nextAlphaGrad);
-				glVertex3f(nextX + circle.getScaledXAt(circleVertice, nextRadius), nextY, nextZ + circle.getScaledZAt(circleVertice, nextRadius));
-				glVertex3f(nextX + circle.getScaledXAt(circleVertice+1, nextRadius), nextY, nextZ + circle.getScaledZAt(circleVertice+1, nextRadius));
-			}
-		}
+		pos.set(xPix, y, zPix);
+		renderTube(pos, height, height/3, 0);
 	}
 
 	private float getAlphaGrad(int numSplits, int i) {

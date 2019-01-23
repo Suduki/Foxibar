@@ -40,6 +40,11 @@ public class Wind {
 		return 1f - 2 * Constants.RANDOM.nextFloat();
 	}
 
+	
+	public void getWindForce(Vector3f atPosition, Vector3f force) {
+		force.set(getWindXForce(atPosition), 0, getWindZForce(atPosition));
+	}
+	
 	public float getWindXForce(Vector3f atPosition) {
 		return windX[(int) World.wrapX(atPosition.x + windXOffset.x)][(int) World.wrapY(atPosition.z + windXOffset.y)];
 	}

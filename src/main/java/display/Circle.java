@@ -110,6 +110,12 @@ public class Circle {
 			vertices[i].set((float)Math.cos(angle), 0f, (float)Math.sin(angle));
 		}
 	}
+	
+	public void set(Circle c2) {
+		for (int i = 0; i < vertices.length; ++i) {
+			vertices[i].set(c2.vertices[i]);
+		}
+	}
 
 	public void setPos(float x, float z) {
 		position.set(x, 0, z);
