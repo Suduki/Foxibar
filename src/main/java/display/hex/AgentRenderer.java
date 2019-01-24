@@ -23,10 +23,8 @@ import main.Main;
 import simulation.Simulation;
 import world.World;
 
-public class AgentRenderer {
+public class AgentRenderer extends TubeRenderer {
 	
-	Circle circle;
-	Vector3f renderAt;
 	Vector3f animalLowerPos;
 	Vector3f animalUpperPos;
 	
@@ -40,16 +38,13 @@ public class AgentRenderer {
 	private final float zScale = 1.5f;
 	
 	public AgentRenderer() {
-		super();
-		this.circle = new Circle(6, 1, null);
-		renderAt = new Vector3f();
+		super(Constants.Colors.BLACK, Constants.Colors.WHITE, 6, false, 0, true, false);
 		animalLowerPos = new Vector3f();
 		animalUpperPos = new Vector3f();
 	}
 	
 	public void drawAgents(float heightScale) {
 		
-		glBegin(GL_TRIANGLES);
 		for (AgentManager<?> manager : Main.mSimulation.agentManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
 				Agent a = manager.alive.get(i);
@@ -63,7 +58,7 @@ public class AgentRenderer {
 				float zHigh = a.pos.y + 0.5f;
 				
 				if (xHigh >= Simulation.WORLD_SIZE_X || xLow < 0 || zHigh >= Simulation.WORLD_SIZE_Y || zLow < 0) {
-					findPixelPosition(renderAt, a.pos.x, a.pos.y, heightScale);
+					findPixelPosition(pos, a.pos.x, a.pos.y, heightScale);
 				}
 				else {
 					
@@ -73,15 +68,18 @@ public class AgentRenderer {
 					animalLowerPos.mul((1f - (a.pos.x % 1f)), 0.5f, (1f - (a.pos.y % 1f)));
 					animalUpperPos.mul((a.pos.x % 1f), 0.5f, (a.pos.y % 1f));
 					
-					renderAt.set(animalLowerPos);
-					renderAt.add(animalUpperPos);
+					pos.set(animalLowerPos);
+					pos.add(animalUpperPos);
 				}
 				
-
 				renderAgentAt(a);
 			}
 		}
-		glEnd();
+	}
+	
+	@Override
+	protected float heightToRadius(float h, float tubeMaxRadius) {
+		return h;
 	}
 	
 	private void findPixelPosition(Vector3f vec, float x, float z, float heightScale) {
@@ -101,6 +99,8 @@ public class AgentRenderer {
 
 		float[] c2 = a.secondaryColor;
 		float[] c = a.color;
+		
+		setColor(c, c2, 1, 1);
 
 		float sizeScale = 0.7f;
 		float size = sizeScale + (1f - sizeScale) * a.size;
@@ -108,26 +108,25 @@ public class AgentRenderer {
 		float height = size;
 		float width = size / 6;
 
-		renderSide(c2, c, height, width);
-		renderTop(height, width, c2);
+		renderTube(pos, height, width, 0);
 	}
 
-	private void renderTop(float height, float width, float[] c2) {
-		glColor3f(c2[0],c2[1],c2[2]);
-		for (int i = 0; i < circle.vertices.length; ++i) {
-			glVertex3f(renderAt.x + circle.getScaledXAt(i, width), renderAt.y + height, renderAt.z + circle.getScaledZAt(i, width));
-			glVertex3f(renderAt.x, renderAt.y + height, renderAt.z);
-			glVertex3f(renderAt.x + circle.getScaledXAt(i+1, width), renderAt.y + height, renderAt.z + circle.getScaledZAt(i+1, width));
-		}
-	}
-
-	private void renderSide(float[] c2, float[] c, float height, float width) {
-		for (int i = 0; i < circle.vertices.length; ++i) {
-			glColor3f(c2[0], c2[1], c2[2]);
-			glVertex3f(renderAt.x + circle.getScaledXAt(i, width), renderAt.y + height, renderAt.z + circle.getScaledZAt(i, width));
-			glVertex3f(renderAt.x + circle.getScaledXAt(i+1, width), renderAt.y + height, renderAt.z + circle.getScaledZAt(i+1, width));
-			glColor3f(c[0], c[1], c[2]);
-			glVertex3f(renderAt.x, renderAt.y, renderAt.z);
-		}
-	}
+//	private void renderTop(float height, float width, float[] c2) {
+//		glColor3f(c2[0],c2[1],c2[2]);
+//		for (int i = 0; i < circle.vertices.length; ++i) {
+//			glVertex3f(pos.x + circle.getScaledXAt(i, width), pos.y + height, pos.z + circle.getScaledZAt(i, width));
+//			glVertex3f(pos.x, pos.y + height, pos.z);
+//			glVertex3f(pos.x + circle.getScaledXAt(i+1, width), pos.y + height, pos.z + circle.getScaledZAt(i+1, width));
+//		}
+//	}
+//
+//	private void renderSide(float[] c2, float[] c, float height, float width) {
+//		for (int i = 0; i < circle.vertices.length; ++i) {
+//			glColor3f(c2[0], c2[1], c2[2]);
+//			glVertex3f(pos.x + circle.getScaledXAt(i, width), pos.y + height, pos.z + circle.getScaledZAt(i, width));
+//			glVertex3f(pos.x + circle.getScaledXAt(i+1, width), pos.y + height, pos.z + circle.getScaledZAt(i+1, width));
+//			glColor3f(c[0], c[1], c[2]);
+//			glVertex3f(pos.x, pos.y, pos.z);
+//		}
+//	}
 }

@@ -347,8 +347,12 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 		m = new Matrix4f();
 		glLoadMatrixf(new Matrix4f(mCamera.getViewMatrix()).mul(m.translate(17, 0, 33)).get(matrixBuffer)); GpuUtils.GpuErrorCheck();
 		
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_QUADS);
 		mAgentRenderer.drawAgents(mHeightScale);
 		mGrassRenderer.drawGrass(mHeightScale);
+		glEnd();
 		
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
@@ -530,9 +534,6 @@ public class TerrainRenderer implements gui.SceneRegionRenderer {
 
 	public void setDrawGrass() {
 		mGrassRenderer.setDrawGrass();
-	}
-	public void stepGrassQuality() {
-		mGrassRenderer.stepGrassQuality();
 	}
 
 	public void resetGrass() {

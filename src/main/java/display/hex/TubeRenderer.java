@@ -2,7 +2,6 @@ package display.hex;
 
 import main.Main;
 
-
 import static org.lwjgl.opengl.GL11.glColor3f;
 import static org.lwjgl.opengl.GL11.glColor4f;
 import static org.lwjgl.opengl.GL11.GL_QUADS;
@@ -16,37 +15,33 @@ import org.joml.Vector3f;
 import display.Circle;
 
 public abstract class TubeRenderer {
-	
-	private final float[] minColor;
-	private final float[] maxColor;
-	
+
+	private float[] minColor = new float[4];
+	private float[] maxColor = new float[4];
+
 	private final Circle circle;
 	private final Circle nextCircle;
-	
-	private final Vector3f direction = new Vector3f();
-	private final Vector3f nextDirection = new Vector3f();
-	
+
 	protected final Vector3f pos = new Vector3f();
 	private final Vector3f nextPos = new Vector3f();
-	
+
 	private final Vector3f windForce;
 	private final Vector3f wind;
 	private final Vector3f nextWind;
-	
+
 	private final boolean affectedByWind;
 	private final float windStiffness;
-	
-	public TubeRenderer(final float[] minColor, final float[] maxColor, int numVertices, 
-			boolean affectedByWind, float windStiffness, boolean renderRoof, boolean renderFloor) {
+
+	public TubeRenderer(final float[] minColor, final float[] maxColor, int numVertices, boolean affectedByWind,
+			float windStiffness, boolean renderRoof, boolean renderFloor) {
 		super();
-		this.minColor = minColor;
-		this.maxColor = maxColor;
-		
+		setColor(minColor, maxColor, 1, 1);
+
 		circle = new Circle(numVertices, 1, null);
 		nextCircle = new Circle(numVertices, 1, null);
-		
+
 		this.affectedByWind = affectedByWind;
-		
+
 		if (affectedByWind) {
 			windForce = new Vector3f();
 			wind = new Vector3f();
@@ -59,54 +54,61 @@ public abstract class TubeRenderer {
 			this.windStiffness = 0;
 		}
 	}
-	
+
+	protected void setColor(final float[] minColor, final float[] maxColor, float alpha1, float alpha2) {
+		for (int i = 0; i < 3; ++i) {
+			this.minColor[i] = minColor[i];
+			this.maxColor[i] = maxColor[i];
+		}
+		this.minColor[3] = alpha1;
+		this.maxColor[3] = alpha2;
+	}
+
 	public void renderTube(Vector3f groundPos, float tubeMaxHeight, float tubeMaxRadius, float startHeight) {
 		pos.set(groundPos);
 		int numSplits = (int) tubeMaxHeight + 2;
-		
+
 		float splitDistance = tubeMaxHeight / numSplits;
-		
+
 		float currentHeight = startHeight;
-		
+
 		if (affectedByWind) {
-			initWind(groundPos, windStiffness, currentHeight);
+			Main.mSimulation.mWorld.wind.getWindForce(groundPos, windForce);
+			windForce.y = windStiffness;
+			wind.set(windForce).mul(currentHeight, 1f, currentHeight);
 		}
 		
+		float nextRadius = 0;
+
 		for (int split = 0; split < numSplits; ++split) {
 			if (affectedByWind) {
-				updatePositionFromWind(splitDistance, currentHeight);
-				nextPos.set(nextWind).mul(splitDistance);
+				float nextWindHeight = currentHeight + splitDistance;
+				nextWind.set(windForce).mul(nextWindHeight, 1f, nextWindHeight);
+				nextWind.normalize();
+				nextCircle.rotateTowards(nextWind);
+				nextWind.mul(splitDistance);
+				nextPos.set(pos).add(nextWind);
+			} else {
+				nextPos.set(pos).add(0, splitDistance, 0);
 			}
-			else {
-				nextPos.set(0, splitDistance, 0);
-			}
-			float radius = heightToRadius(((float)split), tubeMaxRadius);
-			float nextRadius = heightToRadius(((float)split + 1) / numSplits, tubeMaxRadius);
-			
-			drawLine();
-			
+			float radius = heightToRadius(((float) split) / numSplits, tubeMaxRadius);
+			nextRadius = heightToRadius(((float) split + 1) / numSplits, tubeMaxRadius);
+
+			renderTubeSegment(groundPos, tubeMaxHeight, radius, nextRadius);
+
 			circle.set(nextCircle);
-			wind.set(nextWind);
+			if (affectedByWind) {
+				wind.set(nextWind);
+			}
 			pos.set(nextPos);
 		}
 		
+		renderRoof(nextRadius);
+
 		circle.resetCircle();
 		nextCircle.resetCircle();
 	}
 
-	private void updatePositionFromWind(float splitDistance, float currentHeight) {
-		float nextWindHeight = currentHeight + splitDistance;
-		nextWind.set(windForce).mul(nextWindHeight, 1f, nextWindHeight);
-		nextWind.normalize();
-		nextCircle.rotateTowards(nextWind);
-	}
-
-	private void initWind(Vector3f groundPos, float stiffness, float currentHeight) {
-		Main.mSimulation.mWorld.wind.getWindForce(groundPos, windForce);
-		windForce.y = stiffness;
-		wind.set(windForce).mul(currentHeight, 1f, currentHeight);
-	}
-	
 	private void drawLine() {
 		glColor3f(0, 0, 0);
 		glBegin(GL_LINES);
@@ -115,11 +117,62 @@ public abstract class TubeRenderer {
 		glEnd();
 	}
 
-	private void renderTubeSegment() {
-		System.err.println("renderTubeSegment not implemented");
+	private void renderTubeSegment(Vector3f groundPos, float tubeMaxHeight, float radius, float nextRadius) {
+		for (int i = 0; i < circle.vertices.length; ++i) {
+			float x1 = circle.getScaledXAt(i, radius) + pos.x;
+			float y1 = circle.getScaledYAt(i, radius) + pos.y;
+			float z1 = circle.getScaledZAt(i, radius) + pos.z;
+
+			float x2 = circle.getScaledXAt(i + 1, radius) + pos.x;
+			float y2 = circle.getScaledYAt(i + 1, radius) + pos.y;
+			float z2 = circle.getScaledZAt(i + 1, radius) + pos.z;
+
+			float x1Next = nextCircle.getScaledXAt(i, nextRadius) + nextPos.x;
+			float y1Next = nextCircle.getScaledYAt(i, nextRadius) + nextPos.y;
+			float z1Next = nextCircle.getScaledZAt(i, nextRadius) + nextPos.z;
+
+			float x2Next = nextCircle.getScaledXAt(i + 1, nextRadius) + nextPos.x;
+			float y2Next = nextCircle.getScaledYAt(i + 1, nextRadius) + nextPos.y;
+			float z2Next = nextCircle.getScaledZAt(i + 1, nextRadius) + nextPos.z;
+			
+			setColorForHeight((pos.y - groundPos.y) / tubeMaxHeight);
+			glVertex3f(x2, y2, z2);
+			glVertex3f(x1, y1, z1);
+			setColorForHeight((nextPos.y - groundPos.y) / tubeMaxHeight);
+			glVertex3f(x1Next, y1Next, z1Next);
+			glVertex3f(x2Next, y2Next, z2Next);
+		}
 	}
 	
-	private float heightToRadius(float h, float tubeMaxRadius) {
+	private void renderRoof(float nextRadius) {
+		for (int i = 0; i < circle.vertices.length; ++i) {
+			float x1 = nextPos.x;
+			float y1 = nextPos.y;
+			float z1 = nextPos.z;
+			
+			float x1Next = nextCircle.getScaledXAt(i, nextRadius) + nextPos.x;
+			float y1Next = nextCircle.getScaledYAt(i, nextRadius) + nextPos.y;
+			float z1Next = nextCircle.getScaledZAt(i, nextRadius) + nextPos.z;
+			
+			float x2Next = nextCircle.getScaledXAt(i + 1, nextRadius) + nextPos.x;
+			float y2Next = nextCircle.getScaledYAt(i + 1, nextRadius) + nextPos.y;
+			float z2Next = nextCircle.getScaledZAt(i + 1, nextRadius) + nextPos.z;
+			
+			glVertex3f(x1Next, y1Next, z1Next);
+			glVertex3f(x1, y1, z1);
+			glVertex3f(x2Next, y2Next, z2Next);
+			glVertex3f(x1, y1, z1);
+		}
+	}
+
+	private void setColorForHeight(float scaledY) {
+		glColor4f((minColor[0] * scaledY + maxColor[0] * (1f - scaledY)),
+				(minColor[1] * scaledY + maxColor[1] * (1f - scaledY)),
+				(minColor[2] * scaledY + maxColor[2] * (1f - scaledY)),
+				(minColor[3] * scaledY + maxColor[3] * (1f - scaledY)));
+	}
+
+	protected float heightToRadius(float h, float tubeMaxRadius) {
 		if (h < 0 || h > 1) {
 			System.err.println(this.getClass().getSimpleName() + " received invalid height: " + h);
 		}

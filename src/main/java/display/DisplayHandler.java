@@ -93,18 +93,14 @@ public class DisplayHandler extends MessageHandler {
 			menu.insertRegion(buttonId++, new Button("Simulation On/Off", ()->mSimulate = !mSimulate));
 			menu.insertRegion(buttonId++, new Button(" 1 iter/frame", ()->terrainRenderer.setIterationsPerFrame(1)));
 			menu.insertRegion(buttonId++, new Button(" 5 iter/frame", ()->terrainRenderer.setIterationsPerFrame(5)));
-			menu.insertRegion(buttonId++, new Button("15 iter/frame", ()->terrainRenderer.setIterationsPerFrame(15)));
 			menu.insertRegion(buttonId++, new Button("30 iter/frame", ()->terrainRenderer.setIterationsPerFrame(30)));
 			menu.insertRegion(buttonId++, new Button("50 iter/frame", ()->terrainRenderer.setIterationsPerFrame(50)));
 			
 			menu.insertRegion(buttonId++, new Button("Flatness: 0.00", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.0f)));
-			menu.insertRegion(buttonId++, new Button("Flatness: 0.25", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.25f)));
 			menu.insertRegion(buttonId++, new Button("Flatness: 0.50", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.5f)));
-			menu.insertRegion(buttonId++, new Button("Flatness: 0.75", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(0.75f)));
 			menu.insertRegion(buttonId++, new Button("Flatness: 1.00", ()->terrainRenderer.mHexTerrainRenderer.setFlatness(1.0f)));
 			
 			menu.insertRegion(buttonId++, new Button("Render Grass", ()->terrainRenderer.setDrawGrass()));
-			menu.insertRegion(buttonId++, new Button("Step Grass Quality", ()->terrainRenderer.stepGrassQuality()));
 			menu.insertRegion(buttonId++, new Button("Reset Grass", ()->terrainRenderer.resetGrass()));
 			
 			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);

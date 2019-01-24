@@ -46,11 +46,11 @@ public class Wind {
 	}
 	
 	public float getWindXForce(Vector3f atPosition) {
-		return windX[(int) World.wrapX(atPosition.x + windXOffset.x)][(int) World.wrapY(atPosition.z + windXOffset.y)];
+		return 1f - 2 * windX[(int) World.wrapX(atPosition.x + windXOffset.x)][(int) World.wrapY(atPosition.z + windXOffset.y)];
 	}
 	
 	public float getWindZForce(Vector3f atPosition) {
-		return windX[(int) World.wrapX(atPosition.x + windZOffset.x)][(int) World.wrapY(atPosition.z + windZOffset.y)];
+		return 1f - 2 * windX[(int) World.wrapX(atPosition.x + windZOffset.x)][(int) World.wrapY(atPosition.z + windZOffset.y)];
 	}
 	
 	public void regenerate() {
