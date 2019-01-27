@@ -34,7 +34,7 @@ public class GrassRenderer extends TubeRenderer {
 	private TreeRenderer mTreeRenderer = null;
 
 	public GrassRenderer() {
-		super(Constants.Colors.GRASS_STRAW, Constants.Colors.GRASS, 3, true, 4, false, false);
+		super(Constants.Colors.GRASS_STRAW, Constants.Colors.BLACK, 3, true, 4, false, false);
 
 		mTreeRenderer = new TreeRenderer();
 	}

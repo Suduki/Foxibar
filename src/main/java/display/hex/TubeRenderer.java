@@ -16,8 +16,8 @@ import display.Circle;
 
 public abstract class TubeRenderer {
 
-	private float[] minColor = new float[4];
-	private float[] maxColor = new float[4];
+	protected float[] minColor = new float[4];
+	protected float[] maxColor = new float[4];
 
 	private final Circle circle;
 	private final Circle nextCircle;
@@ -31,6 +31,8 @@ public abstract class TubeRenderer {
 
 	private final boolean affectedByWind;
 	private final float windStiffness;
+	
+	private final boolean renderRoof;
 
 	public TubeRenderer(final float[] minColor, final float[] maxColor, int numVertices, boolean affectedByWind,
 			float windStiffness, boolean renderRoof, boolean renderFloor) {
@@ -53,6 +55,8 @@ public abstract class TubeRenderer {
 			nextWind = null;
 			this.windStiffness = 0;
 		}
+		
+		this.renderRoof = renderRoof;
 	}
 
 	protected void setColor(final float[] minColor, final float[] maxColor, float alpha1, float alpha2) {
@@ -82,8 +86,8 @@ public abstract class TubeRenderer {
 
 		for (int split = 0; split < numSplits; ++split) {
 			if (affectedByWind) {
-				float nextWindHeight = currentHeight + splitDistance;
-				nextWind.set(windForce).mul(nextWindHeight, 1f, nextWindHeight);
+				currentHeight += splitDistance;
+				nextWind.set(windForce).mul(currentHeight, 1f, currentHeight);
 				nextWind.normalize();
 				nextCircle.rotateTowards(nextWind);
 				nextWind.mul(splitDistance);
@@ -94,16 +98,18 @@ public abstract class TubeRenderer {
 			float radius = heightToRadius(((float) split) / numSplits, tubeMaxRadius);
 			nextRadius = heightToRadius(((float) split + 1) / numSplits, tubeMaxRadius);
 
-			renderTubeSegment(groundPos, tubeMaxHeight, radius, nextRadius);
+			renderTubeSegment(groundPos, tubeMaxHeight, radius, nextRadius, startHeight);
 
-			circle.set(nextCircle);
 			if (affectedByWind) {
+				circle.set(nextCircle);
 				wind.set(nextWind);
 			}
 			pos.set(nextPos);
 		}
 		
-		renderRoof(nextRadius);
+		if (renderRoof) {
+			renderRoof(groundPos, tubeMaxHeight, nextRadius);
+		}
 
 		circle.resetCircle();
 		nextCircle.resetCircle();
@@ -117,55 +123,59 @@ public abstract class TubeRenderer {
 		glEnd();
 	}
 
-	private void renderTubeSegment(Vector3f groundPos, float tubeMaxHeight, float radius, float nextRadius) {
+	private void renderTubeSegment(Vector3f groundPos, float tubeMaxHeight, float radius, float nextRadius, float startHeight) {
 		for (int i = 0; i < circle.vertices.length; ++i) {
 			float x1 = circle.getScaledXAt(i, radius) + pos.x;
-			float y1 = circle.getScaledYAt(i, radius) + pos.y;
+			float y1 = circle.getScaledYAt(i, radius) + pos.y + startHeight;
 			float z1 = circle.getScaledZAt(i, radius) + pos.z;
 
 			float x2 = circle.getScaledXAt(i + 1, radius) + pos.x;
-			float y2 = circle.getScaledYAt(i + 1, radius) + pos.y;
+			float y2 = circle.getScaledYAt(i + 1, radius) + pos.y + startHeight;
 			float z2 = circle.getScaledZAt(i + 1, radius) + pos.z;
 
 			float x1Next = nextCircle.getScaledXAt(i, nextRadius) + nextPos.x;
-			float y1Next = nextCircle.getScaledYAt(i, nextRadius) + nextPos.y;
+			float y1Next = nextCircle.getScaledYAt(i, nextRadius) + nextPos.y + startHeight;
 			float z1Next = nextCircle.getScaledZAt(i, nextRadius) + nextPos.z;
 
 			float x2Next = nextCircle.getScaledXAt(i + 1, nextRadius) + nextPos.x;
-			float y2Next = nextCircle.getScaledYAt(i + 1, nextRadius) + nextPos.y;
+			float y2Next = nextCircle.getScaledYAt(i + 1, nextRadius) + nextPos.y + startHeight;
 			float z2Next = nextCircle.getScaledZAt(i + 1, nextRadius) + nextPos.z;
 			
-			setColorForHeight((pos.y - groundPos.y) / tubeMaxHeight);
+			setColorForHeight((y2 - groundPos.y - startHeight) / tubeMaxHeight);
 			glVertex3f(x2, y2, z2);
+			setColorForHeight((y1 - groundPos.y - startHeight) / tubeMaxHeight);
 			glVertex3f(x1, y1, z1);
-			setColorForHeight((nextPos.y - groundPos.y) / tubeMaxHeight);
+			setColorForHeight((y1Next - groundPos.y - startHeight) / tubeMaxHeight);
+//			glColor3f(1, 1, 1);
 			glVertex3f(x1Next, y1Next, z1Next);
+			setColorForHeight((y2Next - groundPos.y - startHeight) / tubeMaxHeight);
 			glVertex3f(x2Next, y2Next, z2Next);
 		}
 	}
 	
-	private void renderRoof(float nextRadius) {
+	private void renderRoof(Vector3f groundPos, float tubeMaxHeight, float nextRadius) {
 		for (int i = 0; i < circle.vertices.length; ++i) {
-			float x1 = nextPos.x;
-			float y1 = nextPos.y;
-			float z1 = nextPos.z;
+			float x1 = pos.x;
+			float y1 = pos.y;
+			float z1 = pos.z;
 			
-			float x1Next = nextCircle.getScaledXAt(i, nextRadius) + nextPos.x;
-			float y1Next = nextCircle.getScaledYAt(i, nextRadius) + nextPos.y;
-			float z1Next = nextCircle.getScaledZAt(i, nextRadius) + nextPos.z;
+			float x1Next = nextCircle.getScaledXAt(i, nextRadius) + pos.x;
+			float y1Next = nextCircle.getScaledYAt(i, nextRadius) + pos.y;
+			float z1Next = nextCircle.getScaledZAt(i, nextRadius) + pos.z;
 			
-			float x2Next = nextCircle.getScaledXAt(i + 1, nextRadius) + nextPos.x;
-			float y2Next = nextCircle.getScaledYAt(i + 1, nextRadius) + nextPos.y;
-			float z2Next = nextCircle.getScaledZAt(i + 1, nextRadius) + nextPos.z;
+			float x2Next = nextCircle.getScaledXAt(i + 1, nextRadius) + pos.x;
+			float y2Next = nextCircle.getScaledYAt(i + 1, nextRadius) + pos.y;
+			float z2Next = nextCircle.getScaledZAt(i + 1, nextRadius) + pos.z;
 			
-			glVertex3f(x1Next, y1Next, z1Next);
 			glVertex3f(x1, y1, z1);
 			glVertex3f(x2Next, y2Next, z2Next);
+			glVertex3f(x1Next, y1Next, z1Next);
 			glVertex3f(x1, y1, z1);
 		}
 	}
 
 	private void setColorForHeight(float scaledY) {
+//		System.out.println(scaledY);
 		glColor4f((minColor[0] * scaledY + maxColor[0] * (1f - scaledY)),
 				(minColor[1] * scaledY + maxColor[1] * (1f - scaledY)),
 				(minColor[2] * scaledY + maxColor[2] * (1f - scaledY)),

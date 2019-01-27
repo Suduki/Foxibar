@@ -79,7 +79,7 @@ public class AgentRenderer extends TubeRenderer {
 	
 	@Override
 	protected float heightToRadius(float h, float tubeMaxRadius) {
-		return h;
+		return h*tubeMaxRadius;
 	}
 	
 	private void findPixelPosition(Vector3f vec, float x, float z, float heightScale) {
