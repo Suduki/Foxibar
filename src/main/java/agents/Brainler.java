@@ -18,8 +18,6 @@ public class Brainler extends Agent {
 	public Brainler(World world, AgentManager<Agent> agentManager) {
 		super(world, agentManager);
 		this.brain = new Brain(false);
-		this.color = new float[3];
-		this.secondaryColor = new float[3];
 		this.appearanceFactors = new float[NUM_APPEARANCE_FACTORS];
 	}
 	
@@ -102,7 +100,6 @@ public class Brainler extends Agent {
 	public void updateColors() {
 		for (int i = 0; i < 3; ++i) {
 			color[i] = (float) Math.round(appearanceFactors[i]);
-			secondaryColor[i] = (float) Math.round(appearanceFactors[i+3]);
 		}
 		secondaryColor[0] = talents.talentsRelative[Talents.DIGEST_BLOOD];
 		secondaryColor[1] = talents.talentsRelative[Talents.DIGEST_GRASS];

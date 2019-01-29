@@ -159,7 +159,7 @@ public class StabilityIT {
 		do {
 			maxNumType1 = 0;
 			maxNumType2 = 0;
-			bloodP += 0.2f;
+			bloodP += 0.5f;
 			Talents.changeTalentMax(Talents.DIGEST_BLOOD, bloodP);
 
 			int numGrasslersToSpawn = simulation.getNumAgents(type1) > 0

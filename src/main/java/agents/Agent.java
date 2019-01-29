@@ -85,6 +85,9 @@ public abstract class Agent {
 		this.agentManager = agentManager;
 		
 		this.talents = new Talents();
+
+		this.color = new float[3];
+		this.secondaryColor = new float[3];
 	}
 
 

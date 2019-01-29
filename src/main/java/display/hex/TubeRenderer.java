@@ -73,7 +73,7 @@ public abstract class TubeRenderer {
 
 	public void renderTube(Vector3f groundPos, float tubeMaxHeight, float tubeMaxRadius, float startHeight) {
 		pos.set(groundPos);
-		int numSplits = (int) tubeMaxHeight + 4;
+		int numSplits = (int) tubeMaxHeight + 2;
 
 		float splitDistance = tubeMaxHeight / numSplits;
 

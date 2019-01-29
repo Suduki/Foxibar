@@ -39,14 +39,14 @@ public class TreeRenderer {
 			treeTrunkWidth = scale / 2;
 		}
 
-		trunkRenderer.setColor(trunkRenderer.minColor, trunkRenderer.maxColor, 1, 1);
+		trunkRenderer.setColor(Constants.Colors.FIBER, Constants.Colors.TREE, 1, 1);
 		trunkRenderer.renderTube(pos, treeTrunkHeight, treeTrunkWidth, 0);
 
 		float yStart = treeTrunkHeight/6;
 		float health = Main.mSimulation.mWorld.grass.getHealth(x, z);
 		if (health > 0.05f) {
 			float treeTopHeight = treeTrunkHeight;//height * (health*0.3f + 0.7f) * scale /2 + 0.2f;
-			float treeTopWidth = health * scale * height + 0.2f;
+			float treeTopWidth = health * scale * height + 0.1f;
 			topRenderer.setColor(topRenderer.minColor, Constants.Colors.BLACK, 0.9f, 1);
 			topRenderer.renderTube(pos, treeTopHeight, treeTopWidth, yStart);
 		}

@@ -54,10 +54,10 @@ public class AgentRenderer extends TubeRenderer {
 				float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[(int) a.pos.x][(int) a.pos.y], 1.5) * heightScale;
 
 				groundPos.set(xLow * xLowness + xHigh * (1f - xLowness), h, zLow * zLowness + zHigh * (1f - zLowness));
-				if (xHigh >= Simulation.WORLD_SIZE_X || xLow < 0) {
+				if (a.pos.x >= Simulation.WORLD_SIZE_X - 1 || a.pos.x < 1) {
 					groundPos.x = x;
 				}
-				if (zHigh >= Simulation.WORLD_SIZE_Y || zLow < 0) {
+				if (a.pos.y >= Simulation.WORLD_SIZE_Y - 1 || a.pos.y < 1) {
 					groundPos.z = z;
 				}
 				
@@ -87,8 +87,8 @@ public class AgentRenderer extends TubeRenderer {
 
 	void renderAgentAt(Agent a) {
 
-		float[] c2 = a.secondaryColor;
-		float[] c = a.color;
+		float[] c = a.secondaryColor;
+		float[] c2 = a.color;
 		
 		setColor(c, c2, 1, 1);
 
@@ -100,23 +100,4 @@ public class AgentRenderer extends TubeRenderer {
 
 		renderTube(groundPos, height, width, 0);
 	}
-
-//	private void renderTop(float height, float width, float[] c2) {
-//		glColor3f(c2[0],c2[1],c2[2]);
-//		for (int i = 0; i < circle.vertices.length; ++i) {
-//			glVertex3f(pos.x + circle.getScaledXAt(i, width), pos.y + height, pos.z + circle.getScaledZAt(i, width));
-//			glVertex3f(pos.x, pos.y + height, pos.z);
-//			glVertex3f(pos.x + circle.getScaledXAt(i+1, width), pos.y + height, pos.z + circle.getScaledZAt(i+1, width));
-//		}
-//	}
-//
-//	private void renderSide(float[] c2, float[] c, float height, float width) {
-//		for (int i = 0; i < circle.vertices.length; ++i) {
-//			glColor3f(c2[0], c2[1], c2[2]);
-//			glVertex3f(pos.x + circle.getScaledXAt(i, width), pos.y + height, pos.z + circle.getScaledZAt(i, width));
-//			glVertex3f(pos.x + circle.getScaledXAt(i+1, width), pos.y + height, pos.z + circle.getScaledZAt(i+1, width));
-//			glColor3f(c[0], c[1], c[2]);
-//			glVertex3f(pos.x, pos.y, pos.z);
-//		}
-//	}
 }

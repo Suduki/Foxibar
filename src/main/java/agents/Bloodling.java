@@ -1,12 +1,7 @@
 package agents;
 
-import java.util.Random;
-
 import actions.Action;
 import constants.Constants;
-import constants.Constants.Neighbours;
-import talents.Talents;
-import vision.Vision;
 import world.World;
 
 public class Bloodling extends Agent {
