@@ -195,8 +195,7 @@ public abstract class TubeRenderer {
 		}
 	}
 
-	private void setColorForHeight(float scaledY) {
-//		System.out.println(scaledY);
+	protected void setColorForHeight(float scaledY) {
 		glColor4f((minColor[0] * scaledY + maxColor[0] * (1f - scaledY)),
 				(minColor[1] * scaledY + maxColor[1] * (1f - scaledY)),
 				(minColor[2] * scaledY + maxColor[2] * (1f - scaledY)),

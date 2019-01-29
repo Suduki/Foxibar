@@ -1,5 +1,7 @@
 package display.hex;
 
+import static org.lwjgl.opengl.GL11.glColor4f;
+
 import org.joml.Vector3f;
 
 import agents.Agent;
@@ -23,9 +25,27 @@ public class AgentRenderer extends TubeRenderer {
 	private final float zScale = 1.5f;
 	
 	public AgentRenderer() {
-		super(Constants.Colors.BLACK, Constants.Colors.WHITE, 6, false, 0, true, false, false);
+		super(Constants.Colors.BLACK, Constants.Colors.WHITE, 6, false, 0, true, false, true);
 		animalLowerPos = new Vector3f();
 		animalUpperPos = new Vector3f();
+	}
+	
+	@Override
+	protected void setColorForHeight(float scaledY) {
+		if (scaledY < 0.5f) {
+			scaledY *= 2;
+			glColor4f((minColor[0] * scaledY + maxColor[0] * (1f - scaledY)),
+					(minColor[1] * scaledY + maxColor[1] * (1f - scaledY)),
+					(minColor[2] * scaledY + maxColor[2] * (1f - scaledY)),
+					(minColor[3] * scaledY + maxColor[3] * (1f - scaledY)));
+		}
+		else {
+			scaledY = (1f - scaledY) * 2;
+			glColor4f((minColor[0] * scaledY + maxColor[0] * (1f - scaledY)),
+					(minColor[1] * scaledY + maxColor[1] * (1f - scaledY)),
+					(minColor[2] * scaledY + maxColor[2] * (1f - scaledY)),
+					(minColor[3] * scaledY + maxColor[3] * (1f - scaledY)));
+		}
 	}
 	
 	public void drawAgents(float heightScale) {
@@ -87,16 +107,15 @@ public class AgentRenderer extends TubeRenderer {
 
 	void renderAgentAt(Agent a) {
 
-		float[] c = a.secondaryColor;
-		float[] c2 = a.color;
+		float[] c2 = a.secondaryColor;
+		float[] c = a.color;
 		
 		setColor(c, c2, 1, 1);
+		
+		float scale = 0.7f;
 
-		float sizeScale = 0.7f;
-		float size = sizeScale + (1f - sizeScale) * a.size;
-
-		float height = size;
-		float width = size / 6;
+		float height = (scale * (a.maxTall * a.size) + (1f - scale)) * 2f;
+		float width = (scale * (a.maxSize * a.size) + (1f - scale)) * 0.6f;
 
 		renderTube(groundPos, height, width, 0);
 	}

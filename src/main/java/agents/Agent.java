@@ -27,7 +27,8 @@ public abstract class Agent {
 
 	public float size;
 	protected float growth;
-	protected float maxSize;
+	public float maxTall;
+	public float maxSize;
 
 	public boolean isAlive;
 
@@ -153,7 +154,8 @@ public abstract class Agent {
 	protected void fixAppearance() {
 		stomach.inherit(talents);
 		maxHealth = 100*talents.talentsRelative[Talents.TOUGHNESS];
-		size = talents.talentsRelative[Talents.FIGHT]*10+talents.talentsRelative[Talents.TOUGHNESS]*10;
+		maxSize = talents.talentsRelative[Talents.TOUGHNESS];
+		maxTall = talents.talentsRelative[Talents.FIGHT];
 	}
 
 	private void stepScore(int score) {
