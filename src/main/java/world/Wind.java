@@ -40,21 +40,19 @@ public class Wind {
 		return 1f - 2 * Constants.RANDOM.nextFloat();
 	}
 
-	public float getWindX(float posX, float posY) {
-		return windX[wrap(posX + windXOffset.x, Simulation.WORLD_SIZE_X)][wrap(posY + windXOffset.y, Simulation.WORLD_SIZE_Y)];
-	}
-	public float getWindZ(float posX, float posY) {
-		return windZ[wrap(posX + windZOffset.x, Simulation.WORLD_SIZE_X)][wrap(posY + windZOffset.y, Simulation.WORLD_SIZE_Y)];
+	
+	public void getWindForce(Vector3f atPosition, Vector3f force) {
+		force.set(getWindXForce(atPosition), 0, getWindZForce(atPosition));
 	}
 	
-	public float getWindForceAtY(float windAtPos, float y) {
-		return windAtPos * (y+0.4f);
+	public float getWindXForce(Vector3f atPosition) {
+		return 1f - 2 * windX[(int) World.wrapX(atPosition.x + windXOffset.x)][(int) World.wrapY(atPosition.z + windXOffset.y)];
 	}
 	
-	private int wrap(float val, int max) {
-		
-		return  ((((int)val % max) + max) % max);
+	public float getWindZForce(Vector3f atPosition) {
+		return 1f - 2 * windX[(int) World.wrapX(atPosition.x + windZOffset.x)][(int) World.wrapY(atPosition.z + windZOffset.y)];
 	}
+	
 	public void regenerate() {
 		windX = Noise.generate(Simulation.WORLD_SIZE_X, Simulation.WORLD_SIZE_Y, 0.5f);
 		windZ = Noise.generate(Simulation.WORLD_SIZE_X, Simulation.WORLD_SIZE_Y, 0.5f);		

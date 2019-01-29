@@ -1,107 +1,122 @@
 package display.hex;
 
-import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.GL_LINES;
-import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glBlendFunc;
-import static org.lwjgl.opengl.GL11.glColor3f;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glLineWidth;
-import static org.lwjgl.opengl.GL11.glVertex3f;
+import static org.lwjgl.opengl.GL11.glColor4f;
+
+import org.joml.Vector3f;
 
 import agents.Agent;
 import agents.AgentManager;
-import display.Circle;
+import constants.Constants;
 import main.Main;
 import simulation.Simulation;
 
-public class AgentRenderer {
+public class AgentRenderer extends TubeRenderer {
 	
-	Circle circle;
+	Vector3f animalLowerPos;
+	Vector3f animalUpperPos;
+	
+	private final float x0 = -Simulation.WORLD_SIZE_X/2.0f;
+	private final float z0 = -Simulation.WORLD_SIZE_Y/2.0f;
+	
+	private final float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
+	private final float zNudge = 3.0f/9.0f;
+	
+	private final float xScale = (float)(Math.sqrt(3)*0.5);
+	private final float zScale = 1.5f;
 	
 	public AgentRenderer() {
-		super();
-		this.circle = new Circle(6, 1, null);
+		super(Constants.Colors.BLACK, Constants.Colors.WHITE, 6, false, 0, true, false, true);
+		animalLowerPos = new Vector3f();
+		animalUpperPos = new Vector3f();
+	}
+	
+	@Override
+	protected void setColorForHeight(float scaledY) {
+		if (scaledY < 0.5f) {
+			scaledY *= 2;
+			glColor4f((minColor[0] * scaledY + maxColor[0] * (1f - scaledY)),
+					(minColor[1] * scaledY + maxColor[1] * (1f - scaledY)),
+					(minColor[2] * scaledY + maxColor[2] * (1f - scaledY)),
+					(minColor[3] * scaledY + maxColor[3] * (1f - scaledY)));
+		}
+		else {
+			scaledY = (1f - scaledY) * 2;
+			glColor4f((minColor[0] * scaledY + maxColor[0] * (1f - scaledY)),
+					(minColor[1] * scaledY + maxColor[1] * (1f - scaledY)),
+					(minColor[2] * scaledY + maxColor[2] * (1f - scaledY)),
+					(minColor[3] * scaledY + maxColor[3] * (1f - scaledY)));
+		}
 	}
 	
 	public void drawAgents(float heightScale) {
-		float x0 = -Simulation.WORLD_SIZE_X/2.0f;
-		float z0 = -Simulation.WORLD_SIZE_Y/2.0f;
-
-		float xNudge = (float)(Math.sqrt(3.0f)*0.2f);
-		float zNudge = 3.0f/9.0f;
-
-		float xScale = (float)(Math.sqrt(3)*0.5);
-		float zScale = 1.5f;
 		
-		glBegin(GL_TRIANGLES);
 		for (AgentManager<?> manager : Main.mSimulation.agentManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
 				Agent a = manager.alive.get(i);
 				if (a == null) break;
-				int x = (int) a.pos.x;
-				int z = (int) a.pos.y;
-				int hexX = x/2;
-				int hexZ = z/2; 
-				
-				float xpos = x0 + hexX*2*xScale + ((x%2 == 0) ? -xNudge : xNudge);
-				float zpos = z0 + hexZ*zScale + ((z%2 == 0) ? -zNudge : zNudge);
 
-				float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5);
-				renderAgentAt(a, h, xpos, zpos, heightScale);
+				float xLow = retrieveXFromWorldPos(a.pos.x - 1f);
+				float x = retrieveXFromWorldPos(a.pos.x);
+				float xHigh = retrieveXFromWorldPos(a.pos.x + 1f);
+				
+				float zLow = retrieveZFromWorldPos(a.pos.y - 1f);
+				float z = retrieveZFromWorldPos(a.pos.y);
+				float zHigh = retrieveZFromWorldPos(a.pos.y + 1f);
+				
+				xLow = (xLow + x) / 2;
+				xHigh = (xHigh + x) / 2;
+				zLow = (zLow + z) / 2;
+				zHigh = (zHigh + z) / 2;
+
+				float xLowness = 1f - a.pos.x % 1; 
+				float zLowness = 1f - a.pos.y % 1;
+
+				float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[(int) a.pos.x][(int) a.pos.y], 1.5) * heightScale;
+
+				groundPos.set(xLow * xLowness + xHigh * (1f - xLowness), h, zLow * zLowness + zHigh * (1f - zLowness));
+				if (a.pos.x >= Simulation.WORLD_SIZE_X - 1 || a.pos.x < 1) {
+					groundPos.x = x;
+				}
+				if (a.pos.y >= Simulation.WORLD_SIZE_Y - 1 || a.pos.y < 1) {
+					groundPos.z = z;
+				}
+				
+				renderAgentAt(a);
 			}
 		}
-		glEnd();
 	}
 	
-	void renderAgentAt(Agent a, float h, float x, float z, float heightScale) {
+	@Override
+	protected float heightToRadius(float h, float tubeMaxRadius) {
+		return h*tubeMaxRadius;
+	}
+	
+	private float retrieveXFromWorldPos(float x) {
+		float hexX = (int)x/2;
+		float xpos = x0 + hexX*2*xScale + ((((int)x)%2 == 0) ? -xNudge : xNudge);
+		
+		return xpos;
+	}
+	
+	private float retrieveZFromWorldPos(float z) {
+		float hexZ = (int)z/2; 
+		float zpos = z0 + hexZ*zScale + ((((int)z)%2 == 0) ? -zNudge : zNudge);
+		
+		return zpos;
+	}
+
+	void renderAgentAt(Agent a) {
 
 		float[] c2 = a.secondaryColor;
 		float[] c = a.color;
-		h *= heightScale;
-
-		float sizeScale = 0.7f;
-		float size = sizeScale + (1f - sizeScale) * a.size;
-
-		float height = size;
-		float width = size / 6;
-
-		renderSide(h, x, z, c2, c, height, width);
-		renderTop(h, x, z, height, width, c2);
-	}
-
-	private void renderTop(float h, float x, float z, float height, float width, float[] c2) {
-		glColor3f(c2[0],c2[1],c2[2]);
-		int i;
-		for (i = 0; i < circle.xVertices.length-1; ++i) {
-			glVertex3f(x + width * circle.xVertices[i], h + height, z + width * circle.zVertices[i]);
-			glVertex3f(x, h + height, z);
-			glVertex3f(x + width * circle.xVertices[i+1], h + height, z + width * circle.zVertices[i+1]);
-		}
 		
-		glVertex3f(x + width * circle.xVertices[i], h + height, z + width * circle.zVertices[i]);
-		glVertex3f(x, h + height, z);
-		glVertex3f(x + width * circle.xVertices[0], h + height, z + width * circle.zVertices[0]);
-	}
-
-	private void renderSide(float h, float x, float z, float[] c2, float[] c, float height, float width) {
-		int i;
-		for (i = 0; i < circle.xVertices.length-1; ++i) {
-			glColor3f(c2[0],c2[1],c2[2]);
-			glVertex3f(x + width * circle.xVertices[i], h + height, z + width * circle.zVertices[i]);
-			glVertex3f(x + width * circle.xVertices[i+1], h + height, z + width * circle.zVertices[i+1]);
-			glColor3f(c[0],c[1],c[2]);
-			glVertex3f(x,h,z);
-		}
+		setColor(c, c2, 1, 1);
 		
-		glColor3f(c2[0],c2[1],c2[2]);
-		glVertex3f(x + width * circle.xVertices[i], h + height, z + width * circle.zVertices[i]);
-		glVertex3f(x + width * circle.xVertices[0], h + height, z + width * circle.zVertices[0]);
-		glColor3f(c[0],c[1],c[2]);
-		glVertex3f(x,h,z);
+		float scale = 0.7f;
+
+		float height = (scale * (a.maxTall * a.size) + (1f - scale)) * 2f;
+		float width = (scale * (a.maxSize * a.size) + (1f - scale)) * 0.6f;
+
+		renderTube(groundPos, height, width, 0);
 	}
 }
