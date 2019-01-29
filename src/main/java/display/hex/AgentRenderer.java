@@ -1,27 +1,12 @@
 package display.hex;
 
-import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.GL_LINES;
-import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glBlendFunc;
-import static org.lwjgl.opengl.GL11.glColor3f;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glLineWidth;
-import static org.lwjgl.opengl.GL11.glVertex3f;
-
 import org.joml.Vector3f;
 
 import agents.Agent;
 import agents.AgentManager;
 import constants.Constants;
-import display.Circle;
 import main.Main;
 import simulation.Simulation;
-import world.World;
 
 public class AgentRenderer extends TubeRenderer {
 	
@@ -38,7 +23,7 @@ public class AgentRenderer extends TubeRenderer {
 	private final float zScale = 1.5f;
 	
 	public AgentRenderer() {
-		super(Constants.Colors.BLACK, Constants.Colors.WHITE, 6, false, 0, true, false);
+		super(Constants.Colors.BLACK, Constants.Colors.WHITE, 6, false, 0, true, false, false);
 		animalLowerPos = new Vector3f();
 		animalUpperPos = new Vector3f();
 	}
@@ -50,26 +35,30 @@ public class AgentRenderer extends TubeRenderer {
 				Agent a = manager.alive.get(i);
 				if (a == null) break;
 
+				float xLow = retrieveXFromWorldPos(a.pos.x - 1f);
+				float x = retrieveXFromWorldPos(a.pos.x);
+				float xHigh = retrieveXFromWorldPos(a.pos.x + 1f);
+				
+				float zLow = retrieveZFromWorldPos(a.pos.y - 1f);
+				float z = retrieveZFromWorldPos(a.pos.y);
+				float zHigh = retrieveZFromWorldPos(a.pos.y + 1f);
+				
+				xLow = (xLow + x) / 2;
+				xHigh = (xHigh + x) / 2;
+				zLow = (zLow + z) / 2;
+				zHigh = (zHigh + z) / 2;
 
-				float xLow = a.pos.x - 0.5f;
-				float zLow = a.pos.y - 0.5f;
-				
-				float xHigh = a.pos.x + 0.5f;
-				float zHigh = a.pos.y + 0.5f;
-				
-				if (xHigh >= Simulation.WORLD_SIZE_X || xLow < 0 || zHigh >= Simulation.WORLD_SIZE_Y || zLow < 0) {
-					findPixelPosition(pos, a.pos.x, a.pos.y, heightScale);
+				float xLowness = 1f - a.pos.x % 1; 
+				float zLowness = 1f - a.pos.y % 1;
+
+				float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[(int) a.pos.x][(int) a.pos.y], 1.5) * heightScale;
+
+				groundPos.set(xLow * xLowness + xHigh * (1f - xLowness), h, zLow * zLowness + zHigh * (1f - zLowness));
+				if (xHigh >= Simulation.WORLD_SIZE_X || xLow < 0) {
+					groundPos.x = x;
 				}
-				else {
-					
-					findPixelPosition(animalLowerPos, World.wrapX(xLow), World.wrapY(zLow), heightScale);
-					findPixelPosition(animalUpperPos, World.wrapX(xHigh), World.wrapY(zHigh), heightScale);
-					
-					animalLowerPos.mul((1f - (a.pos.x % 1f)), 0.5f, (1f - (a.pos.y % 1f)));
-					animalUpperPos.mul((a.pos.x % 1f), 0.5f, (a.pos.y % 1f));
-					
-					pos.set(animalLowerPos);
-					pos.add(animalUpperPos);
+				if (zHigh >= Simulation.WORLD_SIZE_Y || zLow < 0) {
+					groundPos.z = z;
 				}
 				
 				renderAgentAt(a);
@@ -82,17 +71,18 @@ public class AgentRenderer extends TubeRenderer {
 		return h*tubeMaxRadius;
 	}
 	
-	private void findPixelPosition(Vector3f vec, float x, float z, float heightScale) {
-		
+	private float retrieveXFromWorldPos(float x) {
 		float hexX = (int)x/2;
-		float hexZ = (int)z/2; 
-		
 		float xpos = x0 + hexX*2*xScale + ((((int)x)%2 == 0) ? -xNudge : xNudge);
-		float zpos = z0 + hexZ*zScale + ((((int)z)%2 == 0) ? -zNudge : zNudge);
-
-		float h = (float)Math.pow(Main.mSimulation.mWorld.terrain.height[(int) x][(int) z], 1.5);
 		
-		vec.set(xpos, h*heightScale, zpos);
+		return xpos;
+	}
+	
+	private float retrieveZFromWorldPos(float z) {
+		float hexZ = (int)z/2; 
+		float zpos = z0 + hexZ*zScale + ((((int)z)%2 == 0) ? -zNudge : zNudge);
+		
+		return zpos;
 	}
 
 	void renderAgentAt(Agent a) {
@@ -108,7 +98,7 @@ public class AgentRenderer extends TubeRenderer {
 		float height = size;
 		float width = size / 6;
 
-		renderTube(pos, height, width, 0);
+		renderTube(groundPos, height, width, 0);
 	}
 
 //	private void renderTop(float height, float width, float[] c2) {

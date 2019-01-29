@@ -22,6 +22,7 @@ public abstract class TubeRenderer {
 	private final Circle circle;
 	private final Circle nextCircle;
 
+	protected final Vector3f groundPos = new Vector3f();
 	protected final Vector3f pos = new Vector3f();
 	private final Vector3f nextPos = new Vector3f();
 
@@ -33,9 +34,10 @@ public abstract class TubeRenderer {
 	private final float windStiffness;
 	
 	private final boolean renderRoof;
+	private final boolean prettyTubes;
 
 	public TubeRenderer(final float[] minColor, final float[] maxColor, int numVertices, boolean affectedByWind,
-			float windStiffness, boolean renderRoof, boolean renderFloor) {
+			float windStiffness, boolean renderRoof, boolean renderFloor, boolean prettyTubes) {
 		super();
 		setColor(minColor, maxColor, 1, 1);
 
@@ -57,6 +59,7 @@ public abstract class TubeRenderer {
 		}
 		
 		this.renderRoof = renderRoof;
+		this.prettyTubes = prettyTubes;
 	}
 
 	protected void setColor(final float[] minColor, final float[] maxColor, float alpha1, float alpha2) {
@@ -70,31 +73,33 @@ public abstract class TubeRenderer {
 
 	public void renderTube(Vector3f groundPos, float tubeMaxHeight, float tubeMaxRadius, float startHeight) {
 		pos.set(groundPos);
-		int numSplits = (int) tubeMaxHeight + 2;
+		int numSplits = (int) tubeMaxHeight + 4;
 
 		float splitDistance = tubeMaxHeight / numSplits;
 
-		float currentHeight = startHeight;
+		float nextHeight = startHeight;
 
 		if (affectedByWind) {
 			Main.mSimulation.mWorld.wind.getWindForce(groundPos, windForce);
 			windForce.y = windStiffness;
-			wind.set(windForce).mul(currentHeight, 1f, currentHeight);
+			wind.set(windForce).mul(nextHeight, 1f, nextHeight);
 		}
 		
 		float nextRadius = 0;
 
 		for (int split = 0; split < numSplits; ++split) {
 			if (affectedByWind) {
-				currentHeight += splitDistance;
-				nextWind.set(windForce).mul(currentHeight, 1f, currentHeight);
+				nextHeight += splitDistance;
+				nextWind.set(windForce).mul(nextHeight, 1f, nextHeight);
 				nextWind.normalize();
-				nextCircle.rotateTowards(nextWind);
 				nextWind.mul(splitDistance);
 				nextPos.set(pos).add(nextWind);
+				float rotationFactor = 0.2f;
+				nextCircle.rotateTowards(nextWind.mul(rotationFactor, 1, rotationFactor));
 			} else {
 				nextPos.set(pos).add(0, splitDistance, 0);
 			}
+			
 			float radius = heightToRadius(((float) split) / numSplits, tubeMaxRadius);
 			nextRadius = heightToRadius(((float) split + 1) / numSplits, tubeMaxRadius);
 
@@ -116,14 +121,23 @@ public abstract class TubeRenderer {
 	}
 
 	private void drawLine() {
+		glEnd();
 		glColor3f(0, 0, 0);
 		glBegin(GL_LINES);
 		glVertex3f(pos.x, pos.y, pos.z);
 		glVertex3f(nextPos.x, nextPos.y, nextPos.z);
 		glEnd();
+		glBegin(GL_QUADS);
 	}
+	
 
 	private void renderTubeSegment(Vector3f groundPos, float tubeMaxHeight, float radius, float nextRadius, float startHeight) {
+		if (!prettyTubes) {
+			float currentRelativeY = ((pos.y + nextPos.y) / 2 - groundPos.y) / tubeMaxHeight;
+			setColorForHeight(currentRelativeY);
+		}
+		
+		
 		for (int i = 0; i < circle.vertices.length; ++i) {
 			float x1 = circle.getScaledXAt(i, radius) + pos.x;
 			float y1 = circle.getScaledYAt(i, radius) + pos.y + startHeight;
@@ -141,15 +155,22 @@ public abstract class TubeRenderer {
 			float y2Next = nextCircle.getScaledYAt(i + 1, nextRadius) + nextPos.y + startHeight;
 			float z2Next = nextCircle.getScaledZAt(i + 1, nextRadius) + nextPos.z;
 			
-			setColorForHeight((y2 - groundPos.y - startHeight) / tubeMaxHeight);
-			glVertex3f(x2, y2, z2);
-			setColorForHeight((y1 - groundPos.y - startHeight) / tubeMaxHeight);
-			glVertex3f(x1, y1, z1);
-			setColorForHeight((y1Next - groundPos.y - startHeight) / tubeMaxHeight);
-//			glColor3f(1, 1, 1);
-			glVertex3f(x1Next, y1Next, z1Next);
-			setColorForHeight((y2Next - groundPos.y - startHeight) / tubeMaxHeight);
-			glVertex3f(x2Next, y2Next, z2Next);
+			if (prettyTubes) {
+				setColorForHeight((y2 - groundPos.y - startHeight) / tubeMaxHeight);
+				glVertex3f(x2, y2, z2);
+				setColorForHeight((y1 - groundPos.y - startHeight) / tubeMaxHeight);
+				glVertex3f(x1, y1, z1);
+				setColorForHeight((y1Next - groundPos.y - startHeight) / tubeMaxHeight);
+				glVertex3f(x1Next, y1Next, z1Next);
+				setColorForHeight((y2Next - groundPos.y - startHeight) / tubeMaxHeight);
+				glVertex3f(x2Next, y2Next, z2Next);
+			}
+			else {
+				glVertex3f(x2, y2, z2);
+				glVertex3f(x1, y1, z1);
+				glVertex3f(x1Next, y1Next, z1Next);
+				glVertex3f(x2Next, y2Next, z2Next);
+			}
 		}
 	}
 	
