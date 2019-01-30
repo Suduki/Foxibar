@@ -4,7 +4,7 @@ import actions.Action;
 import constants.Constants;
 import world.World;
 
-public class Bloodling extends Agent {
+public class Bloodling extends Animal {
 	
 	public Bloodling(World world, AgentManager agentManager) {
 		super(world, agentManager);
@@ -13,7 +13,7 @@ public class Bloodling extends Agent {
 	}
 
 	@Override
-	protected void inherit(Agent a) {
+	protected void inherit(Animal a) {
 		super.inherit(a);
 	}
 	
@@ -49,7 +49,7 @@ public class Bloodling extends Agent {
 	}
 
 	@Override
-	public boolean isCloselyRelatedTo(Agent a) {
+	public boolean isCloselyRelatedTo(Animal a) {
 		return isSameClassAs(a);
 	}
 

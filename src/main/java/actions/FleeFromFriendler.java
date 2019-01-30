@@ -1,6 +1,6 @@
 package actions;
 
-import agents.Agent;
+import agents.Animal;
 
 public class FleeFromFriendler extends Action {
 
@@ -9,13 +9,13 @@ public class FleeFromFriendler extends Action {
 	}
 	
 	@Override
-	public boolean determineIfPossible(Agent a) {
+	public boolean determineIfPossible(Animal a) {
 		isPossible = (a.friendler != null);
 		return isPossible;
 	}
 
 	@Override
-	public void commit(Agent a) {
+	public void commit(Animal a) {
 		numCommits++;
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
 		

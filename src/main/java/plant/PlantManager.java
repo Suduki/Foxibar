@@ -20,9 +20,9 @@ public class PlantManager {
 		}
 	}
 	
-	public PlantZone getZoneAt(int x, int y) {
-		int scaledX = x / PlantZone.zoneSizeX;
-		int scaledY = y / PlantZone.zoneSizeY;
+	public PlantZone getZoneAt(int worldX, int worldY) {
+		int scaledX = worldX / PlantZone.zoneSizeX;
+		int scaledY = worldY / PlantZone.zoneSizeY;
 		
 		return plantZones.get(scaledX * numZonesY + scaledY);
 	}

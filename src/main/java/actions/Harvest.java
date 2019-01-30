@@ -3,7 +3,7 @@ package actions;
 import org.joml.Vector2f;
 
 import world.TileElement;
-import agents.Agent;
+import agents.Animal;
 
 public class Harvest extends Action {
 	public Vector2f dir;
@@ -26,7 +26,7 @@ public class Harvest extends Action {
 	}
 
 	@Override
-	public boolean determineIfPossible(Agent a) {
+	public boolean determineIfPossible(Animal a) {
 		isPossible = false;
 		if (a.talents.getRelative(DIGEST_SKILL) > 0.2f) {
 			if (canHarvest(a)) {
@@ -42,7 +42,7 @@ public class Harvest extends Action {
 	}
 
 	@Override
-	public void commit(Agent a) {
+	public void commit(Animal a) {
 		numCommits++;
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
 		
@@ -56,17 +56,17 @@ public class Harvest extends Action {
 		}
 	}
 	
-	private boolean canHarvest(Agent a) {
+	private boolean canHarvest(Animal a) {
 		heightBelowAgent = stuffToHarvest.getHeight((int)a.pos.x, (int)a.pos.y);
 		return heightBelowAgent > 0.05f;
 	}
 	
-	private boolean canSearch(Agent a) {
+	private boolean canSearch(Animal a) {
 		heightNearby = stuffToHarvest.seekHeight(dir, (int)a.pos.x, (int)a.pos.y);
 		return heightNearby > 0.1f;
 	}
 	
-	private float harvest(Agent a) {
+	private float harvest(Animal a) {
 		return a.stomach.add(STOMACH_ID, stuffToHarvest.harvest(a.harvestSkill, (int) a.pos.x, (int) a.pos.y)) / a.harvestSkill;
 	}
 }

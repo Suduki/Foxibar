@@ -4,9 +4,9 @@ import actions.Action;
 import constants.Constants;
 import world.World;
 
-public class Randomling extends Agent {
+public class Randomling extends Animal {
 
-	public Randomling(World world, AgentManager<Agent> agentManager) {
+	public Randomling(World world, AgentManager<Animal> agentManager) {
 		super(world, agentManager);
 		color = Constants.Colors.BLACK;
 		secondaryColor = Constants.Colors.WHITE;
@@ -14,7 +14,7 @@ public class Randomling extends Agent {
 	
 
 	@Override
-	protected void inherit(Agent a) {
+	protected void inherit(Animal a) {
 		super.inherit(a);
 	}
 
@@ -36,7 +36,7 @@ public class Randomling extends Agent {
 	}
 	
 	@Override
-	public boolean isCloselyRelatedTo(Agent a) {
+	public boolean isCloselyRelatedTo(Animal a) {
 		return isSameClassAs(a);
 	}
 

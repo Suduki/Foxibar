@@ -15,7 +15,7 @@ import org.joml.Matrix3f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
-import agents.Agent;
+import agents.Animal;
 import agents.Brainler;
 import constants.Constants;
 import display.hex.AgentRenderer;

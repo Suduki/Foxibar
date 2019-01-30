@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.joml.Vector2f;
 
-import agents.Agent;
+import agents.Animal;
 import agents.AgentManager;
 import buttons.Button;
 import constants.Constants;
@@ -127,7 +127,7 @@ public void actionLoadBrains() {
 		
 		for (AgentManager<?> manager : Main.mSimulation.agentManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
-				Agent a = manager.alive.get(i);
+				Animal a = manager.alive.get(i);
 				if (a != null) {
 					renderAgent(a);
 				}
@@ -141,11 +141,11 @@ public void actionLoadBrains() {
 		glEnd();
 	}
 	
-	private boolean isWithinView(Agent a) {
+	private boolean isWithinView(Animal a) {
 		return true;
 	}
 	
-	private void renderAgent(Agent a) {
+	private void renderAgent(Animal a) {
 		if (!isWithinView(a)) return;
 		
 		if(a == null || a.pos == null) {
@@ -176,7 +176,7 @@ public void actionLoadBrains() {
 		}
 	}
 	
-	private boolean shouldThisAnimalBePrinted(Agent tmp) {
+	private boolean shouldThisAnimalBePrinted(Animal tmp) {
 		return true;
 	}
 

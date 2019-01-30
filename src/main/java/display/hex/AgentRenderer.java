@@ -4,7 +4,7 @@ import static org.lwjgl.opengl.GL11.glColor4f;
 
 import org.joml.Vector3f;
 
-import agents.Agent;
+import agents.Animal;
 import agents.AgentManager;
 import constants.Constants;
 import main.Main;
@@ -52,7 +52,7 @@ public class AgentRenderer extends TubeRenderer {
 		
 		for (AgentManager<?> manager : Main.mSimulation.agentManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
-				Agent a = manager.alive.get(i);
+				Animal a = manager.alive.get(i);
 				if (a == null) break;
 
 				float xLow = retrieveXFromWorldPos(a.pos.x - 1f);
@@ -105,7 +105,7 @@ public class AgentRenderer extends TubeRenderer {
 		return zpos;
 	}
 
-	void renderAgentAt(Agent a) {
+	void renderAgentAt(Animal a) {
 
 		float[] c2 = a.secondaryColor;
 		float[] c = a.color;

@@ -6,16 +6,16 @@ import talents.Talents;
 import vision.Vision;
 import world.World;
 
-public class Grassler extends Agent {
+public class Grassler extends Animal {
 
-	public Grassler(World world, AgentManager<Agent> agentManager) {
+	public Grassler(World world, AgentManager<Animal> agentManager) {
 		super(world, agentManager);
 		color = Constants.Colors.BLACK;
 		secondaryColor = Constants.Colors.WHITE;
 	}
 	
 	@Override
-	protected void inherit(Agent a) {
+	protected void inherit(Animal a) {
 		super.inherit(a);
 	}
 
@@ -44,7 +44,7 @@ public class Grassler extends Agent {
 	}
 	
 	@Override
-	public boolean isCloselyRelatedTo(Agent a) {
+	public boolean isCloselyRelatedTo(Animal a) {
 		return isSameClassAs(a);
 	}
 }

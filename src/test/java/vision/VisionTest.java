@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import constants.Constants;
 import simulation.Simulation;
-import agents.Agent;
+import agents.Animal;
 import agents.Bloodling;
 import agents.Brainler;
 import agents.Grassler;
@@ -41,7 +41,7 @@ public class VisionTest {
 		
 		simulation.step(timeStep++);
 
-		Agent a = simulation.agentManagers.get(RANDOMLING).alive.get(0);
+		Animal a = simulation.agentManagers.get(RANDOMLING).alive.get(0);
 		Assert.assertNotEquals(a.pos.x, 5);
 		Assert.assertNotEquals(a.pos.y, 6);
 		
@@ -58,7 +58,7 @@ public class VisionTest {
 		
 		simulation.step(timeStep++);
 
-		Agent a = simulation.agentManagers.get(BLOODLING).alive.get(0);
+		Animal a = simulation.agentManagers.get(BLOODLING).alive.get(0);
 		Assert.assertTrue(a.pos.x > 5);
 		Assert.assertTrue(a.pos.y > 5);
 		TestHelper.cleanup(simulation, timeStep);
@@ -74,7 +74,7 @@ public class VisionTest {
 		
 		simulation.step(timeStep++);
 
-		Agent a = simulation.agentManagers.get(GRASSLER).alive.get(0);
+		Animal a = simulation.agentManagers.get(GRASSLER).alive.get(0);
 		Assert.assertTrue(a.pos.x > 5);
 		Assert.assertTrue(a.pos.y > 5);
 		TestHelper.cleanup(simulation, timeStep);
@@ -98,7 +98,7 @@ public class VisionTest {
 		
 		simulation.step(timeStep++);
 		
-		Agent a = simulation.agentManagers.get(GRASSLER).alive.get(0);
+		Animal a = simulation.agentManagers.get(GRASSLER).alive.get(0);
 		Assert.assertTrue("Expecting animal to be at x = " + foodPosX + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.x) == foodPosX);
 		Assert.assertTrue("Expecting animal to be at y = " + foodPosY + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.y) == foodPosY);
 		TestHelper.cleanup(simulation, timeStep);
@@ -122,7 +122,7 @@ public class VisionTest {
 		
 		simulation.step(timeStep++);
 		
-		Agent a = simulation.agentManagers.get(GRASSLER).alive.get(0);
+		Animal a = simulation.agentManagers.get(GRASSLER).alive.get(0);
 		Assert.assertTrue("Expecting animal to be at x = " + foodPosX + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.x) == foodPosX);
 		Assert.assertTrue("Expecting animal to be at y = " + foodPosY + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.y) == foodPosY);
 		TestHelper.cleanup(simulation, timeStep);

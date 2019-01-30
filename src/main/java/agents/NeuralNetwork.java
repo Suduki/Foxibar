@@ -98,12 +98,12 @@ public class NeuralNetwork implements Serializable {
 		}
 	}
 
-	public int neuralMagic(final Action[] actions) {
+	public int neuralMagic(final ArrayList<Action> actions) {
 		evaluateNeuralNetwork();
 		float bestVal = Float.NEGATIVE_INFINITY;
 		int selection = -1;
 		for (int i = 0; i < Action.numActions; ++i) {
-			if (acts.get(i).isPossible && z[LAYER_SIZES.length-1][i] > bestVal) {
+			if (actions.get(i).isPossible && z[LAYER_SIZES.length-1][i] > bestVal) {
 				
 				bestVal = z[LAYER_SIZES.length-1][i];
 				selection = i;

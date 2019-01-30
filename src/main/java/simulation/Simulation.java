@@ -6,7 +6,7 @@ import world.World;
 import java.util.ArrayList;
 
 import actions.Action;
-import agents.Agent;
+import agents.Animal;
 import agents.AgentManager;
 import constants.Constants;
 import messages.MessageHandler;
@@ -34,7 +34,7 @@ public class Simulation extends MessageHandler {
 	
 	public ArrayList<AgentManager<?>> agentManagers = new ArrayList<>();
 	
-	public <T extends Agent> Simulation(short worldMultiplier, Class<T>... classes)
+	public <T extends Animal> Simulation(short worldMultiplier, Class<T>... classes)
 	{
 		loadStomachRecommendation();
 		WORLD_SIZE_X = (int) Math.pow(2, worldMultiplier);

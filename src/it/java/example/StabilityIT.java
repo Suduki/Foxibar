@@ -18,7 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import actions.Action;
-import agents.Agent;
+import agents.Animal;
 import agents.AgentManager;
 import agents.Brainler;
 import agents.Bloodling;

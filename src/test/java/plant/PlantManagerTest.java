@@ -41,9 +41,6 @@ public class PlantManagerTest {
 	
 	@Test 
 	public void testThatAllZonesAreUpdated() {
-		PlantZone mocked = Mockito.spy(plantManager.plantZones.get(0));
-		plantManager.update();
 		
-		Mockito.verify(mocked).update();
 	}
 }

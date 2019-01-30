@@ -9,13 +9,13 @@ import talents.Talents;
 import vision.Vision;
 import world.World;
 
-public class Brainler extends Agent {
+public class Brainler extends Animal {
 	public Brain brain;
 	
 	public float[] appearanceFactors;
 	public static final int NUM_APPEARANCE_FACTORS = 6;
 	
-	public Brainler(World world, AgentManager<Agent> agentManager) {
+	public Brainler(World world, AgentManager<Animal> agentManager) {
 		super(world, agentManager);
 		this.brain = new Brain(false);
 		this.appearanceFactors = new float[NUM_APPEARANCE_FACTORS];
@@ -58,7 +58,7 @@ public class Brainler extends Agent {
 	public static Brainler brainlerCreatedByUser;
 
 	@Override
-	public void inherit(Agent a) {
+	public void inherit(Animal a) {
 		if (a == null) {
 			this.brain.neural.initWeightsRandom();
 			if (brainlerCreatedByUser != null) {
@@ -107,7 +107,7 @@ public class Brainler extends Agent {
 	}
 	
 	@Override
-	public boolean isCloselyRelatedTo(Agent a) {
+	public boolean isCloselyRelatedTo(Animal a) {
 		if (a instanceof Brainler) {
 			return findRelationTo((Brainler) a) < 0.005f;
 		}

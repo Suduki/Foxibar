@@ -8,8 +8,8 @@ import org.joml.Vector2i;
 
 import simulation.Simulation;
 import vision.Vision;
-import agents.Agent;
-import agents.Agent;
+import agents.Animal;
+import agents.Animal;
 
 public class World {
 

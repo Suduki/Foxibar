@@ -1,7 +1,7 @@
 package talents;
 
 import constants.Constants;
-import agents.Agent;
+import agents.Animal;
 import agents.Stomach;
 import static constants.Constants.Talents.*;
 
