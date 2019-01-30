@@ -77,6 +77,7 @@ public class Stomach {
 	public void addBlood(float amount) {
 		blood += amount;
 	}
+	
 	public void addFiber(float amount) {
 		fiber += amount;
 	}
@@ -96,6 +97,23 @@ public class Stomach {
 		float b = -2 * c;
 		float a = c / Constants.Talents.MIN_SPEED;
 		energyCost += a*speed*speed + b*speed + c;
+	}
+
+	public static final int FIBER = 0;
+	public static final int BLOOD = 1;
+
+	public float add(final int STOMACH_ID, float amount) {
+		switch (STOMACH_ID) {
+		case FIBER:
+			addFiber(amount);
+			break;
+		case BLOOD:
+			addBlood(amount);
+			break;
+		default:
+			System.err.println("in Stomach.add, trying to add something weird...");
+		}
+		return amount;
 	}
 }
 

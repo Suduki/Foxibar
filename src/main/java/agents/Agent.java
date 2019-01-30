@@ -27,7 +27,8 @@ public abstract class Agent {
 
 	public float size;
 	protected float growth;
-	protected float maxSize;
+	public float maxTall;
+	public float maxSize;
 
 	public boolean isAlive;
 
@@ -85,6 +86,9 @@ public abstract class Agent {
 		this.agentManager = agentManager;
 		
 		this.talents = new Talents();
+
+		this.color = new float[3];
+		this.secondaryColor = new float[3];
 	}
 
 
@@ -150,7 +154,8 @@ public abstract class Agent {
 	protected void fixAppearance() {
 		stomach.inherit(talents);
 		maxHealth = 100*talents.talentsRelative[Talents.TOUGHNESS];
-		size = talents.talentsRelative[Talents.FIGHT]*10+talents.talentsRelative[Talents.TOUGHNESS]*10;
+		maxSize = talents.talentsRelative[Talents.TOUGHNESS];
+		maxTall = talents.talentsRelative[Talents.FIGHT];
 	}
 
 	private void stepScore(int score) {
@@ -178,9 +183,12 @@ public abstract class Agent {
 
 	public void move() {
 		old.set(pos);
+		
 		vel.mul(getSpeed());
-		pos.add(vel);
-		World.wrap(pos);
+		vel.add(pos);
+		World.wrap(vel);
+		
+		pos.set(vel);
 		
 		if (pos.x == Float.NaN) {
 			System.err.println("NaN position!!! What did you do!");
@@ -254,14 +262,8 @@ public abstract class Agent {
 		return talents.get(Talents.FIGHT);
 	}
 	
-	protected final float harvestSkill = 0.5f;//TODO: Kan en p användas här? Nä?
+	public final float harvestSkill = 0.2f;//TODO: Kan en p användas här? Nä?
 	
-	public void harvestBlood() {
-		stomach.addBlood(world.blood.harvest(harvestSkill, (int) pos.x, (int) pos.y));
-	}
-	public void harvestGrass() {
-		stomach.addFiber(world.grass.harvest(harvestSkill, (int) pos.x, (int) pos.y));
-	}
 	protected void grow() {
 		if (size < maxSize) {
 			size += growth;

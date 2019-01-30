@@ -1,6 +1,5 @@
-package display;
+package display.hex;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
@@ -17,7 +16,9 @@ import main.Main;
 
 import org.joml.Matrix4f;
 
-import constants.Constants;
+import display.Camera;
+import display.ShaderSource;
+import display.Texture;
 import gpu.GpuE;
 import gpu.GpuUtils;
 import gpu.Program;
@@ -58,7 +59,7 @@ public class HexTerrainRenderer {
 	}
 	
 	
-	void drawHexTerrain(Matrix4f translationMatrix, Texture[] pHeightTexture, int pSrcIndex, Texture pStrataTexture, Texture pColorTexture, Camera pCamera) {
+	public void drawHexTerrain(Matrix4f translationMatrix, Texture[] pHeightTexture, int pSrcIndex, Texture pStrataTexture, Texture pColorTexture, Camera pCamera) {
 		float[] matrixBuffer = new float[16];
 		
 		glClearColor(0.0f,0.5f,1.0f,1); GpuUtils.GpuErrorCheck();

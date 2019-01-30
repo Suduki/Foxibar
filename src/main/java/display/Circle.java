@@ -13,19 +13,25 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 
-import org.joml.Vector2f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class Circle {
-	public Vector2f position = new Vector2f();
+	public Vector3f position = new Vector3f();
+	public Vector3f originalTilt = new Vector3f(0, 1f, 0);
 	
-	private float[] circleVerticesX;
-	private float[] circleVerticesY;
+	public Vector3f[] vertices;
+	
 	private final float[] color;
 	
 	public float radius;
 	
 	public Circle(int numVertices, float radius, float[] color) {
-		initCircle(numVertices);
+		vertices = new Vector3f[numVertices];
+		for (int i = 0; i < vertices.length; ++i) {
+			vertices[i] = new Vector3f();
+		}
+		resetCircle();
 		this.radius = radius;
 		this.color = color;
 	}
@@ -36,10 +42,10 @@ public class Circle {
 		glBegin(GL_TRIANGLES);
 		glColor4f(color[0], color[1], color[2], alpha);
 
-		for (int i = 0; i < circleVerticesX.length; i++) {
-			glVertex2f(position.x, position.y);
+		for (int i = 0; i < vertices.length; i++) {
+			glVertex2f(position.x, position.z);
 			glVertex2f(getXAt(i), getYAt(i));
-			if (i+1 < circleVerticesX.length) {
+			if (i+1 < vertices.length) {
 				glVertex2f(getXAt(i+1), getYAt(i+1));
 			}
 			else {
@@ -51,20 +57,30 @@ public class Circle {
 	}
 	
 	public float getXAt(int i) {
-		return circleVerticesX[i]*radius + position.x;
+		i = i % vertices.length;
+		return vertices[i].x*radius + position.x;
 	}
 	
 	public float getScaledXAt(int i, float scales) {
-		return circleVerticesX[i]*radius * (scales/2 + 1f/2) + position.x;
-	}
-	
-	public float getYAt(int i) {
-		return circleVerticesY[i]*radius + position.y;
+		i = i % vertices.length;
+		return vertices[i].x*radius * scales + position.x;
 	}
 	
 	public float getScaledYAt(int i, float scales) {
-		return circleVerticesY[i]*radius* (scales/2 + 1f/2) + position.y;
+		i = i % vertices.length;
+		return vertices[i].y*radius * scales + position.y;
 	}
+	
+	public float getScaledZAt(int i, float scales) {
+		i = i % vertices.length;
+		return vertices[i].z*radius * scales + position.z;
+	}
+	
+	public float getYAt(int i) {
+		i = i % vertices.length;
+		return vertices[i].z*radius + position.z;
+	}
+	
 	
 	public void renderCircle(float alpha, float[] scales) {
 		glEnable(GL_BLEND);
@@ -72,34 +88,37 @@ public class Circle {
 		glBegin(GL_TRIANGLES);
 		glColor4f(color[0], color[1], color[2], alpha);
 
-		for (int i = 0; i < circleVerticesX.length; i++) {
-			glVertex2f(position.x, position.y);
-			glVertex2f(getScaledXAt(i, scales[i]), getScaledYAt(i, scales[i]));
-			if (i+1 < circleVerticesX.length) {
-				glVertex2f(getScaledXAt(i+1, scales[i+1]), getScaledYAt(i+1, scales[i+1]));
+		for (int i = 0; i < vertices.length; i++) {
+			glVertex2f(position.x, position.z);
+			glVertex2f(getScaledXAt(i, scales[i]), getScaledZAt(i, scales[i]));
+			if (i+1 < vertices.length) {
+				glVertex2f(getScaledXAt(i+1, scales[i+1]), getScaledZAt(i+1, scales[i+1]));
 			}
 			else {
-				glVertex2f(getScaledXAt(0, scales[0]), getScaledYAt(0, scales[0]));
+				glVertex2f(getScaledXAt(0, scales[0]), getScaledZAt(0, scales[0]));
 			}
 		}
 		glEnd();
 		glDisable(GL_BLEND);
 	}
 	
-	
-	public void initCircle(int numVertices) {
-		circleVerticesX = new float[numVertices];
-		circleVerticesY = new float[numVertices];
+	public void resetCircle() {
 		float angle = 0;
-		for (int i = 0; i < numVertices; ++i) {
-			angle += Math.PI*2 /numVertices;
-			circleVerticesX[i] = (float)Math.cos(angle);
-			circleVerticesY[i] = (float)Math.sin(angle);
+		for (int i = 0; i < vertices.length; ++i) {
+			angle += Math.PI*2 / vertices.length;
+			
+			vertices[i].set((float)Math.cos(angle), 0f, (float)Math.sin(angle));
+		}
+	}
+	
+	public void set(Circle c2) {
+		for (int i = 0; i < vertices.length; ++i) {
+			vertices[i].set(c2.vertices[i]);
 		}
 	}
 
-	public void setPos(float x, float y) {
-		position.set(x, y);
+	public void setPos(float x, float z) {
+		position.set(x, 0, z);
 	}
 	
 	public void drawBorder() {
@@ -108,9 +127,9 @@ public class Circle {
 		glBegin(GL_LINES);
 		glColor4f(0, 0, 0, 1);
 		
-		for (int i = 0; i < circleVerticesX.length; i++) {
+		for (int i = 0; i < vertices.length; i++) {
 			glVertex2f(getXAt(i), getYAt(i));
-			if (i+1 < circleVerticesX.length) {
+			if (i+1 < vertices.length) {
 				glVertex2f(getXAt(i+1), getYAt(i+1));
 			}
 			else {
@@ -128,15 +147,22 @@ public class Circle {
 		glBegin(GL_LINES);
 		glColor4f(0, 0, 0, 1);
 
-		for (int i = 0; i < circleVerticesX.length; i++) {
-			glVertex2f(position.x, position.y);
-			glVertex2f(getScaledXAt(i, scales[i]), getScaledYAt(i, scales[i]));
+		for (int i = 0; i < vertices.length; i++) {
+			glVertex2f(position.x, position.z);
+			glVertex2f(getScaledXAt(i, scales[i]), getScaledZAt(i, scales[i]));
 		}
 		glEnd();
 		glDisable(GL_BLEND);
 	}
 
-	public boolean isInside(float x, float y) {
-		return position.distance(x, y) <= radius;
+	public boolean isInside(float x, float z) {
+		return position.distance(x, 0, z) <= radius;
+	}
+
+	public void rotateTowards(Vector3f dir) {
+		for (int i = 0; i < vertices.length; ++i) {
+			Quaternionf quat = originalTilt.rotationTo(dir, new Quaternionf());
+			vertices[i].rotate(quat);
+		}
 	}
 }

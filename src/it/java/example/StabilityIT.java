@@ -130,7 +130,7 @@ public class StabilityIT {
 				System.out.println(" Found low limit.");
 			}
 			System.out.print(".");
-		} while (numAgents < Simulation.WORLD_SIZE / 20);
+		} while (numAgents < Simulation.WORLD_SIZE / 40);
 		System.out.println(" Done.");
 		TestHelper.cleanup(simulation, timeStep);
 		StomachRecommendation tmp = new StomachRecommendation(lowGrassP, grassP);
@@ -159,7 +159,7 @@ public class StabilityIT {
 		do {
 			maxNumType1 = 0;
 			maxNumType2 = 0;
-			bloodP += 0.2f;
+			bloodP += 0.5f;
 			Talents.changeTalentMax(Talents.DIGEST_BLOOD, bloodP);
 
 			int numGrasslersToSpawn = simulation.getNumAgents(type1) > 0
@@ -234,21 +234,19 @@ public class StabilityIT {
 		Talents.changeTalentMax(Talents.DIGEST_BLOOD, 0);
 
 		System.out.printf("Running %d iterations with low blood gain\n", numSimulationIterations);
-		float[] actionPercentagesAtLowBloodGain = new float[Action.getNumActions()];
+		float[] actionPercentagesAtLowBloodGain = new float[Action.numActions];
 		runSeveralIterationsAndTrackActions(numSimulationIterations, actionPercentagesAtLowBloodGain);
 		printActionsPercentages(actionPercentagesAtLowBloodGain);
 
 		Talents.changeTalentMax(Talents.DIGEST_BLOOD, maxB * 20);
 
 		System.out.printf("Running %d iterations with high blood gain: %f\n", numSimulationIterations, maxB * 20);
-		float[] actionPercentagesAtHighBloodGain = new float[Action.getNumActions()];
+		float[] actionPercentagesAtHighBloodGain = new float[Action.numActions];
 		runSeveralIterationsAndTrackActions(numSimulationIterations, actionPercentagesAtHighBloodGain);
 		printActionsPercentages(actionPercentagesAtHighBloodGain);
 
 		Assert.assertTrue(
 				actionPercentagesAtHighBloodGain[Action.huntStranger.id] > actionPercentagesAtLowBloodGain[Action.huntStranger.id]);
-		Assert.assertTrue(
-				actionPercentagesAtHighBloodGain[Action.seekBlood.id] > actionPercentagesAtLowBloodGain[Action.seekBlood.id]);
 		Assert.assertTrue(
 				actionPercentagesAtHighBloodGain[Action.harvestBlood.id] > actionPercentagesAtLowBloodGain[Action.harvestBlood.id]);
 
@@ -256,7 +254,7 @@ public class StabilityIT {
 
 	private void printActionsPercentages(float[] actionPercentages) {
 		for (int i = 0; i < actionPercentages.length; ++i) {
-			Action act = Action.acts[i];
+			Action act = Action.acts.get(i);
 			float perc = actionPercentages[i];
 			System.out.printf("%18s: %2.2f%s\n", act.getClass().getSimpleName(), perc, "%");
 		}
@@ -269,7 +267,7 @@ public class StabilityIT {
 
 			float numCalls = Action.getTotCalls();
 			for (int i = 0; i < actionPercentages.length; ++i) {
-				actionPercentages[i] += calculateCallPercentage(numCalls, Action.acts[i]) / numSimulationIterations;
+				actionPercentages[i] += calculateCallPercentage(numCalls, Action.acts.get(i)) / numSimulationIterations;
 			}
 			System.out.print(".");
 		}

@@ -1,6 +1,7 @@
 package agents;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
@@ -9,7 +10,7 @@ import constants.Constants;
 
 public class NeuralNetwork implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public static final int[] LAYER_SIZES = {NeuralFactors.in.NUM_FACTORS, 4, Action.getNumActions() + 1};
+	public static final int[] LAYER_SIZES = {NeuralFactors.in.NUM_FACTORS, 4, Action.numActions + 1 /* speed */};
 	public static final int NUM_LAYERS = LAYER_SIZES.length;
 	public static final int NUM_WEIGHTS = NUM_LAYERS - 1;
 
@@ -21,7 +22,7 @@ public class NeuralNetwork implements Serializable {
 	public NeuralNetwork(boolean initZero) {
 		weights = new float[NUM_WEIGHTS][][];
 		z = new float[NUM_LAYERS][];
-		bias = new float[NUM_LAYERS-2][]; // Skip input layer and output layer.
+		bias = new float[NUM_LAYERS-2][]; // Skip input layer and output layer. TODO: WHY?!
 		bestDirection = 0;
 
 		for (int weight = 0 ; weight < NUM_WEIGHTS; ++weight) {
@@ -38,7 +39,6 @@ public class NeuralNetwork implements Serializable {
 			initWeightsRandom();
 		}
 		initBias();
-
 	}
 
 	private void initBias() {
@@ -102,8 +102,9 @@ public class NeuralNetwork implements Serializable {
 		evaluateNeuralNetwork();
 		float bestVal = Float.NEGATIVE_INFINITY;
 		int selection = -1;
-		for (int i = 0; i < actions.length; ++i) {
-			if (actions[i].isPossible && z[LAYER_SIZES.length-1][i] > bestVal) {
+		for (int i = 0; i < Action.numActions; ++i) {
+			if (acts.get(i).isPossible && z[LAYER_SIZES.length-1][i] > bestVal) {
+				
 				bestVal = z[LAYER_SIZES.length-1][i];
 				selection = i;
 			}
@@ -146,6 +147,6 @@ public class NeuralNetwork implements Serializable {
 
 	public float getSpeed() {
 		// A bit ugly, but what to do...
-		return z[LAYER_SIZES.length-1][Action.getNumActions()];
+		return z[LAYER_SIZES.length-1][Action.numActions];
 	}
 }

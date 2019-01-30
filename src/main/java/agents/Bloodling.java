@@ -1,12 +1,7 @@
 package agents;
 
-import java.util.Random;
-
 import actions.Action;
 import constants.Constants;
-import constants.Constants.Neighbours;
-import talents.Talents;
-import vision.Vision;
 import world.World;
 
 public class Bloodling extends Agent {
@@ -27,12 +22,6 @@ public class Bloodling extends Agent {
 		
 		Action action;
 		action = Action.harvestBlood;
-		if (action.isPossible) {
-			action.commit(this);
-			return;
-		}
-		
-		action = Action.seekBlood;
 		if (action.isPossible) {
 			action.commit(this);
 			return;

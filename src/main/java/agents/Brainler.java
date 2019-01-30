@@ -18,15 +18,13 @@ public class Brainler extends Agent {
 	public Brainler(World world, AgentManager<Agent> agentManager) {
 		super(world, agentManager);
 		this.brain = new Brain(false);
-		this.color = new float[3];
-		this.secondaryColor = new float[3];
 		this.appearanceFactors = new float[NUM_APPEARANCE_FACTORS];
 	}
 	
 	@Override
 	protected void actionUpdate() {
 		int action = updateBrainInputs();
-		Action.acts[action].commit(this);
+		Action.commit(action, this);
 	}
 	
 	private int updateBrainInputs() {
@@ -47,10 +45,8 @@ public class Brainler extends Agent {
 			brainInputVector[NeuralFactors.in.FRIENDLER] = -1f;
 		}
 		
-		brainInputVector[NeuralFactors.in.TILE_GRASS] = Action.harvestGrass.grassness;
-		brainInputVector[NeuralFactors.in.TILE_BLOOD] = Action.harvestBlood.bloodness;
-		brainInputVector[NeuralFactors.in.SEEK_GRASS] = Action.seekGrass.grassness;
-		brainInputVector[NeuralFactors.in.SEEK_BLOOD] = Action.seekBlood.bloodness;
+		brainInputVector[NeuralFactors.in.TILE_GRASS] = Action.harvestGrass.heightNearby;
+		brainInputVector[NeuralFactors.in.TILE_BLOOD] = Action.harvestBlood.heightNearby;
 		
 		brainInputVector[NeuralFactors.in.TILE_TERRAIN_HEIGHT] = world.terrain.height[(int) pos.x][(int) pos.y];
 		
@@ -104,7 +100,6 @@ public class Brainler extends Agent {
 	public void updateColors() {
 		for (int i = 0; i < 3; ++i) {
 			color[i] = (float) Math.round(appearanceFactors[i]);
-			secondaryColor[i] = (float) Math.round(appearanceFactors[i+3]);
 		}
 		secondaryColor[0] = talents.talentsRelative[Talents.DIGEST_BLOOD];
 		secondaryColor[1] = talents.talentsRelative[Talents.DIGEST_GRASS];

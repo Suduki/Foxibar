@@ -46,10 +46,10 @@ public class CarbonElement extends TileElement{
 		return old - height[x][y];
 	}
 
-	public void reset() {
+	public void reset(boolean fullHeight) {
 		for (int i = 0; i < height.length; ++i) {
 			for (int j = 0; j < height[i].length; ++j) {
-				height[i][j] = 0;
+				height[i][j] = fullHeight ? 1 : 0;
 			}
 		}
 	}
