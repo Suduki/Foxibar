@@ -8,7 +8,7 @@ import java.util.List;
 import org.joml.Vector2f;
 
 import agents.Animal;
-import agents.AgentManager;
+import agents.AnimalManager;
 import buttons.Button;
 import constants.Constants;
 import gui.KeyboardState;
@@ -125,7 +125,7 @@ public void actionLoadBrains() {
 		glBegin(GL_TRIANGLES);
 
 		
-		for (AgentManager<?> manager : Main.mSimulation.agentManagers) {
+		for (AnimalManager<?> manager : Main.mSimulation.agentManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
 				Animal a = manager.alive.get(i);
 				if (a != null) {

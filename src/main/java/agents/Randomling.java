@@ -6,8 +6,8 @@ import world.World;
 
 public class Randomling extends Animal {
 
-	public Randomling(World world, AgentManager<Animal> agentManager) {
-		super(world, agentManager);
+	public Randomling(World world) {
+		super(world);
 		color = Constants.Colors.BLACK;
 		secondaryColor = Constants.Colors.WHITE;
 	}

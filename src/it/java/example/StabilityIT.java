@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import actions.Action;
 import agents.Animal;
-import agents.AgentManager;
+import agents.AnimalManager;
 import agents.Brainler;
 import agents.Bloodling;
 import agents.Grassler;
@@ -192,9 +192,9 @@ public class StabilityIT {
 
 	@Test // TODO: MOVE; not an
 	public void test4SpeciesTest() {
-		Brainler a = new Brainler(null, null);
+		Brainler a = new Brainler(null);
 		a.inherit(null);
-		Brainler b = new Brainler(null, null);
+		Brainler b = new Brainler(null);
 
 		b.inherit(null);
 		Assert.assertFalse(a.isCloselyRelatedTo(b));

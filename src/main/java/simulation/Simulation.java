@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import actions.Action;
 import agents.Animal;
-import agents.AgentManager;
+import agents.AnimalManager;
 import constants.Constants;
 import messages.MessageHandler;
 import messages.Message;
@@ -32,7 +32,7 @@ public class Simulation extends MessageHandler {
 	}
 	public Vision vision;
 	
-	public ArrayList<AgentManager<?>> agentManagers = new ArrayList<>();
+	public ArrayList<AnimalManager<?>> agentManagers = new ArrayList<>();
 	
 	public <T extends Animal> Simulation(short worldMultiplier, Class<T>... classes)
 	{
@@ -45,7 +45,7 @@ public class Simulation extends MessageHandler {
 		Action.init(mWorld);
 		Talents.init();
 		for (Class<T> clazz : classes) {
-			agentManagers.add(new AgentManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));
+			agentManagers.add(new AnimalManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));
 		}
 	}
 	
@@ -73,7 +73,7 @@ public class Simulation extends MessageHandler {
 		{
 			mWorld.update(timeStep);
 			SpawnAnimals.step();
-			for (AgentManager<?> aM : agentManagers) {
+			for (AnimalManager<?> aM : agentManagers) {
 				aM.synchAliveDead();
 				aM.moveAll();
 			}
@@ -86,7 +86,7 @@ public class Simulation extends MessageHandler {
 	}
 	
 	public void killAllAgents() {
-		for (AgentManager<?> aM : agentManagers) {
+		for (AnimalManager<?> aM : agentManagers) {
 			aM.killAll = true;
 			aM.synchAliveDead();
 			aM.moveAll();
@@ -118,13 +118,13 @@ public class Simulation extends MessageHandler {
 
 	public int getNumAgents() {
 		int numAgents = 0;
-		for (AgentManager<?> aM : agentManagers) {
+		for (AnimalManager<?> aM : agentManagers) {
 			numAgents += aM.numAgents;
 		}
 		return numAgents;
 	}
 	public int getNumAgents(int agentType) {
-		AgentManager<?> aM = agentManagers.get(agentType);
+		AnimalManager<?> aM = agentManagers.get(agentType);
 		return aM.numAgents;
 	}
 }

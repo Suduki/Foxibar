@@ -15,8 +15,8 @@ public class Brainler extends Animal {
 	public float[] appearanceFactors;
 	public static final int NUM_APPEARANCE_FACTORS = 6;
 	
-	public Brainler(World world, AgentManager<Animal> agentManager) {
-		super(world, agentManager);
+	public Brainler(World world) {
+		super(world);
 		this.brain = new Brain(false);
 		this.appearanceFactors = new float[NUM_APPEARANCE_FACTORS];
 	}

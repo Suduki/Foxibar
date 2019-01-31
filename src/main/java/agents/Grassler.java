@@ -8,8 +8,8 @@ import world.World;
 
 public class Grassler extends Animal {
 
-	public Grassler(World world, AgentManager<Animal> agentManager) {
-		super(world, agentManager);
+	public Grassler(World world) {
+		super(world);
 		color = Constants.Colors.BLACK;
 		secondaryColor = Constants.Colors.WHITE;
 	}

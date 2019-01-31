@@ -5,7 +5,7 @@ import static org.lwjgl.opengl.GL11.glColor4f;
 import org.joml.Vector3f;
 
 import agents.Animal;
-import agents.AgentManager;
+import agents.AnimalManager;
 import constants.Constants;
 import main.Main;
 import simulation.Simulation;
@@ -50,7 +50,7 @@ public class AgentRenderer extends TubeRenderer {
 	
 	public void drawAgents(float heightScale) {
 		
-		for (AgentManager<?> manager : Main.mSimulation.agentManagers) {
+		for (AnimalManager<?> manager : Main.mSimulation.agentManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
 				Animal a = manager.alive.get(i);
 				if (a == null) break;

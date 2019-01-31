@@ -46,16 +46,16 @@ public abstract class Animal extends Agent {
 	private boolean starving;
 
 	public World world;
-	protected AgentManager<? extends Animal> agentManager;
 	public boolean printStuff;
 	
 	public Talents talents;
 	
 	public Animal stranger;
 	public Animal friendler;
+	public boolean didMate;
+	public boolean didMove;
 
-	@SuppressWarnings("rawtypes")
-	public Animal(World world, AgentManager agentManager) {
+	public Animal(World world) {
 		pos = new Vector2f();
 		oldPos = new Vector2f();
 		vel = new Vector2f();
@@ -75,8 +75,6 @@ public abstract class Animal extends Agent {
 		isAlive = false;
 
 		this.world = world;
-		this.agentManager = agentManager;
-		
 		this.talents = new Talents();
 
 		this.color = new float[3];
@@ -89,14 +87,14 @@ public abstract class Animal extends Agent {
 	 * @return whether the animal is alive or not.
 	 */
 	public boolean stepAgent() {
+		internalOrgansUpdate();
+		
 		if (!isAlive) {
-			System.err.println("Trying to step a dead agent.");
 			return false;
 		}
 		think();
 		actionUpdate();
 		makeBaby();
-		internalOrgansUpdate();
 
 		return isAlive;
 	}
@@ -124,7 +122,7 @@ public abstract class Animal extends Agent {
 
 	protected void mate() {
 		if (isFertileAndNotHungry()) {
-			children.add(agentManager.mate(this));
+			didMate = true;
 			this.childCost();
 			this.stepScore(1);
 		}
@@ -189,7 +187,7 @@ public abstract class Animal extends Agent {
 			System.err.println("Negative position!!! What did you do!");
 		}
 		
-		agentManager.vision.updateAgentZone(this);
+		didMove = true;
 	}
 
 	
@@ -308,6 +306,9 @@ public abstract class Animal extends Agent {
 	}
 
 	public void reset() {
+		didMove = false;
+		didMate = false;
+		
 		isAlive = true;
 		age = 0;
 		trueAge = 0;

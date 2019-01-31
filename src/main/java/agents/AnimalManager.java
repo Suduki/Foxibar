@@ -6,9 +6,9 @@ import vision.Vision;
 import world.World;
 import constants.Constants;
 
-public class AgentManager<AgentClass extends Animal> {
+public class AnimalManager<AnimalClass extends Animal> {
 
-	public AgentClass[] pool;
+	public AnimalClass[] pool;
 	public ArrayList<Animal> alive = new ArrayList<>();
 	public ArrayList<Animal> dead = new ArrayList<>();
 	public ArrayList<Animal> toDie = new ArrayList<>();
@@ -21,31 +21,31 @@ public class AgentManager<AgentClass extends Animal> {
 	public Vision vision;
 	World world;
 
-	public AgentManager(World world, Class<AgentClass> clazz, int maxNumAnimals, Vision vision) {
+	public AnimalManager(World world, Class<AnimalClass> clazz, int maxNumAnimals, Vision vision) {
 		this.vision = vision;
-		pool = (AgentClass[]) new Animal[maxNumAnimals];
+		pool = (AnimalClass[]) new Animal[maxNumAnimals];
 		
 		if (clazz == Randomling.class) {
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-				pool[id] = (AgentClass) new Randomling(world, (AgentManager<Animal>) this); //TODO behövs id?
+				pool[id] = (AnimalClass) new Randomling(world); //TODO behövs id?
 				dead.add(pool[id]);
 			}
 		}
 		else if (clazz == Brainler.class) {
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-				pool[id] = (AgentClass) new Brainler(world, (AgentManager<Animal>) this);
+				pool[id] = (AnimalClass) new Brainler(world);
 				dead.add(pool[id]);
 			}
 		}
 		else if (clazz == Bloodling.class) {
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-				pool[id] = (AgentClass) new Bloodling(world, (AgentManager<Animal>) this);
+				pool[id] = (AnimalClass) new Bloodling(world);
 				dead.add(pool[id]);
 			}
 		}
 		else if (clazz == Grassler.class) {
 			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
-				pool[id] = (AgentClass) new Grassler(world, (AgentManager<Animal>) this);
+				pool[id] = (AnimalClass) new Grassler(world);
 				dead.add(pool[id]);
 			}
 		}
@@ -76,6 +76,15 @@ public class AgentManager<AgentClass extends Animal> {
 				vision.updateNearestNeighbours(a);
 				if (a.stepAgent()) {
 					// All is well
+					if (a.didMate) {
+						a.children.add(mate(a));
+						a.didMate = false;
+					}
+					
+					if (a.didMove) {
+						vision.updateAgentZone(a);
+						a.didMove = false;
+					}
 				}
 				else {
 					someoneDied(a, true);

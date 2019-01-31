@@ -6,8 +6,8 @@ import world.World;
 
 public class Bloodling extends Animal {
 	
-	public Bloodling(World world, AgentManager agentManager) {
-		super(world, agentManager);
+	public Bloodling(World world) {
+		super(world);
 		color = Constants.Colors.WHITE;
 		secondaryColor = Constants.Colors.RED;
 	}
