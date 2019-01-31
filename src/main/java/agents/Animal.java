@@ -45,7 +45,6 @@ public abstract class Animal extends Agent {
 
 	private boolean starving;
 
-	public World world;
 	public boolean printStuff;
 	
 	public Talents talents;
@@ -56,7 +55,7 @@ public abstract class Animal extends Agent {
 	public boolean didMove;
 
 	public Animal(World world) {
-		pos = new Vector2f();
+		super(world);
 		oldPos = new Vector2f();
 		vel = new Vector2f();
 
@@ -74,7 +73,6 @@ public abstract class Animal extends Agent {
 
 		isAlive = false;
 
-		this.world = world;
 		this.talents = new Talents();
 
 		this.color = new float[3];
