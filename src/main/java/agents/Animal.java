@@ -6,6 +6,7 @@ import org.joml.Vector2f;
 
 import actions.Action;
 import constants.Constants;
+import plant.Tree;
 import talents.Talents;
 import vision.Vision;
 import world.World;
@@ -17,18 +18,15 @@ public abstract class Animal extends Agent {
 
 	public float[] color, secondaryColor;
 
-	public float trueAge;
-
 	protected float healPower;
 
-	public float size;
 	protected float growth;
 	public float maxTall;
 	public float maxSize;
 
 	public int score = 0;
-
 	public int sinceLastBaby = 0;
+	
 	boolean isFertile;
 
 	public Vector2f oldPos;
@@ -36,6 +34,9 @@ public abstract class Animal extends Agent {
 
 	public Animal[] nearbyAgents;
 	public float[] nearbyAgentsDistance;
+	
+	public Tree[] nearbyTrees;
+	public float[] nearbyTreesScore;
 
 	protected ArrayList<Animal> children;
 	Animal parent;
@@ -62,7 +63,6 @@ public abstract class Animal extends Agent {
 		maxAge = MAX_AGE; //TODO: move these constants
 		healPower = 0.01f;
 
-		size = 1;
 		growth = 0.01f;
 		maxSize = 1;
 
@@ -79,11 +79,7 @@ public abstract class Animal extends Agent {
 		this.secondaryColor = new float[3];
 	}
 
-
-	/**
-	 * Steps the animal one time step.
-	 * @return whether the animal is alive or not.
-	 */
+	@Override
 	public boolean stepAgent() {
 		internalOrgansUpdate();
 		
@@ -126,7 +122,8 @@ public abstract class Animal extends Agent {
 		}
 	}
 
-	protected void inherit(Animal a) {
+	@Override
+	protected void inherit(Agent a) {
 		if (a == null) {
 			talents.inheritRandom();
 		}
@@ -134,7 +131,7 @@ public abstract class Animal extends Agent {
 			System.err.println("inheriting some different class");
 		}
 		else {
-			talents.inherit(a.talents);
+			talents.inherit(((Animal) a).talents);
 		}
 		fixAppearance();
 	}
@@ -270,6 +267,7 @@ public abstract class Animal extends Agent {
 		}
 	}
 
+	@Override
 	protected void die() {
 		world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size, true);
 		world.blood.append((int) pos.x, (int) pos.y, stomach.fat / Constants.Talents.MAX_DIGEST_BLOOD, true);
@@ -303,17 +301,12 @@ public abstract class Animal extends Agent {
 		return isFertile && stomach.canHaveBaby(talents.get(Talents.MATE_COST));
 	}
 
+	@Override
 	public void reset() {
-		didMove = false;
-		didMate = false;
+		super.reset();
 		
-		isAlive = true;
-		age = 0;
-		trueAge = 0;
 		score = 0;
 		sinceLastBaby = 0;
-		health = 0.1f;
-		incarnation++;
 	}
 
 	/**
@@ -323,4 +316,28 @@ public abstract class Animal extends Agent {
 	protected static float rand() { //TODO: Move to util class
 		return 2*Constants.RANDOM.nextFloat() - 1;
 	}
+	
+
+	@Override
+	protected void updateNearestNeighbours(Vision vision) {
+		vision.updateNearestNeighbours(this);
+	}
+	
+	@Override
+	protected void addToChildren(Agent a) {
+		this.children.add((Animal) a);
+	}
+	
+	@Override
+	protected void addParent(Agent a) {
+		this.parent = (Animal) a;
+	}
+
+	@Override
+	public void resetPos(int x, int y) {
+		super.resetPos(x, y);
+		oldPos.x = x;
+		oldPos.y = y;		
+	}
+	
 }

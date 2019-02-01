@@ -6,8 +6,10 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 
 import simulation.Simulation;
+import agents.Agent;
 import agents.Animal;
 import constants.Constants;
+import plant.Tree;
 
 public class Vision {
 	public Zone[][] zoneGrid;
@@ -48,36 +50,66 @@ public class Vision {
 			for (int j = -1; j <= 1; ++j) {
 				int zoneIX = (zoneX + zones.x + i) % zones.x;
 				int zoneIY = (zoneY + zones.y + j) % zones.y;
-				for (Animal anI : zoneGrid[zoneIX][zoneIY].agentsInZone) {
-					if (anI != a) {
-						float d = calculateCircularDistance(pos, anI.pos);
-						if (d > Constants.Vision.MAX_DISTANCE_AN_AGENT_CAN_SEE) {
-							continue;
-						}
-						for (int neighId = 0; neighId < a.nearbyAgentsDistance.length; ++neighId) {
-							if (a.nearbyAgentsDistance[neighId] == -1) {
-								a.nearbyAgentsDistance[neighId] = d;
-								a.nearbyAgents[neighId] = anI;
-								break;
-							}
-							else if (d <= a.nearbyAgentsDistance[neighId]) {
-								float tmpD = d;
-								d = a.nearbyAgentsDistance[neighId];
-								a.nearbyAgentsDistance[neighId] = tmpD;
-								
-								Animal tmpI = anI;
-								anI = a.nearbyAgents[neighId];
-								a.nearbyAgents[neighId] = tmpI;
-							}
-						}
-					}
-				}
+				Zone zone = zoneGrid[zoneIX][zoneIY];
+				
+				updateNearestAnimalNeighboursInZone(a, zone);
+				updateTreeScoresInZone(a, zone);
 			}
 		}
 		
 		updateStrangerAndFriendler(a);
 	}
-	
+
+	private void updateTreeScoresInZone(Animal a, Zone zone) {
+		for (Tree tree : zone.treesInZone) {
+			float score = tree.leafness / (1f + calculateCircularDistance(a.pos, tree.pos));
+			if (score > Constants.Vision.MAX_DISTANCE_AN_AGENT_CAN_SEE) {
+				continue;
+			}
+			for (int neighId = 0; neighId < a.nearbyTreesScore.length; ++neighId) {
+				if (a.nearbyTreesScore[neighId] == -1) {
+					a.nearbyTreesScore[neighId] = score;
+					a.nearbyTrees[neighId] = tree;
+					break;
+				} else if (score <= a.nearbyTreesScore[neighId]) {
+					float tmpD = score;
+					score = a.nearbyTreesScore[neighId];
+					a.nearbyTreesScore[neighId] = tmpD;
+
+					Tree tmpTree = tree;
+					tree = a.nearbyTrees[neighId];
+					a.nearbyTrees[neighId] = tmpTree;
+				}
+			}
+		}
+	}
+
+	private void updateNearestAnimalNeighboursInZone(Animal a, Zone zone) {
+		for (Animal anI : zone.agentsInZone) {
+			if (anI != a) {
+				float d = calculateCircularDistance(a.pos, anI.pos);
+				if (d > Constants.Vision.MAX_DISTANCE_AN_AGENT_CAN_SEE) {
+					continue;
+				}
+				for (int neighId = 0; neighId < a.nearbyAgentsDistance.length; ++neighId) {
+					if (a.nearbyAgentsDistance[neighId] == -1) {
+						a.nearbyAgentsDistance[neighId] = d;
+						a.nearbyAgents[neighId] = anI;
+						break;
+					}
+					else if (d <= a.nearbyAgentsDistance[neighId]) {
+						float tmpD = d;
+						d = a.nearbyAgentsDistance[neighId];
+						a.nearbyAgentsDistance[neighId] = tmpD;
+						
+						Animal tmpI = anI;
+						anI = a.nearbyAgents[neighId];
+						a.nearbyAgents[neighId] = tmpI;
+					}
+				}
+			}
+		}
+	}
 
 	private void updateStrangerAndFriendler(Animal a) {
 		a.stranger = null;
@@ -102,6 +134,20 @@ public class Vision {
 				}
 			}
 		}
+	}
+
+	public static void getDirectionOf(Vector2f vel, Vector2f pos, Vector2f pos2) {
+		float xDirect      = Math.abs(pos2.x - pos.x);
+		float xThroughWall = Simulation.WORLD_SIZE_X - xDirect;
+		
+		float yDirect      = Math.abs(pos2.y - pos.y);
+		float yThroughWall = Simulation.WORLD_SIZE_Y - yDirect;
+		
+		vel.x = pos2.x - pos.x;
+		vel.y = pos2.y - pos.y;
+		if (xDirect > xThroughWall) vel.x = - vel.x;
+		if (yDirect > yThroughWall) vel.y = - vel.y;
+		if (vel.lengthSquared() > 0) vel.normalize();
 	}
 
 	public static float calculateCircularDistance(Vector2f pos, Vector2f pos2) {
@@ -138,16 +184,29 @@ public class Vision {
 		int zoneY = getZoneYFromPosY(posY);
 		
 		if (oldZoneX != zoneX || oldZoneY != zoneY) {
-			removeAgentFromZone(id, oldZoneX, oldZoneY);
-			addAgentToZone(id, zoneX, zoneY);
+			removeAnimalFromZone(id, oldZoneX, oldZoneY);
+			addAnimalToZone(id, zoneX, zoneY);
 		}
+	}
+	
+	public void addAgentToZone(Agent id) {
+		if (id instanceof Animal) {
+			addAgentToZone((Animal) id);
+			return;
+		}
+		if (id instanceof Tree) {
+			addAgentToZone((Tree) id);
+			return;
+		}
+		System.err.println("Trying to add weird agent to zone?");
 	}
 	
 	public void addAgentToZone(Animal id) {
 		int zoneX = getZoneXFromPosX(id.pos.x);
 		int zoneY = getZoneYFromPosY(id.pos.y);
-		addAgentToZone(id, zoneX, zoneY);
+		addAnimalToZone(id, zoneX, zoneY);
 	}
+	
 	public void removeAgentFromZone(Animal id, boolean useOldPos) {
 		int zoneX;
 		int zoneY;
@@ -159,54 +218,58 @@ public class Vision {
 			zoneX = getZoneXFromPosX(id.pos.x);
 			zoneY = getZoneYFromPosY(id.pos.y);
 		}
-		removeAgentFromZone(id, zoneX, zoneY);
+		removeAnimalFromZone(id, zoneX, zoneY);
 	}
 	
-	private void addAgentToZone(Animal id, int zoneX, int zoneY) {
-//		System.out.println("num before add: " + zoneGrid[zoneX][zoneY].agentsInZone.size()
-//				+ "zoneX=" + zoneX + "zoneY=" + zoneY);
+	public void addTreeToZone(Tree id) {
+		int zoneX = getZoneXFromPosX(id.pos.x);
+		int zoneY = getZoneYFromPosY(id.pos.y);
+		addTreeToZone(id, zoneX, zoneY);
+	}
+	
+	public void removeTreeFromZone(Tree id) {
+		int zoneX = getZoneXFromPosX(id.pos.x);
+		int zoneY = getZoneYFromPosY(id.pos.y);
+		removeTreeFromZone(id, zoneX, zoneY);
+	}
+	
+	private void addAnimalToZone(Animal id, int zoneX, int zoneY) {
 		if(!zoneGrid[zoneX][zoneY].agentsInZone.add(id)) {
 			System.err.println("Trying to add agent to vision zone, but failed.");
 		}
-//		for (int i = 0; i < 3; ++i) {
-//			id.color[i] = zoneGrid[zoneX][zoneY].color[i];
-//		}
-//		System.out.println("num after add: " + zoneGrid[zoneX][zoneY].agentsInZone.size());
 	}
-	private void removeAgentFromZone(Animal id, int zoneX, int zoneY) {
-//		System.out.println("num before remove: " + zoneGrid[zoneX][zoneY].agentsInZone.size()
-//				+ "zoneX=" + zoneX + "zoneY=" + zoneY);
+	
+	private void removeAnimalFromZone(Animal id, int zoneX, int zoneY) {
 		if(!zoneGrid[zoneX][zoneY].agentsInZone.remove(id)) {
 			System.err.println("Trying to remove agent from vision zone, but failed.");
 		}
-//		System.out.println("num after remove: " + zoneGrid[zoneX][zoneY].agentsInZone.size());
+	}
+	
+	private void addTreeToZone(Tree id, int zoneX, int zoneY) {
+		if(!zoneGrid[zoneX][zoneY].treesInZone.add(id)) {
+			System.err.println("Trying to add agent to vision zone, but failed.");
+		}
+	}
+	
+	private void removeTreeFromZone(Tree id, int zoneX, int zoneY) {
+		if(!zoneGrid[zoneX][zoneY].treesInZone.remove(id)) {
+			System.err.println("Trying to remove agent from vision zone, but failed.");
+		}
 	}
 	
 	public class Zone {
 		public ArrayList<Animal> agentsInZone;
+		public ArrayList<Tree> treesInZone;
 		public float[] color;
 		
 		public Zone() {
 			agentsInZone = new ArrayList<>();
+			treesInZone = new ArrayList<>();
 			color = new float[3];
 			color[0] = Constants.RANDOM.nextFloat();
 			color[1] = Constants.RANDOM.nextFloat();
 			color[2] = Constants.RANDOM.nextFloat();
 		}
-	}
-
-	public static void getDirectionOf(Vector2f vel, Vector2f pos, Vector2f pos2) {
-		float xDirect      = Math.abs(pos2.x - pos.x);
-		float xThroughWall = Simulation.WORLD_SIZE_X - xDirect;
-		
-		float yDirect      = Math.abs(pos2.y - pos.y);
-		float yThroughWall = Simulation.WORLD_SIZE_Y - yDirect;
-		
-		vel.x = pos2.x - pos.x;
-		vel.y = pos2.y - pos.y;
-		if (xDirect > xThroughWall) vel.x = - vel.x;
-		if (yDirect > yThroughWall) vel.y = - vel.y;
-		if (vel.lengthSquared() > 0) vel.normalize();
 	}
 
 	public float[] getColorAt(int x, int y) {

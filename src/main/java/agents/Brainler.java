@@ -58,7 +58,7 @@ public class Brainler extends Animal {
 	public static Brainler brainlerCreatedByUser;
 
 	@Override
-	public void inherit(Animal a) {
+	public void inherit(Agent a) {
 		if (a == null) {
 			this.brain.neural.initWeightsRandom();
 			if (brainlerCreatedByUser != null) {
