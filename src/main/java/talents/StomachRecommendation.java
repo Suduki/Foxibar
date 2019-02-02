@@ -11,8 +11,8 @@ import java.io.Serializable;
 public class StomachRecommendation implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	public static final String bloodFile = "bloodRecommendation.ser";
-	public static final String grassFile = "grassRecommendation.ser";
+	public static final String bloodFile = "serializedSettings/bloodRecommendation.ser";
+	public static final String grassFile = "serializedSettings/grassRecommendation.ser";
 
 	public StomachRecommendation(float lowLimit, float highLimit) {
 		this.lowLimit = lowLimit;
