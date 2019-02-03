@@ -348,7 +348,7 @@ public class StabilityIT {
 		}
 		if (printStuff)
 			System.out.println(AGENT_TYPES_NAMES[agentType] + " Survivability test completed after " + t
-					+ " time steps, with " + simulation.agentManagers.get(agentType).numAgents + " survivors");
+					+ " time steps, with " + simulation.animalManagers.get(agentType).numAnimals + " survivors");
 	}
 
 	private void testWorldPopulated(int agentType) {

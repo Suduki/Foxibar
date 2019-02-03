@@ -151,4 +151,9 @@ public class Talents {
 		}
 	}
 
+	public void improveSkill(int skillId) {
+		talentsRelative[skillId] = 1f;
+		normalizeAndCalculateActuals();
+	}
+
 }

@@ -32,7 +32,7 @@ public class Simulation extends MessageHandler {
 	}
 	public Vision vision;
 	
-	public ArrayList<AnimalManager<?>> agentManagers = new ArrayList<>();
+	public ArrayList<AnimalManager<? extends Animal>> animalManagers = new ArrayList<>();
 	
 	public <T extends Animal> Simulation(short worldMultiplier, Class<T>... classes)
 	{
@@ -45,7 +45,7 @@ public class Simulation extends MessageHandler {
 		Action.init(mWorld);
 		Talents.init();
 		for (Class<T> clazz : classes) {
-			agentManagers.add(new AnimalManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));
+			animalManagers.add(new AnimalManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));
 		}
 	}
 	
@@ -73,7 +73,7 @@ public class Simulation extends MessageHandler {
 		{
 			mWorld.update(timeStep);
 			SpawnAnimals.step();
-			for (AnimalManager<?> aM : agentManagers) {
+			for (AnimalManager<?> aM : animalManagers) {
 				aM.synchAliveDead();
 				aM.moveAll();
 			}
@@ -86,7 +86,7 @@ public class Simulation extends MessageHandler {
 	}
 	
 	public void killAllAgents() {
-		for (AnimalManager<?> aM : agentManagers) {
+		for (AnimalManager<?> aM : animalManagers) {
 			aM.killAll = true;
 			aM.synchAliveDead();
 			aM.moveAll();
@@ -108,8 +108,8 @@ public class Simulation extends MessageHandler {
 	}
 
 	public void spawnAgent(int x, int y, int managerId) {
-		if (agentManagers.size() >= managerId) {
-			agentManagers.get(managerId).spawnAgent(x, y);
+		if (animalManagers.size() >= managerId) {
+			animalManagers.get(managerId).spawnAnimal(x, y);
 		}
 		else {
 			System.err.println("Trying to spawn agents in a non-existing manager?");
@@ -118,13 +118,13 @@ public class Simulation extends MessageHandler {
 
 	public int getNumAgents() {
 		int numAgents = 0;
-		for (AnimalManager<?> aM : agentManagers) {
-			numAgents += aM.numAgents;
+		for (AnimalManager<?> aM : animalManagers) {
+			numAgents += aM.numAnimals;
 		}
 		return numAgents;
 	}
 	public int getNumAgents(int agentType) {
-		AnimalManager<?> aM = agentManagers.get(agentType);
-		return aM.numAgents;
+		AnimalManager<?> aM = animalManagers.get(agentType);
+		return aM.numAnimals;
 	}
 }

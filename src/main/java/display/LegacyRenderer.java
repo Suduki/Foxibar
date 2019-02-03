@@ -125,9 +125,9 @@ public void actionLoadBrains() {
 		glBegin(GL_TRIANGLES);
 
 		
-		for (AnimalManager<?> manager : Main.mSimulation.agentManagers) {
+		for (AnimalManager<?> manager : Main.mSimulation.animalManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
-				Animal a = manager.alive.get(i);
+				Animal a = (Animal) manager.alive.get(i);
 				if (a != null) {
 					renderAgent(a);
 				}

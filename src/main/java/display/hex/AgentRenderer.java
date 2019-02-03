@@ -49,10 +49,9 @@ public class AgentRenderer extends TubeRenderer {
 	}
 	
 	public void drawAgents(float heightScale) {
-		
-		for (AnimalManager<?> manager : Main.mSimulation.agentManagers) {
+		for (AnimalManager<?> manager : Main.mSimulation.animalManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
-				Animal a = manager.alive.get(i);
+				Animal a = (Animal) manager.alive.get(i);
 				if (a == null) break;
 
 				float xLow = retrieveXFromWorldPos(a.pos.x - 1f);

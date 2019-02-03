@@ -9,8 +9,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import simulation.Simulation;
+import testUtils.TestWithSimulation;
 
-public class PlantManagerTest {
+public class PlantManagerTest extends TestWithSimulation {
 	
 	int worldSize = 16;
 	PlantManager plantManager;
@@ -19,7 +20,7 @@ public class PlantManagerTest {
 	public void setupTests() {
 		Simulation.WORLD_SIZE_X = worldSize;
 		Simulation.WORLD_SIZE_Y = worldSize;
-		plantManager = new PlantManager();
+		plantManager = new PlantManager(simulation.vision);
 	}
 	
 	@Test

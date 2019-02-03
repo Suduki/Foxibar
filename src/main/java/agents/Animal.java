@@ -54,9 +54,13 @@ public abstract class Animal extends Agent {
 	public Animal friendler;
 	public boolean didMate;
 	public boolean didMove;
-
+	
+	protected World world; // TODO: Remove this dependency. only die() uses it, could be moved to manager.
+	
 	public Animal(World world) {
-		super(world);
+		super();
+		
+		this.world = world;
 		oldPos = new Vector2f();
 		vel = new Vector2f();
 
@@ -122,7 +126,6 @@ public abstract class Animal extends Agent {
 		}
 	}
 
-	@Override
 	protected void inherit(Agent a) {
 		if (a == null) {
 			talents.inheritRandom();
@@ -268,7 +271,8 @@ public abstract class Animal extends Agent {
 	}
 
 	@Override
-	protected void die() {
+	public void die() {
+		super.die();
 		world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size, true);
 		world.blood.append((int) pos.x, (int) pos.y, stomach.fat / Constants.Talents.MAX_DIGEST_BLOOD, true);
 		world.grass.append((int) pos.x, (int) pos.y, stomach.fiber, true);
@@ -278,8 +282,6 @@ public abstract class Animal extends Agent {
 		for (Animal child : children) {
 			child.parentDied();
 		}
-
-		isAlive = false;
 	}
 
 
@@ -317,24 +319,20 @@ public abstract class Animal extends Agent {
 		return 2*Constants.RANDOM.nextFloat() - 1;
 	}
 	
-
-	@Override
 	protected void updateNearestNeighbours(Vision vision) {
 		vision.updateNearestNeighbours(this);
 	}
 	
-	@Override
 	protected void addToChildren(Agent a) {
 		this.children.add((Animal) a);
 	}
 	
-	@Override
 	protected void addParent(Agent a) {
 		this.parent = (Animal) a;
 	}
 
 	@Override
-	public void resetPos(int x, int y) {
+	public void resetPos(float x, float y) {
 		super.resetPos(x, y);
 		oldPos.x = x;
 		oldPos.y = y;		

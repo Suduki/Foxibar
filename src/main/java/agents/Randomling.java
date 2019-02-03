@@ -12,12 +12,6 @@ public class Randomling extends Animal {
 		secondaryColor = Constants.Colors.WHITE;
 	}
 	
-
-	@Override
-	protected void inherit(Animal a) {
-		super.inherit(a);
-	}
-
 	@Override
 	protected void actionUpdate() {
 		

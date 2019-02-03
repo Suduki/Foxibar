@@ -8,15 +8,14 @@ import org.junit.Test;
 
 import constants.Constants;
 import simulation.Simulation;
+import testUtils.TestWithSimulation;
 import agents.Animal;
 import agents.Bloodling;
 import agents.Brainler;
 import agents.Grassler;
 import agents.Randomling;
 
-public class VisionTest {
-	
-	private static Simulation     simulation;
+public class VisionTest extends TestWithSimulation {
 	
 	private static final int RANDOMLING = 0;
 	private static final int BLOODLING = 1;
@@ -26,13 +25,6 @@ public class VisionTest {
 	
 	private static Integer timeStep = 1;
 
-	@BeforeClass
-	public static void init() {
-		simulation     = new Simulation(Constants.WORLD_MULTIPLIER_TEST, new Class[] {Randomling.class, Bloodling.class, Brainler.class, Grassler.class});
-		System.out.println("Before class completed");
-	}
-	
-
 	@Test
 	public void thatAnimalsMove() {
 		System.out.println("Testing that " + AGENT_TYPES_NAMES[RANDOMLING] + " moves");
@@ -41,7 +33,7 @@ public class VisionTest {
 		
 		simulation.step(timeStep++);
 
-		Animal a = simulation.agentManagers.get(RANDOMLING).alive.get(0);
+		Animal a = (Animal) simulation.animalManagers.get(RANDOMLING).alive.get(0);
 		Assert.assertNotEquals(a.pos.x, 5);
 		Assert.assertNotEquals(a.pos.y, 6);
 		
@@ -58,7 +50,7 @@ public class VisionTest {
 		
 		simulation.step(timeStep++);
 
-		Animal a = simulation.agentManagers.get(BLOODLING).alive.get(0);
+		Animal a = (Animal) simulation.animalManagers.get(BLOODLING).alive.get(0);
 		Assert.assertTrue(a.pos.x > 5);
 		Assert.assertTrue(a.pos.y > 5);
 		TestHelper.cleanup(simulation, timeStep);
@@ -74,7 +66,7 @@ public class VisionTest {
 		
 		simulation.step(timeStep++);
 
-		Animal a = simulation.agentManagers.get(GRASSLER).alive.get(0);
+		Animal a = (Animal) simulation.animalManagers.get(GRASSLER).alive.get(0);
 		Assert.assertTrue(a.pos.x > 5);
 		Assert.assertTrue(a.pos.y > 5);
 		TestHelper.cleanup(simulation, timeStep);
@@ -98,7 +90,7 @@ public class VisionTest {
 		
 		simulation.step(timeStep++);
 		
-		Animal a = simulation.agentManagers.get(GRASSLER).alive.get(0);
+		Animal a = (Animal) simulation.animalManagers.get(GRASSLER).alive.get(0);
 		Assert.assertTrue("Expecting animal to be at x = " + foodPosX + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.x) == foodPosX);
 		Assert.assertTrue("Expecting animal to be at y = " + foodPosY + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.y) == foodPosY);
 		TestHelper.cleanup(simulation, timeStep);
@@ -122,7 +114,7 @@ public class VisionTest {
 		
 		simulation.step(timeStep++);
 		
-		Animal a = simulation.agentManagers.get(GRASSLER).alive.get(0);
+		Animal a = (Animal) simulation.animalManagers.get(GRASSLER).alive.get(0);
 		Assert.assertTrue("Expecting animal to be at x = " + foodPosX + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.x) == foodPosX);
 		Assert.assertTrue("Expecting animal to be at y = " + foodPosY + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.y) == foodPosY);
 		TestHelper.cleanup(simulation, timeStep);

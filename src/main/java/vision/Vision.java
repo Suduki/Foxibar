@@ -189,25 +189,13 @@ public class Vision {
 		}
 	}
 	
-	public void addAgentToZone(Agent id) {
-		if (id instanceof Animal) {
-			addAgentToZone((Animal) id);
-			return;
-		}
-		if (id instanceof Tree) {
-			addAgentToZone((Tree) id);
-			return;
-		}
-		System.err.println("Trying to add weird agent to zone?");
-	}
-	
 	public void addAgentToZone(Animal id) {
 		int zoneX = getZoneXFromPosX(id.pos.x);
 		int zoneY = getZoneYFromPosY(id.pos.y);
 		addAnimalToZone(id, zoneX, zoneY);
 	}
 	
-	public void removeAgentFromZone(Animal id, boolean useOldPos) {
+	public void removeAnimalFromZone(Animal id, boolean useOldPos) {
 		int zoneX;
 		int zoneY;
 		if (useOldPos) {
@@ -277,5 +265,4 @@ public class Vision {
 		int zy = getZoneYFromPosY(y);
 		return zoneGrid[zx][zy].color;
 	}
-
 }

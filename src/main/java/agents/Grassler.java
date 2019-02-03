@@ -15,11 +15,6 @@ public class Grassler extends Animal {
 	}
 	
 	@Override
-	protected void inherit(Animal a) {
-		super.inherit(a);
-	}
-
-	@Override
 	protected void actionUpdate() {
 		
 		Action action = Action.fleeFromStranger;
@@ -46,5 +41,13 @@ public class Grassler extends Animal {
 	@Override
 	public boolean isCloselyRelatedTo(Animal a) {
 		return isSameClassAs(a);
+	}
+	
+	protected void inherit(Animal a) {
+		super.inherit(a);
+		
+		if (a == null) {
+			a.talents.improveSkill(Talents.DIGEST_GRASS);
+		}
 	}
 }

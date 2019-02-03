@@ -3,6 +3,7 @@ package plant;
 import java.util.ArrayList;
 
 import simulation.Simulation;
+import vision.Vision;
 
 public class PlantManager {
 	ArrayList<PlantZone> plantZones;
@@ -10,12 +11,12 @@ public class PlantManager {
 	int numZonesX = Simulation.WORLD_SIZE_X / PlantZone.zoneSizeX;
 	int numZonesY = Simulation.WORLD_SIZE_Y / PlantZone.zoneSizeY;
 	
-	public PlantManager() {
+	public PlantManager(Vision vision) {
 		super();
 		plantZones = new ArrayList<PlantZone>();
 		for (int x = 0; x < numZonesX; ++x) {
 			for (int y = 0; y < numZonesY; ++y) {
-				plantZones.add(new PlantZone());
+				plantZones.add(new PlantZone(vision, x, y));
 			}
 		}
 	}

@@ -13,11 +13,6 @@ public class Bloodling extends Animal {
 	}
 
 	@Override
-	protected void inherit(Animal a) {
-		super.inherit(a);
-	}
-	
-	@Override
 	protected void actionUpdate() {
 		
 		Action action;

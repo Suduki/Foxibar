@@ -2,13 +2,7 @@ package agents;
 
 import org.joml.Vector2f;
 
-import vision.Vision;
-import world.World;
-
 public abstract class Agent {
-
-	public World world;
-	
 	public int age;
 	public int trueAge;
 	public int maxAge;
@@ -23,9 +17,7 @@ public abstract class Agent {
 	public boolean didMove;
 	public boolean didMate;
 
-	public Agent(World world) {
-		this.world = world;
-
+	public Agent() {
 		pos = new Vector2f();
 	}
 
@@ -37,10 +29,9 @@ public abstract class Agent {
 	public abstract boolean stepAgent();
 
 
-	protected abstract void die();
-
-
-	protected abstract void updateNearestNeighbours(Vision vision);
+	public void die() {
+		isAlive = false;
+	}
 
 
 	public void reset() {
@@ -54,17 +45,8 @@ public abstract class Agent {
 		incarnation++;		
 	}
 
-
-	protected abstract void addToChildren(Agent child);
-
-	protected abstract void inherit(Agent parent);
-
-
 	public void resetPos(float x, float y) {
 		pos.x = x;
 		pos.y = y;		
 	}
-
-
-	protected abstract void addParent(Agent a);
 }
