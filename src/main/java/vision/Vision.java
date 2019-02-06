@@ -265,4 +265,11 @@ public class Vision {
 		int zy = getZoneYFromPosY(y);
 		return zoneGrid[zx][zy].color;
 	}
+
+	public Zone getZoneAt(int startX, int startY) {
+		int zoneX = getZoneXFromPosX(startX);
+		int zoneY = getZoneYFromPosY(startY);
+		
+		return zoneGrid[zoneX][zoneY];
+	}
 }

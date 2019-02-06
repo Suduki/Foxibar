@@ -2,6 +2,7 @@ package agents;
 
 import actions.Action;
 import constants.Constants;
+import talents.Talents;
 import world.World;
 
 public class Bloodling extends Animal {
@@ -46,6 +47,16 @@ public class Bloodling extends Animal {
 	@Override
 	public boolean isCloselyRelatedTo(Animal a) {
 		return isSameClassAs(a);
+	}
+	
+	private static final int[] presetSkills = {Talents.DIGEST_BLOOD}; 
+	@Override
+	protected void inherit(Animal a) {
+		super.inherit(a);
+		
+		if (a == null) {
+			talents.improveSkill(presetSkills);
+		}
 	}
 
 }

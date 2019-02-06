@@ -43,11 +43,13 @@ public class Grassler extends Animal {
 		return isSameClassAs(a);
 	}
 	
+	private static final int[] presetSkills = {Talents.DIGEST_GRASS, Talents.MATE_COST}; 
+	@Override
 	protected void inherit(Animal a) {
 		super.inherit(a);
 		
 		if (a == null) {
-			a.talents.improveSkill(Talents.DIGEST_GRASS);
+			talents.improveSkill(presetSkills);
 		}
 	}
 }

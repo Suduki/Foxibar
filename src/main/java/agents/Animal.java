@@ -126,7 +126,7 @@ public abstract class Animal extends Agent {
 		}
 	}
 
-	protected void inherit(Agent a) {
+	protected void inherit(Animal a) {
 		if (a == null) {
 			talents.inheritRandom();
 		}
@@ -337,5 +337,4 @@ public abstract class Animal extends Agent {
 		oldPos.x = x;
 		oldPos.y = y;		
 	}
-	
 }

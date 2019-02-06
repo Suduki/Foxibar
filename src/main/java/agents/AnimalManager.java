@@ -9,10 +9,10 @@ import constants.Constants;
 public class AnimalManager<AnimalClass extends Animal> {
 
 	public AnimalClass[] pool;
-	public ArrayList<Animal> alive = new ArrayList<>();
-	public ArrayList<Animal> dead = new ArrayList<>();
-	public ArrayList<Animal> toDie = new ArrayList<>();
-	public ArrayList<Animal> toLive = new ArrayList<>();
+	public ArrayList<AnimalClass> alive = new ArrayList<>();
+	public ArrayList<AnimalClass> dead = new ArrayList<>();
+	public ArrayList<AnimalClass> toDie = new ArrayList<>();
+	public ArrayList<AnimalClass> toLive = new ArrayList<>();
 	public int numAnimals = 0;
 	public boolean killAll = false;
 
@@ -24,25 +24,25 @@ public class AnimalManager<AnimalClass extends Animal> {
 		pool = (AnimalClass[]) new Animal[maxNumAnimals];
 		
 		if (clazz == Randomling.class) {
-			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
+			for(int id = 0; id < maxNumAnimals; ++id) {
 				pool[id] = (AnimalClass) new Randomling(world); //TODO behövs id?
 				dead.add(pool[id]);
 			}
 		}
 		else if (clazz == Brainler.class) {
-			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
+			for(int id = 0; id < maxNumAnimals; ++id) {
 				pool[id] = (AnimalClass) new Brainler(world);
 				dead.add(pool[id]);
 			}
 		}
 		else if (clazz == Bloodling.class) {
-			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
+			for(int id = 0; id < maxNumAnimals; ++id) {
 				pool[id] = (AnimalClass) new Bloodling(world);
 				dead.add(pool[id]);
 			}
 		}
 		else if (clazz == Grassler.class) {
-			for(int id = 0; id < Constants.MAX_NUM_ANIMALS; ++id) {
+			for(int id = 0; id < maxNumAnimals; ++id) {
 				pool[id] = (AnimalClass) new Grassler(world);
 				dead.add(pool[id]);
 			}
@@ -56,7 +56,7 @@ public class AnimalManager<AnimalClass extends Animal> {
 
 	public void moveAll() {
 		if (killAll) {
-			for (Animal a : alive) {
+			for (AnimalClass a : alive) {
 				a.die();
 				someoneDied(a, false);
 			}
@@ -67,7 +67,7 @@ public class AnimalManager<AnimalClass extends Animal> {
 			killAll = false;
 		}
 		else {
-			for (Animal a : alive) {
+			for (AnimalClass a : alive) {
 				a.updateNearestNeighbours(vision);
 				if (a.stepAgent()) {
 					// All is well
@@ -91,14 +91,14 @@ public class AnimalManager<AnimalClass extends Animal> {
 
 
 	public void spawnAnimal(int x, int y) {
-		Animal child = resurrectAnimal();
+		AnimalClass child = resurrectAnimal();
 		child.inherit(null);
 		child.resetPos(x,  y);
 		
 		vision.addAgentToZone(child);
 	}
 	
-	public Animal mate(Animal animal) {
+	private Animal mate(Animal animal) {
 		Animal child = resurrectAnimal();
 		
 		child.inherit(animal);
@@ -111,8 +111,8 @@ public class AnimalManager<AnimalClass extends Animal> {
 		return child;
 	}
 
-	public Animal resurrectAnimal() {
-		Animal id = findFirstAvailablePoolSpot();
+	private AnimalClass resurrectAnimal() {
+		AnimalClass id = findFirstAvailablePoolSpot();
 
 		if (id == null) {
 			System.err.println("did not find pool spot.");
@@ -126,18 +126,18 @@ public class AnimalManager<AnimalClass extends Animal> {
 		return id;
 	}
 
-	private Animal findFirstAvailablePoolSpot() {
+	private AnimalClass findFirstAvailablePoolSpot() {
 		if (dead.size() == 0) {
 			System.err.println("Dead pool is empty");
 			return null;
 		}
-		Animal next = dead.get(0);
+		AnimalClass next = dead.get(0);
 		dead.remove(next);
 		toLive.add(next);
 		return next;
 	}
 
-	public void someoneDied(Animal animal, boolean diedNaturally) {
+	private void someoneDied(AnimalClass animal, boolean diedNaturally) {
 		numAnimals--;
 		toDie.add(animal);
 
@@ -150,14 +150,14 @@ public class AnimalManager<AnimalClass extends Animal> {
 
 	public void synchAliveDead() {
 		// Remove all dead agents from loop
-		for (Animal a : toDie) {
+		for (AnimalClass a : toDie) {
 			alive.remove(a);
 			dead.add(a);
 		}
 		toDie.clear();
 		
 		// Add all newborn agents to loop
-		for (Animal a : toLive) {
+		for (AnimalClass a : toLive) {
 			alive.add(a);
 			vision.updateAgentZone((Animal) a);
 		}

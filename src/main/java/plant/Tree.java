@@ -1,13 +1,6 @@
 package plant;
 
-import java.util.ArrayList;
-
-import org.joml.Vector2f;
-
 import agents.Agent;
-import agents.Animal;
-import vision.Vision;
-import world.World;
 
 public class Tree  extends Agent {
 	
@@ -19,6 +12,6 @@ public class Tree  extends Agent {
 
 	@Override
 	public boolean stepAgent() {
-		return false;
+		return isAlive;
 	}
 }

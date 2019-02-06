@@ -9,8 +9,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import main.TestHelper;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -29,6 +27,7 @@ import constants.Constants;
 import simulation.Simulation;
 import talents.StomachRecommendation;
 import talents.Talents;
+import testUtils.TestHelper;
 import vision.Vision;
 
 public class StabilityIT {
@@ -40,8 +39,6 @@ public class StabilityIT {
 	private static final int GRASSLER = 3;
 	private static final String[] AGENT_TYPES_NAMES = new String[] { "Randomling", "Bloodling", "Brainler",
 			"Grassler" };
-
-	private static Integer timeStep = 1;
 
 	@BeforeClass
 	public static void init() {
@@ -73,16 +70,16 @@ public class StabilityIT {
 		System.out.println("Initiating testWorldPopulated");
 		System.out.println("Testing Randomling");
 		testWorldPopulated(RANDOMLING);
-		TestHelper.cleanup(simulation, timeStep);
+		TestHelper.cleanup(simulation);
 		System.out.println("Testing Bloodling");
 		testWorldPopulated(BLOODLING);
-		TestHelper.cleanup(simulation, timeStep);
+		TestHelper.cleanup(simulation);
 		System.out.println("Testing Animal");
 		testWorldPopulated(BRAINLER);
-		TestHelper.cleanup(simulation, timeStep);
+		TestHelper.cleanup(simulation);
 		System.out.println("Testing Grassler");
 		testWorldPopulated(GRASSLER);
-		TestHelper.cleanup(simulation, timeStep);
+		TestHelper.cleanup(simulation);
 		System.out.println("Test case testWorldPopulated completed.");
 	}
 
@@ -91,19 +88,19 @@ public class StabilityIT {
 		System.out.println("Initiating testSurvivability");
 		testSurvivability(RANDOMLING, 5000, 100, false, true);
 		TestHelper.verifyWorldNotEmpty(simulation);
-		TestHelper.cleanup(simulation, timeStep);
+		TestHelper.cleanup(simulation);
 
 		testSurvivability(BLOODLING, 5000, 100, false, true);
 		TestHelper.verifyWorldEmpty(simulation);
-		TestHelper.cleanup(simulation, timeStep);
+		TestHelper.cleanup(simulation);
 
 		testSurvivability(BRAINLER, 5000, 100, false, true);
 		TestHelper.verifyWorldNotEmpty(simulation);
-		TestHelper.cleanup(simulation, timeStep);
+		TestHelper.cleanup(simulation);
 
 		testSurvivability(GRASSLER, 5000, 100, false, true);
 		TestHelper.verifyWorldNotEmpty(simulation);
-		TestHelper.cleanup(simulation, timeStep);
+		TestHelper.cleanup(simulation);
 
 		System.out.println("Test case testSurvivability completed.");
 	}
@@ -122,7 +119,7 @@ public class StabilityIT {
 			Talents.changeTalentMax(Talents.DIGEST_GRASS, grassP);
 			testSurvivability(GRASSLER, 500, numInitGrasslers, false, false);
 			numAgents = simulation.getNumAgents(GRASSLER);
-			TestHelper.cleanup(simulation, timeStep);
+			TestHelper.cleanup(simulation);
 			if (!foundLowG && numAgents > numInitGrasslers + 5) {
 				foundLowG = true;
 				lowGrassP = grassP;
@@ -132,7 +129,7 @@ public class StabilityIT {
 			System.out.print(".");
 		} while (numAgents < Simulation.WORLD_SIZE / 40);
 		System.out.println(" Done.");
-		TestHelper.cleanup(simulation, timeStep);
+		TestHelper.cleanup(simulation);
 		StomachRecommendation tmp = new StomachRecommendation(lowGrassP, grassP);
 		tmp.printStuff();
 		return tmp;
@@ -187,7 +184,7 @@ public class StabilityIT {
 		grassThingP.save(StomachRecommendation.grassFile);
 		bloodThingP.save(StomachRecommendation.bloodFile);
 
-		TestHelper.cleanup(simulation, timeStep);
+		TestHelper.cleanup(simulation);
 	}
 
 	@Test // TODO: MOVE; not an
@@ -219,7 +216,7 @@ public class StabilityIT {
 	public void betweenTests() {
 		System.out.println("Between tests cleanup & sanity check");
 		sanityCheck();
-		TestHelper.cleanup(simulation, timeStep);
+		TestHelper.cleanup(simulation);
 	}
 
 	@Test
@@ -262,7 +259,7 @@ public class StabilityIT {
 
 	private void runSeveralIterationsAndTrackActions(int numSimulationIterations, float[] actionPercentages) {
 		for (int simulationIteration = 0; simulationIteration < numSimulationIterations; simulationIteration++) {
-			TestHelper.cleanup(simulation, timeStep);
+			TestHelper.cleanup(simulation);
 			testSurvivability(BRAINLER, 2000, 500, true, false);
 
 			float numCalls = Action.getTotCalls();
@@ -296,7 +293,7 @@ public class StabilityIT {
 		int t = 0;
 		while (t < 1000) {
 			++t;
-			simulation.step(timeStep++);
+			simulation.step();
 			if (maxNumType2 < simulation.getNumAgents(type2)) {
 				maxNumType2 = simulation.getNumAgents(type2);
 			}
@@ -344,7 +341,7 @@ public class StabilityIT {
 			if (continuousSpawn && numActiveAgents < numInit) {
 				simulation.spawnAgentsAtRandomPosition(agentType, numInit - numActiveAgents);
 			}
-			simulation.step(timeStep++);
+			simulation.step();
 		}
 		if (printStuff)
 			System.out.println(AGENT_TYPES_NAMES[agentType] + " Survivability test completed after " + t
@@ -354,7 +351,7 @@ public class StabilityIT {
 	private void testWorldPopulated(int agentType) {
 		TestHelper.verifyWorldEmpty(simulation);
 		simulation.spawnAgentsAtRandomPosition(agentType, 100);
-		simulation.step(timeStep++);
+		simulation.step();
 		TestHelper.verifyWorldNotEmpty(simulation);
 	}
 }

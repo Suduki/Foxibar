@@ -10,7 +10,8 @@ import vision.Vision;
 public class Constants {
 
 	public static final short WORLD_MULTIPLIER_MAIN = 7;
-	public static final short WORLD_MULTIPLIER_TEST = 6;
+	public static final short WORLD_MULTIPLIER_TEST = 4;
+	public static final short WORLD_MULTIPLIER_INTEGRATION_TEST = 6;
 	public static final float INIT_ZOOM = 1f;
 	public static final int WANTED_FPS = 30;
 	public static final int PIXELS_Y = 800;
@@ -19,7 +20,7 @@ public class Constants {
 	public static Random RANDOM = new Random(1);
 	public static final float TILES_PER_ANIMAL = 20;
 	public static final float GROWTH = 0.005f;
-	public static final int MAX_NUM_ANIMALS = 20000;
+	public static int MAX_NUM_ANIMALS = 20000;
 	public static final float ZOOM_SPEED = 1.05f;
 	
 	public static class Talents {

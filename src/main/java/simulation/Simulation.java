@@ -40,6 +40,7 @@ public class Simulation extends MessageHandler {
 		WORLD_SIZE_X = (int) Math.pow(2, worldMultiplier);
 		WORLD_SIZE_Y = (int) Math.pow(2, worldMultiplier);
 		WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
+		Constants.MAX_NUM_ANIMALS = Integer.min(Constants.MAX_NUM_ANIMALS, WORLD_SIZE);
 		vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
 		mWorld = new World(vision);
 		Action.init(mWorld);
@@ -67,7 +68,8 @@ public class Simulation extends MessageHandler {
 		pMessage.evaluate(this);
 	}
 	
-	public void step(int timeStep)
+	private int timeStep = 0;
+	public void step()
 	{
 		if (!mPaused)
 		{
@@ -78,6 +80,7 @@ public class Simulation extends MessageHandler {
 				aM.moveAll();
 			}
 		}
+		timeStep++;
 	}
 	
 	public World getWorld()

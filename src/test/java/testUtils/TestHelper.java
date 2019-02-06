@@ -1,4 +1,4 @@
-package main;
+package testUtils;
 
 import org.junit.Assert;
 
@@ -11,11 +11,11 @@ import constants.Constants;
 
 public class TestHelper {
 	
-	public static void cleanup(Simulation simulation, Integer timeStep) {
+	public static void cleanup(Simulation simulation) {
 		Action.reset();
 		
 		simulation.killAllAgents();
-		simulation.step(timeStep++);
+		simulation.step();
 		verifyWorldEmpty(simulation);
 		simulation.mWorld.reset(true);
 		

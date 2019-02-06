@@ -38,6 +38,8 @@ public abstract class Agent {
 		didMove = false;
 		didMate = false;
 		
+		size = 0;
+		
 		isAlive = true;
 		age = 0;
 		trueAge = 0;

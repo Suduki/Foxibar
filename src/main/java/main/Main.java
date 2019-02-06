@@ -33,11 +33,9 @@ public class Main {
 
 		try {
 			mSimulation.message(new SpawnAnimals());
-			int timeStep = 0;
 			while (mSimulation.handleMessages()
 					&& displayHandler.renderThreadThread.isAlive()) {
-				timeStep++;
-				mSimulation.step(timeStep);
+				mSimulation.step();
 				fpsLimiter.waitForNextFrame();
 			}
 		} catch (Exception e) {
