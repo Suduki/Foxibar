@@ -9,7 +9,7 @@ import simulation.Simulation;
 import agents.Agent;
 import agents.Animal;
 import constants.Constants;
-import plant.Tree;
+import plant.Plant;
 
 public class Vision {
 	public Zone[][] zoneGrid;
@@ -61,24 +61,24 @@ public class Vision {
 	}
 
 	private void updateTreeScoresInZone(Animal a, Zone zone) {
-		for (Tree tree : zone.treesInZone) {
-			float score = tree.leafness / (1f + calculateCircularDistance(a.pos, tree.pos));
+		for (Plant tree : zone.treesInZone) {
+			float score = tree.leafness() / (1f + calculateCircularDistance(a.pos, tree.pos));
 			if (score > Constants.Vision.MAX_DISTANCE_AN_AGENT_CAN_SEE) {
 				continue;
 			}
-			for (int neighId = 0; neighId < a.nearbyTreesScore.length; ++neighId) {
-				if (a.nearbyTreesScore[neighId] == -1) {
-					a.nearbyTreesScore[neighId] = score;
-					a.nearbyTrees[neighId] = tree;
+			for (int neighId = 0; neighId < a.nearbyPlantsScore.length; ++neighId) {
+				if (a.nearbyPlantsScore[neighId] == -1) {
+					a.nearbyPlantsScore[neighId] = score;
+					a.nearbyPlants[neighId] = tree;
 					break;
-				} else if (score <= a.nearbyTreesScore[neighId]) {
+				} else if (score <= a.nearbyPlantsScore[neighId]) {
 					float tmpD = score;
-					score = a.nearbyTreesScore[neighId];
-					a.nearbyTreesScore[neighId] = tmpD;
+					score = a.nearbyPlantsScore[neighId];
+					a.nearbyPlantsScore[neighId] = tmpD;
 
-					Tree tmpTree = tree;
-					tree = a.nearbyTrees[neighId];
-					a.nearbyTrees[neighId] = tmpTree;
+					Plant tmpTree = tree;
+					tree = a.nearbyPlants[neighId];
+					a.nearbyPlants[neighId] = tmpTree;
 				}
 			}
 		}
@@ -209,13 +209,13 @@ public class Vision {
 		removeAnimalFromZone(id, zoneX, zoneY);
 	}
 	
-	public void addTreeToZone(Tree id) {
+	public void addTreeToZone(Plant id) {
 		int zoneX = getZoneXFromPosX(id.pos.x);
 		int zoneY = getZoneYFromPosY(id.pos.y);
 		addTreeToZone(id, zoneX, zoneY);
 	}
 	
-	public void removeTreeFromZone(Tree id) {
+	public void removeTreeFromZone(Plant id) {
 		int zoneX = getZoneXFromPosX(id.pos.x);
 		int zoneY = getZoneYFromPosY(id.pos.y);
 		removeTreeFromZone(id, zoneX, zoneY);
@@ -233,13 +233,13 @@ public class Vision {
 		}
 	}
 	
-	private void addTreeToZone(Tree id, int zoneX, int zoneY) {
+	private void addTreeToZone(Plant id, int zoneX, int zoneY) {
 		if(!zoneGrid[zoneX][zoneY].treesInZone.add(id)) {
 			System.err.println("Trying to add agent to vision zone, but failed.");
 		}
 	}
 	
-	private void removeTreeFromZone(Tree id, int zoneX, int zoneY) {
+	private void removeTreeFromZone(Plant id, int zoneX, int zoneY) {
 		if(!zoneGrid[zoneX][zoneY].treesInZone.remove(id)) {
 			System.err.println("Trying to remove agent from vision zone, but failed.");
 		}
@@ -247,7 +247,7 @@ public class Vision {
 	
 	public class Zone {
 		public ArrayList<Animal> agentsInZone;
-		public ArrayList<Tree> treesInZone;
+		public ArrayList<Plant> treesInZone;
 		public float[] color;
 		
 		public Zone() {

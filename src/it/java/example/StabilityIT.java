@@ -42,7 +42,7 @@ public class StabilityIT {
 
 	@BeforeClass
 	public static void init() {
-		simulation = new Simulation(Constants.WORLD_MULTIPLIER_TEST,
+		simulation = new Simulation(Constants.WORLD_MULTIPLIER_INTEGRATION_TEST,
 				new Class[] { Randomling.class, Bloodling.class, Brainler.class, Grassler.class });
 		System.out.println("Before class completed");
 	}

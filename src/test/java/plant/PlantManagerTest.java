@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import testUtils.TestWithSimulation;
 import vision.Vision.Zone;
+import static plant.PlantManager.*;
 
 public class PlantManagerTest extends TestWithSimulation {
 	
@@ -14,87 +15,106 @@ public class PlantManagerTest extends TestWithSimulation {
 	
 	@Before
 	public void beforeTest() {
-		sut = new PlantManager(simulation.vision);
+		sut = new PlantManager(simulation.vision, simulation.mWorld.terrain);
 	}
 
 	@Test
 	public void testThatTreesSpawnAtProperPlace() {
-		sut.spawnTree();
+		sut.spawn();
 		sut.synchAliveDead();
 		
 		Zone zone = getVisionZone(sut.alive.get(0));
 		
-		Assert.assertEquals(1, sut.numTrees);
+		Assert.assertEquals(1, sut.numAlive);
 		Assert.assertEquals(1, zone.treesInZone.size());
 	}
 	
 	@Test
 	public void testThatAllTreesDie() {
 		for (int i = 0; i < 10; ++i) {
-			sut.spawnTree();
+			sut.spawn();
 		}
 		sut.synchAliveDead();
-		Assert.assertTrue(sut.numTrees > 5);
+		Assert.assertTrue(sut.numAlive == 10);
 		
 		sut.killAll = true;
 		sut.update();
-		Assert.assertEquals(0, sut.numTrees);
+		Assert.assertEquals(0, sut.numAlive);
 	}
 	
 	@Test
-	public void testDeathAndBirthLists() {
+	public void testListStateAtStart() {
 		Assert.assertEquals(0, sut.alive.size());
-		Assert.assertEquals(PlantManager.MAX_NUM_TREES, sut.dead.size());
+		Assert.assertEquals(MAX_NUM_TREES, sut.dead.size());
 		Assert.assertEquals(0, sut.toDie.size());
 		Assert.assertEquals(0, sut.toLive.size());
-		
-		Tree tree = sut.spawnTree();
-		sut.spawnTree();
-		
-		Assert.assertEquals(0, sut.alive.size());
-		Assert.assertEquals(PlantManager.MAX_NUM_TREES - 2, sut.dead.size());
-		Assert.assertEquals(0, sut.toDie.size());
-		Assert.assertEquals(2, sut.toLive.size());
-		
+	}
+	
+	@Test
+	public void testListStateAfterSpawn() {
+		sut.spawn();
+		sut.spawn();
 		sut.update();
 		
-		// Alive list should not be modified during update().
 		Assert.assertEquals(0, sut.alive.size());
-		Assert.assertEquals(PlantManager.MAX_NUM_TREES - 2, sut.dead.size());
+		Assert.assertEquals(MAX_NUM_TREES - 2, sut.dead.size());
 		Assert.assertEquals(0, sut.toDie.size());
 		Assert.assertEquals(2, sut.toLive.size());
-		
+	}
+	
+	@Test
+	public void testListStateSpawnAfterSynch() {
+		sut.spawn();
+		sut.spawn();
+		sut.update();
 		sut.synchAliveDead();
 		
 		Assert.assertEquals(2, sut.alive.size());
-		Assert.assertEquals(PlantManager.MAX_NUM_TREES - 2, sut.dead.size());
+		Assert.assertEquals(MAX_NUM_TREES - 2, sut.dead.size());
 		Assert.assertEquals(0, sut.toDie.size());
 		Assert.assertEquals(0, sut.toLive.size());
+	}
+	
+	@Test
+	public void testListStateDie() {
+		Plant tree = sut.spawn();
+		sut.spawn();
+		sut.update();
+		sut.synchAliveDead();
 		
 		tree.die();
 		sut.update();
 		
-		// Alive list should not be modified during update().
 		Assert.assertEquals(2, sut.alive.size());
-		Assert.assertEquals(PlantManager.MAX_NUM_TREES - 2, sut.dead.size());
+		Assert.assertEquals(MAX_NUM_TREES - 2, sut.dead.size());
 		Assert.assertEquals(1, sut.toDie.size());
 		Assert.assertEquals(0, sut.toLive.size());
+	}
+	
+	@Test
+	public void testListState() {
+		Plant tree = sut.spawn();
+		sut.spawn();
+		sut.update();
+		sut.synchAliveDead();
 		
+		tree.die();
+		sut.update();
 		sut.synchAliveDead();
 		
 		Assert.assertEquals(1, sut.alive.size());
-		Assert.assertEquals(PlantManager.MAX_NUM_TREES - 1, sut.dead.size());
+		Assert.assertEquals(MAX_NUM_TREES - 1, sut.dead.size());
 		Assert.assertEquals(0, sut.toDie.size());
 		Assert.assertEquals(0, sut.toLive.size());
 	}
 	
 	@Test
 	public void testUpperSpawnLimit() {
-		for (int i = 0; i < PlantManager.MAX_NUM_TREES; ++i) {
-			Assert.assertNotNull(sut.spawnTree());
+		for (int i = 0; i < MAX_NUM_TREES; ++i) {
+			Assert.assertNotNull(sut.spawn());
 		}
 		
-		Assert.assertNull(sut.spawnTree());
+		Assert.assertNull(sut.spawn());
 		
 		sut.synchAliveDead();
 		
@@ -102,11 +122,12 @@ public class PlantManagerTest extends TestWithSimulation {
 		sut.update();
 		sut.synchAliveDead();
 		
-		Tree tree = sut.spawnTree();
+		Plant tree = sut.spawn();
 		Assert.assertNotNull(tree);
+		Assert.assertEquals(2, tree.incarnation);
 	}
 	
-	private Zone getVisionZone(Tree tree) {
+	private Zone getVisionZone(Plant tree) {
 		Vector2f pos = tree.pos;
 		
 		return simulation.vision.getZoneAt((int)pos.x, (int)pos.y);

@@ -12,6 +12,7 @@ import constants.Constants;
 import messages.MessageHandler;
 import messages.Message;
 import messages.SpawnAnimals;
+import plant.PlantManager;
 import talents.StomachRecommendation;
 import talents.Talents;
 
@@ -33,6 +34,7 @@ public class Simulation extends MessageHandler {
 	public Vision vision;
 	
 	public ArrayList<AnimalManager<? extends Animal>> animalManagers = new ArrayList<>();
+	public PlantManager plantManager;
 	
 	public <T extends Animal> Simulation(short worldMultiplier, Class<T>... classes)
 	{
@@ -48,6 +50,7 @@ public class Simulation extends MessageHandler {
 		for (Class<T> clazz : classes) {
 			animalManagers.add(new AnimalManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));
 		}
+		plantManager = new PlantManager(vision, mWorld.terrain);
 	}
 	
 	private void loadStomachRecommendation() {
@@ -79,6 +82,10 @@ public class Simulation extends MessageHandler {
 				aM.synchAliveDead();
 				aM.moveAll();
 			}
+			
+			plantManager.spreadSeed();
+			plantManager.synchAliveDead();
+			plantManager.update();
 		}
 		timeStep++;
 	}

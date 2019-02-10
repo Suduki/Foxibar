@@ -6,7 +6,7 @@ import org.joml.Vector2f;
 
 import actions.Action;
 import constants.Constants;
-import plant.Tree;
+import plant.Plant;
 import talents.Talents;
 import vision.Vision;
 import world.World;
@@ -35,8 +35,8 @@ public abstract class Animal extends Agent {
 	public Animal[] nearbyAgents;
 	public float[] nearbyAgentsDistance;
 	
-	public Tree[] nearbyTrees;
-	public float[] nearbyTreesScore;
+	public Plant[] nearbyPlants;
+	public float[] nearbyPlantsScore;
 
 	protected ArrayList<Animal> children;
 	Animal parent;
@@ -72,6 +72,9 @@ public abstract class Animal extends Agent {
 
 		this.nearbyAgents = new Animal[Constants.Vision.NUM_NEIGHBOURS];
 		this.nearbyAgentsDistance = new float[Constants.Vision.NUM_NEIGHBOURS];
+		this.nearbyPlants = new Plant[Constants.Vision.NUM_NEIGHBOURS];
+		this.nearbyPlantsScore = new float[Constants.Vision.NUM_NEIGHBOURS];
+		
 		children = new ArrayList<>();
 		stomach = new Stomach();
 
@@ -208,19 +211,6 @@ public abstract class Animal extends Agent {
 		checkHealth();
 	}
 
-	/**
-	 * Increases age. 
-	 * Kills agent if too old.
-	 */
-	public boolean age() {
-		age++;
-		trueAge++;
-		if (age > maxAge) {
-			die();
-			return false;
-		}
-		return true;
-	}
 	public void attack(Animal a) {
 		if (Vision.calculateCircularDistance(pos, a.pos) < REACH) {
 			fightWith(a);

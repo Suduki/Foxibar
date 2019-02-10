@@ -11,6 +11,8 @@ import constants.Constants;
 
 public class TestHelper {
 	
+	public static final float ERROR_DELTA = 0.001f;
+	
 	public static void cleanup(Simulation simulation) {
 		Action.reset();
 		

@@ -51,4 +51,18 @@ public abstract class Agent {
 		pos.x = x;
 		pos.y = y;		
 	}
+
+	/**
+	 * Increases age. 
+	 * Kills agent if too old.
+	 */
+	public boolean age() {
+		age++;
+		trueAge++;
+		if (age > maxAge) {
+			die();
+			return false;
+		}
+		return true;
+	}
 }

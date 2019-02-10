@@ -1,53 +1,57 @@
 package plant;
 
+import java.text.spi.NumberFormatProvider;
 import java.util.ArrayList;
 
 import constants.Constants;
 import simulation.Simulation;
 import agents.Animal;
 import vision.Vision;
+import world.Terrain;
 import world.World;
 
 public class PlantManager {
 	static int MAX_NUM_TREES;
 
-	private Tree[] treePool;
+	private Plant[] pool;
 
-	public ArrayList<Tree> alive = new ArrayList<>(); // TODO: superclass
-	public ArrayList<Tree> dead = new ArrayList<>();
-	public ArrayList<Tree> toDie = new ArrayList<>();
-	public ArrayList<Tree> toLive = new ArrayList<>();
+	public ArrayList<Plant> alive = new ArrayList<>(); // TODO: superclass
+	public ArrayList<Plant> dead = new ArrayList<>();
+	public ArrayList<Plant> toDie = new ArrayList<>();
+	public ArrayList<Plant> toLive = new ArrayList<>();
 	public boolean killAll;
-	int numTrees;
+	int numAlive;
 
 	private Vision vision;
+	private Terrain terrain;
 
-	public PlantManager(Vision vision) {
+	public PlantManager(Vision vision, Terrain terrain) {
 		this.vision = vision;
+		this.terrain = terrain;
 
-		MAX_NUM_TREES = Integer.min(Simulation.WORLD_SIZE, 1000);
+		MAX_NUM_TREES = Integer.min(Simulation.WORLD_SIZE, 10000);
 
-		treePool = new Tree[MAX_NUM_TREES];
+		pool = new Plant[MAX_NUM_TREES];
 		for (int i = 0; i < MAX_NUM_TREES; ++i) {
-			treePool[i] = new Tree();
-			dead.add(treePool[i]);
+			pool[i] = new Plant();
+			dead.add(pool[i]);
 		}
 	}
 
 	public void update() {
-		if (numTrees == 0) {
+		if (numAlive == 0) {
 			// Do nothing
 		} else if (killAll) { // TODO: superclass
-			for (Tree a : alive) {
+			for (Plant a : alive) {
 				a.die();
 				someoneDied(a);
 			}
-			if (numTrees != 0) {
-				System.err.println("numTrees " + numTrees + ", should be 0 after killing all");
+			if (numAlive != 0) {
+				System.err.println("numTrees " + numAlive + ", should be 0 after killing all");
 			}
-			numTrees = 0;
+			numAlive = 0;
 		} else {
-			for (Tree a : alive) {
+			for (Plant a : alive) {
 				if (a.stepAgent()) {
 					// All is well
 				} else {
@@ -59,26 +63,26 @@ public class PlantManager {
 		killAll = false;
 	}
 
-	private void someoneDied(Tree a) { // TODO: superclass
-		numTrees--;
+	private void someoneDied(Plant a) { // TODO: superclass
+		numAlive--;
 		toDie.add(a);
 
 		vision.removeTreeFromZone(a);
 	}
 
-	private Tree findFirstAvailablePoolSpot() { // TODO: superclass
+	private Plant findFirstAvailablePoolSpot() { // TODO: superclass
 		if (dead.size() == 0) {
 			System.err.println("Dead pool is empty");
 			return null;
 		}
-		Tree next = dead.get(0);
+		Plant next = dead.get(0);
 		dead.remove(next);
 		toLive.add(next);
 		return next;
 	}
 
-	private Tree resurrectTree() { // TODO: superclass
-		Tree id = findFirstAvailablePoolSpot();
+	private Plant resurrect() { // TODO: superclass
+		Plant id = findFirstAvailablePoolSpot();
 
 		if (id == null) {
 			System.err.println("did not find pool spot.");
@@ -87,32 +91,42 @@ public class PlantManager {
 
 		id.reset();
 
-		numTrees++;
+		numAlive++;
 
 		return id;
 	}
+	
+	public void spreadSeed() {
+		float luck = Plant.WANTED_AVERAGE_AMOUNT_OF_PLANTS / Plant.MAX_AGE;
+		float seed = Constants.RANDOM.nextFloat() * 2 * luck;
+		
+		for (int i = 0; i < seed; ++i) {
+			spawn();
+		}
+	}
 
-	public Tree spawnTree() {
-		Tree sapling = resurrectTree();
+	public Plant spawn() {
+		Plant sapling = resurrect();
 		if (sapling != null) {
 			float xPos = Constants.RANDOM.nextFloat() * Simulation.WORLD_SIZE_X;
 			float yPos = Constants.RANDOM.nextFloat() * Simulation.WORLD_SIZE_X;
 
 			sapling.resetPos(xPos, yPos);
+			sapling.setGroundGrowth(terrain.growth[(int) xPos][(int) yPos]);
 		}
 		return sapling;
 	}
 
 	public void synchAliveDead() { // TODO: superclass
 		// Remove all dead agents from loop
-		for (Tree a : toDie) {
+		for (Plant a : toDie) {
 			alive.remove(a);
 			dead.add(a);
 		}
 		toDie.clear();
 
 		// Add all newborn agents to loop
-		for (Tree a : toLive) {
+		for (Plant a : toLive) {
 			alive.add(a);
 			vision.addTreeToZone(a);
 		}
