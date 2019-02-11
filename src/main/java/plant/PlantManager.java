@@ -98,9 +98,9 @@ public class PlantManager {
 	
 	public void spreadSeed() {
 		float luck = Plant.WANTED_AVERAGE_AMOUNT_OF_PLANTS / Plant.MAX_AGE;
-		float seed = Constants.RANDOM.nextFloat() * 2 * luck;
+		float seeds = Constants.RANDOM.nextFloat() * 2 * luck;
 		
-		for (int i = 0; i < seed; ++i) {
+		for (int i = 0; i < seeds; ++i) {
 			spawn();
 		}
 	}

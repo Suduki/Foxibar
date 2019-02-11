@@ -35,7 +35,6 @@ public class Plant extends Agent {
 	}
 	
 	private void grow() {
-		
 		if (health < maxHealth) {
 			health = Float.min(health + 0.1f, maxHealth);
 		}
@@ -46,5 +45,12 @@ public class Plant extends Agent {
 
 	public void setGroundGrowth(float groundGrowth) {
 		this.groundGrowth = groundGrowth;
+	}
+
+	public float harvest(float amount) {
+		float oldLeafness = leafness();
+		health = Float.max(0, health - amount);
+		
+		return oldLeafness - leafness();
 	}
 }

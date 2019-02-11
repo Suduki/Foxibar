@@ -153,15 +153,15 @@ public class StabilityIT {
 		testSurvivability(type1, 500, initNumAgents1, false, true); // Get the first agent type balanced
 
 		System.out.println("Running multiple simulations to determine proper blood digestion value.");
+		float stepAmount = 0.1f;
 		do {
 			maxNumType1 = 0;
 			maxNumType2 = 0;
-			bloodP += 0.5f;
+			bloodP += stepAmount;
+			stepAmount += 0.1f;
 			Talents.changeTalentMax(Talents.DIGEST_BLOOD, bloodP);
 
-			int numGrasslersToSpawn = simulation.getNumAgents(type1) > 0
-					? initNumAgents1 - simulation.getNumAgents(type1)
-					: 0;
+			int numGrasslersToSpawn = Integer.max(initNumAgents1 - simulation.getNumAgents(type1), 0);
 
 			testMultipleAgents(type1, type2, numGrasslersToSpawn, initNumAgents2, false);
 			numGrasslers = simulation.getNumAgents(type1);
@@ -340,6 +340,9 @@ public class StabilityIT {
 			int numActiveAgents = simulation.getNumAgents(agentType);
 			if (continuousSpawn && numActiveAgents < numInit) {
 				simulation.spawnAgentsAtRandomPosition(agentType, numInit - numActiveAgents);
+			}
+			if (numActiveAgents == 0) {
+				return;
 			}
 			simulation.step();
 		}

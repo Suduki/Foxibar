@@ -2,16 +2,11 @@ package constants;
 
 import java.util.Random;
 
-import org.joml.Vector2f;
-import org.joml.Vector2i;
-
-import vision.Vision;
-
 public class Constants {
 
 	public static final short WORLD_MULTIPLIER_MAIN = 7;
-	public static final short WORLD_MULTIPLIER_TEST = 4;
-	public static final short WORLD_MULTIPLIER_INTEGRATION_TEST = 6;
+	public static final short WORLD_MULTIPLIER_TEST = 5;
+	public static final short WORLD_MULTIPLIER_INTEGRATION_TEST = 7;
 	public static final float INIT_ZOOM = 1f;
 	public static final int WANTED_FPS = 30;
 	public static final int PIXELS_Y = 800;
@@ -34,15 +29,13 @@ public class Constants {
 
 		public static float MAX_DIGEST_GRASS;
 		public static float MAX_DIGEST_BLOOD;
-		
 	}
-	
-	public static class Vision{
-		public static final int HEIGHT = 4;
-		public static final int WIDTH =  4;
+
+	public static class Vision {
+		public static final int HEIGHT = 16;
+		public static final int WIDTH =  16;
 		public static final int MAX_DISTANCE_AN_AGENT_CAN_SEE = HEIGHT;
 		public static final int NUM_NEIGHBOURS = 6;
-		
 	}
 	
 	public static class Colors
