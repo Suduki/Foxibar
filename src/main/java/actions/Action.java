@@ -19,6 +19,7 @@ public abstract class Action {
 
 	public static HarvestGrass 		harvestGrass;
 	public static HarvestBlood 		harvestBlood;
+	public static HarvestTree 		harvestTree;
 	public static RandomWalk 		randomWalk;
 	public static FleeFromStranger 	fleeFromStranger;
 	public static FleeFromFriendler fleeFromFriendler;
@@ -37,6 +38,7 @@ public abstract class Action {
 		System.out.println("init Actions");
 		harvestGrass 		= new HarvestGrass(world);
 		harvestBlood 		= new HarvestBlood(world);
+		harvestTree 		= new HarvestTree();
 		randomWalk 			= new RandomWalk();
 		fleeFromStranger 	= new FleeFromStranger();
 		fleeFromFriendler 	= new FleeFromFriendler();

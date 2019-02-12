@@ -11,16 +11,19 @@ public class Stomach {
 
 	float energyCost;
 	public float fiber;
+	public float grass;
 	public float blood;
 	public float fat;
 	private float pFiber;
+	private float pGrass;
 	private float pBlood;
 
 
 	public void inherit(Talents skillSet) {
 		empty();
 		fat = FAT_ON_BIRTH;
-		pFiber = skillSet.get(Talents.DIGEST_GRASS);
+		pFiber = skillSet.get(Talents.DIGEST_FIBER);
+		pGrass = skillSet.get(Talents.DIGEST_GRASS);
 		pBlood = skillSet.get(Talents.DIGEST_BLOOD);
 	}
 
@@ -42,6 +45,7 @@ public class Stomach {
 		float total = getMass();
 		if (total > MAX_FULLNESS) { // Stomach is full
 			fiber = fiber * MAX_FULLNESS/total;
+			grass = grass * MAX_FULLNESS/total;
 			blood = blood * MAX_FULLNESS/total;
 			fat = fat * MAX_FULLNESS/total;
 		}
@@ -51,11 +55,13 @@ public class Stomach {
 	 * Digests
 	 */
 	private void digest() {
-		float totalFullness = fiber + blood;
-		fat += pFiber * fiber;
+		float totalFullness = grass + blood + fiber;
+		fat += pGrass * grass;
 		fat += pBlood * blood;
-		fiber = 0;
+		fat += pFiber * fiber;
+		grass = 0;
 		blood = 0;
+		fiber = 0;
 
 	}
 	public final static float FAT_TO_ENERGY_FACTOR = 0.05f;
@@ -65,17 +71,22 @@ public class Stomach {
 	}
 
 	public float getMass() {
-		return fat + fiber + blood;
+		return fat + grass + blood + fiber;
 	}
 
 	public void empty() {
 		fat = 0;
-		fiber = 0;
+		grass = 0;
 		blood = 0;
+		fiber = 0;
 	}
 
 	public void addBlood(float amount) {
 		blood += amount;
+	}
+	
+	public void addGrass(float amount) {
+		grass += amount;
 	}
 	
 	public void addFiber(float amount) {
@@ -99,13 +110,13 @@ public class Stomach {
 		energyCost += a*speed*speed + b*speed + c;
 	}
 
-	public static final int FIBER = 0;
+	public static final int GRASS = 0;
 	public static final int BLOOD = 1;
 
 	public float add(final int STOMACH_ID, float amount) {
 		switch (STOMACH_ID) {
-		case FIBER:
-			addFiber(amount);
+		case GRASS:
+			addGrass(amount);
 			break;
 		case BLOOD:
 			addBlood(amount);

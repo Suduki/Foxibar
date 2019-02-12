@@ -4,7 +4,7 @@ import talents.Talents;
 import world.World;
 import agents.Stomach;
 
-public class HarvestBlood extends Harvest {
+public class HarvestBlood extends HarvestFromGround {
 	public HarvestBlood(World world) {
 		super(world.blood, Talents.DIGEST_BLOOD, Stomach.BLOOD);
 	}

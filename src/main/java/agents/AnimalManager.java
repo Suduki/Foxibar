@@ -47,6 +47,12 @@ public class AnimalManager<AnimalClass extends Animal> {
 				dead.add(pool[id]);
 			}
 		}
+		else if (clazz == Giraffe.class) {
+			for(int id = 0; id < maxNumAnimals; ++id) {
+				pool[id] = (AnimalClass) new Giraffe(world);
+				dead.add(pool[id]);
+			}
+		}
 		else {
 			System.err.println("constructing unknown Animal?");
 		}
@@ -90,12 +96,14 @@ public class AnimalManager<AnimalClass extends Animal> {
 	}
 
 
-	public void spawnAnimal(int x, int y) {
+	public Animal spawnAnimal(int x, int y) {
 		AnimalClass child = resurrectAnimal();
 		child.inherit(null);
 		child.resetPos(x,  y);
 		
 		vision.addAgentToZone(child);
+		
+		return child;
 	}
 	
 	private Animal mate(Animal animal) {

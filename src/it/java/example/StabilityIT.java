@@ -21,6 +21,7 @@ import agents.AnimalManager;
 import agents.Brainler;
 import agents.Bloodling;
 import agents.Grassler;
+import agents.Giraffe;
 import agents.Randomling;
 import agents.Stomach;
 import constants.Constants;
@@ -37,13 +38,15 @@ public class StabilityIT {
 	private static final int BLOODLING = 1;
 	private static final int BRAINLER = 2;
 	private static final int GRASSLER = 3;
+	private static final int GIRAFFE = 4;
+	
 	private static final String[] AGENT_TYPES_NAMES = new String[] { "Randomling", "Bloodling", "Brainler",
-			"Grassler" };
+			"Grassler", "Giraffe" };
 
 	@BeforeClass
 	public static void init() {
 		simulation = new Simulation(Constants.WORLD_MULTIPLIER_INTEGRATION_TEST,
-				new Class[] { Randomling.class, Bloodling.class, Brainler.class, Grassler.class });
+				new Class[] { Randomling.class, Bloodling.class, Brainler.class, Grassler.class, Giraffe.class });
 		System.out.println("Before class completed");
 	}
 
@@ -62,7 +65,6 @@ public class StabilityIT {
 	}
 
 	private int maxNumType1;
-
 	private int maxNumType2;
 
 	@Test
@@ -79,6 +81,9 @@ public class StabilityIT {
 		TestHelper.cleanup(simulation);
 		System.out.println("Testing Grassler");
 		testWorldPopulated(GRASSLER);
+		TestHelper.cleanup(simulation);
+		System.out.println("Testing Giraffe");
+		testWorldPopulated(GIRAFFE);
 		TestHelper.cleanup(simulation);
 		System.out.println("Test case testWorldPopulated completed.");
 	}
@@ -99,6 +104,10 @@ public class StabilityIT {
 		TestHelper.cleanup(simulation);
 
 		testSurvivability(GRASSLER, 5000, 100, false, true);
+		TestHelper.verifyWorldNotEmpty(simulation);
+		TestHelper.cleanup(simulation);
+		
+		testSurvivability(GIRAFFE, 5000, 100, false, true);
 		TestHelper.verifyWorldNotEmpty(simulation);
 		TestHelper.cleanup(simulation);
 

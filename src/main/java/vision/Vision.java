@@ -38,6 +38,9 @@ public class Vision {
 		int zoneX = getZoneXFromPosX(pos.x);
 		int zoneY = getZoneYFromPosY(pos.y);
 		
+		a.nearbyPlant = null;
+		a.nearbyPlantScore = 0;
+		
 		for (int i = 0; i < a.nearbyAgentsDistance.length; ++i) {
 			a.nearbyAgentsDistance[i] = -1;
 		}
@@ -62,24 +65,17 @@ public class Vision {
 
 	private void updateTreeScoresInZone(Animal a, Zone zone) {
 		for (Plant tree : zone.treesInZone) {
-			float score = tree.leafness() / (1f + calculateCircularDistance(a.pos, tree.pos));
-			if (score > Constants.Vision.MAX_DISTANCE_AN_AGENT_CAN_SEE) {
+			float distance = calculateCircularDistance(a.pos, tree.pos);
+			
+			if (distance > Constants.Vision.MAX_DISTANCE_AN_AGENT_CAN_SEE) {
 				continue;
 			}
-			for (int neighId = 0; neighId < a.nearbyPlantsScore.length; ++neighId) {
-				if (a.nearbyPlantsScore[neighId] == -1) {
-					a.nearbyPlantsScore[neighId] = score;
-					a.nearbyPlants[neighId] = tree;
-					break;
-				} else if (score <= a.nearbyPlantsScore[neighId]) {
-					float tmpD = score;
-					score = a.nearbyPlantsScore[neighId];
-					a.nearbyPlantsScore[neighId] = tmpD;
-
-					Plant tmpTree = tree;
-					tree = a.nearbyPlants[neighId];
-					a.nearbyPlants[neighId] = tmpTree;
-				}
+			
+			float score = tree.leafness() / (1f + distance);
+			
+			if (score > a.nearbyPlantScore) {
+				a.nearbyPlantScore = score;
+				a.nearbyPlant = tree;
 			}
 		}
 	}

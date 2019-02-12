@@ -13,17 +13,12 @@ public class Talents {
 	public static final int TOUGHNESS 		= NUM_TALENTS++;
 	public static final int DIGEST_BLOOD 	= NUM_TALENTS++;
 	public static final int DIGEST_GRASS 	= NUM_TALENTS++;
+	public static final int DIGEST_FIBER 	= NUM_TALENTS++;
 	public static final int MATE_COST 		= NUM_TALENTS++;
-
-	public static final String[] names = {
-			"Damage",
-			"Speed",
-			"Toughness",
-			"Digest Blood",
-			"Digest Grass",
-			"Fertility"
-	};
 	
+	public static final String[] names = {"Fight", "Speed", "Toughness", 
+			"Digest Blood", "Digest Grass", "Digest Fiber", "Fertility", "Digest Plant"};
+
 	public float mutation;
 
 	public static float[][] RANGES;
@@ -55,6 +50,7 @@ public class Talents {
 		RANGES[TOUGHNESS] 		= new float[] {MIN_TOUGHNESS, MAX_TOUGHNESS};// TODO
 		RANGES[DIGEST_BLOOD] 	= new float[] {0, MAX_DIGEST_BLOOD};
 		RANGES[DIGEST_GRASS] 	= new float[] {0, MAX_DIGEST_GRASS};
+		RANGES[DIGEST_FIBER] 	= new float[] {0, 10000000};
 		RANGES[MATE_COST] 		= new float[] {MAX_MATE_COST, MIN_MATE_COST};
 	}
 

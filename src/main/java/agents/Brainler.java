@@ -52,6 +52,8 @@ public class Brainler extends Animal {
 		
 		brainInputVector[NeuralFactors.in.HUNGER] = stomach.getRelativeFullness();
 		
+		brainInputVector[NeuralFactors.in.PLANT] = nearbyPlant != null ? nearbyPlantScore : -1;
+		
 		return brain.neural.neuralMagic(Action.acts);
 	}
 	

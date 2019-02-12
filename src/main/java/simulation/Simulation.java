@@ -117,13 +117,15 @@ public class Simulation extends MessageHandler {
 		mWorld.reset(b);
 	}
 
-	public void spawnAgent(int x, int y, int managerId) {
+	public Animal spawnAgent(int x, int y, int managerId) {
+		Animal spawn = null;
 		if (animalManagers.size() >= managerId) {
-			animalManagers.get(managerId).spawnAnimal(x, y);
+			spawn = animalManagers.get(managerId).spawnAnimal(x, y);
 		}
 		else {
 			System.err.println("Trying to spawn agents in a non-existing manager?");
 		}
+		return spawn;
 	}
 
 	public int getNumAgents() {

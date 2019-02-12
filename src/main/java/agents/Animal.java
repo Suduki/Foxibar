@@ -14,7 +14,7 @@ import world.World;
 public abstract class Animal extends Agent {
 
 	public static final int MAX_AGE = 200;
-	protected static final float REACH = 1;
+	public static final float REACH = 1;
 
 	public float[] color, secondaryColor;
 
@@ -35,8 +35,8 @@ public abstract class Animal extends Agent {
 	public Animal[] nearbyAgents;
 	public float[] nearbyAgentsDistance;
 	
-	public Plant[] nearbyPlants;
-	public float[] nearbyPlantsScore;
+	public Plant nearbyPlant;
+	public float nearbyPlantScore;
 
 	protected ArrayList<Animal> children;
 	Animal parent;
@@ -72,8 +72,8 @@ public abstract class Animal extends Agent {
 
 		this.nearbyAgents = new Animal[Constants.Vision.NUM_NEIGHBOURS];
 		this.nearbyAgentsDistance = new float[Constants.Vision.NUM_NEIGHBOURS];
-		this.nearbyPlants = new Plant[Constants.Vision.NUM_NEIGHBOURS];
-		this.nearbyPlantsScore = new float[Constants.Vision.NUM_NEIGHBOURS];
+		this.nearbyPlant = null;
+		this.nearbyPlantScore = 0;
 		
 		children = new ArrayList<>();
 		stomach = new Stomach();
@@ -221,11 +221,11 @@ public abstract class Animal extends Agent {
 		agent.health -= getFightSkill();
 	}
 
-	public void turnAwayFrom(Animal a) {
+	public void turnAwayFrom(Agent a) {
 		Vision.getDirectionOf(vel, a.pos, pos);
 	}
 	
-	public void turnTowards(Animal a) {
+	public void turnTowards(Agent a) {
 		Vision.getDirectionOf(vel, pos, a.pos);
 	}
 	
@@ -265,7 +265,7 @@ public abstract class Animal extends Agent {
 		super.die();
 		world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size, true);
 		world.blood.append((int) pos.x, (int) pos.y, stomach.fat / Constants.Talents.MAX_DIGEST_BLOOD, true);
-		world.grass.append((int) pos.x, (int) pos.y, stomach.fiber, true);
+		world.grass.append((int) pos.x, (int) pos.y, stomach.grass, true);
 		//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
 		//				+ ", age=" + age + ", score = " + score);
 

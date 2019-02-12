@@ -5,19 +5,18 @@ import org.joml.Vector2f;
 import world.TileElement;
 import agents.Animal;
 
-public class Harvest extends Action {
+public class HarvestFromGround extends Action {
 	public Vector2f dir;
 	public float heightBelowAgent;
 	public float heightNearby;
 	
-	private boolean harvestPossible;
 	private boolean searchPossible;
 	
 	private TileElement stuffToHarvest;
 	private final int DIGEST_SKILL;
 	private final int STOMACH_ID;
 
-	public Harvest(TileElement stuffToHarvest, final int DIGEST_SKILL, final int STOMACH_ID) {
+	public HarvestFromGround(TileElement stuffToHarvest, final int DIGEST_SKILL, final int STOMACH_ID) {
 		super();
 		dir = new Vector2f();
 		this.DIGEST_SKILL = DIGEST_SKILL;
@@ -30,7 +29,6 @@ public class Harvest extends Action {
 		isPossible = false;
 		if (a.talents.getRelative(DIGEST_SKILL) > 0.2f) {
 			if (canHarvest(a)) {
-				harvestPossible = true;
 				isPossible = true;
 			}
 			if (canSearch(a)) {

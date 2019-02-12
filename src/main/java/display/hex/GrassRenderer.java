@@ -7,13 +7,11 @@ import simulation.Simulation;
 public class GrassRenderer extends TubeRenderer {
 	private boolean drawGrass = true;
 
-	private TreeRenderer mTreeRenderer = null;
 
 	public GrassRenderer() {
 		super(Constants.Colors.GRASS_STRAW, Constants.Colors.GRASS, 3, true, 2, false, false, true);
 		setColor(Constants.Colors.GRASS_STRAW, Constants.Colors.GRASS, 0.5f, 1);
 
-		mTreeRenderer = new TreeRenderer();
 	}
 
 	public void drawGrass(float heightScale) {
@@ -40,12 +38,8 @@ public class GrassRenderer extends TubeRenderer {
 				float y = (float) Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5) * heightScale;
 				groundPos.set(xpos, y, zpos);
 
-				if (Main.mSimulation.mWorld.grass.tree.isAlive[x][z]) {
-					mTreeRenderer.renderTreeAt(Main.mSimulation.mWorld.grass.tree.height[x][z], groundPos, x, z);
-				} else {
-					if (height > 0.2f) {
-						renderTube(groundPos, height, height / 6, 0);
-					}
+				if (height > 0.2f) {
+					renderTube(groundPos, height, height / 6, 0);
 				}
 			}
 		}

@@ -37,7 +37,6 @@ public class VisionTest extends TestWithSimulation {
 	
 	@Test
 	public void thatAnimalsMove() {
-		System.out.println("Testing that " + AGENT_TYPES_NAMES[RANDOMLING] + " moves");
 		simulation.spawnAgent(5, 6, RANDOMLING);
 		
 		simulation.step();
@@ -50,8 +49,6 @@ public class VisionTest extends TestWithSimulation {
 	
 	@Test
 	public void thatAnimalsHuntOverEdges() {
-		System.out.println("Testing that " + AGENT_TYPES_NAMES[BLOODLING] + " hunts over edges");
-		
 		simulation.spawnAgent(0, 0, BLOODLING);
 		simulation.spawnAgent(Simulation.WORLD_SIZE_X - 2, Simulation.WORLD_SIZE_Y - 2, GRASSLER);
 		
@@ -64,8 +61,6 @@ public class VisionTest extends TestWithSimulation {
 	
 	@Test
 	public void thatAnimalsFleeOverEdges() {
-		System.out.println("Testing that " + AGENT_TYPES_NAMES[GRASSLER] + " flees over edges");
-		
 		simulation.spawnAgent(2, 2, BLOODLING);
 		simulation.spawnAgent(0, 0, GRASSLER);
 		
@@ -78,9 +73,6 @@ public class VisionTest extends TestWithSimulation {
 	
 	@Test
 	public void thatAnimalsFindFood() {
-		System.out.println("Testing that " + AGENT_TYPES_NAMES[GRASSLER] + " finds food");
-		
-		
 		int startPosX = 10;
 		int startPosY = 1;
 		
@@ -100,9 +92,6 @@ public class VisionTest extends TestWithSimulation {
 	
 	@Test //TODO Currently not working, this is a bug!
 	public void thatAnimalsFindFoodOverEdges() {
-		System.out.println("Testing that " + AGENT_TYPES_NAMES[GRASSLER] + " finds food over edges");
-		
-		
 		int startPosX = 10;
 		int startPosY = 0;
 		
@@ -111,14 +100,12 @@ public class VisionTest extends TestWithSimulation {
 		
 		simulation.mWorld.grass.killAllGrass();
 		simulation.mWorld.grass.append(foodPosX, foodPosY, 10, false);
-		simulation.spawnAgent(startPosX, startPosY, GRASSLER);
+		Animal a = simulation.spawnAgent(startPosX, startPosY, GRASSLER);
 		
 		simulation.step();
 		
-		Animal a = (Animal) simulation.animalManagers.get(GRASSLER).alive.get(0);
 		Assert.assertTrue("Expecting animal to be at x = " + foodPosX + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.x) == foodPosX);
 		Assert.assertTrue("Expecting animal to be at y = " + foodPosY + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.y) == foodPosY);
 	}
-	
 	
 }

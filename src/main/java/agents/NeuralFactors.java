@@ -10,5 +10,6 @@ public class NeuralFactors {
 		public static final int TILE_TERRAIN_HEIGHT	= NUM_FACTORS++;
 		public static final int FRIENDLER			= NUM_FACTORS++;
 		public static final int STRANGER			= NUM_FACTORS++;
+		public static final int PLANT				= NUM_FACTORS++;
 	}
 }
