@@ -21,6 +21,9 @@ public class HarvestTree extends Action {
 
 	@Override
 	public void commit(Animal a) {
+		numCommits++;
+		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
+		
 		if (Vision.calculateCircularDistance(a.pos, a.nearbyPlant.pos) < Animal.REACH) {
 			a.stomach.addFiber(a.nearbyPlant.harvest(a.harvestSkill
 					* a.talents.getRelative(Talents.DIGEST_FIBER)));

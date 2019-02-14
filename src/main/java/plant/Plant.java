@@ -24,8 +24,8 @@ public class Plant extends Agent {
 		maxAge = (int) MAX_AGE;
 		maxHealth = 1;
 		
-		color = new float[] {Constants.RANDOM.nextFloat(), Constants.RANDOM.nextFloat(), Constants.RANDOM.nextFloat()};
-		secondaryColor = new float[] {Constants.RANDOM.nextFloat(), Constants.RANDOM.nextFloat(), Constants.RANDOM.nextFloat()};
+		color = new float[] {Constants.RANDOM.nextFloat() * 0.5f, Constants.RANDOM.nextFloat(), Constants.RANDOM.nextFloat() * 0.5f};
+		secondaryColor = new float[] {Constants.RANDOM.nextFloat() * 0.5f, Constants.RANDOM.nextFloat(), Constants.RANDOM.nextFloat() * 0.5f};
 		
 		WANTED_AVERAGE_AMOUNT_OF_PLANTS = Simulation.WORLD_SIZE / 30;
 	}

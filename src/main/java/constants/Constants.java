@@ -36,7 +36,7 @@ public class Constants {
 		public static final int HEIGHT = 16;
 		public static final int WIDTH =  16;
 		public static final int MAX_DISTANCE_AN_AGENT_CAN_SEE = HEIGHT;
-		public static final int NUM_NEIGHBOURS = 6;
+		public static final int NUM_NEIGHBOURS = 5;
 	}
 	
 	public static class Colors
@@ -84,7 +84,7 @@ public class Constants {
 	public static class Blood {
 		public static final float SPLASH = 1f;
 		public static final float ADDITION_ON_DEATH = 1f;
-		public static final float DECAY_FACTOR = 0.99f;
+		public static final float DECAY_FACTOR = 0.999f;
 		public static final float DECAY_FACTOR_WATER = 0.9f;
 		public static final float DECAY_FACTOR_STONE = 0.9f;
 		public static final float DEATH_FROM_HUNGER_FACTOR = 1f;
