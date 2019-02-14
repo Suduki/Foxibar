@@ -5,11 +5,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import testUtils.TestWithSimulation;
+import testUtils.UnitTestWithSimulation;
 import vision.Vision.Zone;
 import static plant.PlantManager.*;
 
-public class PlantManagerTest extends TestWithSimulation {
+public class PlantManagerTest extends UnitTestWithSimulation {
 	
 	private PlantManager sut;
 	

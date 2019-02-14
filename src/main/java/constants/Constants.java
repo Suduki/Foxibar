@@ -6,7 +6,7 @@ public class Constants {
 
 	public static final short WORLD_MULTIPLIER_MAIN = 7;
 	public static final short WORLD_MULTIPLIER_TEST = 5;
-	public static final short WORLD_MULTIPLIER_INTEGRATION_TEST = 7;
+	public static final short WORLD_MULTIPLIER_INTEGRATION_TEST = 6;
 	public static final float INIT_ZOOM = 1f;
 	public static final int WANTED_FPS = 30;
 	public static final int PIXELS_Y = 800;
@@ -28,6 +28,7 @@ public class Constants {
 		public static final float MUTATION = 0.1f;
 
 		public static float MAX_DIGEST_GRASS;
+		public static float MAX_DIGEST_FIBER;
 		public static float MAX_DIGEST_BLOOD;
 	}
 

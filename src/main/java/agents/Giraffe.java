@@ -20,6 +20,12 @@ public class Giraffe extends Animal {
 			return;
 		}
 		
+		action = Action.fleeFromFriendler;
+		if (action.isPossible) {
+			action.commit(this);
+			return;
+		}
+		
 		action = Action.randomWalk;
 		if (action.isPossible) {
 			action.commit(this);

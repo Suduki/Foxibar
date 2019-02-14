@@ -59,10 +59,17 @@ public class Simulation extends MessageHandler {
 			Constants.Talents.MAX_DIGEST_BLOOD = recommendation.highLimit;
 			System.out.println("Found Blood file, will use that for the simulation");
 		}
+		
 		recommendation = StomachRecommendation.load(StomachRecommendation.grassFile); 
 		if (recommendation != null) {
 			Constants.Talents.MAX_DIGEST_GRASS = recommendation.highLimit;
 			System.out.println("Found Grass file, will use that for the simulation");
+		}
+		
+		recommendation = StomachRecommendation.load(StomachRecommendation.fiberFile); 
+		if (recommendation != null) {
+			Constants.Talents.MAX_DIGEST_FIBER = recommendation.highLimit;
+			System.out.println("Found Fiber file, will use that for the simulation");
 		}
 	}
 

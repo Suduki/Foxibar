@@ -154,7 +154,7 @@ public class AgentRenderer extends TubeRenderer {
 
 		float scale = 0.7f;
 
-		float height = (scale * (a.maxTall * a.size) + (1f - scale)) * 2f;
+		float height = (scale * (a.maxTall * a.size) * 10 + (1f - scale)) * 2f;
 		float width = (scale * (a.maxSize * a.size) + (1f - scale)) * 0.6f;
 
 		renderTube(groundPos, height, width, 0);

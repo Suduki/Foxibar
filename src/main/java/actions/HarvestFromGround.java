@@ -2,6 +2,7 @@ package actions;
 
 import org.joml.Vector2f;
 
+import talents.Talents;
 import world.TileElement;
 import agents.Animal;
 
@@ -26,16 +27,13 @@ public class HarvestFromGround extends Action {
 
 	@Override
 	public boolean determineIfPossible(Animal a) {
-		isPossible = false;
-		if (a.talents.getRelative(DIGEST_SKILL) > 0.2f) {
-			if (canHarvest(a)) {
-				isPossible = true;
-			}
-			if (canSearch(a)) {
-				searchPossible = true;
-				isPossible = true;
-			}
-		}
+		
+		searchPossible = canSearch(a);
+		
+		isPossible = a.talents.getRelative(DIGEST_SKILL) > 0.2f
+				&& !a.stomach.isFull()
+				&& (canHarvest(a) || searchPossible);
+		
 		return isPossible;
 	}
 
@@ -65,6 +63,7 @@ public class HarvestFromGround extends Action {
 	}
 	
 	private float harvest(Animal a) {
-		return a.stomach.add(STOMACH_ID, stuffToHarvest.harvest(a.harvestSkill, (int) a.pos.x, (int) a.pos.y)) / a.harvestSkill;
+		float harvestSkillBasedOnTalent = a.harvestSkill * a.talents.getRelative(DIGEST_SKILL);
+		return a.stomach.add(STOMACH_ID, stuffToHarvest.harvest(harvestSkillBasedOnTalent, (int) a.pos.x, (int) a.pos.y)) / harvestSkillBasedOnTalent;
 	}
 }

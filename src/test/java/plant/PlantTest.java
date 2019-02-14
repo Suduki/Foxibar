@@ -4,10 +4,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import testUtils.TestWithSimulation;
+import testUtils.UnitTestWithSimulation;
+
 import static testUtils.TestHelper.ERROR_DELTA;
 
-public class PlantTest extends TestWithSimulation {
+public class PlantTest extends UnitTestWithSimulation {
 
 	private Plant sut;
 	private PlantManager manager;

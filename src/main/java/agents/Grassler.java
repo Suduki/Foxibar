@@ -17,13 +17,7 @@ public class Grassler extends Animal {
 	@Override
 	protected void actionUpdate() {
 		
-		Action action = Action.fleeFromStranger;
-		if (action.isPossible) {
-			action.commit(this);
-			return;
-		}
-		
-		action = Action.harvestGrass;
+		Action action = Action.harvestGrass;
 		if (action.isPossible) {
 			action.commit(this);
 			return;

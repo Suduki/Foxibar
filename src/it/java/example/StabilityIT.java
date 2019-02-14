@@ -28,27 +28,11 @@ import constants.Constants;
 import simulation.Simulation;
 import talents.StomachRecommendation;
 import talents.Talents;
+import testUtils.IntegrationTestWithSimulation;
 import testUtils.TestHelper;
 import vision.Vision;
 
-public class StabilityIT {
-	private static Simulation simulation;
-
-	private static final int RANDOMLING = 0;
-	private static final int BLOODLING = 1;
-	private static final int BRAINLER = 2;
-	private static final int GRASSLER = 3;
-	private static final int GIRAFFE = 4;
-	
-	private static final String[] AGENT_TYPES_NAMES = new String[] { "Randomling", "Bloodling", "Brainler",
-			"Grassler", "Giraffe" };
-
-	@BeforeClass
-	public static void init() {
-		simulation = new Simulation(Constants.WORLD_MULTIPLIER_INTEGRATION_TEST,
-				new Class[] { Randomling.class, Bloodling.class, Brainler.class, Grassler.class, Giraffe.class });
-		System.out.println("Before class completed");
-	}
+public class StabilityIT extends IntegrationTestWithSimulation {
 
 	private static void sanityCheck() {
 		float[][] blood = simulation.mWorld.blood.height;
@@ -112,88 +96,6 @@ public class StabilityIT {
 		TestHelper.cleanup(simulation);
 
 		System.out.println("Test case testSurvivability completed.");
-	}
-
-	public StomachRecommendation findSuitableGrassP() {
-		float grassP = 0;
-		int numAgents;
-		boolean foundLowG = false;
-		float lowGrassP = 0;
-
-		int numInitGrasslers = 100;
-		testSurvivability(GRASSLER, 500, numInitGrasslers, false, true);
-		System.out.println("Running multiple simulations to determine proper grass digestion value.");
-		do {
-			grassP += 0.2f;
-			Talents.changeTalentMax(Talents.DIGEST_GRASS, grassP);
-			testSurvivability(GRASSLER, 500, numInitGrasslers, false, false);
-			numAgents = simulation.getNumAgents(GRASSLER);
-			TestHelper.cleanup(simulation);
-			if (!foundLowG && numAgents > numInitGrasslers + 5) {
-				foundLowG = true;
-				lowGrassP = grassP;
-
-				System.out.println(" Found low limit.");
-			}
-			System.out.print(".");
-		} while (numAgents < Simulation.WORLD_SIZE / 40);
-		System.out.println(" Done.");
-		TestHelper.cleanup(simulation);
-		StomachRecommendation tmp = new StomachRecommendation(lowGrassP, grassP);
-		tmp.printStuff();
-		return tmp;
-	}
-
-	@Test
-	public void findSuitableBloodP() {
-		StomachRecommendation grassThingP = findSuitableGrassP();
-		StomachRecommendation bloodThingP = new StomachRecommendation();
-
-		float bloodP = 0.1f;
-		int numGrasslers;
-		boolean foundLowB = false;
-
-		int type1 = GRASSLER;
-		int type2 = BLOODLING;
-		int initNumAgents1 = 500;
-		int initNumAgents2 = 25;
-
-		Talents.changeTalentMax(Talents.DIGEST_GRASS, grassThingP.mean);
-		testSurvivability(type1, 500, initNumAgents1, false, true); // Get the first agent type balanced
-
-		System.out.println("Running multiple simulations to determine proper blood digestion value.");
-		float stepAmount = 0.1f;
-		do {
-			maxNumType1 = 0;
-			maxNumType2 = 0;
-			bloodP += stepAmount;
-			stepAmount += 0.1f;
-			Talents.changeTalentMax(Talents.DIGEST_BLOOD, bloodP);
-
-			int numGrasslersToSpawn = Integer.max(initNumAgents1 - simulation.getNumAgents(type1), 0);
-
-			testMultipleAgents(type1, type2, numGrasslersToSpawn, initNumAgents2, false);
-			numGrasslers = simulation.getNumAgents(type1);
-			if (!foundLowB && maxNumType2 > initNumAgents2 + 5) {
-				foundLowB = true;
-				bloodThingP.lowLimit = bloodP;
-				System.out.println(" Found low limit.");
-			}
-			System.out.print(".");
-		} while (numGrasslers != 0);
-
-		System.out.println(" Done.");
-
-		bloodThingP.highLimit = bloodP;
-		bloodThingP.setMean();
-
-		grassThingP.printStuff();
-		bloodThingP.printStuff();
-
-		grassThingP.save(StomachRecommendation.grassFile);
-		bloodThingP.save(StomachRecommendation.bloodFile);
-
-		TestHelper.cleanup(simulation);
 	}
 
 	@Test // TODO: MOVE; not an
@@ -283,87 +185,5 @@ public class StabilityIT {
 
 	private float calculateCallPercentage(float numCalls, Action action) {
 		return ((float) action.numCommits * 100) / numCalls;
-	}
-
-	/////////////
-	// HELPERS //
-	/////////////
-	private void printActions(int numCalls) {
-
-		for (Action act : Action.acts) {
-			float perc = ((float) act.numCommits * 100) / numCalls;
-			System.out.printf("%18s: %.2f%s\n", act.getClass().getSimpleName(), perc, "%");
-		}
-	}
-
-	private void testMultipleAgents(int type1, int type2, int initNumAgents1, int initNumAgents2, boolean printStuff) {
-		simulation.spawnAgentsAtRandomPosition(type1, initNumAgents1);
-		simulation.spawnAgentsAtRandomPosition(type2, initNumAgents2);
-		int t = 0;
-		while (t < 1000) {
-			++t;
-			simulation.step();
-			if (maxNumType2 < simulation.getNumAgents(type2)) {
-				maxNumType2 = simulation.getNumAgents(type2);
-			}
-			if (maxNumType1 < simulation.getNumAgents(type1)) {
-				maxNumType1 = simulation.getNumAgents(type1);
-			}
-			if (simulation.getNumAgents(type1) == 0) {
-				if (printStuff)
-					System.out.println(AGENT_TYPES_NAMES[type1] + " died after " + t + " time steps.");
-				if (printStuff)
-					System.out
-							.println("Num " + AGENT_TYPES_NAMES[type2] + " alive = " + simulation.getNumAgents(type2));
-				if (printStuff)
-					System.out.println("Max number of " + AGENT_TYPES_NAMES[type1] + ": " + maxNumType1);
-				return;
-			}
-			if (simulation.getNumAgents(type2) == 0) {
-				if (printStuff)
-					System.out.println(AGENT_TYPES_NAMES[type2] + " died after " + t + " time steps.");
-				if (printStuff)
-					System.out
-							.println("Num " + AGENT_TYPES_NAMES[type1] + " alive = " + simulation.getNumAgents(type1));
-				if (printStuff)
-					System.out.println("Max number of " + AGENT_TYPES_NAMES[type2] + ": " + maxNumType2);
-				return;
-			}
-		}
-		if (printStuff)
-			System.out.println("Both survived.");
-		if (printStuff)
-			System.out.println("Num " + AGENT_TYPES_NAMES[type1] + " alive = " + simulation.getNumAgents(type1));
-		if (printStuff)
-			System.out.println("Num " + AGENT_TYPES_NAMES[type2] + " alive = " + simulation.getNumAgents(type2));
-
-	}
-
-	private void testSurvivability(int agentType, int simTime, int numInit, boolean continuousSpawn, boolean printStuff) {
-		if (printStuff)
-			System.out.println("Testing survivability of " + AGENT_TYPES_NAMES[agentType]);
-
-		simulation.spawnAgentsAtRandomPosition(agentType, numInit);
-		int t;
-		for (t = 0; t < simTime; t++) {
-			int numActiveAgents = simulation.getNumAgents(agentType);
-			if (continuousSpawn && numActiveAgents < numInit) {
-				simulation.spawnAgentsAtRandomPosition(agentType, numInit - numActiveAgents);
-			}
-			if (numActiveAgents == 0) {
-				return;
-			}
-			simulation.step();
-		}
-		if (printStuff)
-			System.out.println(AGENT_TYPES_NAMES[agentType] + " Survivability test completed after " + t
-					+ " time steps, with " + simulation.animalManagers.get(agentType).numAnimals + " survivors");
-	}
-
-	private void testWorldPopulated(int agentType) {
-		TestHelper.verifyWorldEmpty(simulation);
-		simulation.spawnAgentsAtRandomPosition(agentType, 100);
-		simulation.step();
-		TestHelper.verifyWorldNotEmpty(simulation);
 	}
 }

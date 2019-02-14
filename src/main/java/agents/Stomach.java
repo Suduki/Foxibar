@@ -126,5 +126,11 @@ public class Stomach {
 		}
 		return amount;
 	}
+
+
+	public boolean isFull() {
+		return getRelativeFullness() > 0.9f;
+	}
+
 }
 

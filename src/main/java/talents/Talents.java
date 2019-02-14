@@ -50,7 +50,7 @@ public class Talents {
 		RANGES[TOUGHNESS] 		= new float[] {MIN_TOUGHNESS, MAX_TOUGHNESS};// TODO
 		RANGES[DIGEST_BLOOD] 	= new float[] {0, MAX_DIGEST_BLOOD};
 		RANGES[DIGEST_GRASS] 	= new float[] {0, MAX_DIGEST_GRASS};
-		RANGES[DIGEST_FIBER] 	= new float[] {0, 10000000};
+		RANGES[DIGEST_FIBER] 	= new float[] {0, MAX_DIGEST_FIBER};
 		RANGES[MATE_COST] 		= new float[] {MAX_MATE_COST, MIN_MATE_COST};
 	}
 

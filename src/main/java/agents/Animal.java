@@ -146,7 +146,7 @@ public abstract class Animal extends Agent {
 		stomach.inherit(talents);
 		maxHealth = 100*talents.talentsRelative[Talents.TOUGHNESS];
 		maxSize = talents.talentsRelative[Talents.TOUGHNESS];
-		maxTall = talents.talentsRelative[Talents.FIGHT];
+		maxTall = talents.talentsRelative[Talents.DIGEST_FIBER];
 	}
 
 	private void stepScore(int score) {

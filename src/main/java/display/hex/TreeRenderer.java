@@ -40,15 +40,15 @@ public class TreeRenderer {
 			treeTrunkWidth = scale / 4;
 		}
 
-		trunkRenderer.setColor(Constants.Colors.FIBER, Constants.Colors.TREE, 1, 1);
+		trunkRenderer.setColor(Constants.Colors.TREE, plant.color, 1, 1);
 		trunkRenderer.renderTube(pos, treeTrunkHeight, treeTrunkWidth, 0);
 
 		float yStart = treeTrunkHeight/6;
 		float health = plant.health;
 		if (health > 0.05f) {
 			float treeTopHeight = treeTrunkHeight;//plant.size * (health*0.3f + 0.7f) * scale /2 + 0.2f;
-			float treeTopWidth = 2 * health * scale * plant.size + 0.1f;
-			topRenderer.setColor(topRenderer.minColor, Constants.Colors.BLACK, 0.9f, 1);
+			float treeTopWidth = 2 * health * scale * plant.size;
+			topRenderer.setColor(plant.color, plant.secondaryColor, 0.9f, 1);
 			topRenderer.renderTube(pos, treeTopHeight, treeTopWidth, yStart);
 		}
 

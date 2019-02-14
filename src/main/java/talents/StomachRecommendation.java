@@ -13,6 +13,7 @@ public class StomachRecommendation implements Serializable {
 	
 	public static final String bloodFile = "serializedSettings/bloodRecommendation.ser";
 	public static final String grassFile = "serializedSettings/grassRecommendation.ser";
+	public static final String fiberFile = "serializedSettings/fiberRecommendation.ser";
 
 	public StomachRecommendation(float lowLimit, float highLimit) {
 		this.lowLimit = lowLimit;

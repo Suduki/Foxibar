@@ -10,20 +10,15 @@ import constants.Constants;
 import simulation.Simulation;
 import testUtils.TestHelper;
 import testUtils.TestWithSimulation;
+import testUtils.UnitTestWithSimulation;
 import agents.Animal;
 import agents.Bloodling;
 import agents.Brainler;
 import agents.Grassler;
 import agents.Randomling;
 
-public class VisionTest extends TestWithSimulation {
+public class VisionTest extends UnitTestWithSimulation {
 	
-	private static final int RANDOMLING = 0;
-	private static final int BLOODLING = 1;
-	private static final int BRAINLER = 2;
-	private static final int GRASSLER = 3;
-	private static final String[] AGENT_TYPES_NAMES = new String[]{"Randomling", "Bloodling", "Brainler", "Grassler"};
-
 	@Before
 	public void betweenTests() {
 		TestHelper.verifyWorldEmpty(simulation);

@@ -102,10 +102,11 @@ public class Brainler extends Animal {
 	public void updateColors() {
 		for (int i = 0; i < 3; ++i) {
 			color[i] = (float) Math.round(appearanceFactors[i]);
+			
+			secondaryColor[i] += talents.talentsRelative[Talents.DIGEST_BLOOD] * Constants.Colors.RED[i];
+			secondaryColor[i] += talents.talentsRelative[Talents.DIGEST_GRASS] * Constants.Colors.GREEN[i];
+			secondaryColor[i] += talents.talentsRelative[Talents.DIGEST_FIBER] * Constants.Colors.YELLOW[i];
 		}
-		secondaryColor[0] = talents.talentsRelative[Talents.DIGEST_BLOOD];
-		secondaryColor[1] = talents.talentsRelative[Talents.DIGEST_GRASS];
-		secondaryColor[2] = 0;
 	}
 	
 	@Override
