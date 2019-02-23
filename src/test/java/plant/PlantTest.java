@@ -22,20 +22,24 @@ public class PlantTest extends UnitTestWithSimulation {
 	@Test
 	public void testThatPlantsGrow() {
 		Assert.assertEquals(sut.size, 0, ERROR_DELTA);
-		Assert.assertEquals(sut.health, 0.1f, ERROR_DELTA);
+		Assert.assertEquals(sut.health, 1, ERROR_DELTA);
 		Assert.assertEquals(sut.leafness(), 0f, ERROR_DELTA);
 
+		int numTimestepsToGrowFully = (int) (1f/Plant.GROWTH) + 1;
+		
+		for (int i = 0; i < numTimestepsToGrowFully; ++i) {
+			float oldLeafness = sut.leafness();
+			float oldSize = sut.size;
+			sut.stepAgent();
+			Assert.assertTrue(sut.leafness() > oldLeafness);
+			Assert.assertTrue(sut.size > oldSize);
+		}
+		
+		float oldLeafness = sut.leafness();
+		float oldSize = sut.size;
 		sut.stepAgent();
-
-		Assert.assertTrue(sut.health > 0.1f);
-		Assert.assertEquals(sut.leafness(), 0f, ERROR_DELTA);
-		Assert.assertEquals(sut.size, 0, ERROR_DELTA);
-
-		growPlantFully();
-
-		Assert.assertEquals(sut.health, 1f, ERROR_DELTA);
-		Assert.assertTrue(sut.size > 0); 
-		Assert.assertTrue(sut.leafness() > 0f);
+		Assert.assertEquals(oldLeafness, sut.leafness(), ERROR_DELTA);
+		Assert.assertEquals(oldSize, sut.size, ERROR_DELTA);
 	}
 
 	@Test

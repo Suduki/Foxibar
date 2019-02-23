@@ -44,4 +44,8 @@ public class TestHelper {
 		}
 		return num;
 	}
+	
+	public static void assertLessThan(float a, float b) {
+		Assert.assertTrue("Expected: " + a + " < " + b, a < b);
+	}
 }

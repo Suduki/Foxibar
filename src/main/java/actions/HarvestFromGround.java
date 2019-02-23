@@ -16,12 +16,15 @@ public class HarvestFromGround extends Action {
 	private TileElement stuffToHarvest;
 	private final int DIGEST_SKILL;
 	private final int STOMACH_ID;
+	private final float HARVEST_SKILL;
+	
 
-	public HarvestFromGround(TileElement stuffToHarvest, final int DIGEST_SKILL, final int STOMACH_ID) {
+	public HarvestFromGround(TileElement stuffToHarvest, final int DIGEST_SKILL, final int STOMACH_ID, final float HARVEST_SKILL) {
 		super();
 		dir = new Vector2f();
 		this.DIGEST_SKILL = DIGEST_SKILL;
 		this.STOMACH_ID = STOMACH_ID;
+		this.HARVEST_SKILL = HARVEST_SKILL;
 		this.stuffToHarvest = stuffToHarvest;
 	}
 
@@ -63,7 +66,7 @@ public class HarvestFromGround extends Action {
 	}
 	
 	private float harvest(Animal a) {
-		float harvestSkillBasedOnTalent = a.harvestSkill * a.talents.getRelative(DIGEST_SKILL);
+		float harvestSkillBasedOnTalent = HARVEST_SKILL * a.talents.getRelative(DIGEST_SKILL);
 		return a.stomach.add(STOMACH_ID, stuffToHarvest.harvest(harvestSkillBasedOnTalent, (int) a.pos.x, (int) a.pos.y)) / harvestSkillBasedOnTalent;
 	}
 }

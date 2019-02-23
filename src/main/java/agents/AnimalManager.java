@@ -61,6 +61,10 @@ public class AnimalManager<AnimalClass extends Animal> {
 	}
 
 	public void moveAll() {
+		for (AnimalClass a : alive) {
+			vision.addAgentToZone(a);
+		}
+		
 		if (killAll) {
 			for (AnimalClass a : alive) {
 				a.die();
@@ -74,7 +78,8 @@ public class AnimalManager<AnimalClass extends Animal> {
 		}
 		else {
 			for (AnimalClass a : alive) {
-				a.updateNearestNeighbours(vision);
+				vision.updateNearestNeighbours(a);
+				
 				if (a.stepAgent()) {
 					// All is well
 					if (a.didMate) {
@@ -83,7 +88,11 @@ public class AnimalManager<AnimalClass extends Animal> {
 					}
 					
 					if (a.didMove) {
-						vision.updateAgentZone(a);
+						for (Animal a2 : a.nearbyAgents) {
+							if (a2 != null) {
+								a.collide(a2);
+							}
+						}
 						a.didMove = false;
 					}
 				}
@@ -92,7 +101,6 @@ public class AnimalManager<AnimalClass extends Animal> {
 				}
 			}
 		}
-
 	}
 
 
@@ -100,8 +108,6 @@ public class AnimalManager<AnimalClass extends Animal> {
 		AnimalClass child = resurrectAnimal();
 		child.inherit(null);
 		child.resetPos(x,  y);
-		
-		vision.addAgentToZone(child);
 		
 		return child;
 	}
@@ -113,8 +119,6 @@ public class AnimalManager<AnimalClass extends Animal> {
 
 		child.resetPos(animal.pos.x, animal.pos.y);
 		child.addParent(animal);
-		
-		vision.addAgentToZone(child);
 
 		return child;
 	}
@@ -148,8 +152,6 @@ public class AnimalManager<AnimalClass extends Animal> {
 	private void someoneDied(AnimalClass animal, boolean diedNaturally) {
 		numAnimals--;
 		toDie.add(animal);
-
-		vision.removeAnimalFromZone(animal, false);
 	}
 
 	public int getNumAnimals() {
@@ -167,7 +169,6 @@ public class AnimalManager<AnimalClass extends Animal> {
 		// Add all newborn agents to loop
 		for (AnimalClass a : toLive) {
 			alive.add(a);
-			vision.updateAgentZone((Animal) a);
 		}
 		toLive.clear();
 	}

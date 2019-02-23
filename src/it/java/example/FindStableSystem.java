@@ -2,82 +2,95 @@ package example;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import agents.Bloodling;
-import agents.Brainler;
-import agents.Giraffe;
-import agents.Grassler;
-import agents.Randomling;
-import constants.Constants;
 import plant.Plant;
-import simulation.Simulation;
 import talents.StomachRecommendation;
 import talents.Talents;
 import testUtils.IntegrationTestWithSimulation;
 import testUtils.TestHelper;
-import testUtils.TestWithSimulation;
 
 public class FindStableSystem extends IntegrationTestWithSimulation {
 	
 	private static float WANTED_AMOUNT_OF_TREES;
-	private static float WANTED_AMOUNT_OF_GRASSLER;
+	private static float WANTED_AMOUNT_OF_RANDOMLING;
 	private static float WANTED_AMOUNT_OF_GIRAFFE;
 
 	@Before
 	public  void init() {
 		WANTED_AMOUNT_OF_TREES = Plant.WANTED_AVERAGE_AMOUNT_OF_PLANTS;
-		WANTED_AMOUNT_OF_GRASSLER = simulation.WORLD_SIZE / 20;
-		WANTED_AMOUNT_OF_GIRAFFE = simulation.WORLD_SIZE / 50;
+		WANTED_AMOUNT_OF_RANDOMLING = simulation.WORLD_SIZE / 20;
+		WANTED_AMOUNT_OF_GIRAFFE = simulation.WORLD_SIZE / 25;
 	}
 	
 	//NOTE: This is not really a test, it is a thing to generate settings for a balanced simulation.
 	@Test
 	public void findSuitableEnergyGainLevels() {
-		StomachRecommendation fiberRecommendation = findSuitableFiberP();
+		Talents.changeTalentMax(Talents.DIGEST_FIBER, 0);
+		Talents.changeTalentMax(Talents.DIGEST_GRASS, 0);
+		Talents.changeTalentMax(Talents.DIGEST_BLOOD, 0);
 		
+		runOneTreeGeneration();
+		
+		StomachRecommendation fiberRecommendation = findSuitableFiberP();
 		fiberRecommendation.printStuff();
-		Talents.changeTalentMax(Talents.DIGEST_FIBER, fiberRecommendation.mean);
+		
 		
 		StomachRecommendation grassRecommendation = findSuitableGrassP();
-		
-		Talents.changeTalentMax(Talents.DIGEST_GRASS, grassRecommendation.mean);
-		StomachRecommendation bloodRecommendation = findSuitableBloodP();
-
 		grassRecommendation.printStuff();
+		
+		StomachRecommendation bloodRecommendation = findSuitableBloodP();
 		bloodRecommendation.printStuff();
 		
+
 		grassRecommendation.save(StomachRecommendation.grassFile);
 		bloodRecommendation.save(StomachRecommendation.bloodFile);
 		fiberRecommendation.save(StomachRecommendation.fiberFile);
+		
+		betweenTestsResetSimulation();
+		runOneTreeGeneration();
+		float[] avgs = testMultipleAgents(new int[]{RANDOMLING, GIRAFFE}, 
+				new int[]{(int) WANTED_AMOUNT_OF_RANDOMLING, (int) WANTED_AMOUNT_OF_GIRAFFE}, true);
+		
+		TestHelper.assertLessThan(0.5f * WANTED_AMOUNT_OF_RANDOMLING, avgs[RANDOMLING]);
+		TestHelper.assertLessThan(avgs[RANDOMLING], 1.5f * WANTED_AMOUNT_OF_RANDOMLING);
+		TestHelper.assertLessThan(0.5f * WANTED_AMOUNT_OF_GIRAFFE, avgs[GIRAFFE]);
+		TestHelper.assertLessThan(avgs[GIRAFFE], 1.5f * WANTED_AMOUNT_OF_GIRAFFE);
+		
+		avgs = testMultipleAgents(new int[]{RANDOMLING, BLOODLING, GIRAFFE}, 
+				new int[]{(int) WANTED_AMOUNT_OF_RANDOMLING, 20, (int) WANTED_AMOUNT_OF_GIRAFFE}, true);
+		
+		TestHelper.assertLessThan(0.1f * WANTED_AMOUNT_OF_RANDOMLING, avgs[RANDOMLING]);
+		TestHelper.assertLessThan(10, avgs[BLOODLING]);
+		TestHelper.assertLessThan(0.1f * WANTED_AMOUNT_OF_GIRAFFE, avgs[GIRAFFE]);
+		
 	}
 	
 	private StomachRecommendation findSuitableFiberP() {
 		float fiberP = 0;
-		int numAgents;
 		boolean foundLowG = false;
 		float lowFiberP = 0;
 
 		int numInit = (int) WANTED_AMOUNT_OF_GIRAFFE / 2;
-		testSurvivability(GIRAFFE, 500, numInit, false, true);
+		testSurvivability(GIRAFFE, numInit, false, true);
+		float averageAmountOfAlive = 0;
+		
 		System.out.println("Running multiple simulations to determine proper fiber digestion value.");
 		do {
 			fiberP = nextStomachStep(fiberP);
 			Talents.changeTalentMax(Talents.DIGEST_FIBER, fiberP);
-			testSurvivability(GIRAFFE, 500, numInit, false, false);
-			numAgents = simulation.getNumAgents(GIRAFFE);
+			averageAmountOfAlive = testSurvivability(GIRAFFE, numInit, false, false);
 			
 			TestHelper.cleanup(simulation);
 			
-			if (!foundLowG && numAgents > WANTED_AMOUNT_OF_GIRAFFE) {
+			if (!foundLowG && averageAmountOfAlive > numInit) {
 				foundLowG = true;
 				lowFiberP = fiberP;
 
 				System.out.println(" Found low limit.");
 			}
 			System.out.print(".");
-		} while (numAgents < WANTED_AMOUNT_OF_GIRAFFE * 1.5f);
+		} while (averageAmountOfAlive < WANTED_AMOUNT_OF_GIRAFFE * 1.5f);
 		System.out.println(" Done.");
 		TestHelper.cleanup(simulation);
 		
@@ -87,71 +100,71 @@ public class FindStableSystem extends IntegrationTestWithSimulation {
 
 	public StomachRecommendation findSuitableGrassP() {
 		float grassP = 0;
-		int numAgents;
 		boolean foundLowG = false;
 		float lowGrassP = 0;
 
-		int numInitGrasslers = (int) WANTED_AMOUNT_OF_GRASSLER / 4;
-		testSurvivability(GRASSLER, 500, numInitGrasslers, false, true);
+		int numInitRandomlings = (int) WANTED_AMOUNT_OF_RANDOMLING / 4;
+		testSurvivability(RANDOMLING, numInitRandomlings, false, true);
+		float average = 0;
+		float average1 = 0;
+		float average2 = 0;
+		float average3 = 0;
+		
 		System.out.println("Running multiple simulations to determine proper grass digestion value.");
 		do {
 			grassP += 0.2f;
 			grassP = nextStomachStep(grassP);
 			Talents.changeTalentMax(Talents.DIGEST_GRASS, grassP);
-			testSurvivability(GRASSLER, 500, numInitGrasslers, false, false);
-			numAgents = simulation.getNumAgents(GRASSLER);
+			average = testSurvivability(RANDOMLING, numInitRandomlings, false, false);
+			average1 = testSurvivability(RANDOMLING, numInitRandomlings, false, false);
+			average2 = testSurvivability(RANDOMLING, numInitRandomlings, false, false);
+			average3 = testSurvivability(RANDOMLING, numInitRandomlings, false, false);
 			
 			TestHelper.cleanup(simulation);
 			
-			if (!foundLowG && numAgents > WANTED_AMOUNT_OF_GRASSLER / 2) {
+			if (!foundLowG && (average+average1+average2+average3)/4 > WANTED_AMOUNT_OF_RANDOMLING / 2) {
 				foundLowG = true;
 				lowGrassP = grassP;
 
 				System.out.println(" Found low limit.");
 			}
 			System.out.print(".");
-		} while (numAgents < WANTED_AMOUNT_OF_GRASSLER * 1.5f);
+		} while (average < WANTED_AMOUNT_OF_RANDOMLING * 1.5f);
+		
 		System.out.println(" Done.");
 		TestHelper.cleanup(simulation);
-		StomachRecommendation tmp = new StomachRecommendation(lowGrassP, grassP);
-		tmp.printStuff();
-		return tmp;
+		
+		return new StomachRecommendation(lowGrassP, grassP);
 	}
 
 	public StomachRecommendation findSuitableBloodP() {
 		StomachRecommendation bloodThingP = new StomachRecommendation();
 
 		float bloodP = 0.1f;
-		int numGrasslers;
+		int numRandomlings;
 		boolean foundLowB = false;
 
-		int initNumGrasslers = (int) WANTED_AMOUNT_OF_GRASSLER/2;
+		int initNumRandomlings = (int) WANTED_AMOUNT_OF_RANDOMLING/2;
 		int initNumBloodlings = 25;
 		int initNumGiraffes = (int) WANTED_AMOUNT_OF_GIRAFFE/2;
 
-		testMultipleAgents(new int[]{GRASSLER, GIRAFFE}, new int[]{initNumGrasslers, initNumGiraffes}, false);
-
 		System.out.println("Running multiple simulations to determine proper blood digestion value.");
 		do {
-			for (int i = 0; i < maxNumType.length; ++i) {
-				maxNumType[i] = 0;
-			}
-			
 			bloodP = nextStomachStep(bloodP);
 			Talents.changeTalentMax(Talents.DIGEST_BLOOD, bloodP);
 
-			int numGrasslersToSpawn = Integer.max(initNumGrasslers - simulation.getNumAgents(GRASSLER), 0);
+			int numRandomlingsToSpawn = Integer.max(initNumRandomlings - simulation.getNumAgents(RANDOMLING), 0);
 			int numGiraffeToSpawn = Integer.max(initNumGiraffes - simulation.getNumAgents(GIRAFFE), 0);
 
-			testMultipleAgents(new int[]{GRASSLER, BLOODLING, GIRAFFE}, new int[]{numGrasslersToSpawn, initNumBloodlings, numGiraffeToSpawn}, false);
-			numGrasslers = simulation.getNumAgents(GRASSLER);
-			if (!foundLowB && maxNumType[BLOODLING] > initNumBloodlings + 5) {
+			float[] avgs = testMultipleAgents(new int[]{RANDOMLING, BLOODLING, GIRAFFE}, new int[]{numRandomlingsToSpawn, initNumBloodlings, numGiraffeToSpawn}, true);
+			numRandomlings = simulation.getNumAgents(RANDOMLING);
+			if (!foundLowB && avgs[BLOODLING] > initNumBloodlings) {
 				foundLowB = true;
 				bloodThingP.lowLimit = bloodP;
 				System.out.println(" Found low limit.");
 			}
 			System.out.print(".");
-		} while (numGrasslers != 0);
+		} while (numRandomlings > 0.1f * WANTED_AMOUNT_OF_RANDOMLING);
 
 		System.out.println(" Done.");
 
@@ -163,10 +176,7 @@ public class FindStableSystem extends IntegrationTestWithSimulation {
 	
 	@Test
 	public void testThatTreesAreAboutRight() {
-		// Run for one generation
-		for (int i = 0; i < Plant.MAX_AGE; ++i) {
-			simulation.step();
-		}
+		runOneTreeGeneration();
 		
 		long sum = 0;
 		int simulationTime = (int) Plant.MAX_AGE;
@@ -179,6 +189,12 @@ public class FindStableSystem extends IntegrationTestWithSimulation {
 		
 		float avg = sum / simulationTime;
 		checkPercentages(avg, WANTED_AMOUNT_OF_TREES);
+	}
+
+	private void runOneTreeGeneration() {
+		for (int i = 0; i < Plant.MAX_AGE; ++i) {
+			simulation.step();
+		}		
 	}
 
 	private float nextStomachStep(float old) {

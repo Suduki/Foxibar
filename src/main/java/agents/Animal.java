@@ -3,6 +3,7 @@ package agents;
 import java.util.ArrayList;
 
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 
 import actions.Action;
 import constants.Constants;
@@ -15,6 +16,10 @@ public abstract class Animal extends Agent {
 
 	public static final int MAX_AGE = 200;
 	public static final float REACH = 1;
+	
+	public static final float HARVEST_GRASS = 1f;
+	public static final float HARVEST_BLOOD = 1f;
+	public static final float HARVEST_FIBER = 0.05f;
 
 	public float[] color, secondaryColor;
 
@@ -42,7 +47,7 @@ public abstract class Animal extends Agent {
 	Animal parent;
 
 	public Stomach stomach;
-	private int timeBetweenBabies = 80;
+	private int timeBetweenBabies = 20;
 
 	private boolean starving;
 
@@ -54,6 +59,8 @@ public abstract class Animal extends Agent {
 	public Animal friendler;
 	public boolean didMate;
 	public boolean didMove;
+	
+	public Vector2i visionZone = new Vector2i(-1, -1);
 	
 	protected World world; // TODO: Remove this dependency. only die() uses it, could be moved to manager.
 	
@@ -180,6 +187,7 @@ public abstract class Animal extends Agent {
 		World.wrap(vel);
 		
 		pos.set(vel);
+		didMove = true;
 		
 		if (pos.x == Float.NaN) {
 			System.err.println("NaN position!!! What did you do!");
@@ -187,10 +195,46 @@ public abstract class Animal extends Agent {
 		if (pos.x < 0 || pos.y < 0) {
 			System.err.println("Negative position!!! What did you do!");
 		}
+	}
+	
+	private static float COLLISION = 0.8f;
+
+	public void collide(Animal a) {
+		float distance = Vision.calculateCircularDistance(pos, a.pos); 
+		if (distance >= COLLISION) {
+			return;
+		}
+		
 		
 		didMove = true;
+		a.didMove = true;
+		
+		float velX = 0;
+		float velY = 0;
+		if (distance < 0.00001f) {
+			velX = COLLISION / 2;
+		}
+		else {
+			float distanceFactor = (COLLISION - distance) / (distance * 2);
+			velX = (a.pos.x - pos.x) * distanceFactor;
+			velY = (a.pos.y - pos.y) * distanceFactor;
+		}
+		
+		
+		pos.add(-velX, -velY);
+		a.pos.add(velX, velY);
+		
+		
+		World.wrap(pos);
+		World.wrap(a.pos);
+		
+		if (pos.x == Float.NaN) {
+			System.err.println("NaN position!!! What did you do!");
+		}
+		if (pos.x < 0 || pos.y < 0) {
+			System.err.println("Negative position!!! What did you do!");
+		}
 	}
-
 	
 	protected abstract void actionUpdate();
 	
@@ -240,8 +284,6 @@ public abstract class Animal extends Agent {
 		return talents.get(Talents.FIGHT);
 	}
 	
-	public final float harvestSkill = 0.2f;//TODO: Kan en p användas här? Nä?
-	
 	protected void grow() {
 		if (size < maxSize) {
 			size += growth;
@@ -263,8 +305,8 @@ public abstract class Animal extends Agent {
 	@Override
 	public void die() {
 		super.die();
-		world.blood.append((int) pos.x, (int) pos.y, stomach.blood + size, true);
-		world.blood.append((int) pos.x, (int) pos.y, stomach.fat / Constants.Talents.MAX_DIGEST_BLOOD, true);
+		float bloodToAdd = stomach.blood + size + stomach.fat / (Constants.Talents.MAX_DIGEST_BLOOD + 1f);
+		world.blood.append((int) pos.x, (int) pos.y, bloodToAdd, true);
 		world.grass.append((int) pos.x, (int) pos.y, stomach.grass, true);
 		//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
 		//				+ ", age=" + age + ", score = " + score);
@@ -307,10 +349,6 @@ public abstract class Animal extends Agent {
 	 */
 	protected static float rand() { //TODO: Move to util class
 		return 2*Constants.RANDOM.nextFloat() - 1;
-	}
-	
-	protected void updateNearestNeighbours(Vision vision) {
-		vision.updateNearestNeighbours(this);
 	}
 	
 	protected void addToChildren(Agent a) {

@@ -9,7 +9,8 @@ public class Plant extends Agent {
 	// health is always maxHealth, unless harvested
 	// size is a value from 0 to ground_growth, controlled by how the tree has grown
 	
-	public static final float MAX_AGE = 1000;
+	public static final float MAX_AGE = 500;
+	public static final float FINAL_HOURS_TIME = 50;
 	public static final float GROWTH = 0.005f;
 	public static float WANTED_AVERAGE_AMOUNT_OF_PLANTS;
 
@@ -46,12 +47,23 @@ public class Plant extends Agent {
 	}
 	
 	private void grow() {
-		if (health < maxHealth) {
-			health = Float.min(health + GROWTH * groundGrowth, maxHealth);
+		if (age < MAX_AGE - FINAL_HOURS_TIME) {
+			if (health < maxHealth) {
+				health = Float.min(health + GROWTH * groundGrowth, maxHealth);
+			}
+			else if (size < groundGrowth) {
+				size = Float.min(size + GROWTH * groundGrowth, groundGrowth);
+			}
 		}
-		else if (size < groundGrowth) {
-			size = Float.min(size + GROWTH * groundGrowth, groundGrowth);
+		else {
+			size -= groundGrowth / FINAL_HOURS_TIME;
+			for (int i = 0; i < 3; ++i) {
+				float speedOfLosingColor = 0.95f;
+				color[i] = color[i] * speedOfLosingColor  + Constants.Colors.AUTUMN[i] * (1f - speedOfLosingColor);
+				secondaryColor[i] = secondaryColor[i] * speedOfLosingColor  + Constants.Colors.AUTUMN[i] * (1f - speedOfLosingColor);
+			}
 		}
+			
 	}
 
 	public void setGroundGrowth(float groundGrowth) {

@@ -75,23 +75,23 @@ public class StabilityIT extends IntegrationTestWithSimulation {
 	@Test
 	public void test2Survivability() {
 		System.out.println("Initiating testSurvivability");
-		testSurvivability(RANDOMLING, 5000, 100, false, true);
+		testSurvivability(RANDOMLING, 100, false, true);
 		TestHelper.verifyWorldNotEmpty(simulation);
 		TestHelper.cleanup(simulation);
 
-		testSurvivability(BLOODLING, 5000, 100, false, true);
+		testSurvivability(BLOODLING, 100, false, true);
 		TestHelper.verifyWorldEmpty(simulation);
 		TestHelper.cleanup(simulation);
 
-		testSurvivability(BRAINLER, 5000, 100, false, true);
+		testSurvivability(BRAINLER, 100, false, true);
 		TestHelper.verifyWorldNotEmpty(simulation);
 		TestHelper.cleanup(simulation);
 
-		testSurvivability(GRASSLER, 5000, 100, false, true);
+		testSurvivability(GRASSLER, 100, false, true);
 		TestHelper.verifyWorldNotEmpty(simulation);
 		TestHelper.cleanup(simulation);
 		
-		testSurvivability(GIRAFFE, 5000, 100, false, true);
+		testSurvivability(GIRAFFE, 100, false, true);
 		TestHelper.verifyWorldNotEmpty(simulation);
 		TestHelper.cleanup(simulation);
 
@@ -171,7 +171,7 @@ public class StabilityIT extends IntegrationTestWithSimulation {
 	private void runSeveralIterationsAndTrackActions(int numSimulationIterations, float[] actionPercentages) {
 		for (int simulationIteration = 0; simulationIteration < numSimulationIterations; simulationIteration++) {
 			TestHelper.cleanup(simulation);
-			testSurvivability(BRAINLER, 2000, 500, true, false);
+			testSurvivability(BRAINLER, 500, true, false);
 
 			float numCalls = Action.getTotCalls();
 			for (int i = 0; i < actionPercentages.length; ++i) {

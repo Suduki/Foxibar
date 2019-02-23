@@ -30,7 +30,7 @@ public class TestWithSimulation {
 	}
 
 	@Before
-	public void between() {
+	public void betweenTestsResetSimulation() {
 		simulation = new Simulation(worldMultiplier,
 				new Class[] { Randomling.class, Bloodling.class, Brainler.class, Grassler.class, Giraffe.class });
 		System.out.println("Before tests completed");

@@ -85,11 +85,13 @@ public class Simulation extends MessageHandler {
 		{
 			mWorld.update(timeStep);
 			SpawnAnimals.step();
+			
+			vision.clearAgents();
 			for (AnimalManager<?> aM : animalManagers) {
 				aM.synchAliveDead();
 				aM.moveAll();
 			}
-			
+
 			plantManager.spreadSeed();
 			plantManager.synchAliveDead();
 			plantManager.update();

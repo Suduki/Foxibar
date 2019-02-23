@@ -2,42 +2,26 @@ package agents;
 
 import actions.Action;
 import constants.Constants;
+import talents.Talents;
 import world.World;
 
-public class Randomling extends Animal {
+public class Randomling extends PriorityAnimal {
 
-	private static Action[] KNOWN_ACTIONS;
-	
 	public Randomling(World world) {
-		super(world);
+		super(world, new Action[] { Action.harvestGrass, Action.randomWalk });
 		color = Constants.Colors.BLACK;
 		secondaryColor = Constants.Colors.WHITE;
-		
-		if (KNOWN_ACTIONS == null) {
-			KNOWN_ACTIONS = new Action[]{Action.harvestBlood, Action.harvestGrass, Action.randomWalk};
-		}
 	}
-	
-	
+
+	private static final int[] presetSkills = { Talents.DIGEST_GRASS, Talents.MATE_COST };
+
 	@Override
-	protected void actionUpdate() {
-		int actionToTry = Constants.RANDOM.nextInt(KNOWN_ACTIONS.length);
-		
-		for (int i = 0; i < KNOWN_ACTIONS.length; ++i) {
-			Action action = Action.acts.get(actionToTry);
-			if (action.isPossible) {
-				action.commit(this);
-				return;
-			}
-			actionToTry = (actionToTry + 1) % KNOWN_ACTIONS.length;
+	protected void inherit(Animal a) {
+		super.inherit(a);
+
+		if (a == null) {
+			talents.improveSkill(presetSkills);
 		}
-		
-		System.err.println("Should always be able to commit to an action");
-	}
-	
-	@Override
-	public boolean isCloselyRelatedTo(Animal a) {
-		return isSameClassAs(a);
 	}
 
 }

@@ -25,7 +25,7 @@ public class HarvestTree extends Action {
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
 		
 		if (Vision.calculateCircularDistance(a.pos, a.nearbyPlant.pos) < Animal.REACH) {
-			a.stomach.addFiber(a.nearbyPlant.harvest(a.harvestSkill
+			a.stomach.addFiber(a.nearbyPlant.harvest(Animal.HARVEST_FIBER
 					* a.talents.getRelative(Talents.DIGEST_FIBER)));
 		} else {
 			a.turnTowards(a.nearbyPlant);
