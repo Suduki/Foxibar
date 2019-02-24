@@ -2,15 +2,11 @@ package constants;
 
 import java.util.Random;
 
-import org.joml.Vector2f;
-import org.joml.Vector2i;
-
-import vision.Vision;
-
 public class Constants {
 
 	public static final short WORLD_MULTIPLIER_MAIN = 7;
-	public static final short WORLD_MULTIPLIER_TEST = 7;
+	public static final short WORLD_MULTIPLIER_TEST = 5;
+	public static final short WORLD_MULTIPLIER_INTEGRATION_TEST = 6;
 	public static final float INIT_ZOOM = 1f;
 	public static final int WANTED_FPS = 30;
 	public static final int PIXELS_Y = 800;
@@ -19,7 +15,7 @@ public class Constants {
 	public static Random RANDOM = new Random(1);
 	public static final float TILES_PER_ANIMAL = 20;
 	public static final float GROWTH = 0.005f;
-	public static final int MAX_NUM_ANIMALS = 20000;
+	public static int MAX_NUM_ANIMALS = 20000;
 	public static final float ZOOM_SPEED = 1.05f;
 	
 	public static class Talents {
@@ -32,16 +28,15 @@ public class Constants {
 		public static final float MUTATION = 0.1f;
 
 		public static float MAX_DIGEST_GRASS;
+		public static float MAX_DIGEST_FIBER;
 		public static float MAX_DIGEST_BLOOD;
-		
 	}
-	
-	public static class Vision{
+
+	public static class Vision {
 		public static final int HEIGHT = 8;
 		public static final int WIDTH =  8;
 		public static final int MAX_DISTANCE_AN_AGENT_CAN_SEE = HEIGHT;
-		public static final int NUM_NEIGHBOURS = 6;
-		
+		public static final int NUM_NEIGHBOURS = 5;
 	}
 	
 	public static class Colors
@@ -63,6 +58,8 @@ public class Constants {
 		public static final float[] TREE = new float[]{0.5f, 0.2f, 0.1f};
 		public static final float[] FIBER = new float[]{0.5f, 0.2f, 0.1f};
 		public static final float[] TREE_TOP = new float[]{0.4f, 0.8f, 0f};
+		public static final float[] YELLOW = new float[]{1f, 1f, 0f};
+		public static final float[] AUTUMN = new float[]{0.5f, 0.5f, 0f};
 		
 		public static class DesignYourAnimal {
 			public static final float mainColorDominance = 0.7f;
@@ -88,7 +85,7 @@ public class Constants {
 	public static class Blood {
 		public static final float SPLASH = 1f;
 		public static final float ADDITION_ON_DEATH = 1f;
-		public static final float DECAY_FACTOR = 0.99f;
+		public static final float DECAY_FACTOR = 0.999f;
 		public static final float DECAY_FACTOR_WATER = 0.9f;
 		public static final float DECAY_FACTOR_STONE = 0.9f;
 		public static final float DEATH_FROM_HUNGER_FACTOR = 1f;

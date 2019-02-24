@@ -3,7 +3,7 @@ package actions;
 import java.util.ArrayList;
 
 import world.World;
-import agents.Agent;
+import agents.Animal;
 
 public abstract class Action {
 	public static int numActions = 0;
@@ -19,14 +19,15 @@ public abstract class Action {
 
 	public static HarvestGrass 		harvestGrass;
 	public static HarvestBlood 		harvestBlood;
+	public static HarvestTree 		harvestTree;
 	public static RandomWalk 		randomWalk;
 	public static FleeFromStranger 	fleeFromStranger;
 	public static FleeFromFriendler fleeFromFriendler;
 	public static HuntStranger 		huntStranger;
 	public static HuntFriendler 	huntFriendler;
 
-	public abstract boolean determineIfPossible(Agent a);
-	public abstract void commit(Agent a);
+	public abstract boolean determineIfPossible(Animal a);
+	public abstract void commit(Animal a);
 
 	public Action() {
 		id = nextId++;
@@ -37,6 +38,7 @@ public abstract class Action {
 		System.out.println("init Actions");
 		harvestGrass 		= new HarvestGrass(world);
 		harvestBlood 		= new HarvestBlood(world);
+		harvestTree 		= new HarvestTree();
 		randomWalk 			= new RandomWalk();
 		fleeFromStranger 	= new FleeFromStranger();
 		fleeFromFriendler 	= new FleeFromFriendler();
@@ -46,7 +48,7 @@ public abstract class Action {
 		numActions = acts.size();
 	}
 
-	public static void determineIfPossibleAllActions(Agent a) {
+	public static void determineIfPossibleAllActions(Animal a) {
 		for (Action act : acts) {
 			act.determineIfPossible(a);
 			act.numPossible += act.isPossible ? 1 : 0;
@@ -68,7 +70,7 @@ public abstract class Action {
 		return tot;
 	}
 	
-	public static void commit(int action, Agent agent) {
+	public static void commit(int action, Animal agent) {
 		acts.get(action).commit(agent);
 	}
 }

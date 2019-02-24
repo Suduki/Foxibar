@@ -3,48 +3,24 @@ package agents;
 import actions.Action;
 import constants.Constants;
 import talents.Talents;
-import vision.Vision;
 import world.World;
 
-public class Grassler extends Agent {
+public class Grassler extends PriorityAnimal {
 
-	public Grassler(World world, AgentManager<Agent> agentManager) {
-		super(world, agentManager);
+	public Grassler(World world) {
+		super(world, new Action[] { Action.fleeFromStranger, Action.harvestGrass, Action.randomWalk });
 		color = Constants.Colors.BLACK;
 		secondaryColor = Constants.Colors.WHITE;
 	}
-	
-	@Override
-	protected void inherit(Agent a) {
-		super.inherit(a);
-	}
+
+	private static final int[] presetSkills = { Talents.DIGEST_GRASS, Talents.MATE_COST };
 
 	@Override
-	protected void actionUpdate() {
-		
-		Action action = Action.fleeFromStranger;
-		if (action.isPossible) {
-			action.commit(this);
-			return;
+	protected void inherit(Animal a) {
+		super.inherit(a);
+
+		if (a == null) {
+			talents.improveSkill(presetSkills);
 		}
-		
-		action = Action.harvestGrass;
-		if (action.isPossible) {
-			action.commit(this);
-			return;
-		}
-		
-		action = Action.randomWalk;
-		if (action.isPossible) {
-			action.commit(this);
-			return;
-		}
-		System.err.println("Should always be able to commit to an action");
-		return;
-	}
-	
-	@Override
-	public boolean isCloselyRelatedTo(Agent a) {
-		return isSameClassAs(a);
 	}
 }

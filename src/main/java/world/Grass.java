@@ -7,14 +7,12 @@ public class Grass extends TileElement {
 
 	public boolean[][] growing;
 	
-	public Tree tree;
 	private Terrain terrain;
 
 	public Grass(Terrain terrain) {
 		height = new float[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		growing = new boolean[Simulation.WORLD_SIZE_X][Simulation.WORLD_SIZE_Y];
 		color = Constants.Colors.GRASS;
-		tree = new Tree(terrain, this);
 		this.terrain = terrain;
 		regenerate(true);
 	}
@@ -34,7 +32,6 @@ public class Grass extends TileElement {
 				}
 			}
 		}
-		tree.update();
 	}
 	
 	public float getHealth(int x, int y) {
@@ -45,7 +42,6 @@ public class Grass extends TileElement {
 	}
 
 	public void regenerate(boolean isFullyGrown) {
-		tree.killAll();
 		for (int x = 0; x < Simulation.WORLD_SIZE_X; ++x) {
 			for (int y = 0; y < Simulation.WORLD_SIZE_Y; ++y) {
 				if (terrain.stone[x][y] || terrain.water[x][y]) {
@@ -65,7 +61,6 @@ public class Grass extends TileElement {
 	}
 
 	public void killAllGrass() {
-		tree.killAll();
 		for (int x = 0; x < Simulation.WORLD_SIZE_X; ++x) {
 			for (int y = 0; y < Simulation.WORLD_SIZE_Y; ++y) {
 				

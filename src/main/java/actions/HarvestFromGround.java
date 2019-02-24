@@ -2,47 +2,46 @@ package actions;
 
 import org.joml.Vector2f;
 
+import talents.Talents;
 import world.TileElement;
-import agents.Agent;
+import agents.Animal;
 
-public class Harvest extends Action {
+public class HarvestFromGround extends Action {
 	public Vector2f dir;
 	public float heightBelowAgent;
 	public float heightNearby;
 	
-	private boolean harvestPossible;
 	private boolean searchPossible;
 	
 	private TileElement stuffToHarvest;
 	private final int DIGEST_SKILL;
 	private final int STOMACH_ID;
+	private final float HARVEST_SKILL;
+	
 
-	public Harvest(TileElement stuffToHarvest, final int DIGEST_SKILL, final int STOMACH_ID) {
+	public HarvestFromGround(TileElement stuffToHarvest, final int DIGEST_SKILL, final int STOMACH_ID, final float HARVEST_SKILL) {
 		super();
 		dir = new Vector2f();
 		this.DIGEST_SKILL = DIGEST_SKILL;
 		this.STOMACH_ID = STOMACH_ID;
+		this.HARVEST_SKILL = HARVEST_SKILL;
 		this.stuffToHarvest = stuffToHarvest;
 	}
 
 	@Override
-	public boolean determineIfPossible(Agent a) {
-		isPossible = false;
-		if (a.talents.getRelative(DIGEST_SKILL) > 0.2f) {
-			if (canHarvest(a)) {
-				harvestPossible = true;
-				isPossible = true;
-			}
-			if (canSearch(a)) {
-				searchPossible = true;
-				isPossible = true;
-			}
-		}
+	public boolean determineIfPossible(Animal a) {
+		
+		searchPossible = canSearch(a);
+		
+		isPossible = a.talents.getRelative(DIGEST_SKILL) > 0.2f
+				&& !a.stomach.isFull()
+				&& (canHarvest(a) || searchPossible);
+		
 		return isPossible;
 	}
 
 	@Override
-	public void commit(Agent a) {
+	public void commit(Animal a) {
 		numCommits++;
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
 		
@@ -56,17 +55,18 @@ public class Harvest extends Action {
 		}
 	}
 	
-	private boolean canHarvest(Agent a) {
+	private boolean canHarvest(Animal a) {
 		heightBelowAgent = stuffToHarvest.getHeight((int)a.pos.x, (int)a.pos.y);
 		return heightBelowAgent > 0.05f;
 	}
 	
-	private boolean canSearch(Agent a) {
+	private boolean canSearch(Animal a) {
 		heightNearby = stuffToHarvest.seekHeight(dir, (int)a.pos.x, (int)a.pos.y);
 		return heightNearby > 0.1f;
 	}
 	
-	private float harvest(Agent a) {
-		return a.stomach.add(STOMACH_ID, stuffToHarvest.harvest(a.harvestSkill, (int) a.pos.x, (int) a.pos.y)) / a.harvestSkill;
+	private float harvest(Animal a) {
+		float harvestSkillBasedOnTalent = HARVEST_SKILL * a.talents.getRelative(DIGEST_SKILL);
+		return a.stomach.add(STOMACH_ID, stuffToHarvest.harvest(harvestSkillBasedOnTalent, (int) a.pos.x, (int) a.pos.y)) / harvestSkillBasedOnTalent;
 	}
 }

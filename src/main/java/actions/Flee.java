@@ -2,15 +2,17 @@ package actions;
 
 import agents.Animal;
 
-public class RandomWalk extends Action {
-	
-	public RandomWalk() {
+public abstract class Flee extends Action {
+
+	public Flee() {
 		super();
 	}
+	
+	protected abstract Animal getAnimalToFleeFrom(Animal a);
 
 	@Override
 	public boolean determineIfPossible(Animal a) {
-		isPossible = true;
+		isPossible = (getAnimalToFleeFrom(a) != null);
 		return isPossible;
 	}
 
@@ -18,8 +20,8 @@ public class RandomWalk extends Action {
 	public void commit(Animal a) {
 		numCommits++;
 		if (!isPossible) System.err.println("Trying to commit to impossible Action" + this.getClass().getSimpleName());
-		a.randomWalk();
+		
+		a.turnAwayFrom(getAnimalToFleeFrom(a));
 		a.move();
 	}
-
 }

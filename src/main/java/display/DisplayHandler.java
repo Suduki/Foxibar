@@ -50,13 +50,13 @@ public class DisplayHandler extends MessageHandler {
 			
 			ArrayRegion menu = new ArrayRegion(ArrayRegion.Vertical);
 			int buttonId = 0;
-			int talentId = 0;
-			menu.insertRegion( buttonId++, new Button(Talents.names[talentId],			()->renderer.actionIncrease(0)));
+			menu.insertRegion( buttonId++, new Button("Fight",			()->renderer.actionIncrease(0)));
 			menu.insertRegion( buttonId++, new Button("Speed",			()->renderer.actionIncrease(1)));
 			menu.insertRegion( buttonId++, new Button("Toughness",		()->renderer.actionIncrease(2)));
 			menu.insertRegion( buttonId++, new Button("Digest Blood",	()->renderer.actionIncrease(3)));
 			menu.insertRegion( buttonId++, new Button("Digest Grass",	()->renderer.actionIncrease(4)));
-			menu.insertRegion( buttonId++, new Button("Fertility",		()->renderer.actionIncrease(5)));
+			menu.insertRegion( buttonId++, new Button("Digest Fiber",	()->renderer.actionIncrease(5)));
+			menu.insertRegion( buttonId++, new Button("Fertility",		()->renderer.actionIncrease(6)));
 			menu.insertRegion( buttonId++, new Button("Save",		()->renderer.actionSave()));
 			menu.insertRegion( buttonId++, new Button("Reset",		()->renderer.actionReset()));
 			
@@ -80,6 +80,7 @@ public class DisplayHandler extends MessageHandler {
 			menu.insertRegion( buttonId++, new Button("Spawn Grassler",	()->legacyRenderer.actionSpawnWithMouse(main.Main.GRASSLER)));
 			menu.insertRegion( buttonId++, new Button("Spawn Bloodling",	()->legacyRenderer.actionSpawnWithMouse(main.Main.BLOODLING)));
 			menu.insertRegion( buttonId++, new Button("Spawn Brainler",	()->legacyRenderer.actionSpawnWithMouse(main.Main.BRAINLER)));
+			menu.insertRegion( buttonId++, new Button("Spawn Giraffe",	()->legacyRenderer.actionSpawnWithMouse(main.Main.GIRAFFE)));
 			
 			VerticalSplitRegion view = new VerticalSplitRegion(menu, scene);
 			return view;

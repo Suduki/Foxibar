@@ -23,6 +23,7 @@ public class TalentSpider {
 		innerCircle = new Circle(Talents.NUM_TALENTS, innerRadius, brainler.color);
 		outerCircle = new Circle(Talents.NUM_TALENTS, outerRadius, brainler.secondaryColor);
 		middleCircle = new Circle(Talents.NUM_TALENTS, outerRadius, brainler.color);
+		buttonPositions = new float[Talents.NUM_TALENTS];
 		
 		texts = new Text[Talents.NUM_TALENTS];
 		
@@ -40,22 +41,28 @@ public class TalentSpider {
 		middleCircle.setPos(middleX, middleY);
 	}
 	
+	private float[] buttonPositions;
 	public void render() {
+		
+		for (int i = 0; i < Talents.NUM_TALENTS; ++i) {
+			buttonPositions[i] = 0.5f * brainler.talents.talentsRelative[i] + 0.5f;
+		}
+		
 		outerCircle.renderCircle(1f);
 		outerCircle.drawBorder();
-		middleCircle.renderCircle(0.5f, brainler.talents.talentsRelative);
-		middleCircle.drawLinesRadial(brainler.talents.talentsRelative);
+		middleCircle.renderCircle(0.5f, buttonPositions);
+		middleCircle.drawLinesRadial(buttonPositions);
 		innerCircle.renderCircle(1f);
 		innerCircle.drawBorder();
 
 		float[] textColor = Constants.Colors.WHITE; 
 		glColor4f(textColor[0], textColor[1], textColor[2], 1f);
 		for (int i = 0; i < Talents.NUM_TALENTS; ++i) {
-			buttons[i].render(middleCircle.getScaledXAt(i, brainler.talents.talentsRelative[i]), 
-					middleCircle.getScaledZAt(i, brainler.talents.talentsRelative[i]));
+			buttons[i].render(middleCircle.getScaledXAt(i, buttonPositions[i]), 
+					middleCircle.getScaledZAt(i, buttonPositions[i]));
 			
-			float textsX = outerCircle.getScaledXAt(i, 1.6f);
-			float textsY = outerCircle.getScaledZAt(i, 1.3f);
+			float textsX = outerCircle.getScaledXAt(i, 1.4f);
+			float textsY = outerCircle.getScaledZAt(i, 1.2f);
 			texts[i].drawCentered(textsX, textsY, innerCircle.radius / 5);
 		}
 		

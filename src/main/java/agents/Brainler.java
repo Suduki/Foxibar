@@ -9,14 +9,14 @@ import talents.Talents;
 import vision.Vision;
 import world.World;
 
-public class Brainler extends Agent {
+public class Brainler extends Animal {
 	public Brain brain;
 	
 	public float[] appearanceFactors;
 	public static final int NUM_APPEARANCE_FACTORS = 6;
 	
-	public Brainler(World world, AgentManager<Agent> agentManager) {
-		super(world, agentManager);
+	public Brainler(World world) {
+		super(world);
 		this.brain = new Brain(false);
 		this.appearanceFactors = new float[NUM_APPEARANCE_FACTORS];
 	}
@@ -52,13 +52,15 @@ public class Brainler extends Agent {
 		
 		brainInputVector[NeuralFactors.in.HUNGER] = stomach.getRelativeFullness();
 		
+		brainInputVector[NeuralFactors.in.PLANT] = nearbyPlant != null ? nearbyPlantScore : -1;
+		
 		return brain.neural.neuralMagic(Action.acts);
 	}
 	
 	public static Brainler brainlerCreatedByUser;
 
 	@Override
-	public void inherit(Agent a) {
+	public void inherit(Animal a) {
 		if (a == null) {
 			this.brain.neural.initWeightsRandom();
 			if (brainlerCreatedByUser != null) {
@@ -100,14 +102,15 @@ public class Brainler extends Agent {
 	public void updateColors() {
 		for (int i = 0; i < 3; ++i) {
 			color[i] = (float) Math.round(appearanceFactors[i]);
+			
+			secondaryColor[i] += talents.talentsRelative[Talents.DIGEST_BLOOD] * Constants.Colors.RED[i];
+			secondaryColor[i] += talents.talentsRelative[Talents.DIGEST_GRASS] * Constants.Colors.GREEN[i];
+			secondaryColor[i] += talents.talentsRelative[Talents.DIGEST_FIBER] * Constants.Colors.YELLOW[i];
 		}
-		secondaryColor[0] = talents.talentsRelative[Talents.DIGEST_BLOOD];
-		secondaryColor[1] = talents.talentsRelative[Talents.DIGEST_GRASS];
-		secondaryColor[2] = 0;
 	}
 	
 	@Override
-	public boolean isCloselyRelatedTo(Agent a) {
+	public boolean isCloselyRelatedTo(Animal a) {
 		if (a instanceof Brainler) {
 			return findRelationTo((Brainler) a) < 0.005f;
 		}

@@ -6,12 +6,13 @@ import world.World;
 import java.util.ArrayList;
 
 import actions.Action;
-import agents.Agent;
-import agents.AgentManager;
+import agents.Animal;
+import agents.AnimalManager;
 import constants.Constants;
 import messages.MessageHandler;
 import messages.Message;
 import messages.SpawnAnimals;
+import plant.PlantManager;
 import talents.StomachRecommendation;
 import talents.Talents;
 
@@ -32,21 +33,24 @@ public class Simulation extends MessageHandler {
 	}
 	public Vision vision;
 	
-	public ArrayList<AgentManager<?>> agentManagers = new ArrayList<>();
+	public ArrayList<AnimalManager<? extends Animal>> animalManagers = new ArrayList<>();
+	public PlantManager plantManager;
 	
-	public <T extends Agent> Simulation(short worldMultiplier, Class<T>... classes)
+	public <T extends Animal> Simulation(short worldMultiplier, Class<T>... classes)
 	{
 		loadStomachRecommendation();
 		WORLD_SIZE_X = (int) Math.pow(2, worldMultiplier);
 		WORLD_SIZE_Y = (int) Math.pow(2, worldMultiplier);
 		WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
+		Constants.MAX_NUM_ANIMALS = Integer.min(Constants.MAX_NUM_ANIMALS, WORLD_SIZE);
 		vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
 		mWorld = new World(vision);
 		Action.init(mWorld);
 		Talents.init();
 		for (Class<T> clazz : classes) {
-			agentManagers.add(new AgentManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));
+			animalManagers.add(new AnimalManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));
 		}
+		plantManager = new PlantManager(vision, mWorld.terrain);
 	}
 	
 	private void loadStomachRecommendation() {
@@ -55,10 +59,17 @@ public class Simulation extends MessageHandler {
 			Constants.Talents.MAX_DIGEST_BLOOD = recommendation.highLimit;
 			System.out.println("Found Blood file, will use that for the simulation");
 		}
+		
 		recommendation = StomachRecommendation.load(StomachRecommendation.grassFile); 
 		if (recommendation != null) {
 			Constants.Talents.MAX_DIGEST_GRASS = recommendation.highLimit;
 			System.out.println("Found Grass file, will use that for the simulation");
+		}
+		
+		recommendation = StomachRecommendation.load(StomachRecommendation.fiberFile); 
+		if (recommendation != null) {
+			Constants.Talents.MAX_DIGEST_FIBER = recommendation.highLimit;
+			System.out.println("Found Fiber file, will use that for the simulation");
 		}
 	}
 
@@ -67,17 +78,31 @@ public class Simulation extends MessageHandler {
 		pMessage.evaluate(this);
 	}
 	
-	public void step(int timeStep)
+	private int timeStep = 0;
+	public void step()
 	{
 		if (!mPaused)
 		{
 			mWorld.update(timeStep);
 			SpawnAnimals.step();
-			for (AgentManager<?> aM : agentManagers) {
+			
+			vision.clearAgents();
+			for (AnimalManager<?> aM : animalManagers) {
 				aM.synchAliveDead();
+				for (Animal a : aM.alive) {
+					vision.addAgentToZone(a);
+				}
+			}
+			
+			for (AnimalManager<?> aM : animalManagers) {
 				aM.moveAll();
 			}
+
+			plantManager.spreadSeed();
+			plantManager.synchAliveDead();
+			plantManager.update();
 		}
+		timeStep++;
 	}
 	
 	public World getWorld()
@@ -86,7 +111,7 @@ public class Simulation extends MessageHandler {
 	}
 	
 	public void killAllAgents() {
-		for (AgentManager<?> aM : agentManagers) {
+		for (AnimalManager<?> aM : animalManagers) {
 			aM.killAll = true;
 			aM.synchAliveDead();
 			aM.moveAll();
@@ -107,24 +132,26 @@ public class Simulation extends MessageHandler {
 		mWorld.reset(b);
 	}
 
-	public void spawnAgent(int x, int y, int managerId) {
-		if (agentManagers.size() >= managerId) {
-			agentManagers.get(managerId).spawnAgent(x, y);
+	public Animal spawnAgent(int x, int y, int managerId) {
+		Animal spawn = null;
+		if (animalManagers.size() >= managerId) {
+			spawn = animalManagers.get(managerId).spawnAnimal(x, y);
 		}
 		else {
 			System.err.println("Trying to spawn agents in a non-existing manager?");
 		}
+		return spawn;
 	}
 
 	public int getNumAgents() {
 		int numAgents = 0;
-		for (AgentManager<?> aM : agentManagers) {
-			numAgents += aM.numAgents;
+		for (AnimalManager<?> aM : animalManagers) {
+			numAgents += aM.numAnimals;
 		}
 		return numAgents;
 	}
 	public int getNumAgents(int agentType) {
-		AgentManager<?> aM = agentManagers.get(agentType);
-		return aM.numAgents;
+		AnimalManager<?> aM = animalManagers.get(agentType);
+		return aM.numAnimals;
 	}
 }

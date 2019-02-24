@@ -1,4 +1,4 @@
-package main;
+package testUtils;
 
 import org.junit.Assert;
 
@@ -11,11 +11,13 @@ import constants.Constants;
 
 public class TestHelper {
 	
-	public static void cleanup(Simulation simulation, Integer timeStep) {
+	public static final float ERROR_DELTA = 0.001f;
+	
+	public static void cleanup(Simulation simulation) {
 		Action.reset();
 		
 		simulation.killAllAgents();
-		simulation.step(timeStep++);
+		simulation.step();
 		verifyWorldEmpty(simulation);
 		simulation.mWorld.reset(true);
 		
@@ -41,5 +43,9 @@ public class TestHelper {
 			}	
 		}
 		return num;
+	}
+	
+	public static void assertLessThan(float a, float b) {
+		Assert.assertTrue("Expected: " + a + " < " + b, a < b);
 	}
 }
