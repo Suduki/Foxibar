@@ -61,10 +61,7 @@ public class AnimalManager<AnimalClass extends Animal> {
 	}
 
 	public void moveAll() {
-		for (AnimalClass a : alive) {
-			vision.addAgentToZone(a);
-		}
-		
+
 		if (killAll) {
 			for (AnimalClass a : alive) {
 				a.die();

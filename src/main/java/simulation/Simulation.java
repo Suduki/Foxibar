@@ -89,6 +89,12 @@ public class Simulation extends MessageHandler {
 			vision.clearAgents();
 			for (AnimalManager<?> aM : animalManagers) {
 				aM.synchAliveDead();
+				for (Animal a : aM.alive) {
+					vision.addAgentToZone(a);
+				}
+			}
+			
+			for (AnimalManager<?> aM : animalManagers) {
 				aM.moveAll();
 			}
 
