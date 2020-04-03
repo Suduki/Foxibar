@@ -1,8 +1,6 @@
 package agents;
 
 
-import org.joml.Vector2f;
-
 import actions.Action;
 import constants.Constants;
 import talents.Talents;

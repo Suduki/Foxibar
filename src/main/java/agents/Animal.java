@@ -95,6 +95,8 @@ public abstract class Animal extends Agent {
 
 	@Override
 	public boolean stepAgent() {
+		oldPos.set(pos);
+		
 		internalOrgansUpdate();
 		
 		if (!isAlive) {
@@ -180,8 +182,6 @@ public abstract class Animal extends Agent {
 	}
 
 	public void move() {
-		oldPos.set(pos);
-		
 		vel.mul(getSpeed());
 		vel.add(pos);
 		World.wrap(vel);

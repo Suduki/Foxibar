@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import plant.Plant;
+import plant.PlantTest;
 import talents.StomachRecommendation;
 import talents.Talents;
 import testUtils.IntegrationTestWithSimulation;
@@ -30,7 +31,7 @@ public class FindStableSystem extends IntegrationTestWithSimulation {
 		Talents.changeTalentMax(Talents.DIGEST_GRASS, 0);
 		Talents.changeTalentMax(Talents.DIGEST_BLOOD, 0);
 		
-		runOneTreeGeneration();
+		PlantTest.runOneTreeGeneration();
 		
 		StomachRecommendation fiberRecommendation = findSuitableFiberP();
 		fiberRecommendation.printStuff();
@@ -48,7 +49,7 @@ public class FindStableSystem extends IntegrationTestWithSimulation {
 		fiberRecommendation.save(StomachRecommendation.fiberFile);
 		
 		betweenTestsResetSimulation();
-		runOneTreeGeneration();
+		PlantTest.runOneTreeGeneration();
 		float[] avgs = testMultipleAgents(new int[]{RANDOMLING, GIRAFFE}, 
 				new int[]{(int) WANTED_AMOUNT_OF_RANDOMLING, (int) WANTED_AMOUNT_OF_GIRAFFE}, true);
 		
@@ -176,25 +177,18 @@ public class FindStableSystem extends IntegrationTestWithSimulation {
 	
 	@Test
 	public void testThatTreesAreAboutRight() {
-		runOneTreeGeneration();
+		PlantTest.runOneTreeGeneration();
 		
-		long sum = 0;
-		int simulationTime = (int) Plant.MAX_AGE;
+		float avg = 0;
+		float simulationTime = Plant.MAX_AGE;
 		// Run for one generation
 		for (int i = 0; i < simulationTime; ++i) {
 			simulation.step();
-			int numTrees = simulation.plantManager.alive.size();
-			sum += numTrees;
+			float numTrees = simulation.plantManager.alive.size();
+			avg += numTrees / simulationTime;
 		}
 		
-		float avg = sum / simulationTime;
 		checkPercentages(avg, WANTED_AMOUNT_OF_TREES);
-	}
-
-	private void runOneTreeGeneration() {
-		for (int i = 0; i < Plant.MAX_AGE; ++i) {
-			simulation.step();
-		}		
 	}
 
 	private float nextStomachStep(float old) {
@@ -205,6 +199,6 @@ public class FindStableSystem extends IntegrationTestWithSimulation {
 
 		float delta = Math.abs(actualAmountOfThisType - expectedAmountOfThisType);
 		
-		Assert.assertTrue(delta/expectedAmountOfThisType > 0.9f);
+		Assert.assertTrue(delta/expectedAmountOfThisType < 0.1f);
 	}
 }

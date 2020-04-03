@@ -10,15 +10,17 @@ import plant.Plant;
 
 public class TreeRenderer {
 	
+	private Vector3f windForce = new Vector3f();
+	
 	private class TreeTrunkRenderer extends TubeRenderer {
 		public TreeTrunkRenderer() {
-			super(Constants.Colors.TREE, Constants.Colors.DARK_RED, 6, true, 10, false, false, true);
+			super(Constants.Colors.TREE, Constants.Colors.DARK_RED, 6, true, false, false, true);
 		}
 	}
 	
 	private class TreeTopRenderer extends TubeRenderer {
 		public TreeTopRenderer() {
-			super(Constants.Colors.GRASS, Constants.Colors.TREE_TOP, 6, true, 10, false, false, true);
+			super(Constants.Colors.GRASS, Constants.Colors.TREE_TOP, 6, true, false, false, true);
 		}
 		
 		@Override
@@ -40,8 +42,12 @@ public class TreeRenderer {
 			treeTrunkWidth = scale / 4;
 		}
 
-		trunkRenderer.setColor(Constants.Colors.TREE, plant.color, 1, 1);
-		trunkRenderer.renderTube(pos, treeTrunkHeight, treeTrunkWidth, 0);
+		trunkRenderer.setColor(Constants.Colors.TREE_TRUNK_LOW, Constants.Colors.TREE_TRUNK_TOP, 1, 1);
+		
+		Main.mSimulation.mWorld.wind.getWindForce(pos, windForce);
+		windForce.y = 10;
+
+		trunkRenderer.renderTube(pos, treeTrunkHeight, treeTrunkWidth, 0, windForce);
 
 		float yStart = treeTrunkHeight/6;
 		float health = plant.health;
@@ -49,7 +55,7 @@ public class TreeRenderer {
 			float treeTopHeight = treeTrunkHeight;//plant.size * (health*0.3f + 0.7f) * scale /2 + 0.2f;
 			float treeTopWidth = 2 * health * scale * plant.size;
 			topRenderer.setColor(plant.color, plant.secondaryColor, 0.9f, 1);
-			topRenderer.renderTube(pos, treeTopHeight, treeTopWidth, yStart);
+			topRenderer.renderTube(pos, treeTopHeight, treeTopWidth, yStart, windForce);
 		}
 
 	}

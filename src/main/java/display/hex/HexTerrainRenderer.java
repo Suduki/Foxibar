@@ -12,7 +12,6 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL20.glUniform1f;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
 import static org.lwjgl.opengl.GL31.glDrawArraysInstanced;
-import main.Main;
 
 import org.joml.Matrix4f;
 
@@ -25,6 +24,7 @@ import gpu.Program;
 import gpu.Shader;
 import gpu.VAO;
 import gpu.VBO;
+import main.Main;
 
 public class HexTerrainRenderer {
 	public HexTerrainRenderer() {

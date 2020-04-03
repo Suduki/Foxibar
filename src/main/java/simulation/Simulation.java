@@ -20,6 +20,8 @@ public class Simulation extends MessageHandler {
 	public World mWorld;
 	private boolean mPaused = false;
 	
+	public static int simulationTime = 0;
+	
 	public static int WORLD_SIZE;
 	public static int WORLD_SIZE_X;
 	public static int WORLD_SIZE_Y;
@@ -81,6 +83,7 @@ public class Simulation extends MessageHandler {
 	private int timeStep = 0;
 	public void step()
 	{
+		simulationTime++;
 		if (!mPaused)
 		{
 			mWorld.update(timeStep);

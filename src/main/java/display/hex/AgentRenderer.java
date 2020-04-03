@@ -28,7 +28,7 @@ public class AgentRenderer extends TubeRenderer {
 	private TreeRenderer mTreeRenderer = null;
 
 	public AgentRenderer() {
-		super(Constants.Colors.BLACK, Constants.Colors.WHITE, 6, false, 0, true, false, true);
+		super(Constants.Colors.BLACK, Constants.Colors.WHITE, 6, false, true, false, true);
 		animalLowerPos = new Vector3f();
 		animalUpperPos = new Vector3f();
 
@@ -157,6 +157,6 @@ public class AgentRenderer extends TubeRenderer {
 		float height = (scale * (a.maxTall * a.size) * 10 + (1f - scale)) * 2f;
 		float width = (scale * (a.maxSize * a.size) + (1f - scale)) * 0.6f;
 
-		renderTube(groundPos, height, width, 0);
+		renderTube(groundPos, height, width, 0, null);
 	}
 }

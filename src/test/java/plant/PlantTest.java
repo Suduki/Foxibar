@@ -25,7 +25,7 @@ public class PlantTest extends UnitTestWithSimulation {
 		Assert.assertEquals(sut.health, 1, ERROR_DELTA);
 		Assert.assertEquals(sut.leafness(), 0f, ERROR_DELTA);
 
-		int numTimestepsToGrowFully = (int) (1f/Plant.GROWTH) + 1;
+		int numTimestepsToGrowFully = (int) (1f/Plant.GROWTH);
 		
 		for (int i = 0; i < numTimestepsToGrowFully; ++i) {
 			float oldLeafness = sut.leafness();
@@ -91,4 +91,9 @@ public class PlantTest extends UnitTestWithSimulation {
 		while ((sut.size - oldSize) > ERROR_DELTA || (sut.health - oldHealth) > ERROR_DELTA);
 	}
 
+	public static void runOneTreeGeneration() {
+		for (int i = 0; i < Plant.MAX_AGE; ++i) {
+			simulation.step();
+		}		
+	}
 }

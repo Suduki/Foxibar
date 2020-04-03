@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import vision.Vision;
 import world.World;
-import constants.Constants;
 
 public class AnimalManager<AnimalClass extends Animal> {
 

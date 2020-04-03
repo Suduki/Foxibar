@@ -83,6 +83,7 @@ public class IntegrationTestWithSimulation extends TestWithSimulation {
 
 	public void testWorldPopulated(int agentType) {
 		TestHelper.verifyWorldEmpty(simulation);
+		
 		simulation.spawnAgentsAtRandomPosition(agentType, 100);
 		simulation.step();
 		TestHelper.verifyWorldNotEmpty(simulation);

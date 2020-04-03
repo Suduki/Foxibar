@@ -26,18 +26,16 @@ public abstract class TubeRenderer {
 	protected final Vector3f pos = new Vector3f();
 	private final Vector3f nextPos = new Vector3f();
 
-	private final Vector3f windForce;
 	private final Vector3f wind;
 	private final Vector3f nextWind;
 
 	private final boolean affectedByWind;
-	private final float windStiffness;
 	
 	private final boolean renderRoof;
 	private final boolean prettyTubes;
 
 	public TubeRenderer(final float[] minColor, final float[] maxColor, int numVertices, boolean affectedByWind,
-			float windStiffness, boolean renderRoof, boolean renderFloor, boolean prettyTubes) {
+			boolean renderRoof, boolean renderFloor, boolean prettyTubes) {
 		super();
 		setColor(minColor, maxColor, 1, 1);
 
@@ -47,15 +45,11 @@ public abstract class TubeRenderer {
 		this.affectedByWind = affectedByWind;
 
 		if (affectedByWind) {
-			windForce = new Vector3f();
 			wind = new Vector3f();
 			nextWind = new Vector3f();
-			this.windStiffness = windStiffness;
 		} else {
-			windForce = null;
 			wind = null;
 			nextWind = null;
-			this.windStiffness = 0;
 		}
 		
 		this.renderRoof = renderRoof;
@@ -71,7 +65,7 @@ public abstract class TubeRenderer {
 		this.maxColor[3] = alpha2;
 	}
 
-	public void renderTube(Vector3f groundPos, float tubeMaxHeight, float tubeMaxRadius, float startHeight) {
+	public void renderTube(Vector3f groundPos, float tubeMaxHeight, float tubeMaxRadius, float startHeight, Vector3f windForce) {
 		pos.set(groundPos);
 		int numSplits = (int) tubeMaxHeight + 2;
 
@@ -80,8 +74,6 @@ public abstract class TubeRenderer {
 		float nextHeight = startHeight;
 
 		if (affectedByWind) {
-			Main.mSimulation.mWorld.wind.getWindForce(groundPos, windForce);
-			windForce.y = windStiffness;
 			wind.set(windForce).mul(nextHeight, 1f, nextHeight);
 		}
 		

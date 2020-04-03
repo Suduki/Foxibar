@@ -1,14 +1,11 @@
 package plant;
 
-import java.text.spi.NumberFormatProvider;
 import java.util.ArrayList;
 
 import constants.Constants;
 import simulation.Simulation;
-import agents.Animal;
 import vision.Vision;
 import world.Terrain;
-import world.World;
 
 public class PlantManager {
 	static int MAX_NUM_TREES;
@@ -96,12 +93,15 @@ public class PlantManager {
 		return id;
 	}
 	
+	
+	private float seeds = 0;
 	public void spreadSeed() {
 		float luck = Plant.WANTED_AVERAGE_AMOUNT_OF_PLANTS / Plant.MAX_AGE;
-		float seeds = Constants.RANDOM.nextFloat() * 2 * luck;
+		seeds += luck;
 		
-		for (int i = 0; i < seeds; ++i) {
+		while (seeds > 0) {
 			spawn();
+			seeds --;
 		}
 	}
 

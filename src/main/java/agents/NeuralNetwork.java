@@ -3,8 +3,6 @@ package agents;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import org.joml.Vector2f;
-
 import actions.Action;
 import constants.Constants;
 

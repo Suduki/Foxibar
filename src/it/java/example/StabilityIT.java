@@ -48,9 +48,6 @@ public class StabilityIT extends IntegrationTestWithSimulation {
 		}
 	}
 
-	private int maxNumType1;
-	private int maxNumType2;
-
 	@Test
 	public void test1WorldPopulated() {
 		System.out.println("Initiating testWorldPopulated");

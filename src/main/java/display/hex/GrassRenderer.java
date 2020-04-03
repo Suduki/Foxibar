@@ -1,15 +1,18 @@
 package display.hex;
 
+import org.joml.Vector3f;
+
 import constants.Constants;
 import main.Main;
 import simulation.Simulation;
 
 public class GrassRenderer extends TubeRenderer {
 	private boolean drawGrass = true;
+	private Vector3f windForce = new Vector3f();
 
 
 	public GrassRenderer() {
-		super(Constants.Colors.GRASS_STRAW, Constants.Colors.GRASS, 3, true, 2, false, false, true);
+		super(Constants.Colors.GRASS_STRAW, Constants.Colors.GRASS, 3, true, false, false, true);
 		setColor(Constants.Colors.GRASS_STRAW, Constants.Colors.GRASS, 0.5f, 1);
 
 	}
@@ -37,9 +40,12 @@ public class GrassRenderer extends TubeRenderer {
 
 				float y = (float) Math.pow(Main.mSimulation.mWorld.terrain.height[x][z], 1.5) * heightScale;
 				groundPos.set(xpos, y, zpos);
+				
+				Main.mSimulation.mWorld.wind.getWindForce(groundPos, windForce);
+				windForce.y = 2;
 
 				if (height > 0.2f) {
-					renderTube(groundPos, height, height / 6, 0);
+					renderTube(groundPos, height, height / 6, 0, windForce);
 				}
 			}
 		}
