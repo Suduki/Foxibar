@@ -15,7 +15,7 @@ public class PlantTest extends UnitTestWithSimulation {
 
 	@Before
 	public void beforeTest() {
-		manager = new PlantManager(simulation.vision, simulation.mWorld.terrain);
+		manager = new PlantManager(simulation.mVision, simulation.mWorld.terrain);
 		sut = manager.spawn();
 	}
 

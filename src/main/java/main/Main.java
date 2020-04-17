@@ -47,7 +47,7 @@ public class Main {
 	}
 
 	private static void dump() {
-		for (Action act : Action.acts) {
+		for (Action act : mSimulation.mActionManager.acts) {
 			System.out.println(act.getClass().getSimpleName() + " " + act.numCommits);
 		}
 	}

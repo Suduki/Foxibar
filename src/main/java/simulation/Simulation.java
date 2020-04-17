@@ -6,6 +6,7 @@ import world.World;
 import java.util.ArrayList;
 
 import actions.Action;
+import actions.ActionManager;
 import agents.Animal;
 import agents.AnimalManager;
 import constants.Constants;
@@ -17,7 +18,12 @@ import talents.StomachRecommendation;
 import talents.Talents;
 
 public class Simulation extends MessageHandler {
+	public Vision mVision;
 	public World mWorld;
+	public ActionManager mActionManager;
+	public ArrayList<AnimalManager<? extends Animal>> mAnimalManagers = new ArrayList<>();
+	public PlantManager mPlantManager;
+	
 	private boolean mPaused = false;
 	
 	public static int simulationTime = 0;
@@ -33,10 +39,7 @@ public class Simulation extends MessageHandler {
 	public void setPaused(boolean mPaused) {
 		this.mPaused = mPaused;
 	}
-	public Vision vision;
 	
-	public ArrayList<AnimalManager<? extends Animal>> animalManagers = new ArrayList<>();
-	public PlantManager plantManager;
 	
 	public <T extends Animal> Simulation(short worldMultiplier, Class<T>... classes)
 	{
@@ -45,14 +48,14 @@ public class Simulation extends MessageHandler {
 		WORLD_SIZE_Y = (int) Math.pow(2, worldMultiplier);
 		WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
 		Constants.MAX_NUM_ANIMALS = Integer.min(Constants.MAX_NUM_ANIMALS, WORLD_SIZE);
-		vision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
-		mWorld = new World(vision);
-		Action.init(mWorld);
+		mVision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
+		mWorld = new World(mVision);
+		mActionManager = new ActionManager(mWorld);
 		Talents.init();
 		for (Class<T> clazz : classes) {
-			animalManagers.add(new AnimalManager<T>(mWorld, clazz, Constants.MAX_NUM_ANIMALS, vision));
+			mAnimalManagers.add(new AnimalManager<T>(mWorld, mActionManager, clazz, Constants.MAX_NUM_ANIMALS, mVision));
 		}
-		plantManager = new PlantManager(vision, mWorld.terrain);
+		mPlantManager = new PlantManager(mVision, mWorld.terrain);
 	}
 	
 	private void loadStomachRecommendation() {
@@ -89,21 +92,21 @@ public class Simulation extends MessageHandler {
 			mWorld.update(timeStep);
 			SpawnAnimals.step();
 			
-			vision.clearAgents();
-			for (AnimalManager<?> aM : animalManagers) {
+			mVision.clearAgents();
+			for (AnimalManager<?> aM : mAnimalManagers) {
 				aM.synchAliveDead();
 				for (Animal a : aM.alive) {
-					vision.addAgentToZone(a);
+					mVision.addAgentToZone(a);
 				}
 			}
 			
-			for (AnimalManager<?> aM : animalManagers) {
+			for (AnimalManager<?> aM : mAnimalManagers) {
 				aM.moveAll();
 			}
 
-			plantManager.spreadSeed();
-			plantManager.synchAliveDead();
-			plantManager.update();
+			mPlantManager.spreadSeed();
+			mPlantManager.synchAliveDead();
+			mPlantManager.update();
 		}
 		timeStep++;
 	}
@@ -114,7 +117,7 @@ public class Simulation extends MessageHandler {
 	}
 	
 	public void killAllAgents() {
-		for (AnimalManager<?> aM : animalManagers) {
+		for (AnimalManager<?> aM : mAnimalManagers) {
 			aM.killAll = true;
 			aM.synchAliveDead();
 			aM.moveAll();
@@ -137,8 +140,8 @@ public class Simulation extends MessageHandler {
 
 	public Animal spawnAgent(int x, int y, int managerId) {
 		Animal spawn = null;
-		if (animalManagers.size() >= managerId) {
-			spawn = animalManagers.get(managerId).spawnAnimal(x, y);
+		if (mAnimalManagers.size() >= managerId) {
+			spawn = mAnimalManagers.get(managerId).spawnAnimal(x, y);
 		}
 		else {
 			System.err.println("Trying to spawn agents in a non-existing manager?");
@@ -148,13 +151,13 @@ public class Simulation extends MessageHandler {
 
 	public int getNumAgents() {
 		int numAgents = 0;
-		for (AnimalManager<?> aM : animalManagers) {
+		for (AnimalManager<?> aM : mAnimalManagers) {
 			numAgents += aM.numAnimals;
 		}
 		return numAgents;
 	}
 	public int getNumAgents(int agentType) {
-		AnimalManager<?> aM = animalManagers.get(agentType);
+		AnimalManager<?> aM = mAnimalManagers.get(agentType);
 		return aM.numAnimals;
 	}
 }

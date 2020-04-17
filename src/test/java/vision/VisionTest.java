@@ -37,7 +37,7 @@ public class VisionTest extends UnitTestWithSimulation {
 		
 		simulation.step();
 
-		Animal a = (Animal) simulation.animalManagers.get(RANDOMLING).alive.get(0);
+		Animal a = (Animal) simulation.mAnimalManagers.get(RANDOMLING).alive.get(0);
 		Assert.assertNotEquals(a.pos.x, 5);
 		Assert.assertNotEquals(a.pos.y, 6);
 		
@@ -50,7 +50,7 @@ public class VisionTest extends UnitTestWithSimulation {
 		
 		simulation.step();
 
-		Animal a = (Animal) simulation.animalManagers.get(BLOODLING).alive.get(0);
+		Animal a = (Animal) simulation.mAnimalManagers.get(BLOODLING).alive.get(0);
 		Assert.assertTrue(a.pos.x > 5);
 		Assert.assertTrue(a.pos.y > 5);
 	}
@@ -62,7 +62,7 @@ public class VisionTest extends UnitTestWithSimulation {
 		
 		simulation.step();
 
-		Animal a = (Animal) simulation.animalManagers.get(GRASSLER).alive.get(0);
+		Animal a = (Animal) simulation.mAnimalManagers.get(GRASSLER).alive.get(0);
 		Assert.assertTrue(a.pos.x > 5);
 		Assert.assertTrue(a.pos.y > 5);
 	}
@@ -81,7 +81,7 @@ public class VisionTest extends UnitTestWithSimulation {
 		
 		simulation.step();
 		
-		Animal a = (Animal) simulation.animalManagers.get(GRASSLER).alive.get(0);
+		Animal a = (Animal) simulation.mAnimalManagers.get(GRASSLER).alive.get(0);
 		Assert.assertTrue("Expecting animal to be at x = " + foodPosX + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.x) == foodPosX);
 		Assert.assertTrue("Expecting animal to be at y = " + foodPosY + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.y) == foodPosY);
 	}

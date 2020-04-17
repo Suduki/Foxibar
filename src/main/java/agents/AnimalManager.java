@@ -2,6 +2,7 @@ package agents;
 
 import java.util.ArrayList;
 
+import actions.ActionManager;
 import vision.Vision;
 import world.World;
 
@@ -18,41 +19,38 @@ public class AnimalManager<AnimalClass extends Animal> {
 	public Vision vision;
 	World world;
 
-	public AnimalManager(World world, Class<AnimalClass> clazz, int maxNumAnimals, Vision vision) {
+	// TODO: URK! Städa!
+	public AnimalManager(World world, ActionManager actionManager, Class<AnimalClass> clazz, int maxNumAnimals,
+			Vision vision) {
 		this.vision = vision;
 		pool = (AnimalClass[]) new Animal[maxNumAnimals];
-		
+
 		if (clazz == Randomling.class) {
-			for(int id = 0; id < maxNumAnimals; ++id) {
-				pool[id] = (AnimalClass) new Randomling(world); //TODO behövs id?
+			for (int id = 0; id < maxNumAnimals; ++id) {
+				pool[id] = (AnimalClass) new Randomling(world, actionManager); // TODO behövs id?
 				dead.add(pool[id]);
 			}
-		}
-		else if (clazz == Brainler.class) {
-			for(int id = 0; id < maxNumAnimals; ++id) {
-				pool[id] = (AnimalClass) new Brainler(world);
+		} else if (clazz == Brainler.class) {
+			for (int id = 0; id < maxNumAnimals; ++id) {
+				pool[id] = (AnimalClass) new Brainler(world, actionManager);
 				dead.add(pool[id]);
 			}
-		}
-		else if (clazz == Bloodling.class) {
-			for(int id = 0; id < maxNumAnimals; ++id) {
-				pool[id] = (AnimalClass) new Bloodling(world);
+		} else if (clazz == Bloodling.class) {
+			for (int id = 0; id < maxNumAnimals; ++id) {
+				pool[id] = (AnimalClass) new Bloodling(world, actionManager);
 				dead.add(pool[id]);
 			}
-		}
-		else if (clazz == Grassler.class) {
-			for(int id = 0; id < maxNumAnimals; ++id) {
-				pool[id] = (AnimalClass) new Grassler(world);
+		} else if (clazz == Grassler.class) {
+			for (int id = 0; id < maxNumAnimals; ++id) {
+				pool[id] = (AnimalClass) new Grassler(world, actionManager);
 				dead.add(pool[id]);
 			}
-		}
-		else if (clazz == Giraffe.class) {
-			for(int id = 0; id < maxNumAnimals; ++id) {
-				pool[id] = (AnimalClass) new Giraffe(world);
+		} else if (clazz == Giraffe.class) {
+			for (int id = 0; id < maxNumAnimals; ++id) {
+				pool[id] = (AnimalClass) new Giraffe(world, actionManager);
 				dead.add(pool[id]);
 			}
-		}
-		else {
+		} else {
 			System.err.println("constructing unknown Animal?");
 		}
 
@@ -71,18 +69,17 @@ public class AnimalManager<AnimalClass extends Animal> {
 			}
 			numAnimals = 0;
 			killAll = false;
-		}
-		else {
+		} else {
 			for (AnimalClass a : alive) {
 				vision.updateNearestNeighbours(a);
-				
+
 				if (a.stepAgent()) {
 					// All is well
 					if (a.didMate) {
 						a.addToChildren(mate(a));
 						a.didMate = false;
 					}
-					
+
 					if (a.didMove) {
 						for (Animal a2 : a.nearbyAgents) {
 							if (a2 != null) {
@@ -91,26 +88,24 @@ public class AnimalManager<AnimalClass extends Animal> {
 						}
 						a.didMove = false;
 					}
-				}
-				else {
+				} else {
 					someoneDied(a, true);
 				}
 			}
 		}
 	}
 
-
 	public Animal spawnAnimal(int x, int y) {
 		AnimalClass child = resurrectAnimal();
 		child.inherit(null);
-		child.resetPos(x,  y);
-		
+		child.resetPos(x, y);
+
 		return child;
 	}
-	
+
 	private Animal mate(Animal animal) {
 		Animal child = resurrectAnimal();
-		
+
 		child.inherit(animal);
 
 		child.resetPos(animal.pos.x, animal.pos.y);
@@ -161,7 +156,7 @@ public class AnimalManager<AnimalClass extends Animal> {
 			dead.add(a);
 		}
 		toDie.clear();
-		
+
 		// Add all newborn agents to loop
 		for (AnimalClass a : toLive) {
 			alive.add(a);

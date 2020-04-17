@@ -53,9 +53,9 @@ public class TreeRenderer {
 		float health = plant.health;
 		if (health > 0.05f) {
 			float treeTopHeight = treeTrunkHeight;//plant.size * (health*0.3f + 0.7f) * scale /2 + 0.2f;
-			float treeTopWidth = 2 * health * scale * plant.size;
+			float treeTopWidth = 2 * scale * plant.size;
 			topRenderer.setColor(plant.color, plant.secondaryColor, 0.9f, 1);
-			topRenderer.renderTube(pos, treeTopHeight, treeTopWidth, yStart, windForce);
+			topRenderer.renderTube(pos, treeTopHeight, treeTopWidth, yStart, windForce, health);
 		}
 
 	}

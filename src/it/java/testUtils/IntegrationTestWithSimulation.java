@@ -11,7 +11,7 @@ public class IntegrationTestWithSimulation extends TestWithSimulation {
 
 	public void printActions(int numCalls) {
 
-		for (Action act : Action.acts) {
+		for (Action act : simulation.mActionManager.acts) {
 			float perc = ((float) act.numCommits * 100) / numCalls;
 			System.out.printf("%18s: %.2f%s\n", act.getClass().getSimpleName(), perc, "%");
 		}
@@ -76,7 +76,7 @@ public class IntegrationTestWithSimulation extends TestWithSimulation {
 		}
 		if (printStuff)
 			System.out.println(AGENT_TYPES_NAMES[agentType] + " Survivability test completed after " + t
-					+ " time steps, with " + simulation.animalManagers.get(agentType).numAnimals + " survivors");
+					+ " time steps, with " + simulation.mAnimalManagers.get(agentType).numAnimals + " survivors");
 		
 		return average;
 	}

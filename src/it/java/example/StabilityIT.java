@@ -16,6 +16,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import actions.Action;
+import actions.ActionManager;
+import actions.ActionManager.Actions;
 import agents.Animal;
 import agents.AnimalManager;
 import agents.Brainler;
@@ -95,11 +97,11 @@ public class StabilityIT extends IntegrationTestWithSimulation {
 		System.out.println("Test case testSurvivability completed.");
 	}
 
-	@Test // TODO: MOVE; not an
+	@Test // TODO: MOVE; not an IT
 	public void test4SpeciesTest() {
-		Brainler a = new Brainler(null);
+		Brainler a = new Brainler(null, null);
 		a.inherit(null);
-		Brainler b = new Brainler(null);
+		Brainler b = new Brainler(null, null);
 
 		b.inherit(null);
 		Assert.assertFalse(a.isCloselyRelatedTo(b));
@@ -139,27 +141,31 @@ public class StabilityIT extends IntegrationTestWithSimulation {
 		Talents.changeTalentMax(Talents.DIGEST_BLOOD, 0);
 
 		System.out.printf("Running %d iterations with low blood gain\n", numSimulationIterations);
-		float[] actionPercentagesAtLowBloodGain = new float[Action.numActions];
+		float[] actionPercentagesAtLowBloodGain = new float[ActionManager.getNumActions()];
 		runSeveralIterationsAndTrackActions(numSimulationIterations, actionPercentagesAtLowBloodGain);
 		printActionsPercentages(actionPercentagesAtLowBloodGain);
 
 		Talents.changeTalentMax(Talents.DIGEST_BLOOD, maxB * 20);
 
 		System.out.printf("Running %d iterations with high blood gain: %f\n", numSimulationIterations, maxB * 20);
-		float[] actionPercentagesAtHighBloodGain = new float[Action.numActions];
+		float[] actionPercentagesAtHighBloodGain = new float[ActionManager.getNumActions()];
 		runSeveralIterationsAndTrackActions(numSimulationIterations, actionPercentagesAtHighBloodGain);
 		printActionsPercentages(actionPercentagesAtHighBloodGain);
 
+		int huntStrangerId = simulation.mActionManager.getAction(Actions.HuntStranger).id;
 		Assert.assertTrue(
-				actionPercentagesAtHighBloodGain[Action.huntStranger.id] > actionPercentagesAtLowBloodGain[Action.huntStranger.id]);
+				actionPercentagesAtHighBloodGain[huntStrangerId] > 
+				actionPercentagesAtLowBloodGain[huntStrangerId]);
+		int harvestBloodId = simulation.mActionManager.getAction(Actions.HarvestBlood).id;
 		Assert.assertTrue(
-				actionPercentagesAtHighBloodGain[Action.harvestBlood.id] > actionPercentagesAtLowBloodGain[Action.harvestBlood.id]);
+				actionPercentagesAtHighBloodGain[harvestBloodId] > 
+				actionPercentagesAtLowBloodGain[harvestBloodId]);
 
 	}
 
 	private void printActionsPercentages(float[] actionPercentages) {
 		for (int i = 0; i < actionPercentages.length; ++i) {
-			Action act = Action.acts.get(i);
+			Action act = simulation.mActionManager.acts.get(i);
 			float perc = actionPercentages[i];
 			System.out.printf("%18s: %2.2f%s\n", act.getClass().getSimpleName(), perc, "%");
 		}
@@ -170,9 +176,9 @@ public class StabilityIT extends IntegrationTestWithSimulation {
 			TestHelper.cleanup(simulation);
 			testSurvivability(BRAINLER, 500, true, false);
 
-			float numCalls = Action.getTotCalls();
+			float numCalls = simulation.mActionManager.getTotCalls();
 			for (int i = 0; i < actionPercentages.length; ++i) {
-				actionPercentages[i] += calculateCallPercentage(numCalls, Action.acts.get(i)) / numSimulationIterations;
+				actionPercentages[i] += calculateCallPercentage(numCalls, simulation.mActionManager.acts.get(i)) / numSimulationIterations;
 			}
 			System.out.print(".");
 		}

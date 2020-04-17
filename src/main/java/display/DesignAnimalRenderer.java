@@ -19,7 +19,7 @@ public class DesignAnimalRenderer implements gui.SceneRegionRenderer {
 	Brainler brainlerCreatedByUser;
 	
 	public DesignAnimalRenderer(DisplayHandler mDisplayHandler, Simulation mSimulation) {
-		brainlerCreatedByUser = new Brainler(null);
+		brainlerCreatedByUser = new Brainler(null, mSimulation.mActionManager);
 		brainlerCreatedByUser.inherit(null);
 		
 		skillsRenderCircle = new TalentSpider(200, 100, brainlerCreatedByUser);

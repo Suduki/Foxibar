@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
-import actions.Action;
+import actions.ActionManager;
 import constants.Constants;
 import plant.Plant;
 import talents.Talents;
@@ -16,7 +16,7 @@ public abstract class Animal extends Agent {
 
 	public static final int MAX_AGE = 200;
 	public static final float REACH = 1;
-	
+
 	public static final float HARVEST_GRASS = 1f;
 	public static final float HARVEST_BLOOD = 1f;
 	public static final float HARVEST_FIBER = 0.05f;
@@ -31,7 +31,7 @@ public abstract class Animal extends Agent {
 
 	public int score = 0;
 	public int sinceLastBaby = 0;
-	
+
 	boolean isFertile;
 
 	public Vector2f oldPos;
@@ -39,7 +39,7 @@ public abstract class Animal extends Agent {
 
 	public Animal[] nearbyAgents;
 	public float[] nearbyAgentsDistance;
-	
+
 	public Plant nearbyPlant;
 	public float nearbyPlantScore;
 
@@ -52,26 +52,28 @@ public abstract class Animal extends Agent {
 	private boolean starving;
 
 	public boolean printStuff;
-	
+
 	public Talents talents;
-	
+
 	public Animal stranger;
 	public Animal friendler;
 	public boolean didMate;
 	public boolean didMove;
-	
+
 	public Vector2i visionZone = new Vector2i(-1, -1);
-	
+
 	protected World world; // TODO: Remove this dependency. only die() uses it, could be moved to manager.
-	
-	public Animal(World world) {
+	protected ActionManager actionManager;
+
+	public Animal(World world, ActionManager actionManager) {
 		super();
-		
+
+		this.actionManager = actionManager;
 		this.world = world;
 		oldPos = new Vector2f();
 		vel = new Vector2f();
 
-		maxAge = MAX_AGE; //TODO: move these constants
+		maxAge = MAX_AGE; // TODO: move these constants
 		healPower = 0.01f;
 
 		growth = 0.01f;
@@ -81,7 +83,7 @@ public abstract class Animal extends Agent {
 		this.nearbyAgentsDistance = new float[Constants.Vision.NUM_NEIGHBOURS];
 		this.nearbyPlant = null;
 		this.nearbyPlantScore = 0;
-		
+
 		children = new ArrayList<>();
 		stomach = new Stomach();
 
@@ -96,9 +98,9 @@ public abstract class Animal extends Agent {
 	@Override
 	public boolean stepAgent() {
 		oldPos.set(pos);
-		
+
 		internalOrgansUpdate();
-		
+
 		if (!isAlive) {
 			return false;
 		}
@@ -110,9 +112,8 @@ public abstract class Animal extends Agent {
 	}
 
 	private void think() {
-		Action.determineIfPossibleAllActions(this);
+		actionManager.determineIfPossibleAllActions(this);
 	}
-
 
 	private void makeBaby() {
 		if (isFertile && stomach.canHaveBaby(talents.get(Talents.MATE_COST))) {
@@ -127,7 +128,7 @@ public abstract class Animal extends Agent {
 	}
 
 	private void starve() {
-		health --;
+		health--;
 	}
 
 	protected void mate() {
@@ -141,19 +142,17 @@ public abstract class Animal extends Agent {
 	protected void inherit(Animal a) {
 		if (a == null) {
 			talents.inheritRandom();
-		}
-		else if (a.getClass() != this.getClass()){
+		} else if (a.getClass() != this.getClass()) {
 			System.err.println("inheriting some different class");
-		}
-		else {
+		} else {
 			talents.inherit(((Animal) a).talents);
 		}
 		fixAppearance();
 	}
-	
+
 	protected void fixAppearance() {
 		stomach.inherit(talents);
-		maxHealth = 100*talents.talentsRelative[Talents.TOUGHNESS];
+		maxHealth = 100 * talents.talentsRelative[Talents.TOUGHNESS];
 		maxSize = talents.talentsRelative[Talents.TOUGHNESS];
 		maxTall = talents.talentsRelative[Talents.DIGEST_FIBER];
 	}
@@ -161,7 +160,7 @@ public abstract class Animal extends Agent {
 	private void stepScore(int score) {
 		this.score += score;
 		if (parent != null) {
-			parent.stepScore(score+1);
+			parent.stepScore(score + 1);
 		}
 	}
 
@@ -185,10 +184,10 @@ public abstract class Animal extends Agent {
 		vel.mul(getSpeed());
 		vel.add(pos);
 		World.wrap(vel);
-		
+
 		pos.set(vel);
 		didMove = true;
-		
+
 		if (pos.x == Float.NaN) {
 			System.err.println("NaN position!!! What did you do!");
 		}
@@ -196,38 +195,34 @@ public abstract class Animal extends Agent {
 			System.err.println("Negative position!!! What did you do!");
 		}
 	}
-	
+
 	private static float COLLISION = 0.8f;
 
 	public void collide(Animal a) {
-		float distance = Vision.calculateCircularDistance(pos, a.pos); 
+		float distance = Vision.calculateCircularDistance(pos, a.pos);
 		if (distance >= COLLISION) {
 			return;
 		}
-		
-		
+
 		didMove = true;
 		a.didMove = true;
-		
+
 		float velX = 0;
 		float velY = 0;
 		if (distance < 0.00001f) {
 			velX = COLLISION / 2;
-		}
-		else {
+		} else {
 			float distanceFactor = (COLLISION - distance) / (distance * 2);
 			velX = (a.pos.x - pos.x) * distanceFactor;
 			velY = (a.pos.y - pos.y) * distanceFactor;
 		}
-		
-		
+
 		pos.add(-velX, -velY);
 		a.pos.add(velX, velY);
-		
-		
+
 		World.wrap(pos);
 		World.wrap(a.pos);
-		
+
 		if (pos.x == Float.NaN) {
 			System.err.println("NaN position!!! What did you do!");
 		}
@@ -235,12 +230,12 @@ public abstract class Animal extends Agent {
 			System.err.println("Negative position!!! What did you do!");
 		}
 	}
-	
+
 	protected abstract void actionUpdate();
-	
+
 	private void internalOrgansUpdate() {
 		starving = !stomach.stepStomach();
-		if(!age()) {
+		if (!age()) {
 			return;
 		}
 
@@ -248,8 +243,7 @@ public abstract class Animal extends Agent {
 			stepFertility();
 			grow();
 			heal();
-		}
-		else {
+		} else {
 			starve();
 		}
 		checkHealth();
@@ -260,7 +254,7 @@ public abstract class Animal extends Agent {
 			fightWith(a);
 		}
 	}
-	
+
 	protected void fightWith(Animal agent) {
 		agent.health -= getFightSkill();
 	}
@@ -268,12 +262,13 @@ public abstract class Animal extends Agent {
 	public void turnAwayFrom(Agent a) {
 		Vision.getDirectionOf(vel, a.pos, pos);
 	}
-	
+
 	public void turnTowards(Agent a) {
 		Vision.getDirectionOf(vel, pos, a.pos);
 	}
-	
-	private final static float TWO_PI = (float)Math.PI * 2;
+
+	private final static float TWO_PI = (float) Math.PI * 2;
+
 	public void randomWalk() {
 		float angle = Constants.RANDOM.nextFloat() * TWO_PI;
 		vel.x = (float) Math.cos(angle);
@@ -283,7 +278,7 @@ public abstract class Animal extends Agent {
 	protected float getFightSkill() {
 		return talents.get(Talents.FIGHT);
 	}
-	
+
 	protected void grow() {
 		if (size < maxSize) {
 			size += growth;
@@ -295,7 +290,7 @@ public abstract class Animal extends Agent {
 
 	protected void heal() {
 		if (health < maxHealth) {
-			health += maxHealth*0.0001f;
+			health += maxHealth * 0.0001f;
 			if (health > maxHealth) {
 				health = maxHealth;
 			}
@@ -308,14 +303,14 @@ public abstract class Animal extends Agent {
 		float bloodToAdd = stomach.blood + size + stomach.fat / (Constants.Talents.MAX_DIGEST_BLOOD + 1f);
 		world.blood.append((int) pos.x, (int) pos.y, bloodToAdd, true);
 		world.grass.append((int) pos.x, (int) pos.y, stomach.grass, true);
-		//		System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " + sinceLastBaby
-		//				+ ", age=" + age + ", score = " + score);
+		// System.out.println("in die(), fat = " + stomach.fat + ", sincelastbaby = " +
+		// sinceLastBaby
+		// + ", age=" + age + ", score = " + score);
 
 		for (Animal child : children) {
 			child.parentDied();
 		}
 	}
-
 
 	private void parentDied() {
 		parent = null;
@@ -324,7 +319,7 @@ public abstract class Animal extends Agent {
 	protected boolean looksDangerous(Animal nearbyAnimalId) {
 		return getFightSkill() < nearbyAnimalId.getFightSkill();
 	}
-	
+
 	public abstract boolean isCloselyRelatedTo(Animal a);
 
 	protected boolean isSameClassAs(Animal a) {
@@ -338,7 +333,7 @@ public abstract class Animal extends Agent {
 	@Override
 	public void reset() {
 		super.reset();
-		
+
 		score = 0;
 		sinceLastBaby = 0;
 	}
@@ -347,14 +342,14 @@ public abstract class Animal extends Agent {
 	 * 
 	 * @return random number between [-1, 1]
 	 */
-	protected static float rand() { //TODO: Move to util class
-		return 2*Constants.RANDOM.nextFloat() - 1;
+	protected static float rand() { // TODO: Move to util class
+		return 2 * Constants.RANDOM.nextFloat() - 1;
 	}
-	
+
 	protected void addToChildren(Agent a) {
 		this.children.add((Animal) a);
 	}
-	
+
 	protected void addParent(Agent a) {
 		this.parent = (Animal) a;
 	}
@@ -363,6 +358,6 @@ public abstract class Animal extends Agent {
 	public void resetPos(float x, float y) {
 		super.resetPos(x, y);
 		oldPos.x = x;
-		oldPos.y = y;		
+		oldPos.y = y;
 	}
 }

@@ -15,7 +15,7 @@ public class PlantManagerTest extends UnitTestWithSimulation {
 	
 	@Before
 	public void beforeTest() {
-		sut = new PlantManager(simulation.vision, simulation.mWorld.terrain);
+		sut = new PlantManager(simulation.mVision, simulation.mWorld.terrain);
 	}
 
 	@Test
@@ -130,6 +130,6 @@ public class PlantManagerTest extends UnitTestWithSimulation {
 	private Zone getVisionZone(Plant tree) {
 		Vector2f pos = tree.pos;
 		
-		return simulation.vision.getZoneAt((int)pos.x, (int)pos.y);
+		return simulation.mVision.getZoneAt((int)pos.x, (int)pos.y);
 	}
 }

@@ -14,7 +14,7 @@ public class TestHelper {
 	public static final float ERROR_DELTA = 0.001f;
 	
 	public static void cleanup(Simulation simulation) {
-		Action.reset();
+		simulation.mActionManager.reset();
 		
 		simulation.killAllAgents();
 		simulation.step();
@@ -37,7 +37,7 @@ public class TestHelper {
 	
 	public static int visionZoneSize(Simulation simulation) {
 		int num = 0;
-		for (Vision.Zone[] zi : simulation.vision.zoneGrid) {
+		for (Vision.Zone[] zi : simulation.mVision.zoneGrid) {
 			for (Vision.Zone z : zi) {
 				num += z.agentsInZone.size();
 			}	

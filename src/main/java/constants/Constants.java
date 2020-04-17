@@ -19,11 +19,11 @@ public class Constants {
 	public static final float ZOOM_SPEED = 1.05f;
 	
 	public static class Talents {
-		public static final float MIN_SPEED 		= 0.2f;
+		public static final float MIN_SPEED 		= 0.02f;
 		public static final float MAX_SPEED 		= 1f;
 		public static final float MIN_TOUGHNESS 	= 0.01f;
 		public static final float MAX_TOUGHNESS 	= 1f;
-		public static final float MIN_MATE_COST 	= 50f;
+		public static final float MIN_MATE_COST 	= 10f;
 		public static final float MAX_MATE_COST 	= 400f;
 		public static final float MUTATION = 0.1f;
 

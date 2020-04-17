@@ -1,14 +1,15 @@
 package agents;
 
-import actions.Action;
+import actions.ActionManager;
+import actions.ActionManager.Actions;
 import constants.Constants;
 import talents.Talents;
 import world.World;
 
 public class Grassler extends PriorityAnimal {
 
-	public Grassler(World world) {
-		super(world, new Action[] { Action.fleeFromStranger, Action.harvestGrass, Action.randomWalk });
+	public Grassler(World world, ActionManager aM) {
+		super(world, aM, new Actions[] { Actions.FleeFromStranger, Actions.HarvestGrass, Actions.RandomWalk });
 		color = Constants.Colors.BLACK;
 		secondaryColor = Constants.Colors.WHITE;
 	}

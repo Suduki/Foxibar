@@ -53,7 +53,7 @@ public class AgentRenderer extends TubeRenderer {
 	}
 
 	public void drawAgents(float heightScale) {
-		for (AnimalManager<?> manager : Main.mSimulation.animalManagers) {
+		for (AnimalManager<?> manager : Main.mSimulation.mAnimalManagers) {
 			for (int i = 0; i < manager.alive.size(); ++i) {
 				Animal a = (Animal) manager.alive.get(i);
 				if (a == null)
@@ -90,8 +90,8 @@ public class AgentRenderer extends TubeRenderer {
 			}
 		}
 
-		for (int i = 0; i < Main.mSimulation.plantManager.alive.size(); ++i) {
-			Plant a = (Plant) Main.mSimulation.plantManager.alive.get(i);
+		for (int i = 0; i < Main.mSimulation.mPlantManager.alive.size(); ++i) {
+			Plant a = (Plant) Main.mSimulation.mPlantManager.alive.get(i);
 
 			if (a == null)
 				break;

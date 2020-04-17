@@ -2,6 +2,10 @@ package agents;
 
 
 import actions.Action;
+import actions.ActionManager;
+import actions.ActionManager.Actions;
+import actions.HarvestBlood;
+import actions.HarvestGrass;
 import constants.Constants;
 import talents.Talents;
 import vision.Vision;
@@ -13,8 +17,8 @@ public class Brainler extends Animal {
 	public float[] appearanceFactors;
 	public static final int NUM_APPEARANCE_FACTORS = 6;
 	
-	public Brainler(World world) {
-		super(world);
+	public Brainler(World world, ActionManager aM) {
+		super(world, aM);
 		this.brain = new Brain(false);
 		this.appearanceFactors = new float[NUM_APPEARANCE_FACTORS];
 	}
@@ -22,7 +26,7 @@ public class Brainler extends Animal {
 	@Override
 	protected void actionUpdate() {
 		int action = updateBrainInputs();
-		Action.commit(action, this);
+		actionManager.commit(action, this);
 	}
 	
 	private int updateBrainInputs() {
@@ -43,8 +47,8 @@ public class Brainler extends Animal {
 			brainInputVector[NeuralFactors.in.FRIENDLER] = -1f;
 		}
 		
-		brainInputVector[NeuralFactors.in.TILE_GRASS] = Action.harvestGrass.heightNearby;
-		brainInputVector[NeuralFactors.in.TILE_BLOOD] = Action.harvestBlood.heightNearby;
+		brainInputVector[NeuralFactors.in.TILE_GRASS] = ((HarvestGrass) actionManager.getAction(Actions.HarvestGrass)).heightNearby;
+		brainInputVector[NeuralFactors.in.TILE_BLOOD] = ((HarvestBlood) actionManager.getAction(Actions.HarvestBlood)).heightNearby;
 		
 		brainInputVector[NeuralFactors.in.TILE_TERRAIN_HEIGHT] = world.terrain.height[(int) pos.x][(int) pos.y];
 		
@@ -52,7 +56,7 @@ public class Brainler extends Animal {
 		
 		brainInputVector[NeuralFactors.in.PLANT] = nearbyPlant != null ? nearbyPlantScore : -1;
 		
-		return brain.neural.neuralMagic(Action.acts);
+		return brain.neural.neuralMagic(actionManager.acts);
 	}
 	
 	public static Brainler brainlerCreatedByUser;

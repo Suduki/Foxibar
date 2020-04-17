@@ -184,7 +184,7 @@ public class FindStableSystem extends IntegrationTestWithSimulation {
 		// Run for one generation
 		for (int i = 0; i < simulationTime; ++i) {
 			simulation.step();
-			float numTrees = simulation.plantManager.alive.size();
+			float numTrees = simulation.mPlantManager.alive.size();
 			avg += numTrees / simulationTime;
 		}
 		

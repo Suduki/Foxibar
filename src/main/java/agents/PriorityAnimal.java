@@ -1,21 +1,24 @@
 package agents;
 
 import actions.Action;
+import actions.ActionManager;
+import actions.ActionManager.Actions;
 import world.World;
 
 public class PriorityAnimal extends Animal {
 
-	private Action[] priorityQueue;
+	private Actions[] priorityQueue;
 
-	public PriorityAnimal(World world, Action[] priorityQueue) {
-		super(world);
+	public PriorityAnimal(World world, ActionManager actionManager, Actions[] priorityQueue) {
+		super(world, actionManager);
 		
 		this.priorityQueue = priorityQueue;
 	}
 
 	@Override
 	protected void actionUpdate() {
-		for (Action action : priorityQueue) {
+		for (Actions actionE : priorityQueue) {
+			Action action = actionManager.getAction(actionE);
 			if (action.isPossible) {
 				action.commit(this);
 				return;

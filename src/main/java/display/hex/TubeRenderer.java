@@ -65,20 +65,20 @@ public abstract class TubeRenderer {
 		this.maxColor[3] = alpha2;
 	}
 
-	public void renderTube(Vector3f groundPos, float tubeMaxHeight, float tubeMaxRadius, float startHeight, Vector3f windForce) {
+	public void renderTube(Vector3f groundPos, float tubeMaxHeight, float tubeMaxRadius, float startHeight, Vector3f windForce, float startTubeHeight) {
 		pos.set(groundPos);
 		int numSplits = (int) tubeMaxHeight + 2;
-
+		
 		float splitDistance = tubeMaxHeight / numSplits;
-
+		
 		float nextHeight = startHeight;
-
+		
 		if (affectedByWind) {
 			wind.set(windForce).mul(nextHeight, 1f, nextHeight);
 		}
 		
 		float nextRadius = 0;
-
+		
 		for (int split = 0; split < numSplits; ++split) {
 			if (affectedByWind) {
 				nextHeight += splitDistance;
@@ -94,9 +94,11 @@ public abstract class TubeRenderer {
 			
 			float radius = heightToRadius(((float) split) / numSplits, tubeMaxRadius);
 			nextRadius = heightToRadius(((float) split + 1) / numSplits, tubeMaxRadius);
-
-			renderTubeSegment(groundPos, tubeMaxHeight, radius, nextRadius, startHeight);
-
+			
+			if (startHeight >= startTubeHeight) {
+				renderTubeSegment(groundPos, tubeMaxHeight, radius, nextRadius, startHeight);
+			}
+			
 			if (affectedByWind) {
 				circle.set(nextCircle);
 				wind.set(nextWind);
@@ -107,9 +109,12 @@ public abstract class TubeRenderer {
 		if (renderRoof) {
 			renderRoof(groundPos, tubeMaxHeight, nextRadius);
 		}
-
+		
 		circle.resetCircle();
 		nextCircle.resetCircle();
+	}
+	public void renderTube(Vector3f groundPos, float tubeMaxHeight, float tubeMaxRadius, float startHeight, Vector3f windForce) {
+		renderTube(groundPos, tubeMaxHeight, tubeMaxRadius, startHeight, windForce, 0);
 	}
 
 	private void drawLine() {
