@@ -15,7 +15,7 @@ public class Bloodling extends PriorityAnimal {
 		secondaryColor = Constants.Colors.RED;
 	}
 
-	private static final int[] presetSkills = { Talents.DIGEST_BLOOD, Talents.FIGHT, Talents.MATE_COST, Talents.SPEED };
+	private static final int[] presetSkills = { Talents.DIGEST_BLOOD };
 
 	@Override
 	protected void inherit(Animal a) {

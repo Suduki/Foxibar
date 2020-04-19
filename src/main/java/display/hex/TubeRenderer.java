@@ -95,9 +95,7 @@ public abstract class TubeRenderer {
 			float radius = heightToRadius(((float) split) / numSplits, tubeMaxRadius);
 			nextRadius = heightToRadius(((float) split + 1) / numSplits, tubeMaxRadius);
 			
-			if (startHeight >= startTubeHeight) {
-				renderTubeSegment(groundPos, tubeMaxHeight, radius, nextRadius, startHeight);
-			}
+			renderTubeSegment(groundPos, tubeMaxHeight, radius, nextRadius, startHeight);
 			
 			if (affectedByWind) {
 				circle.set(nextCircle);

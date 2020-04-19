@@ -12,8 +12,8 @@ public class HarvestTree extends Action {
 
 	@Override
 	public boolean determineIfPossible(Animal a) {
-		isPossible = a.talents.getRelative(Talents.DIGEST_FIBER) > 0.2f
-				&& a.nearbyPlant != null
+		isPossible = a.nearbyPlant != null
+				&& a.talents.getRelative(Talents.DIGEST_FIBER) > (1f - a.nearbyPlant.health)
 				&& !a.stomach.isFull();
 
 		return isPossible;
