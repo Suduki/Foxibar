@@ -13,6 +13,8 @@ public class AnimalManager<AnimalClass extends Animal> {
 	public ArrayList<AnimalClass> dead = new ArrayList<>();
 	public ArrayList<AnimalClass> toDie = new ArrayList<>();
 	public ArrayList<AnimalClass> toLive = new ArrayList<>();
+	public Animal bestAgent;
+	
 	public int numAnimals = 0;
 	public boolean killAll = false;
 
@@ -30,26 +32,32 @@ public class AnimalManager<AnimalClass extends Animal> {
 				pool[id] = (AnimalClass) new Randomling(world, actionManager); // TODO behövs id?
 				dead.add(pool[id]);
 			}
+			bestAgent = (AnimalClass) new Randomling(world, actionManager);
 		} else if (clazz == Brainler.class) {
 			for (int id = 0; id < maxNumAnimals; ++id) {
 				pool[id] = (AnimalClass) new Brainler(world, actionManager);
 				dead.add(pool[id]);
 			}
+			bestAgent = (AnimalClass) new Brainler(world, actionManager);
 		} else if (clazz == Bloodling.class) {
 			for (int id = 0; id < maxNumAnimals; ++id) {
 				pool[id] = (AnimalClass) new Bloodling(world, actionManager);
 				dead.add(pool[id]);
 			}
+			bestAgent = (AnimalClass) new Bloodling(world, actionManager);
+			
 		} else if (clazz == Grassler.class) {
 			for (int id = 0; id < maxNumAnimals; ++id) {
 				pool[id] = (AnimalClass) new Grassler(world, actionManager);
 				dead.add(pool[id]);
 			}
+			bestAgent = (AnimalClass) new Grassler(world, actionManager);
 		} else if (clazz == Giraffe.class) {
 			for (int id = 0; id < maxNumAnimals; ++id) {
 				pool[id] = (AnimalClass) new Giraffe(world, actionManager);
 				dead.add(pool[id]);
 			}
+			bestAgent = (AnimalClass) new Giraffe(world, actionManager);
 		} else {
 			System.err.println("constructing unknown Animal?");
 		}
@@ -89,6 +97,10 @@ public class AnimalManager<AnimalClass extends Animal> {
 						a.didMove = false;
 					}
 				} else {
+					if (bestAgent == null || a.score > bestAgent.score) {
+						bestAgent.inherit(a);
+						bestAgent.score = a.score;
+					}
 					someoneDied(a, true);
 				}
 			}

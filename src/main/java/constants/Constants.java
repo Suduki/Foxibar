@@ -14,8 +14,8 @@ public class Constants {
 	public static final int PIXELS_X = WINDOW_WIDTH;
 	public static Random RANDOM = new Random(1);
 	public static final float TILES_PER_ANIMAL = 20;
-	public static final float GROWTH = 0.005f;
-	public static int MAX_NUM_ANIMALS = 20000;
+	public static final float GROWTH = 0.01f;
+	public static int MAX_NUM_ANIMALS;
 	public static final float ZOOM_SPEED = 1.05f;
 	
 	public static class Talents {
@@ -23,9 +23,9 @@ public class Constants {
 		public static final float MAX_SPEED 		= 1f;
 		public static final float MIN_TOUGHNESS 	= 0.01f;
 		public static final float MAX_TOUGHNESS 	= 1f;
-		public static final float MIN_MATE_COST 	= 10f;
+		public static final float MIN_MATE_COST 	= 20f;
 		public static final float MAX_MATE_COST 	= 400f;
-		public static final float MUTATION = 0.1f;
+		public static final float MUTATION = 0.01f;
 
 		public static float MAX_DIGEST_GRASS;
 		public static float MAX_DIGEST_FIBER;

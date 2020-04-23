@@ -72,7 +72,7 @@ public class PlantTest extends UnitTestWithSimulation {
 		float leafness = sut.leafness();
 
 		float harvestSkill = 0.1f;
-		float expectedHarvest = harvestSkill * sut.size;
+		float expectedHarvest = harvestSkill;
 
 		float actual = sut.harvest(harvestSkill);
 

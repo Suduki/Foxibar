@@ -129,40 +129,6 @@ public class StabilityIT extends IntegrationTestWithSimulation {
 		TestHelper.cleanup(simulation);
 	}
 
-	@Test
-	public void testUsageOfEveryAction() {
-		
-		System.out.println("testUsageOfEveryAction");
-
-		float maxB = Constants.Talents.MAX_DIGEST_BLOOD;
-
-		int numSimulationIterations = 10;
-
-		Talents.changeTalentMax(Talents.DIGEST_BLOOD, 0);
-
-		System.out.printf("Running %d iterations with low blood gain\n", numSimulationIterations);
-		float[] actionPercentagesAtLowBloodGain = new float[ActionManager.getNumActions()];
-		runSeveralIterationsAndTrackActions(numSimulationIterations, actionPercentagesAtLowBloodGain);
-		printActionsPercentages(actionPercentagesAtLowBloodGain);
-
-		Talents.changeTalentMax(Talents.DIGEST_BLOOD, maxB * 20);
-
-		System.out.printf("Running %d iterations with high blood gain: %f\n", numSimulationIterations, maxB * 20);
-		float[] actionPercentagesAtHighBloodGain = new float[ActionManager.getNumActions()];
-		runSeveralIterationsAndTrackActions(numSimulationIterations, actionPercentagesAtHighBloodGain);
-		printActionsPercentages(actionPercentagesAtHighBloodGain);
-
-		int huntStrangerId = simulation.mActionManager.getAction(Actions.HuntStranger).id;
-		Assert.assertTrue(
-				actionPercentagesAtHighBloodGain[huntStrangerId] > 
-				actionPercentagesAtLowBloodGain[huntStrangerId]);
-		int harvestBloodId = simulation.mActionManager.getAction(Actions.HarvestBlood).id;
-		Assert.assertTrue(
-				actionPercentagesAtHighBloodGain[harvestBloodId] > 
-				actionPercentagesAtLowBloodGain[harvestBloodId]);
-
-	}
-
 	private void printActionsPercentages(float[] actionPercentages) {
 		for (int i = 0; i < actionPercentages.length; ++i) {
 			Action act = simulation.mActionManager.acts.get(i);

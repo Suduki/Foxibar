@@ -15,6 +15,7 @@ public class Talents {
 	public static final int DIGEST_GRASS 	= NUM_TALENTS++;
 	public static final int DIGEST_FIBER 	= NUM_TALENTS++;
 	public static final int MATE_COST 		= NUM_TALENTS++;
+	public static final int LONG_NECK		= NUM_TALENTS++;
 	
 	public static final String[] names = {"Fight", "Speed", "Toughness", 
 			"Digest Blood", "Digest Grass", "Digest Fiber", "Fertility", "Digest Plant"};
@@ -51,6 +52,7 @@ public class Talents {
 		RANGES[DIGEST_BLOOD] 	= new float[] {0, MAX_DIGEST_BLOOD};
 		RANGES[DIGEST_GRASS] 	= new float[] {0, MAX_DIGEST_GRASS};
 		RANGES[DIGEST_FIBER] 	= new float[] {0, MAX_DIGEST_FIBER};
+		RANGES[LONG_NECK] 		= new float[] {0, 1};
 		RANGES[MATE_COST] 		= new float[] {MAX_MATE_COST, MIN_MATE_COST};
 	}
 
@@ -137,7 +139,7 @@ public class Talents {
 		float sumExcluding = sum - talentsRelative[talentId];
 		if (sum > 0.0001f) {
 			for (int i = 0; i < NUM_TALENTS; ++i) {
-				talentsRelative[i] = talentsRelative[i] / sum;
+				talentsRelative[i] /= sum;
 			}
 		}
 		else {

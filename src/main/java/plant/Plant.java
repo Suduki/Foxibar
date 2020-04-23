@@ -12,11 +12,18 @@ public class Plant extends Agent {
 	public static final float MAX_AGE = 2000;
 	public static final float FINAL_HOURS_TIME = 200;
 	public static final float GROWTH = 0.005f;
-	public static float WANTED_AVERAGE_AMOUNT_OF_PLANTS;
+	public static final float HEALING = 0.0005f;
+	public static float WANTED_AVERAGE_AMOUNT_OF_PLANTS() {return Simulation.WORLD_SIZE / 25f;}
 
 	public float leafness() {
 		return health * size;
 	}
+	
+	public float getHeightOfLowestLeaves() {
+		return leavesStartHeight + (1f - leavesStartHeight) * size * (1f - health);
+	}
+	
+	private float leavesStartHeight = 0f;
 
 	public float groundGrowth;
 
@@ -34,29 +41,20 @@ public class Plant extends Agent {
 
 		maxAge = (int) MAX_AGE;
 		maxHealth = 1;
-
-		WANTED_AVERAGE_AMOUNT_OF_PLANTS = Simulation.WORLD_SIZE / 25;
 	}
 
 	@Override
 	public boolean stepAgent() {
-		age();
-		if (health < maxHealth / 2) {
-			age += MAX_AGE / 1000;
-		}
-		return isAlive;
-	}
-
-	@Override
-	public boolean age() {
 		grow();
-		return super.age();
+		age();
+		
+		return isAlive;
 	}
 
 	private void grow() {
 		if (age < MAX_AGE - FINAL_HOURS_TIME) {
 			if (health < maxHealth) {
-				health = Float.min(health + GROWTH * groundGrowth, maxHealth);
+				health = Float.min(health + HEALING * groundGrowth, maxHealth);
 			} else if (size < groundGrowth) {
 				size = Float.min(size + GROWTH * groundGrowth, groundGrowth);
 			}
@@ -103,8 +101,7 @@ public class Plant extends Agent {
 
 	public float harvest(float amount) {
 		float oldLeafness = leafness();
-		health = Float.max(0, health - amount);
-
+		health = Float.max(0, (oldLeafness - amount)/size);
 		return oldLeafness - leafness();
 	}
 

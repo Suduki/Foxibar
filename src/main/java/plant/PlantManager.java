@@ -96,7 +96,7 @@ public class PlantManager {
 	
 	private float seeds = 0;
 	public void spreadSeed() {
-		float luck = Plant.WANTED_AVERAGE_AMOUNT_OF_PLANTS / Plant.MAX_AGE;
+		float luck = Plant.WANTED_AVERAGE_AMOUNT_OF_PLANTS() / Plant.MAX_AGE;
 		seeds += luck;
 		
 		while (seeds > 0) {

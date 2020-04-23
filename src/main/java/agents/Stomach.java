@@ -6,8 +6,8 @@ import world.World;
 
 public class Stomach {
 
-	public static final float MAX_FULLNESS = 50;
-	public static final float FAT_ON_BIRTH = 1;
+	public static final float MAX_FULLNESS = 1000;
+	public static final float FAT_ON_BIRTH = 20;
 
 	float energyCost;
 	public float fiber;
@@ -64,9 +64,8 @@ public class Stomach {
 		fiber = 0;
 
 	}
-	public final static float FAT_TO_ENERGY_FACTOR = 0.05f;
 	private void burnFat() {
-		fat -= energyCost*FAT_TO_ENERGY_FACTOR;
+		fat -= energyCost;
 		energyCost = 0;
 	}
 
@@ -98,16 +97,7 @@ public class Stomach {
 	}
 
 	public boolean canHaveBaby(float birthHungerCost) {
-		return (fat / FAT_TO_ENERGY_FACTOR) > (birthHungerCost*2);
-	}
-
-	private static final float energyCostAtMaxSpeed = 5f;
-	public static final float MUTATION = 0.2f;
-	public void addRecoverCost(float speed) {
-		float c = energyCostAtMaxSpeed / (-1 + 1/Constants.Talents.MIN_SPEED);
-		float b = -2 * c;
-		float a = c / Constants.Talents.MIN_SPEED;
-		energyCost += a*speed*speed + b*speed + c;
+		return fat > (birthHungerCost*2);
 	}
 
 	public static final int GRASS = 0;

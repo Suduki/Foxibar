@@ -18,8 +18,8 @@ public abstract class Animal extends Agent {
 	public static final float REACH = 1;
 
 	public static final float HARVEST_GRASS = 1f;
-	public static final float HARVEST_BLOOD = 1f;
-	public static final float HARVEST_FIBER = 0.05f;
+	public static final float HARVEST_BLOOD = 0.1f;
+	public static final float HARVEST_FIBER = 0.1f;
 
 	public float[] color, secondaryColor;
 
@@ -45,7 +45,7 @@ public abstract class Animal extends Agent {
 
 	protected ArrayList<Animal> children;
 	Animal parent;
-
+	
 	public Stomach stomach;
 	private int timeBetweenBabies = 20;
 
@@ -152,16 +152,13 @@ public abstract class Animal extends Agent {
 
 	protected void fixAppearance() {
 		stomach.inherit(talents);
-		maxHealth = 100 * talents.talentsRelative[Talents.TOUGHNESS];
-		maxSize = talents.talentsRelative[Talents.TOUGHNESS];
-		maxTall = talents.talentsRelative[Talents.DIGEST_FIBER];
+		maxHealth = 100 * talents.getRelative(Talents.TOUGHNESS);
+		maxSize = talents.getRelative(Talents.TOUGHNESS);
+		maxTall = talents.getRelative(Talents.DIGEST_FIBER);
 	}
 
 	private void stepScore(int score) {
 		this.score += score;
-		if (parent != null) {
-			parent.stepScore(score + 1);
-		}
 	}
 
 	private void childCost() {

@@ -2,6 +2,7 @@ package testUtils;
 
 import actions.Action;
 import constants.Constants;
+import plant.PlantTest;
 
 public class IntegrationTestWithSimulation extends TestWithSimulation {
 
@@ -53,24 +54,28 @@ public class IntegrationTestWithSimulation extends TestWithSimulation {
 		return averages;
 	}
 
-	public float testSurvivability(int agentType, int numInit, boolean continuousSpawn, boolean printStuff) {
+	public int[] testSurvivability(int agentType, int numInit, boolean continuousSpawn, boolean printStuff) {
+		int defaultSimTime = 30000;
+		return testSurvivability(agentType, numInit, continuousSpawn, printStuff, defaultSimTime);
+	}
+	
+	public int[] testSurvivability(int agentType, int numInit, boolean continuousSpawn, boolean printStuff, int simTime) {
 		if (printStuff)
 			System.out.println("Testing survivability of " + AGENT_TYPES_NAMES[agentType]);
 		
-		int simTime = 5000;
+		int[] numAlive = new int[simTime];
 		
-		float average = 0;
-
+		PlantTest.runOneTreeGeneration();
 		simulation.spawnAgentsAtRandomPosition(agentType, numInit);
 		int t;
 		for (t = 0; t < simTime; t++) {
 			int numActiveAgents = simulation.getNumAgents(agentType);
-			average += ((float)numActiveAgents) / simTime;
+			numAlive[t] = numActiveAgents;
 			if (continuousSpawn && numActiveAgents < numInit) {
 				simulation.spawnAgentsAtRandomPosition(agentType, numInit - numActiveAgents);
 			}
 			if (numActiveAgents == 0) {
-				return average;
+				break;
 			}
 			simulation.step();
 		}
@@ -78,7 +83,7 @@ public class IntegrationTestWithSimulation extends TestWithSimulation {
 			System.out.println(AGENT_TYPES_NAMES[agentType] + " Survivability test completed after " + t
 					+ " time steps, with " + simulation.mAnimalManagers.get(agentType).numAnimals + " survivors");
 		
-		return average;
+		return numAlive;
 	}
 
 	public void testWorldPopulated(int agentType) {

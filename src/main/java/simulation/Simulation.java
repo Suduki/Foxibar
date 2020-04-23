@@ -40,14 +40,14 @@ public class Simulation extends MessageHandler {
 		this.mPaused = mPaused;
 	}
 	
-	
 	public <T extends Animal> Simulation(short worldMultiplier, Class<T>... classes)
 	{
 		loadStomachRecommendation();
 		WORLD_SIZE_X = (int) Math.pow(2, worldMultiplier);
 		WORLD_SIZE_Y = (int) Math.pow(2, worldMultiplier);
 		WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y;
-		Constants.MAX_NUM_ANIMALS = Integer.min(Constants.MAX_NUM_ANIMALS, WORLD_SIZE);
+		Constants.MAX_NUM_ANIMALS = WORLD_SIZE*2;
+		System.out.println("Maximum amount of animals is: " + Constants.MAX_NUM_ANIMALS);
 		mVision = new Vision(Constants.Vision.WIDTH, Constants.Vision.HEIGHT);
 		mWorld = new World(mVision);
 		mActionManager = new ActionManager(mWorld);

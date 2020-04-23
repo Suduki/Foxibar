@@ -86,7 +86,6 @@ public class VisionTest extends UnitTestWithSimulation {
 		Assert.assertTrue("Expecting animal to be at y = " + foodPosY + ", it was x=" + a.pos.x + " y=" + a.pos.y, ((int)a.pos.y) == foodPosY);
 	}
 	
-	@Ignore
 	@Test //TODO Currently not working, this is a bug!
 	public void thatAnimalsFindFoodOverEdges() {
 		int startPosX = 10;
